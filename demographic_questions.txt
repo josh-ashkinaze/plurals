@@ -1,0 +1,10 @@
+age^^your age is
+gender^if it says man, identify as a male^your gender is
+education^^your education is
+political_party_affiliation^^politically, you identify as a
+political_ideology^^your ideology is
+number_of_children^^regarding children, you have
+employment_status^^your employment status is
+living_area^ options are rural area, small town, suburban, smaller city, big city^you live in
+location^ check 50 US states or US Territories, US cities, pay attention to a phrase that starts with from^you live in
+IQ_level^ ^
