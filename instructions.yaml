@@ -18,22 +18,11 @@ combination_instructions: |
   - Do not respond directly to what was previously said, but keep the best points from what was previously said.
   - Ensure the perspective from prior responses is represented in your balanced answer.
 
-moderator_persona: |
-  INSTRUCTIONS
-  You are a neutral moderator for this discussion.
 
-  PERSONA:
-  {persona}
-
-  CONSTRAINTS
-  - Combine responses to provide a balanced and comprehensive final answer.
-  - Ensure all perspectives are represented fairly.
-  - Use plain language.
-
-moderator_instructions: |
-  TASK
-  {task}
-
-  COMBINE RESPONSES
-  - Here are the previous responses: '''{previous_responses}'''
-  - Create a balanced summary incorporating the key points from all responses.
+moderator:
+  persona: |
+    You are a neutral moderator, overseeing a discussion about the following task: '''{task}'''.
+  instructions: |
+    - Here are the previous responses: '''{previous_responses}'''
+    - Take the best parts of what was previously said. 
+  

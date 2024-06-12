@@ -1,5 +1,6 @@
 import yaml
 from typing import List, Dict, Any
+import os
 
 def print_values(mapping):
     for key in mapping.keys():
@@ -20,12 +21,18 @@ def print_values(mapping):
         print()
 
 
-
 def load_yaml(file_path: str) -> Dict[str, Any]:
     """
     Load a YAML file and return its content as a dictionary.
+
+    The file_path should be relative to this script's location.
     """
-    with open(file_path, 'r') as file:
+    # Get the directory of the current script
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    # Construct the full path by combining base_path with file_path
+    full_path = os.path.join(base_path, file_path)
+
+    with open(full_path, 'r') as file:
         return yaml.safe_load(file)
 
 def format_previous_responses(responses: List[str]) -> str:

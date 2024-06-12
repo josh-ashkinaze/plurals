@@ -7,6 +7,9 @@ import pandas as pd
 from typing import Optional, Dict, Any
 import yaml
 import os
+from plurals.helpers import *
+from litellm import completion
+
 
 class Agent:
     """
@@ -23,7 +26,7 @@ class Agent:
         persona_mapping (dict): Mapping to convert dataset rows into persona descriptions.
         ideology (str): The ideological filter to apply when selecting data for persona generation.
         query_str (str): A string used for a pandas query clause on the dataframe.
-
+        history (list): A list of dicts like {'prompt':prompt, 'response':response, 'model':model}
     Methods:
         process_task(previous_response=""): Process the task, optionally building upon a previous response.
         get_persona_description_ideology(data, ideology): Generates a persona description based on the dataset and ideology.
@@ -40,12 +43,12 @@ class Agent:
                  query_str: Optional[str] = None,
                  model: str = "gpt-4-turbo-preview",
                  instructions: Optional[Dict[str, Any]] = None,
-                 instructions_file: str = "instructions.yaml",
                  persona: str = ""):
         """
         Initialize an agent with specific characteristics and dataset.
         """
         self.model = model
+        self.history = []
         self.persona_mapping = persona_mapping
         self.task_description = task_description
         self.persona = persona
@@ -54,7 +57,7 @@ class Agent:
         self.query_str = query_str
         self.original_task_description = task_description
         self.current_task_description = task_description
-        self.instructions = instructions if instructions is not None else self.load_instructions(instructions_file)
+        self.instructions = instructions if instructions is not None else load_yaml("instructions.yaml")
         self.persona_template = self.instructions['prefix_template']
         self.combination_instructions = self.instructions['combination_instructions']
         self.validate()
@@ -62,19 +65,6 @@ class Agent:
             self.persona = self._generate_persona()
 
         self.system_instructions = self.persona_template.format(persona=self.persona)
-
-    def load_instructions(self, file_path: str) -> Dict[str, Any]:
-        """
-        Load instructions from a YAML file.
-
-        Args:
-            file_path (str): Path to the YAML file.
-
-        Returns:
-            Dict[str, Any]: Instructions loaded from the YAML file.
-        """
-        with open(file_path, 'r') as file:
-            return yaml.safe_load(file)
 
     def load_default_data(self) -> pd.DataFrame:
         """
@@ -99,19 +89,19 @@ class Agent:
             return self.row2persona(self.data.query(self.query_str).sample(1).iloc[0], self.persona_mapping)
         return "No persona data available."
 
-    def process_task(self, previous_response: str = "") -> Optional[str]:
+    def process_task(self, previous_responses: str = "") -> Optional[str]:
         """
         Process the task, optionally building upon a previous response.
 
         Args:
-            previous_response (str): The previous response to incorporate.
+            previous_responses (str): The previous response to incorporate.
 
         Returns:
             Optional[str]: The response from the LLM.
         """
         task = self.original_task_description
-        if previous_response:
-            task += f"\n{self.combination_instructions.format(previous_response=previous_response)}"
+        if previous_responses:
+            task += f"\n{self.combination_instructions.format(previous_responses=previous_responses)}"
         self.current_task_description = task
         return self._get_response(task)
 
@@ -151,23 +141,26 @@ class Agent:
 
     def _get_response(self, task: str) -> Optional[str]:
         """
-        Internal method to interact with the API and get a response.
+        Internal method to interact with the LLM API and get a response.
 
         Args:
-            task (str): The task description to send to the API.
+            task (str): The task description to send to the LLM.
 
         Returns:
             Optional[str]: The response from the LLM.
         """
+        messages = [
+            {"role": "system", "content": self.system_instructions},
+            {"role": "user", "content": task}
+        ]
         try:
-            completion = openai.ChatCompletion.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": self.system_instructions},
-                    {"role": "user", "content": task}
-                ]
-            )
-            return completion.choices[0].message['content']
+            # This is a placeholder function. Replace with actual API call.
+            response = completion(model=self.model, messages=messages)
+
+            content = response.choices[0].message.content
+            self.history.append({'prompts':messages, 'response':content, 'model':self.model})
+            return content
+
         except Exception as e:
             print(f"Error in _get_response: {e}")
             return None
