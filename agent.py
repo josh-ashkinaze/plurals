@@ -73,6 +73,9 @@ class Agent:
         Returns:
             pd.DataFrame: The loaded ANES dataset.
         """
+       # E.F.06/17  
+        self.persona_mapping = load_yaml("anes-mapping.yaml")
+        
         default_data_path = os.path.join(os.path.dirname(__file__), 'data', 'anes_pilot_2022_csv_20221214.csv')
         return pd.read_csv(default_data_path)
 
