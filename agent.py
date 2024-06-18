@@ -63,9 +63,8 @@ class Agent:
         
         #E.F.6/17
         self.mode = mode
-        self.combination_instructions = self.instructions['combination_instructions_chain'] if mode == 'chain' else \
-            self.instructions['combination_instructions_debate']             
-        self.combination_instructions = self.instructions['combination_instructions']
+        self.combination_instructions = self.instructions['combination_instructions']['chain'] if mode == 'chain' else \
+            self.instructions['combination_instructions']['debate']
        
         self.validate()
         if not self.persona:
