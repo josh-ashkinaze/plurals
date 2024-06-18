@@ -12,8 +12,14 @@ prefix_template: |
   - Adopt the characteristics of your persona.
   - Do not be overly polite or politically correct.
 
-combination_instructions: |
+combination_instructions_chain: |
   INCORPORATE PRIOR ANSWERS
+  - Here is what was previously said: '''{previous_responses}'''
+  - Do not respond directly to what was previously said, but keep the best points from what was previously said.
+  - Ensure the perspective from prior responses is represented in your balanced answer.
+
+combination_instructions_debate: |
+  DEBATE TODO INCORPORATE PRIOR ANSWERS - 
   - Here is what was previously said: '''{previous_responses}'''
   - Do not respond directly to what was previously said, but keep the best points from what was previously said.
   - Ensure the perspective from prior responses is represented in your balanced answer.
