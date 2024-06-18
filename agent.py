@@ -1,15 +1,10 @@
 # plurals/agent.py
 
-import random
 from datetime import datetime
-import openai  # Assuming you're using OpenAI's API for the LLM
 import pandas as pd
 from typing import Optional, Dict, Any
-import yaml
-import os
 from plurals.helpers import *
 from litellm import completion
-
 
 class Agent:
     """
@@ -42,12 +37,14 @@ class Agent:
                  ideology: Optional[str] = None,
                  query_str: Optional[str] = None,
                  model: str = "gpt-4-turbo-preview",
-                 instructions: Optional[Dict[str, Any]] = None,
-                 persona: str = "",
-                 mode: Optional[str]= 'chain'):
+                 persona_template: Optional[str] = "default",
+                 combination_instructions: Optional[str] = "default",
+                 persona: str = "",):
         """
         Initialize an agent with specific characteristics and dataset.
         """
+        Yaml = load_yaml("instructions.yaml")
+
         self.model = model
         self.history = []
         self.persona_mapping = persona_mapping
@@ -58,14 +55,21 @@ class Agent:
         self.query_str = query_str
         self.original_task_description = task_description
         self.current_task_description = task_description
-        self.instructions = instructions if instructions is not None else load_yaml("instructions.yaml")
-        self.persona_template = self.instructions['prefix_template']
-        
-        #E.F.6/17
-        self.mode = mode
-        self.combination_instructions = self.instructions['combination_instructions']['chain'] if mode == 'chain' else \
-            self.instructions['combination_instructions']['debate']
-       
+
+        if persona_template == 'default':
+            self.persona_template = Yaml['prefix_template']['default']
+        else:
+            self.persona_template = persona_template
+
+        if combination_instructions == 'default':
+            self.combination_instructions = Yaml['combination_instructions']['default']
+        elif combination_instructions == 'chain':
+            self.combination_instructions = Yaml['combination_instructions']['chain']
+        elif combination_instructions == 'debate':
+            self.combination_instructions = Yaml['combination_instructions']['debate']
+        else:
+            self.combination_instructions = combination_instructions
+
         self.validate()
         if not self.persona:
             self.persona = self._generate_persona()
@@ -79,10 +83,9 @@ class Agent:
         Returns:
             pd.DataFrame: The loaded ANES dataset.
         """
-       # E.F.06/17  
-        self.persona_mapping = load_yaml("anes-mapping.yaml")
-        
         default_data_path = os.path.join(os.path.dirname(__file__), 'data', 'anes_pilot_2022_csv_20221214.csv')
+        self.persona_mapping = load_yaml("anes-mapping.yaml")
+
         return pd.read_csv(default_data_path)
 
     def _generate_persona(self) -> str:
