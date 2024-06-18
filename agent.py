@@ -43,7 +43,8 @@ class Agent:
                  query_str: Optional[str] = None,
                  model: str = "gpt-4-turbo-preview",
                  instructions: Optional[Dict[str, Any]] = None,
-                 persona: str = ""):
+                 persona: str = "",
+                 mode: Optional[str]= 'chain'):
         """
         Initialize an agent with specific characteristics and dataset.
         """
@@ -59,7 +60,13 @@ class Agent:
         self.current_task_description = task_description
         self.instructions = instructions if instructions is not None else load_yaml("instructions.yaml")
         self.persona_template = self.instructions['prefix_template']
+        
+        #E.F.6/17
+        self.mode = mode
+        self.combination_instructions = self.instructions['combination_instructions_chain'] if mode == 'chain' else \
+            self.instructions['combination_instructions_debate']             
         self.combination_instructions = self.instructions['combination_instructions']
+       
         self.validate()
         if not self.persona:
             self.persona = self._generate_persona()
