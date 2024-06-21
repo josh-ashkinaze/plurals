@@ -2,6 +2,7 @@
 prefix_template:
   default: |
    INSTRUCTIONS
+   
    When answering questions or performing tasks, always adopt the following persona.
 
    PERSONA:
@@ -15,22 +16,26 @@ prefix_template:
    - Do not be overly polite or politically correct.
 
 combination_instructions:
-   default: |
-     INCORPORATE PRIOR ANSWERS - DEFAULT TODO
+  default: |
+    INCORPORATE PRIOR ANSWERS 
+        - Here is what was previously said: '''{previous_responses}'''
+        - Do not respond directly to what was previously said, but keep the best points from what was previously said.
+        - Ensure the perspective from prior responses is represented in your balanced answer.
+
+  chain: |
+     INCORPORATE PRIOR ANSWERS 
          - Here is what was previously said: '''{previous_responses}'''
          - Do not respond directly to what was previously said, but keep the best points from what was previously said.
          - Ensure the perspective from prior responses is represented in your balanced answer.
-   chain: |
-     INCORPORATE PRIOR ANSWERS  - CHAIN TODO
-     - Here is what was previously said: '''{previous_responses}'''
-     - Do not respond directly to what was previously said, but keep the best points from what was previously said.
-     - Ensure the perspective from prior responses is represented in your balanced answer.
 
-   debate: |
-     INCORPORATE PRIOR ANSWERS - DEBATE TODO
-     - Here is what was previously said: '''{previous_responses}'''
-     - Do not respond directly to what was previously said, but keep the best points from what was previously said.
-     - Ensure the perspective from prior responses is represented in your balanced answer.
+  debate: |
+     INCORPORATE PRIOR ANSWERS 
+        - Here is what has been argued so far: '''{previous_responses}''' 
+        - Critically engage with the arguments presented. 
+        - Build upon or refute the points made in prior arguments. 
+        - Introduce new evidence or perspectives to support your stance. 
+        - Try to win the debate.  
+        - Respond in 100 words or less.
 
 moderator:
   persona: |
