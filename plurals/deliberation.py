@@ -2,11 +2,14 @@ from typing import List, Optional, Dict, Any
 import random
 import warnings
 from plurals.agent import Agent
-from plurals.helpers import load_yaml, format_previous_responses
+from plurals.helpers import load_yaml, format_previous_responses, get_fromdict_bykey_or_alternative
+
 
 
 class Moderator(Agent):
-    def __init__(self, moderator_config: Optional[Dict[str, Any]] = None, agents: Optional[List[Agent]] = None):
+    def __init__(self, moderator_config: Optional[Dict[str, Any]] = None, agents: Optional[List[Agent]] = None,
+                 defaults: Optional[Dict[str, Any]] = None,
+                 task: Optional[str] = None):
         """
         Initialize the moderator with specific configurations or defaults.
 
@@ -15,21 +18,46 @@ class Moderator(Agent):
                                                          'persona', 'combination_instructions', and 'model'.
             agents (Optional[List[Agent]]): List of agents in the chain to derive defaults if needed.
         """
-        instructions = load_yaml("instructions.yaml")
         self.moderator_config = moderator_config
+        self.defaults = defaults
         self.validate()
-
-        original_task = agents[0].original_task_description if agents else "No task provided"
-        persona = moderator_config.get('persona') or instructions['moderator']['persona']
-        combination_instructions = moderator_config.get('instructions') or instructions['moderator']['instructions']
+        original_task = task
+        combination_instructions = self.get_instructions (moderator_config.get('instructions').strip())
         model = moderator_config.get('model') or (agents[0].model if agents else "default-model")
+        persona = self.get_persona(moderator_config.get('persona').strip())
 
         # Perform string replacements for placeholders
         persona = persona.replace("{task}", original_task)
         combination_instructions = combination_instructions.replace("{task}", original_task)
 
+        #TEMP
+        #print(persona)
+        #print(combination_instructions)
+
         super().__init__(task_description="", model=model, persona=persona)
         self.combination_instructions = combination_instructions
+
+    def get_persona(self, option: str):
+        persona_options = list(self.defaults['moderator']['persona'].keys())
+        for persona in persona_options:
+            if persona == option:
+                # found matching in yaml file, return it
+                return self.defaults['moderator']['persona'][option]
+            else:
+                pass
+        # if persona value in the dict doesn't match any options in the instructions.yaml, return values from moderator config parameter
+        return self.moderator_config.get('persona')
+
+    def get_instructions(self, option: str):
+        instr_options = list(self.defaults['moderator']['instructions'].keys())
+        for persona in instr_options:
+            if persona == option:
+                # found matching in yaml file, return it
+                return self.defaults['moderator']['instructions'][option]
+            else:
+                pass
+        # if persona value in the dict doesn't match any options in the instructions.yaml, return values from moderator config parameter
+        return self.moderator_config.get('instructions')
 
     def validate(self):
         """
@@ -74,14 +102,13 @@ class Chain:
             moderated (Optional[bool]): Whether to use a moderator.
             moderator_config (Optional[Dict[str, Any]]): Configuration for the moderator.
         """
+
         self.defaults = load_yaml("instructions.yaml")
         self.task_description = task_description
         self.agents = agents
         self.combination_instructions = combination_instructions
-
         self.set_combination_instructions()
         self.set_task_descriptions()
-
         self.shuffle = shuffle
         self.last_n = last_n
         self.cycles = cycles
@@ -96,7 +123,8 @@ class Chain:
             self.moderated = False if moderated is None else moderated
 
         if self.moderated:
-            self.moderator = Moderator(moderator_config=moderator_config, agents=agents)
+            self.moderator = Moderator(moderator_config=moderator_config, agents=agents, defaults=self.defaults,
+                                       task=self.task_description)
         else:
             self.moderator = None
 
@@ -167,7 +195,3 @@ class Chain:
                     warnings.warn("Writing over agent's task with Chain's task")
                 agent.task_description = self.task_description
                 agent.original_task_description = agent.task_description
-
-
-
-
