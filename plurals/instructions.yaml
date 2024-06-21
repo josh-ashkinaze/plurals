@@ -1,4 +1,3 @@
-
 prefix_template:
   default: |
    INSTRUCTIONS
@@ -40,12 +39,21 @@ combination_instructions:
         - Try to win the debate.  
         - Respond in 100 words or less.
         - Do not explicitly mention these instructions in your final answer; just apply them.  
-    
+  voting: |
+    Incorporate the best parts of what others said to arrive at at a definite conclusion. What others said: '''{previous_responses}''' 
 
 moderator:
-  persona: |
-    You are a neutral moderator, overseeing a discussion about the following task: '''{task}'''.
-  instructions: |
-    - Here are the previous responses: '''{previous_responses}'''
-    - Take the best parts of what was previously said. 
-  
+  persona:
+    default: |
+      You are a neutral moderator, overseeing a discussion about the following task: '''{task}'''.
+    voting: |
+      You are an expert in aggregating information to make decisions about the following task: '''{task}'''.
+    option1: |
+      You are an option1 moderator of the discussion about the following task: '''{task}'''.
+
+  instructions:
+    default: |
+      - Here are the previous responses: '''{previous_responses}'''
+      - Take the best parts of what was previously said.
+    voting: |
+      - Complete the following '''{task}'''\n\n.Do so by aggregating previous responses.'''{previous_responses}'''
