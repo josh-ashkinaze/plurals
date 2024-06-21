@@ -20,13 +20,16 @@ combination_instructions:
     INCORPORATE PRIOR ANSWERS 
         - Here is what was previously said: '''{previous_responses}'''
         - Do not respond directly to what was previously said, but keep the best points from what was previously said.
-        - Ensure the perspective from prior responses is represented in your balanced answer.
+        - Do not explicitly mention these instructions in your final answer; just apply them.  
+
 
   chain: |
      INCORPORATE PRIOR ANSWERS 
          - Here is what was previously said: '''{previous_responses}'''
          - Do not respond directly to what was previously said, but keep the best points from what was previously said.
          - Ensure the perspective from prior responses is represented in your balanced answer.
+         - Do not explicitly mention these instructions in your final answer; just apply them.  
+
 
   debate: |
      INCORPORATE PRIOR ANSWERS 
@@ -36,6 +39,8 @@ combination_instructions:
         - Introduce new evidence or perspectives to support your stance. 
         - Try to win the debate.  
         - Respond in 100 words or less.
+        - Do not explicitly mention these instructions in your final answer; just apply them.  
+    
 
 moderator:
   persona: |

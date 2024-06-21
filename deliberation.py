@@ -1,8 +1,8 @@
 from typing import List, Optional, Dict, Any
 import random
 import warnings
-from agent import Agent
-from helpers import load_yaml, format_previous_responses
+from plurals.agent import Agent
+from plurals.helpers import load_yaml, format_previous_responses
 
 
 class Moderator(Agent):
@@ -16,11 +16,10 @@ class Moderator(Agent):
             agents (Optional[List[Agent]]): List of agents in the chain to derive defaults if needed.
         """
         instructions = load_yaml("instructions.yaml")
-        if moderator_config is None:
-            moderator_config = {}
+        self.moderator_config = moderator_config
+        self.validate()
 
         original_task = agents[0].original_task_description if agents else "No task provided"
-
         persona = moderator_config.get('persona') or instructions['moderator']['persona']
         combination_instructions = moderator_config.get('instructions') or instructions['moderator']['instructions']
         model = moderator_config.get('model') or (agents[0].model if agents else "default-model")
@@ -29,8 +28,17 @@ class Moderator(Agent):
         persona = persona.replace("{task}", original_task)
         combination_instructions = combination_instructions.replace("{task}", original_task)
 
-        super().__init__(task_description="", model=model, instructions=instructions, persona=persona)
+        super().__init__(task_description="", model=model, persona=persona)
         self.combination_instructions = combination_instructions
+
+    def validate(self):
+        """
+        Validate the moderator's configuration.
+        """
+        if self.moderator_config:
+            allowed_keys = {'persona', 'instructions', 'model'}
+            passed_in_keys = set(list(self.moderator_config.keys()))
+            assert passed_in_keys <= allowed_keys, "Invalid keys in moderator config. The options are 'persona', 'instructions', and 'model'"
 
     def moderate_responses(self, responses: List[str], original_task: str) -> str:
         """
@@ -66,17 +74,18 @@ class Chain:
             moderated (Optional[bool]): Whether to use a moderator.
             moderator_config (Optional[Dict[str, Any]]): Configuration for the moderator.
         """
+        self.defaults = load_yaml("instructions.yaml")
         self.task_description = task_description
         self.agents = agents
         self.combination_instructions = combination_instructions
 
-        self.set_tasks_instructions() # sets properties from instructions file and tasks based on parameters sent
+        self.set_combination_instructions()
+        self.set_task_descriptions()
 
         self.shuffle = shuffle
         self.last_n = last_n
         self.cycles = cycles
         self.responses = []
-
 
         if shuffle:
             self.agents = random.sample(self.agents, len(self.agents))
@@ -91,6 +100,7 @@ class Chain:
         else:
             self.moderator = None
 
+        self.defaults = load_yaml("instructions.yaml")
 
     def process_chain(self):
         """
@@ -101,13 +111,12 @@ class Chain:
         for _ in range(self.cycles):
 
             for agent in self.agents:
-
                 previous_responses_slice = previous_responses[-self.last_n:]
                 previous_responses_str = format_previous_responses(previous_responses_slice)
                 agent.combination_instructions = self.combination_instructions
                 response = agent.process_task(previous_responses_str)
 
-                #TEMP
+                # TEMP
                 # print (response)
                 # print("*****************")
 
@@ -119,31 +128,37 @@ class Chain:
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
 
-    def set_tasks_instructions(self):
+    def set_combination_instructions(self):
         """
-        gets values from instructions.yaml
-        assign / validate tasks based on what is provided - Agent's or  Chain's data
+        Set the combination instructions for agents based on the provided value or the default.
         """
 
-        yaml = load_yaml("instructions.yaml")
+        # If the combination option is one in the yaml file, we set that, otherwise we use the provided value
+        combination_options = list(self.defaults['combination_instructions'].keys())
+        for option in combination_options:
+            if self.combination_instructions == option:
+                self.combination_instructions = self.defaults['combination_instructions'][option]
+                break
+            else:
+                pass
 
-        # combination_instructions from file
-        if self.combination_instructions == 'default':
-            self.combination_instructions = yaml['combination_instructions']['default']
-        elif self.combination_instructions == 'chain':
-            self.combination_instructions = yaml['combination_instructions']['chain']
-        elif self.combination_instructions == 'debate':
-            self.combination_instructions = yaml['combination_instructions']['debate']
+        # Set combo instructions for agents
+        for agents in self.agents:
+            if agents.combination_instructions:
+                warnings.warn("Writing over agent's combination instructions with Chain's combination instructions")
+            else:
+                pass
+            agents.combination_instructions = self.combination_instructions
 
-       #  Agents get their properties updated/assigned based on intructions.yaml
+    def set_task_descriptions(self):
+        """
+        Set the task description for agents based on the provided value or the default.
+
+        If no task description is provided to the chain, then one must be provided to the agents or else an error is thrown.
+
+        If a task description is provided to both agents and the chain, then we over-write the agents task description and raise a warning.
+        """
         for agent in self.agents:
-
-            if agent.persona_template == 'default':
-                agent.persona_template = yaml['prefix_template']['default']
-
-            agent.system_instructions = agent.persona_template.format(persona=agent.persona)
-
-            # Sets task value
             if not self.task_description:
                 if not agent.task_description or agent.task_description.strip() == '':
                     assert False, "Error: You did not specify a task for agents or chain"
@@ -152,6 +167,7 @@ class Chain:
                     warnings.warn("Writing over agent's task with Chain's task")
                 agent.task_description = self.task_description
                 agent.original_task_description = agent.task_description
+
 
 
 

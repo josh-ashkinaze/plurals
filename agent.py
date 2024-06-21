@@ -1,8 +1,9 @@
 from datetime import datetime
 import pandas as pd
 from typing import Optional, Dict, Any
-from helpers import *
+from plurals.helpers import *
 from litellm import completion
+
 
 class Agent:
     """
@@ -34,13 +35,15 @@ class Agent:
                  persona_mapping: Optional[Dict[str, Any]] = None,
                  ideology: Optional[str] = None,
                  query_str: Optional[str] = None,
-                 model: str = "gpt-4-turbo-preview",
+                 model: str = "gpt-4o",
+                 system_instructions: Optional[str] = None,
                  persona_template: Optional[str] = "default",
                  persona: str = ""):
         """
         Initialize an agent with specific characteristics and dataset.
         """
         self.model = model
+        self.system_instructions = system_instructions
         self.history = []
         self.persona_mapping = persona_mapping
         self.task_description = task_description
@@ -52,10 +55,23 @@ class Agent:
         self.current_task_description = task_description
         self.combination_instructions = None
         self.persona_template = persona_template
-
+        self.defaults = load_yaml("instructions.yaml")
         self.validate()
-        if not self.persona:
-            self.persona = self._generate_persona()
+        self.set_system_instructions()
+
+    def set_system_instructions(self):
+        """
+        Users can directly pass in system_instructions. Or, we can generate system instructions by combining a persona_template and a persona.
+        """
+        if self.system_instructions:
+            return
+        else:
+            if not self.persona:
+                self.persona = self._generate_persona()
+            if self.persona_template == 'default':
+                self.persona_template = self.defaults['prefix_template']['default']
+            self.system_instructions = self.persona_template.format(persona=self.persona)
+
 
     def load_default_data(self) -> pd.DataFrame:
         """
@@ -152,7 +168,7 @@ class Agent:
             response = completion(model=self.model, messages=messages)
 
             content = response.choices[0].message.content
-            self.history.append({'prompts':messages, 'response':content, 'model':self.model})
+            self.history.append({'prompts': messages, 'response': content, 'model': self.model})
             return content
 
         except Exception as e:
@@ -199,6 +215,11 @@ class Agent:
         """
         Validates the necessary attributes for the Agent.
         """
-      #  assert self.original_task_description is not None, "Need to provide some task instructions"
+        #  assert self.original_task_description is not None, "Need to provide some task instructions"
         if self.ideology or self.query_str:
             assert self.data is not None and self.persona_mapping is not None, "If you use either `ideology` or `query_str` you need to provide both a dataframe and a persona mapping to process rows of the dataframe."
+
+        # cannot pass in system_instructions AND (persona_template or persona)
+        if self.system_instructions:
+            assert not (
+                        self.persona_template !='default' or self.persona), "Cannot pass in system_instructions AND (persona_template or persona)"
