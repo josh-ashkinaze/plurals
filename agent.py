@@ -1,9 +1,7 @@
-# plurals/agent.py
-
 from datetime import datetime
 import pandas as pd
 from typing import Optional, Dict, Any
-from plurals.helpers import *
+from helpers import *
 from litellm import completion
 
 class Agent:
@@ -31,20 +29,17 @@ class Agent:
     """
 
     def __init__(self,
-                 task_description: str,
+                 task_description: Optional[str] = None,
                  data: Optional[pd.DataFrame] = None,
                  persona_mapping: Optional[Dict[str, Any]] = None,
                  ideology: Optional[str] = None,
                  query_str: Optional[str] = None,
                  model: str = "gpt-4-turbo-preview",
                  persona_template: Optional[str] = "default",
-                 combination_instructions: Optional[str] = "default",
-                 persona: str = "",):
+                 persona: str = ""):
         """
         Initialize an agent with specific characteristics and dataset.
         """
-        Yaml = load_yaml("instructions.yaml")
-
         self.model = model
         self.history = []
         self.persona_mapping = persona_mapping
@@ -55,26 +50,12 @@ class Agent:
         self.query_str = query_str
         self.original_task_description = task_description
         self.current_task_description = task_description
-
-        if persona_template == 'default':
-            self.persona_template = Yaml['prefix_template']['default']
-        else:
-            self.persona_template = persona_template
-
-        if combination_instructions == 'default':
-            self.combination_instructions = Yaml['combination_instructions']['default']
-        elif combination_instructions == 'chain':
-            self.combination_instructions = Yaml['combination_instructions']['chain']
-        elif combination_instructions == 'debate':
-            self.combination_instructions = Yaml['combination_instructions']['debate']
-        else:
-            self.combination_instructions = combination_instructions
+        self.combination_instructions = None
+        self.persona_template = persona_template
 
         self.validate()
         if not self.persona:
             self.persona = self._generate_persona()
-
-        self.system_instructions = self.persona_template.format(persona=self.persona)
 
     def load_default_data(self) -> pd.DataFrame:
         """
@@ -161,6 +142,7 @@ class Agent:
         Returns:
             Optional[str]: The response from the LLM.
         """
+
         messages = [
             {"role": "system", "content": self.system_instructions},
             {"role": "user", "content": task}
@@ -217,6 +199,6 @@ class Agent:
         """
         Validates the necessary attributes for the Agent.
         """
-        assert self.original_task_description is not None, "Need to provide some task instructions"
+      #  assert self.original_task_description is not None, "Need to provide some task instructions"
         if self.ideology or self.query_str:
             assert self.data is not None and self.persona_mapping is not None, "If you use either `ideology` or `query_str` you need to provide both a dataframe and a persona mapping to process rows of the dataframe."
