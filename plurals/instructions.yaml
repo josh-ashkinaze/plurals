@@ -21,14 +21,12 @@ combination_instructions:
         - Do not respond directly to what was previously said, but keep the best points from what was previously said.
         - Do not explicitly mention these instructions in your final answer; just apply them.  
 
-
   chain: |
      INCORPORATE PRIOR ANSWERS 
          - Here is what was previously said: '''{previous_responses}'''
          - Do not respond directly to what was previously said, but keep the best points from what was previously said.
          - Ensure the perspective from prior responses is represented in your balanced answer.
          - Do not explicitly mention these instructions in your final answer; just apply them.  
-
 
   debate: |
      INCORPORATE PRIOR ANSWERS 
@@ -51,9 +49,9 @@ moderator:
     option1: |
       You are an option1 moderator of the discussion about the following task: '''{task}'''.
 
-  instructions:
+  combination_instructions:
     default: |
       - Here are the previous responses: '''{previous_responses}'''
       - Take the best parts of what was previously said.
     voting: |
-      - Complete the following '''{task}'''\n\n.Do so by aggregating previous responses.'''{previous_responses}'''
+      - Incorporate the best parts of what others said to arrive at at a definite conclusion.Do so by aggregating previous responses.'''{previous_responses}'''
