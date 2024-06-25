@@ -12,10 +12,13 @@ class Moderator(Agent):
         Initialize the moderator with specific configurations or defaults.
         """
         super().__init__(task_description="", model=model, persona=persona)
+        assert self.persona, "Error: You must provide a persona for the moderator."
+        assert self.combination_instructions, "Error: You must provide combination instructions for the moderator."
         self.combination_instructions = combination_instructions
         self.combination_instructions = DEFAULTS["moderator"]['combination_instructions'].get(
             self.combination_instructions, self.combination_instructions)
         self.persona = DEFAULTS["moderator"]['persona'].get(self.persona, self.persona)
+        self.system_instructions = self.persona
 
 
     def moderate_responses(self, responses: List[str], original_task: str) -> str:
@@ -30,7 +33,8 @@ class Moderator(Agent):
             str: A combined response based on the moderator's instructions and persona.
         """
         combined_responses_str = format_previous_responses(responses)
-        moderator_task = self.combination_instructions.format(previous_responses=combined_responses_str)
+        moderator_task = self.combination_instructions.format(previous_responses=combined_responses_str, task=original_task)
+        self.system_instructions = self.system_instructions.format(task=original_task)
         self.current_task_description = moderator_task
         return self.process_task(previous_responses=combined_responses_str)
 
