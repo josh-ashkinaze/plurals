@@ -2,27 +2,21 @@ from typing import List, Optional, Dict, Any
 import random
 import warnings
 from plurals.agent import Agent
-from plurals.helpers import load_yaml, format_previous_responses, get_fromdict_bykey_or_alternative
+from plurals.helpers import load_yaml, format_previous_responses
 
+DEFAULTS = load_yaml("instructions.yaml")
 
 class Moderator(Agent):
-    def __init__(self, persona: str = None, combination_instructions: str = None):
+    def __init__(self, persona: str = 'default', combination_instructions: str = "default", model: str = "gpt-4o"):
         """
         Initialize the moderator with specific configurations or defaults.
-
         """
-        super().__init__(task_description="", model="", persona=persona)
+        super().__init__(task_description="", model=model, persona=persona)
         self.combination_instructions = combination_instructions
+        self.combination_instructions = DEFAULTS["moderator"]['combination_instructions'].get(
+            self.combination_instructions, self.combination_instructions)
+        self.persona = DEFAULTS["moderator"]['persona'].get(self.persona, self.persona)
 
-        self.validatethis()
-
-
-    def validatethis(self):
-        """
-        Validate the moderator's configuration.
-        """
-        assert self.persona is not None and len(self.persona.strip()) > 0, "Persona cannot be None or an empty string"
-        assert self.combination_instructions is not None and len(self.combination_instructions.strip()) > 0, "Instructions cannot be None or an empty string"
 
     def moderate_responses(self, responses: List[str], original_task: str) -> str:
         """
@@ -60,7 +54,7 @@ class Chain:
             moderator_config (Optional[Dict[str, Any]]): Configuration for the moderator.
         """
 
-        self.defaults = load_yaml("instructions.yaml")
+        self.defaults = DEFAULTS
         self.task_description = task_description
         self.agents = agents
         self.combination_instructions = combination_instructions
@@ -74,7 +68,7 @@ class Chain:
         if moderator:
             self.moderator = moderator
             self.moderated = True
-            self.set_moderator_properties() # it's important to call igt after chain properties are setup
+            self.moderator.task_description = self.task_description # it's important to call igt after chain properties are setup
         else:
             self.moderated = False
             self.moderator = None
@@ -88,8 +82,6 @@ class Chain:
         """
         previous_responses = []
         original_task = self.agents[0].original_task_description if self.agents else "No task given"
-        print ("ORIGINAL")
-        print (original_task)
         for _ in range(self.cycles):
 
             for agent in self.agents:
@@ -141,9 +133,4 @@ class Chain:
                 agent.task_description = self.task_description
                 agent.original_task_description = agent.task_description
 
-    def set_moderator_properties(self):
-            self.moderator.task_description = self.task_description
-            self.moderator.model = self.agents[0].model
-            self.moderator.defaults = self.defaults["moderator"]
-            self.moderator.combination_instructions = self.moderator.defaults['combination_instructions'].get(self.moderator.combination_instructions,self.moderator.combination_instructions)
-            self.moderator.persona = self.moderator.defaults['persona'].get(self.moderator.persona,self.moderator.persona)
+
