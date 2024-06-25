@@ -12,8 +12,6 @@ class Moderator(Agent):
         Initialize the moderator with specific configurations or defaults.
         """
         super().__init__(task_description="", model=model, persona=persona)
-        assert self.persona, "Error: You must provide a persona for the moderator."
-        assert self.combination_instructions, "Error: You must provide combination instructions for the moderator."
         self.combination_instructions = combination_instructions
         self.combination_instructions = DEFAULTS["moderator"]['combination_instructions'].get(
             self.combination_instructions, self.combination_instructions)
