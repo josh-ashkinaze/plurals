@@ -5,68 +5,24 @@ from plurals.agent import Agent
 from plurals.helpers import load_yaml, format_previous_responses, get_fromdict_bykey_or_alternative
 
 
-
 class Moderator(Agent):
-    def __init__(self, moderator_config: Optional[Dict[str, Any]] = None, agents: Optional[List[Agent]] = None,
-                 defaults: Optional[Dict[str, Any]] = None,
-                 task: Optional[str] = None):
+    def __init__(self, persona: str = None, combination_instructions: str = None):
         """
         Initialize the moderator with specific configurations or defaults.
 
-        Args:
-            moderator_config (Optional[Dict[str, Any]]): Configuration for the moderator that might include
-                                                         'persona', 'combination_instructions', and 'model'.
-            agents (Optional[List[Agent]]): List of agents in the chain to derive defaults if needed.
         """
-        self.moderator_config = moderator_config
-        self.defaults = defaults
-        self.validate()
-        original_task = task
-        combination_instructions = self.get_instructions (moderator_config.get('instructions').strip())
-        model = moderator_config.get('model') or (agents[0].model if agents else "default-model")
-        persona = self.get_persona(moderator_config.get('persona').strip())
-
-        # Perform string replacements for placeholders
-        persona = persona.replace("{task}", original_task)
-        combination_instructions = combination_instructions.replace("{task}", original_task)
-
-        #TEMP
-        #print(persona)
-        #print(combination_instructions)
-
-        super().__init__(task_description="", model=model, persona=persona)
+        super().__init__(task_description="", model="", persona=persona)
         self.combination_instructions = combination_instructions
 
-    def get_persona(self, option: str):
-        persona_options = list(self.defaults['moderator']['persona'].keys())
-        for persona in persona_options:
-            if persona == option:
-                # found matching in yaml file, return it
-                return self.defaults['moderator']['persona'][option]
-            else:
-                pass
-        # if persona value in the dict doesn't match any options in the instructions.yaml, return values from moderator config parameter
-        return self.moderator_config.get('persona')
+        self.validatethis()
 
-    def get_instructions(self, option: str):
-        instr_options = list(self.defaults['moderator']['instructions'].keys())
-        for persona in instr_options:
-            if persona == option:
-                # found matching in yaml file, return it
-                return self.defaults['moderator']['instructions'][option]
-            else:
-                pass
-        # if persona value in the dict doesn't match any options in the instructions.yaml, return values from moderator config parameter
-        return self.moderator_config.get('instructions')
 
-    def validate(self):
+    def validatethis(self):
         """
         Validate the moderator's configuration.
         """
-        if self.moderator_config:
-            allowed_keys = {'persona', 'instructions', 'model'}
-            passed_in_keys = set(list(self.moderator_config.keys()))
-            assert passed_in_keys <= allowed_keys, "Invalid keys in moderator config. The options are 'persona', 'instructions', and 'model'"
+        assert self.persona is not None and len(self.persona.strip()) > 0, "Persona cannot be None or an empty string"
+        assert self.combination_instructions is not None and len(self.combination_instructions.strip()) > 0, "Instructions cannot be None or an empty string"
 
     def moderate_responses(self, responses: List[str], original_task: str) -> str:
         """
@@ -84,17 +40,18 @@ class Moderator(Agent):
         self.current_task_description = moderator_task
         return self.process_task(previous_responses=combined_responses_str)
 
-
 class Chain:
     def __init__(self, agents: List[Agent],
                  task_description: Optional[str] = None,
                  shuffle: bool = False, cycles: int = 1, last_n: int = 1,
-                 moderated: Optional[bool] = None, moderator_config: Optional[Dict[str, Any]] = None,
-                 combination_instructions: Optional[str] = "default"):
+                 moderated: Optional[bool] = None,
+                 combination_instructions: Optional[str] = "default",
+                 moderator: Optional[Moderator] = None):
         """
         Initialize a chain with a list of agents.
 
-        Args:
+        Args:,
+
             agents (List[Agent]): List of agents participating in the chain.
             shuffle (bool): Whether to shuffle the order of agents.
             cycles (int): Number of cycles of interaction.
@@ -114,21 +71,16 @@ class Chain:
         self.cycles = cycles
         self.responses = []
 
-        if shuffle:
-            self.agents = random.sample(self.agents, len(self.agents))
-
-        if moderator_config is not None:
+        if moderator:
+            self.moderator = moderator
             self.moderated = True
+            self.set_moderator_properties() # it's important to call igt after chain properties are setup
         else:
-            self.moderated = False if moderated is None else moderated
-
-        if self.moderated:
-            self.moderator = Moderator(moderator_config=moderator_config, agents=agents, defaults=self.defaults,
-                                       task=self.task_description)
-        else:
+            self.moderated = False
             self.moderator = None
 
-        self.defaults = load_yaml("instructions.yaml")
+        if shuffle:
+            self.agents = random.sample(self.agents, len(self.agents))
 
     def process_chain(self):
         """
@@ -136,6 +88,8 @@ class Chain:
         """
         previous_responses = []
         original_task = self.agents[0].original_task_description if self.agents else "No task given"
+        print ("ORIGINAL")
+        print (original_task)
         for _ in range(self.cycles):
 
             for agent in self.agents:
@@ -143,11 +97,6 @@ class Chain:
                 previous_responses_str = format_previous_responses(previous_responses_slice)
                 agent.combination_instructions = self.combination_instructions
                 response = agent.process_task(previous_responses_str)
-
-                # TEMP
-                # print (response)
-                # print("*****************")
-
                 previous_responses.append(response)
                 self.responses.append(response)
 
@@ -162,13 +111,8 @@ class Chain:
         """
 
         # If the combination option is one in the yaml file, we set that, otherwise we use the provided value
-        combination_options = list(self.defaults['combination_instructions'].keys())
-        for option in combination_options:
-            if self.combination_instructions == option:
-                self.combination_instructions = self.defaults['combination_instructions'][option]
-                break
-            else:
-                pass
+        self.combination_instructions = self.defaults['combination_instructions'].get(
+            self.combination_instructions, self.combination_instructions)
 
         # Set combo instructions for agents
         for agents in self.agents:
@@ -186,6 +130,7 @@ class Chain:
 
         If a task description is provided to both agents and the chain, then we over-write the agents task description and raise a warning.
         """
+
         for agent in self.agents:
             if not self.task_description:
                 if not agent.task_description or agent.task_description.strip() == '':
@@ -195,3 +140,10 @@ class Chain:
                     warnings.warn("Writing over agent's task with Chain's task")
                 agent.task_description = self.task_description
                 agent.original_task_description = agent.task_description
+
+    def set_moderator_properties(self):
+            self.moderator.task_description = self.task_description
+            self.moderator.model = self.agents[0].model
+            self.moderator.defaults = self.defaults["moderator"]
+            self.moderator.combination_instructions = self.moderator.defaults['combination_instructions'].get(self.moderator.combination_instructions,self.moderator.combination_instructions)
+            self.moderator.persona = self.moderator.defaults['persona'].get(self.moderator.persona,self.moderator.persona)
