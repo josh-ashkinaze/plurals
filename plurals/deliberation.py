@@ -11,13 +11,10 @@ class Moderator(Agent):
         """
         Initialize the moderator with specific configurations or defaults.
         """
-        super().__init__(task_description="", model=model, persona=persona)
-        self.combination_instructions = combination_instructions
-        self.combination_instructions = DEFAULTS["moderator"]['combination_instructions'].get(
-            self.combination_instructions, self.combination_instructions)
-        self.persona = DEFAULTS["moderator"]['persona'].get(self.persona, self.persona)
-        self.system_instructions = self.persona
+        super().__init__(task_description="", model=model, persona=DEFAULTS["moderator"]['persona'].get(persona, persona))
 
+        self.combination_instructions = (DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions,combination_instructions))
+        self.system_instructions = self.persona
 
     def moderate_responses(self, responses: List[str], original_task: str) -> str:
         """
@@ -34,6 +31,7 @@ class Moderator(Agent):
         moderator_task = self.combination_instructions.format(previous_responses=combined_responses_str, task=original_task)
         self.system_instructions = self.system_instructions.format(task=original_task)
         self.current_task_description = moderator_task
+        self.combination_instructions = self.combination_instructions.format(previous_responses=combined_responses_str,task=original_task)
         return self.process_task(previous_responses=combined_responses_str)
 
 class Chain:
@@ -66,14 +64,11 @@ class Chain:
         self.last_n = last_n
         self.cycles = cycles
         self.responses = []
-
-        if moderator:
-            self.moderator = moderator
-            self.moderated = True
-            self.moderator.task_description = self.task_description # it's important to call igt after chain properties are setup
-        else:
-            self.moderated = False
-            self.moderator = None
+        self.moderator = moderator
+        self.moderated = True if moderator else False
+        if self.moderator:
+            self.moderator.task_description = self.task_description  # it's important to call igt after chain properties are setup
+            self.moderator.persona = self.moderator.persona.format(task=self.task_description)
 
         if shuffle:
             self.agents = random.sample(self.agents, len(self.agents))
@@ -85,7 +80,6 @@ class Chain:
         previous_responses = []
         original_task = self.agents[0].original_task_description if self.agents else "No task given"
         for _ in range(self.cycles):
-
             for agent in self.agents:
                 previous_responses_slice = previous_responses[-self.last_n:]
                 previous_responses_str = format_previous_responses(previous_responses_slice)
@@ -109,12 +103,13 @@ class Chain:
             self.combination_instructions, self.combination_instructions)
 
         # Set combo instructions for agents
-        for agents in self.agents:
-            if agents.combination_instructions:
+        # E.F. QN: if we still open instructions.yaml in Agent - should we move below to Agent?
+        for agent in self.agents:
+            if agent.combination_instructions:
                 warnings.warn("Writing over agent's combination instructions with Chain's combination instructions")
             else:
                 pass
-            agents.combination_instructions = self.combination_instructions
+            agent.combination_instructions = self.combination_instructions
 
     def set_task_descriptions(self):
         """
@@ -124,7 +119,7 @@ class Chain:
 
         If a task description is provided to both agents and the chain, then we over-write the agents task description and raise a warning.
         """
-
+        # E.F. Because we finalize the task in chain we have to keep the following here and not in Agent
         for agent in self.agents:
             if not self.task_description:
                 if not agent.task_description or agent.task_description.strip() == '':
@@ -134,5 +129,4 @@ class Chain:
                     warnings.warn("Writing over agent's task with Chain's task")
                 agent.task_description = self.task_description
                 agent.original_task_description = agent.task_description
-
 
