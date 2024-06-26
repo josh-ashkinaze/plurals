@@ -29,9 +29,9 @@ class Moderator(Agent):
         """
         combined_responses_str = format_previous_responses(responses)
         moderator_task = self.combination_instructions.format(previous_responses=combined_responses_str, task=original_task)
+        #self.current_task_description = moderator_task  E.F. don't think we need it, it gets value in process_task()
+        self.combination_instructions = moderator_task
         self.system_instructions = self.system_instructions.format(task=original_task)
-        self.current_task_description = moderator_task
-        self.combination_instructions = self.combination_instructions.format(previous_responses=combined_responses_str,task=original_task)
         return self.process_task(previous_responses=combined_responses_str)
 
 class Chain:
