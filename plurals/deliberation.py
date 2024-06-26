@@ -6,14 +6,17 @@ from plurals.helpers import load_yaml, format_previous_responses
 
 DEFAULTS = load_yaml("instructions.yaml")
 
+
 class Moderator(Agent):
     def __init__(self, persona: str = 'default', combination_instructions: str = "default", model: str = "gpt-4o"):
         """
         Initialize the moderator with specific configurations or defaults.
         """
-        super().__init__(task_description="", model=model, persona=DEFAULTS["moderator"]['persona'].get(persona, persona))
+        super().__init__(task_description="", model=model,
+                         persona=DEFAULTS["moderator"]['persona'].get(persona, persona))
 
-        self.combination_instructions = (DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions,combination_instructions))
+        self.combination_instructions = (
+            DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions, combination_instructions))
         self.system_instructions = self.persona
 
     def moderate_responses(self, responses: List[str], original_task: str) -> str:
@@ -28,17 +31,17 @@ class Moderator(Agent):
             str: A combined response based on the moderator's instructions and persona.
         """
         combined_responses_str = format_previous_responses(responses)
-        moderator_task = self.combination_instructions.format(previous_responses=combined_responses_str, task=original_task)
-        #self.current_task_description = moderator_task  E.F. don't think we need it, it gets value in process_task()
+        moderator_task = self.combination_instructions.format(previous_responses=combined_responses_str,
+                                                              task=original_task)
         self.combination_instructions = moderator_task
         self.system_instructions = self.system_instructions.format(task=original_task)
         return self.process_task(previous_responses=combined_responses_str)
+
 
 class Chain:
     def __init__(self, agents: List[Agent],
                  task_description: Optional[str] = None,
                  shuffle: bool = False, cycles: int = 1, last_n: int = 1,
-                 moderated: Optional[bool] = None,
                  combination_instructions: Optional[str] = "default",
                  moderator: Optional[Moderator] = None):
         """
@@ -129,4 +132,3 @@ class Chain:
                     warnings.warn("Writing over agent's task with Chain's task")
                 agent.task_description = self.task_description
                 agent.original_task_description = agent.task_description
-
