@@ -140,7 +140,7 @@ class Chain(AbstractPlural):
 class Ensemble(AbstractPlural):
     def process(self):
         """
-        Process the task through a chain of agents, each building upon the last.
+        Process the tasks in parallel through a group of agents, each working independently.
         """
         original_task = self.agents[0].original_task_description
         for _ in range(self.cycles):
