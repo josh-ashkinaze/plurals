@@ -83,7 +83,7 @@ class Agent:
         default_data_path = os.path.join(os.path.dirname(__file__), 'data', 'anes_pilot_2022_csv_20221214.csv')
         self.persona_mapping = load_yaml("anes-mapping.yaml")
 
-        return pd.read_csv(default_data_path)
+        return pd.read_csv(default_data_path, low_memory=False)
 
     def _generate_persona(self) -> str:
         """
