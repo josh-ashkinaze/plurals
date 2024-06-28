@@ -3,6 +3,8 @@ import random
 import warnings
 from plurals.agent import Agent
 from plurals.helpers import load_yaml, format_previous_responses
+from abc import ABC, abstractmethod
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 DEFAULTS = load_yaml("instructions.yaml")
 
@@ -38,7 +40,7 @@ class Moderator(Agent):
         return self.process_task(previous_responses=combined_responses_str)
 
 
-class Chain:
+class AbstractPlural(ABC):
     def __init__(self, agents: List[Agent],
                  task_description: Optional[str] = None,
                  shuffle: bool = False, cycles: int = 1, last_n: int = 1,
@@ -67,6 +69,7 @@ class Chain:
         self.last_n = last_n
         self.cycles = cycles
         self.responses = []
+        self.final_response = None
         self.moderator = moderator
         self.moderated = True if moderator else False
         if self.moderator:
@@ -75,26 +78,6 @@ class Chain:
 
         if shuffle:
             self.agents = random.sample(self.agents, len(self.agents))
-
-    def process_chain(self):
-        """
-        Process the task through a chain of agents, each building upon the last.
-        """
-        previous_responses = []
-        original_task = self.agents[0].original_task_description if self.agents else "No task given"
-        for _ in range(self.cycles):
-            for agent in self.agents:
-                previous_responses_slice = previous_responses[-self.last_n:]
-                previous_responses_str = format_previous_responses(previous_responses_slice)
-                agent.combination_instructions = self.combination_instructions
-                response = agent.process_task(previous_responses_str)
-                previous_responses.append(response)
-                self.responses.append(response)
-
-        if self.moderated and self.moderator:
-            moderated_response = self.moderator.moderate_responses(self.responses, original_task)
-            self.responses.append(moderated_response)
-        self.final_response = self.responses[-1]
 
     def set_combination_instructions(self):
         """
@@ -105,8 +88,6 @@ class Chain:
         self.combination_instructions = self.defaults['combination_instructions'].get(
             self.combination_instructions, self.combination_instructions)
 
-        # Set combo instructions for agents
-        # E.F. QN: if we still open instructions.yaml in Agent - should we move below to Agent?
         for agent in self.agents:
             if agent.combination_instructions:
                 warnings.warn("Writing over agent's combination instructions with Chain's combination instructions")
@@ -132,3 +113,48 @@ class Chain:
                     warnings.warn("Writing over agent's task with Chain's task")
                 agent.task_description = self.task_description
                 agent.original_task_description = agent.task_description
+
+
+class Chain(AbstractPlural):
+    def process(self):
+        """
+        Process the task through a chain of agents, each building upon the last.
+        """
+        previous_responses = []
+        original_task = self.agents[0].original_task_description
+        for _ in range(self.cycles):
+            for agent in self.agents:
+                previous_responses_slice = previous_responses[-self.last_n:]
+                previous_responses_str = format_previous_responses(previous_responses_slice)
+                agent.combination_instructions = self.combination_instructions
+                response = agent.process_task(previous_responses_str)
+                previous_responses.append(response)
+                self.responses.append(response)
+
+        if self.moderated and self.moderator:
+            moderated_response = self.moderator.moderate_responses(self.responses, original_task)
+            self.responses.append(moderated_response)
+        self.final_response = self.responses[-1]
+
+
+class Ensemble(AbstractPlural):
+    def process(self):
+        """
+        Process the task through a chain of agents, each building upon the last.
+        """
+        original_task = self.agents[0].original_task_description
+        for _ in range(self.cycles):
+            with ThreadPoolExecutor() as executor:
+                futures = []
+                for agent in self.agents:
+                    previous_responses_str = ""
+                    agent.combination_instructions = self.combination_instructions
+                    futures.append(executor.submit(agent.process_task, previous_responses_str))
+                for future in as_completed(futures):
+                    response = future.result()
+                    self.responses.append(response)
+
+        if self.moderated and self.moderator:
+            moderated_response = self.moderator.moderate_responses(self.responses, original_task)
+            self.responses.append(moderated_response)
+        self.final_response = self.responses[-1]
