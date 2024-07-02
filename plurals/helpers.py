@@ -45,3 +45,38 @@ def format_previous_responses(responses: List[str]) -> str:
         resp_list = ["Response {}: {}\n".format(i, responses[i]) for i in range(len(responses))]
         return "".join(resp_list)
 
+
+def format_previous_responses_debate(responses: List[str], who: str = "agent") -> str:
+        """
+        Format the previous responses for a debate-like interaction.
+        Alternates between "You:" and "Other:" for each response in the list.
+        """
+        if not responses:
+            return ""
+        else:
+            if who == "agent":
+                formatted_responses = []
+                for i, response in enumerate(responses):
+                    prefix = "You:" if i % 2 == 0 else "Other:"
+                    formatted_responses.append(f"{prefix} {response}\n")
+                return "".join(formatted_responses)
+
+            elif who == "moderator":
+                formatted_responses = []
+                for i, response in enumerate(responses):
+                    prefix = "Conversation Partner 1:" if i % 2 == 0 else "Conversation Partner 2:"
+                    formatted_responses.append(f"{prefix} {response}\n")
+                return "".join(formatted_responses)
+
+
+def get_fromdict_bykey_or_alternative(dictvalue: Dict[str, Any], option: str, alternative:str):
+    values = list(dictvalue.keys())
+    for item in values:
+        if item == option:
+            # found matching in dict, return it
+            return dictvalue[option]
+        else:
+            pass
+    # if not foudn in dict, return alternative
+    return alternative
+
