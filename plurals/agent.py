@@ -38,7 +38,8 @@ class Agent:
                  model: str = "gpt-4o",
                  system_instructions: Optional[str] = None,
                  persona_template: Optional[str] = "default",
-                 persona: str = ""):
+                 persona: Optional[str] = None,
+                 **kwargs):
         """
         Initialize an agent with specific characteristics and dataset.
         """
@@ -58,18 +59,22 @@ class Agent:
         self.defaults = load_yaml("instructions.yaml")
         self.validate()
         self.set_system_instructions()
+        self.kwargs = kwargs
 
     def set_system_instructions(self):
         """
         Users can directly pass in system_instructions. Or, we can generate system instructions by combining a persona_template and a persona.
         """
+        if not self.system_instructions and not self.persona and not self.ideology and not self.query_str:
+            self.system_instructions = None
         if self.system_instructions:
             return
         else:
+            if self.persona:
+                pass
             if not self.persona:
                 self.persona = self._generate_persona()
-            if self.persona_template == 'default':
-                self.persona_template = self.defaults['prefix_template']['default']
+            self.persona_template = self.defaults['prefix_template'].get(self.persona_template, self.persona_template)
             self.system_instructions = self.persona_template.format(persona=self.persona)
 
 
@@ -83,7 +88,7 @@ class Agent:
         default_data_path = os.path.join(os.path.dirname(__file__), 'data', 'anes_pilot_2022_csv_20221214.csv')
         self.persona_mapping = load_yaml("anes-mapping.yaml")
 
-        return pd.read_csv(default_data_path, low_memory=False)
+        return pd.read_csv(default_data_path)
 
     def _generate_persona(self) -> str:
         """
@@ -158,14 +163,18 @@ class Agent:
         Returns:
             Optional[str]: The response from the LLM.
         """
-
-        messages = [
-            {"role": "system", "content": self.system_instructions},
-            {"role": "user", "content": task}
-        ]
+        if self.system_instructions:
+            messages = [
+                {"role": "system", "content": self.system_instructions},
+                {"role": "user", "content": task}
+            ]
+        else:
+            messages = [
+                {"role": "user", "content": task}
+            ]
         try:
             # This is a placeholder function. Replace with actual API call.
-            response = completion(model=self.model, messages=messages)
+            response = completion(model=self.model, messages=messages, **self.kwargs)
 
             content = response.choices[0].message.content
             self.history.append({'prompts': messages, 'response': content, 'model': self.model})
