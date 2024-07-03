@@ -33,9 +33,7 @@ class Moderator(Agent):
             str: A combined response based on the moderator's instructions and persona.
         """
         combined_responses_str = format_previous_responses(responses)
-        moderator_task = self.combination_instructions.format(previous_responses=combined_responses_str,
-                                                              task=original_task)
-        self.combination_instructions = moderator_task
+        self.combination_instructions = self.combination_instructions.format(previous_responses=combined_responses_str, task=original_task)
         self.system_instructions = self.system_instructions.format(task=original_task)
         return self.process_task(previous_responses=combined_responses_str)
 
@@ -72,19 +70,19 @@ class AbstractPlural(ABC):
         self.final_response = None
         self.moderator = moderator
         self.moderated = True if moderator else False
+
+        # If we have a moderator we assign a task description and then we populate the templates
         if self.moderator:
-            self.moderator.task_description = self.task_description  # it's important to call igt after chain properties are setup
+            self.moderator.task_description = self.task_description
             self.moderator.persona = self.moderator.persona.format(task=self.task_description)
 
         if shuffle:
             self.agents = random.sample(self.agents, len(self.agents))
 
-    def set_combination_instructions(self):
+    def set_combination_instructions(self) -> None:
         """
         Set the combination instructions for agents based on the provided value or the default.
         """
-
-        # If the combination option is one in the yaml file, we set that, otherwise we use the provided value
         self.combination_instructions = self.defaults['combination_instructions'].get(
             self.combination_instructions, self.combination_instructions)
 
@@ -95,7 +93,7 @@ class AbstractPlural(ABC):
                 pass
             agent.combination_instructions = self.combination_instructions
 
-    def set_task_descriptions(self):
+    def set_task_descriptions(self) -> None:
         """
         Set the task description for agents based on the provided value or the default.
 
@@ -103,7 +101,6 @@ class AbstractPlural(ABC):
 
         If a task description is provided to both agents and the chain, then we over-write the agents task description and raise a warning.
         """
-        # E.F. Because we finalize the task in chain we have to keep the following here and not in Agent
         for agent in self.agents:
             if not self.task_description:
                 if not agent.task_description or agent.task_description.strip() == '':
@@ -114,11 +111,38 @@ class AbstractPlural(ABC):
                 agent.task_description = self.task_description
                 agent.original_task_description = agent.task_description
 
+    # make this a property so that it can be accessed like an attribute
+    @property
+    def info(self) -> Dict[str, Any]:
+        """
+        Return the final response and additional information about the chain.
+        """
+        if not self.final_response:
+            raise ValueError("The Plural has not been processed yet. Call the process method first.")
+        return {
+            "final_response": self.final_response,
+            "responses": self.responses,
+            "task_description": self.task_description,
+            "combination_instructions": self.combination_instructions,
+            "moderated": self.moderated,
+            "moderator_persona": self.moderator.persona if self.moderator else None,
+            "moderator_instructions": self.moderator.combination_instructions if self.moderator else None
+        }
+
+    @abstractmethod
+    def process(self) -> None:
+        """
+        Abstract method for processing agents.
+        """
+        raise NotImplementedError("This method must be implemented in a subclass")
+
 
 class Chain(AbstractPlural):
     def process(self):
         """
         Process the task through a chain of agents, each building upon the last.
+
+        In a chain, each agent processes the task after seeing prior agent's responses.
         """
         previous_responses = []
         original_task = self.agents[0].original_task_description
@@ -140,7 +164,9 @@ class Chain(AbstractPlural):
 class Ensemble(AbstractPlural):
     def process(self):
         """
-        Process the tasks in parallel through a group of agents, each working independently.
+        Process the tasks through a group of agents, each working independently.
+
+        Requests are sent to all agents simultaneously.
         """
         original_task = self.agents[0].original_task_description
         for _ in range(self.cycles):
@@ -156,5 +182,52 @@ class Ensemble(AbstractPlural):
 
         if self.moderated and self.moderator:
             moderated_response = self.moderator.moderate_responses(self.responses, original_task)
+            self.responses.append(moderated_response)
+        self.final_response = self.responses[-1]
+
+
+class Debate(AbstractPlural):
+    def __init__(self, agents: List[Agent], task_description: Optional[str] = None, shuffle: bool = False,
+                 cycles: int = 1, last_n: int = 1, combination_instructions: Optional[str] = "default",
+                 moderator: Optional[Moderator] = None):
+        if len(agents) != 2:
+            raise ValueError("Debate requires exactly two agents.")
+        super().__init__(agents, task_description, shuffle, cycles, last_n, combination_instructions, moderator)
+
+    @staticmethod
+    def format_previous_responses(responses: List[str]) -> str:
+        """
+        Format the previous responses for a debate-like interaction.
+        Alternates between "You:" and "Other:" for each response in the list.
+        """
+        if not responses:
+            return ""
+        else:
+            formatted_responses = []
+            for i, response in enumerate(responses):
+                prefix = "You:" if i % 2 == 0 else "Other:"
+                formatted_responses.append(f"{prefix} {response}\n")
+            return "".join(formatted_responses)
+
+    def process(self):
+        """
+        Process the task through a chain of agents, each building upon the last.
+        """
+        previous_responses = []
+        original_task = self.agents[0].original_task_description
+        for _ in range(self.cycles):
+            for agent in self.agents:
+                previous_responses_slice = previous_responses[-self.last_n:]
+                previous_responses_str = self.format_previous_responses(previous_responses_slice)
+                agent.combination_instructions = self.combination_instructions
+                response = agent.process_task(previous_responses_str)
+                previous_responses.append(response)
+                self.responses.append(response)
+
+        if self.moderated and self.moderator:
+            # reformat self.responses to be in the format of the debate for the moderator
+            responses_for_mod = ['[Debater 1] ' + response if i % 2 == 0 else '[Debater 2] ' + response for i, response
+                                 in enumerate(self.responses)]
+            moderated_response = self.moderator.moderate_responses(responses_for_mod, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
