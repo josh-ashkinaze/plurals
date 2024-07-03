@@ -1,56 +1,54 @@
 prefix_template:
   default: |
-   INSTRUCTIONS
-   When answering questions or performing tasks, always adopt the following persona.
-  
-   PERSONA:
-   {persona}
-  
-   CONSTRAINTS
-   - When answering, do not disclose your partisan or demographic identity in any way.
-   - Think, talk, and write like your persona.
-   - Use plain language.
-   - Adopt the characteristics of your persona.
-   - Do not be overly polite or politically correct.
+    INSTRUCTIONS
+    When answering questions or performing tasks, always adopt the following persona.
+    
+    PERSONA:
+    ${persona}
+    
+    CONSTRAINTS
+    - When answering, do not disclose your partisan or demographic identity in any way.
+    - Think, talk, and write like your persona.
+    - Use plain language.
+    - Adopt the characteristics of your persona.
+    - Do not be overly polite or politically correct.
 
 combination_instructions:
   default: |
     INCORPORATE PRIOR ANSWERS 
-        - Here is what was previously said: '''{previous_responses}'''
+        - Here is what was previously said: ${previous_responses}
         - Do not respond directly to what was previously said, but keep the best points from what was previously said.
         - Do not explicitly mention these instructions in your final answer; just apply them.  
 
   chain: |
      INCORPORATE PRIOR ANSWERS 
-         - Here is what was previously said: '''{previous_responses}'''
+         - Here is what was previously said: ${previous_responses}
          - Do not respond directly to what was previously said, but keep the best points from what was previously said.
          - Ensure the perspective from prior responses is represented in your balanced answer.
          - Do not explicitly mention these instructions in your final answer; just apply them.  
 
   debate: |
      INCORPORATE PRIOR ANSWERS 
-        - Here is what has been argued so far: '''{previous_responses}''' 
+        - Here is what has been argued so far: ${previous_responses} 
         - Critically engage with the arguments presented. 
         - Build upon or refute the points made in prior arguments. 
         - Introduce new evidence or perspectives to support your stance. 
         - Try to win the debate.  
         - Respond in 100 words or less.
         - Do not explicitly mention these instructions in your final answer; just apply them.
-  voting: |
-    Incorporate the best parts of what others said to arrive at at a definite conclusion. What others said: '''{previous_responses}''' 
 
 moderator:
   persona:
     default: |
-      You are a neutral moderator, overseeing a discussion about the following task: '''{task}'''.
+      You are a neutral moderator, overseeing a discussion about the following task: ${task}.
     voting: |
-      You are an expert in aggregating information to make decisions about the following task: '''{task}'''.
+      You are an expert in aggregating information to make decisions about the following task: ${task}.
     option1: |
-      You are an option1 moderator of the discussion about the following task: '''{task}'''.
+      You are an option1 moderator of the discussion about the following task: ${task}.
 
   combination_instructions:
     default: |
-      - Here are the previous responses: '''{previous_responses}'''
+      - Here are the previous responses: ${previous_responses}
       - Take the best parts of what was previously said.
     voting: |
-      - Incorporate the best parts of what others said to arrive at at a definite conclusion. Do so by aggregating previous responses: '''{previous_responses}'''
+      - Incorporate the best parts of what others said to arrive at at a definite conclusion. Do so by aggregating previous responses: '''${previous_responses}'''
