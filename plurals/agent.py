@@ -16,11 +16,12 @@ class Agent:
         system_instructions (str): The complete system instructions including persona and constraints.
         original_task_description (str): The original task description without modifications.
         current_task_description (str): The current task description that may include modifications.
-        data (pd.DataFrame): The dataset used for generating persona descriptions.
+        data (pd.DataFrame): The dataset used for generating persona descriptions. As of now, we implement ANES.
         persona_mapping (dict): Mapping to convert dataset rows into persona descriptions.
         ideology (str): The ideological filter to apply when selecting data for persona generation.
         query_str (str): A string used for a pandas query clause on the dataframe.
         history (list): A list of dicts like {'prompt':prompt, 'response':response, 'model':model}
+        **kwargs: Additional keyword arguments...see LiteLLM `completion' function for details
     Methods:
         process_task(previous_response=""): Process the task, optionally building upon a previous response.
         get_persona_description_ideology(data, ideology): Generates a persona description based on the dataset and ideology.
@@ -38,7 +39,8 @@ class Agent:
                  model: str = "gpt-4o",
                  system_instructions: Optional[str] = None,
                  persona_template: Optional[str] = "default",
-                 persona: str = ""):
+                 persona: Optional[str] = None,
+                 **kwargs):
         """
         Initialize an agent with specific characteristics and dataset.
         """
@@ -58,20 +60,28 @@ class Agent:
         self.defaults = load_yaml("instructions.yaml")
         self.validate()
         self.set_system_instructions()
+        self.kwargs = kwargs
 
     def set_system_instructions(self):
         """
         Users can directly pass in system_instructions. Or, we can generate system instructions by combining a persona_template and a persona.
         """
-        if self.system_instructions:
+        # If system_instructions is already provided, we don't need to do anything
+        if self.system_instructions is not None:
             return
-        else:
-            if not self.persona:
-                self.persona = self._generate_persona()
-            if self.persona_template == 'default':
-                self.persona_template = self.defaults['prefix_template']['default']
-            self.system_instructions = self.persona_template.format(persona=self.persona)
 
+        # If system_instructions, persona, ideology, nor query_str is provided, set system_instructions to None
+        if not self.system_instructions and not self.persona and not self.ideology and not self.query_str:
+            self.system_instructions = None
+            return
+
+        # If persona is not already provided, generate it
+        if not self.persona:
+            self.persona = self._generate_persona()
+
+        # Use the persona_template to create system_instructions
+        self.persona_template = self.defaults['prefix_template'].get(self.persona_template, self.persona_template)
+        self.system_instructions = self.persona_template.format(persona=self.persona)
 
     def load_default_data(self) -> pd.DataFrame:
         """
@@ -158,21 +168,22 @@ class Agent:
         Returns:
             Optional[str]: The response from the LLM.
         """
-
-        messages = [
-            {"role": "system", "content": self.system_instructions},
-            {"role": "user", "content": task}
-        ]
+        if self.system_instructions:
+            messages = [
+                {"role": "system", "content": self.system_instructions},
+                {"role": "user", "content": task}
+            ]
+        else:
+            messages = [
+                {"role": "user", "content": task}
+            ]
         try:
-            # This is a placeholder function. Replace with actual API call.
-            response = completion(model=self.model, messages=messages)
-
+            response = completion(model=self.model, messages=messages, **self.kwargs)
             content = response.choices[0].message.content
             self.history.append({'prompts': messages, 'response': content, 'model': self.model})
             return content
-
         except Exception as e:
-            print(f"Error in _get_response: {e}")
+            print(f"Error fetching response from LLM: {e}")
             return None
 
     @staticmethod
@@ -222,4 +233,4 @@ class Agent:
         # cannot pass in system_instructions AND (persona_template or persona)
         if self.system_instructions:
             assert not (
-                        self.persona_template !='default' or self.persona), "Cannot pass in system_instructions AND (persona_template or persona)"
+                    self.persona_template != 'default' or self.persona), "Cannot pass in system_instructions AND (persona_template or persona)"
