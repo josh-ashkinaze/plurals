@@ -218,7 +218,7 @@ class Debate(AbstractPlural):
         for _ in range(self.cycles):
             for agent in self.agents:
                 previous_responses_slice = previous_responses[-self.last_n:]
-                previous_responses_str = self.format_previous_responses(previous_responses_slice, who="agent")
+                previous_responses_str = self.format_previous_responses(previous_responses_slice)
                 agent.combination_instructions = self.combination_instructions
                 response = agent.process_task(previous_responses_str)
                 previous_responses.append(response)
@@ -226,8 +226,8 @@ class Debate(AbstractPlural):
 
         if self.moderated and self.moderator:
             # reformat self.responses to be in the format of the debate for the moderator
-            responses_for_mod = ['[Debater 1]' + response if i % 2 == 0 else '[Debater 2]' + response for i, response in
-                                 self.responses]
+            responses_for_mod = ['[Debater 1] ' + response if i % 2 == 0 else '[Debater 2] ' + response for i, response
+                                 in enumerate(self.responses)]
             moderated_response = self.moderator.moderate_responses(responses_for_mod, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
