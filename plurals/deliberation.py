@@ -5,31 +5,36 @@ from plurals.agent import Agent
 from plurals.helpers import load_yaml, format_previous_responses
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from string import Template
 
 DEFAULTS = load_yaml("instructions.yaml")
 
 
 class Moderator(Agent):
     def __init__(self, persona: str = 'default', combination_instructions: str = "default", model: str = "gpt-4o"):
-        super().__init__(task_description="", model=model)
-        # Initialize Template objects
-        persona_template_str = DEFAULTS["moderator"]['persona'].get(persona,
-                                                                    DEFAULTS["moderator"]['persona']['default'])
-        self.persona_template = Template(persona_template_str)
+        """
+        Initialize the moderator with specific configurations or defaults.
+        """
+        super().__init__(task_description="", model=model,
+                         persona=DEFAULTS["moderator"]['persona'].get(persona, persona))
 
-        combo_instructions_template_str = DEFAULTS["moderator"]['combination_instructions'].get(
-            combination_instructions, DEFAULTS["moderator"]['combination_instructions']['default'])
-        self.combination_instructions_template = Template(combo_instructions_template_str)
+        self.combination_instructions = (
+            DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions, combination_instructions))
+        self.system_instructions = self.persona
 
     def moderate_responses(self, responses: List[str], original_task: str) -> str:
-        combined_responses_str = format_previous_responses(responses)
-        # Use templates to substitute placeholders
-        # Ensure all placeholders are covered in the substitution
-        self.combination_instructions = self.combination_instructions_template.substitute(
-            previous_responses=combined_responses_str, task=original_task)
-        self.system_instructions = self.persona_template.substitute(task=original_task)
+        """
+        Combine responses using the moderator persona and instructions.
 
+        Args:
+            responses (List[str]): List of responses from agents to combine.
+            original_task (str): The original task description provided to the agents.
+
+        Returns:
+            str: A combined response based on the moderator's instructions and persona.
+        """
+        combined_responses_str = format_previous_responses(responses)
+        self.combination_instructions = self.combination_instructions.format(previous_responses=combined_responses_str, task=original_task)
+        self.system_instructions = self.system_instructions.format(task=original_task)
         return self.process_task(previous_responses=combined_responses_str)
 
 
@@ -69,6 +74,7 @@ class AbstractPlural(ABC):
         # If we have a moderator we assign a task description and then we populate the templates
         if self.moderator:
             self.moderator.task_description = self.task_description
+            self.moderator.persona = self.moderator.persona.format(task=self.task_description)
 
         if shuffle:
             self.agents = random.sample(self.agents, len(self.agents))

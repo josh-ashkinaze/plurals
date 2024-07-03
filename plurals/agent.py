@@ -3,7 +3,6 @@ import pandas as pd
 from typing import Optional, Dict, Any
 from plurals.helpers import *
 from litellm import completion
-from string import Template
 
 
 class Agent:
@@ -81,9 +80,8 @@ class Agent:
             self.persona = self._generate_persona()
 
         # Use the persona_template to create system_instructions
-        persona_template_str = self.defaults['prefix_template'].get(self.persona_template, self.persona_template)
-        template = Template(persona_template_str)
-        self.system_instructions = template.safe_substitute(persona=self.persona)
+        self.persona_template = self.defaults['prefix_template'].get(self.persona_template, self.persona_template)
+        self.system_instructions = self.persona_template.format(persona=self.persona)
 
     def load_default_data(self) -> pd.DataFrame:
         """
@@ -120,12 +118,9 @@ class Agent:
         Returns:
             Optional[str]: The response from the LLM.
         """
-
         task = self.original_task_description
         if previous_responses:
-            # Convert combination_instructions to a Template and substitute
-            template = Template(self.combination_instructions)
-            task += f"\n{template.safe_substitute(previous_responses=previous_responses)}"
+            task += f"\n{self.combination_instructions.format(previous_responses=previous_responses)}"
         self.current_task_description = task
         return self._get_response(task)
 
