@@ -76,8 +76,6 @@ moderator:
     You are a neutral moderator, overseeing a discussion about the following task: ${task}.
   voting: |
     You are an expert in aggregating information to make decisions about the following task: ${task}.
-  option1: |
-    You are an option1 moderator of the discussion about the following task: ${task}.
   rational: |
     You are a neutral moderator, overseeing a discussion about the following task: ${task}.
   empathetic: |
@@ -89,7 +87,7 @@ moderator:
     - Here are the previous responses: ${previous_responses}
     - Take the best parts of what was previously said.
   voting: |
-    - Incorporate the best parts of what others said to arrive at at a definite conclusion. Do so by aggregating previous responses.${previous_responses}
+    - Incorporate the best parts of what others said to arrive at at a definite conclusion. Do so by aggregating previous responses. ${previous_responses}
   rational: |
     -Here are the previous responses: ${previous_responses}
     -Take the best parts of what was previously said.

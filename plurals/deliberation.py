@@ -27,9 +27,7 @@ class Moderator(Agent):
         super().__init__(task_description="", model=model,
                          persona=DEFAULTS["moderator"]['persona'].get(persona, persona))
 
-        self.combination_instructions = (
-            DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions, combination_instructions))
-        self.system_instructions = self.persona
+        self.combination_instructions = (DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions, combination_instructions))
 
     def moderate_responses(self, responses: List[str], original_task: str) -> str:
         """
@@ -43,8 +41,8 @@ class Moderator(Agent):
             str: A combined response based on the moderator's instructions and persona.
         """
         combined_responses_str = format_previous_responses(responses)
-        self.combination_instructions = self.combination_instructions.format(previous_responses=combined_responses_str, task=original_task)
-        self.system_instructions = self.system_instructions.format(task=original_task)
+        self.combination_instructions = SmartString(self.combination_instructions).format(previous_responses=combined_responses_str, task=original_task)
+        self.system_instructions = SmartString(self.system_instructions).format(task=original_task, previous_responses=combined_responses_str, persona=self.persona)
         return self.process_task(previous_responses=combined_responses_str)
 
 
@@ -98,7 +96,7 @@ class Structure(ABC):
         # If we have a moderator we assign a task description and then we populate the templates
         if self.moderator:
             self.moderator.task_description = self.task_description
-            self.moderator.persona = self.moderator.persona.format(task=self.task_description)
+            self.moderator.persona = SmartString(self.moderator.persona).format(task=self.task_description)
 
         if shuffle:
             self.agents = random.sample(self.agents, len(self.agents))

@@ -1,7 +1,7 @@
 import unittest
 from plurals.agent import Agent
 from plurals.deliberation import Chain, Moderator
-from plurals.helpers import load_yaml, format_previous_responses
+from plurals.helpers import load_yaml, format_previous_responses, SmartString
 DEFAULTS = load_yaml("instructions.yaml")
 
 
@@ -91,10 +91,15 @@ class TestAgentChain(unittest.TestCase):
         mixed.process()
         formatted_responses = mixed.responses[:-1]
 
+        print("Mixed", mixed.moderator.persona)
+
+        expected_persona = SmartString(DEFAULTS['moderator']['persona']['default']).format(task=self.task)
+        expected_combination_instructions = SmartString(DEFAULTS['moderator']['combination_instructions']['default']).format(previous_responses=format_previous_responses(formatted_responses))
+
         # Assertions
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(mixed.moderator.persona, DEFAULTS['moderator']['persona']['default'].format(task=self.task))
-        self.assertEqual(mixed.moderator.combination_instructions, DEFAULTS['moderator']['combination_instructions']['default'].format(previous_responses=format_previous_responses(formatted_responses)))
+        self.assertEqual(expected_persona, mixed.moderator.persona)
+        self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
 
 
     def test_moderator_manual(self):
@@ -102,8 +107,8 @@ class TestAgentChain(unittest.TestCase):
         a3 = Agent(ideology='liberal', model=self.model)
         a4 = Agent(ideology='conservative', model=self.model)
         mod = Moderator(
-            persona="You are a conservative moderator overseeing a discussion about the following task: '''{task}'''.",
-            combination_instructions="- Here are the previous responses: '''{previous_responses}'''- Take only the most conservative parts of what was previously said.")
+            persona="You are a conservative moderator overseeing a discussion about the following task: ${task}.",
+            combination_instructions="- Here are the previous responses: ${previous_responses}- Take only the most conservative parts of what was previously said.")
         mixed = Chain([a2, a3, a4], task_description=self.task, moderator=mod)
         mixed.process()
         formatted_responses = mixed.responses[:-1]
@@ -112,9 +117,9 @@ class TestAgentChain(unittest.TestCase):
 
         self.assertIsNotNone(mixed.final_response)
         self.assertEqual(mixed.moderator.persona,
-                         "You are a conservative moderator overseeing a discussion about the following task: '''{task}'''.".format(task=self.task))
+                         SmartString("You are a conservative moderator overseeing a discussion about the following task: ${task}.").format(task=self.task))
         self.assertEqual(mixed.moderator.combination_instructions,
-                         "- Here are the previous responses: '''{previous_responses}'''- Take only the most conservative parts of what was previously said.".format(previous_responses=format_previous_responses(formatted_responses)))
+                         SmartString("- Here are the previous responses: ${previous_responses}- Take only the most conservative parts of what was previously said.").format(previous_responses=format_previous_responses(formatted_responses)))
 
     def test_moderator_voting(self):
         a2 = Agent(ideology='neutral', model=self.model)
@@ -128,8 +133,8 @@ class TestAgentChain(unittest.TestCase):
         # Assertions
         self.maxDiff=None
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(mixed.moderator.persona, DEFAULTS['moderator']['persona']['voting'].format(task=self.task))
-        self.assertEqual(mixed.moderator.combination_instructions, DEFAULTS['moderator']['combination_instructions']['voting'].format(previous_responses=format_previous_responses(formatted_responses)))
+        self.assertEqual(SmartString(DEFAULTS['moderator']['persona']['voting']).format(task=self.task), mixed.moderator.persona)
+        self.assertEqual(SmartString(DEFAULTS['moderator']['combination_instructions']['voting']).format(previous_responses=format_previous_responses(formatted_responses)),mixed.moderator.combination_instructions)
 
     def test_chain_chain(self):
         a2 = Agent(ideology='neutral', model=self.model)
@@ -169,7 +174,7 @@ class TestAgentChain(unittest.TestCase):
         a3 = Agent(ideology='liberal', model=self.model,**self.kwargs)
         a4 = Agent(ideology='conservative', model=self.model,**self.kwargs)
         agentlist = [a2,a3,a4]
-        mixed = Chain([a2, a3, a4], task_description=self.task, combination_instructions='voting')
+        mixed = Chain(agentlist, task_description=self.task, combination_instructions='voting')
         mixed.process()
 
         # Assertions
