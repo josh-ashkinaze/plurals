@@ -224,7 +224,7 @@ class Debate(Structure):
         so that the moderator is aware of who said what.
     """
     def __init__(self, agents: List[Agent], task_description: Optional[str] = None, shuffle: bool = False,
-                 cycles: int = 1, last_n: int = 1, combination_instructions: Optional[str] = "default",
+                 cycles: int = 1, last_n: int = 1000000, combination_instructions: Optional[str] = "default",
                  moderator: Optional[Moderator] = None):
         if len(agents) != 2:
             raise ValueError("Debate requires exactly two agents.")
@@ -240,9 +240,12 @@ class Debate(Structure):
             return ""
         else:
             formatted_responses = []
-            for i, response in enumerate(responses):
-                prefix = "You:" if i % 2 == 0 else "Other:"
-                formatted_responses.append(f"{prefix} {response}\n")
+            for i in range(len(responses)):
+                response = responses[i]
+                prefix = "Other:" if i % 2 == 0 else "You:"
+                print(i)
+                formatted_responses.append(f"{prefix} {response.strip()}\n")
+                print(formatted_responses)
             return "".join(formatted_responses)
 
     def process(self):
