@@ -81,7 +81,7 @@ class Agent:
 
         # Use the persona_template to create system_instructions
         self.persona_template = self.defaults['prefix_template'].get(self.persona_template, self.persona_template)
-        self.system_instructions = self.persona_template.format(persona=self.persona)
+        self.system_instructions = SmartString(self.persona_template).format(persona=self.persona, task=self.task_description)
 
     def load_default_data(self) -> pd.DataFrame:
         """
