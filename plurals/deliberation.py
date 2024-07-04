@@ -135,6 +135,7 @@ class Structure(ABC):
                     warnings.warn("Writing over agent's task with Chain's task")
                 agent.task_description = self.task_description
                 agent.original_task_description = agent.task_description
+                agent.system_instructions = SmartString(agent.system_instructions).format(task=self.task_description)
 
     @property
     def info(self) -> Dict[str, Any]:
