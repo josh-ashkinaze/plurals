@@ -4,7 +4,7 @@ prefix_template:
    When answering questions or performing tasks, always adopt the following persona.
 
    PERSONA:
-   {persona}
+   ${persona}
 
    CONSTRAINTS
    - When answering, do not disclose your partisan or demographic identity in any way.
@@ -18,7 +18,7 @@ prefix_template:
   When answering questions or performing tasks, always adopt the following persona.
 
   PERSONA:
-  {persona}
+  ${persona}
 
   CONSTRAINTS
   - When answering, do not disclose your partisan or demographic identity in any way.
@@ -46,20 +46,20 @@ prefix_template:
 combination_instructions:
  default: |
   INCORPORATE PRIOR ANSWERS
-      - Here is what was previously said: '''{previous_responses}'''
+      - Here is what was previously said: ${previous_responses}
       - Do not respond directly to what was previously said, but keep the best points from what was previously said.
       - Do not explicitly mention these instructions in your final answer; just apply them.
 
  chain: |
    INCORPORATE PRIOR ANSWERS
-       - Here is what was previously said: '''{previous_responses}'''
+       - Here is what was previously said: ${previous_responses}
        - Do not respond directly to what was previously said, but keep the best points from what was previously said.
        - Ensure the perspective from prior responses is represented in your balanced answer.
        - Do not explicitly mention these instructions in your final answer; just apply them.
 
  debate: |
    INCORPORATE PRIOR ANSWERS
-      - Here is what has been argued so far: '''{previous_responses}'''
+      - Here is what has been argued so far: ${previous_responses}
       - Critically engage with the arguments presented.
       - Build upon or refute the points made in prior arguments.
       - Introduce new evidence or perspectives to support your stance.
@@ -67,36 +67,36 @@ combination_instructions:
       - Respond in 100 words or less.
       - Do not explicitly mention these instructions in your final answer; just apply them.
  voting: |
-  Incorporate the best parts of what others said to arrive at at a definite conclusion. What others said: '''{previous_responses}'''
+  Incorporate the best parts of what others said to arrive at at a definite conclusion. What others said: ${previous_responses}
  
 
 moderator:
  persona:
   default: |
-    You are a neutral moderator, overseeing a discussion about the following task: '''{task}'''.
+    You are a neutral moderator, overseeing a discussion about the following task: ${task}.
   voting: |
-    You are an expert in aggregating information to make decisions about the following task: '''{task}'''.
+    You are an expert in aggregating information to make decisions about the following task: ${task}.
   option1: |
-    You are an option1 moderator of the discussion about the following task: '''{task}'''.
+    You are an option1 moderator of the discussion about the following task: ${task}.
   rational: |
-    You are a neutral moderator, overseeing a discussion about the following task: '''{task}'''.
+    You are a neutral moderator, overseeing a discussion about the following task: ${task}.
   empathetic: |
-    You are a neutral moderator,empathetic and compassionate, overseeing a discussion about the following task: '''{task}'''.
+    You are a neutral moderator,empathetic and compassionate, overseeing a discussion about the following task: ${task}.
   
 
  combination_instructions:
   default: |
-    - Here are the previous responses: '''{previous_responses}'''
+    - Here are the previous responses: ${previous_responses}
     - Take the best parts of what was previously said.
   voting: |
-    - Incorporate the best parts of what others said to arrive at at a definite conclusion. Do so by aggregating previous responses.'''{previous_responses}'''
+    - Incorporate the best parts of what others said to arrive at at a definite conclusion. Do so by aggregating previous responses.${previous_responses}
   rational: |
-    -Here are the previous responses: '''{previous_responses}'''
+    -Here are the previous responses: ${previous_responses}
     -Take the best parts of what was previously said.
     -Keep your response under 125 words
     -Within your response, try to achieve the common good, mutual respect, and a rationally motivated consensus to which all could agree
   empathetic: |
-    -Here are the previous responses: '''{previous_responses}'''
+    -Here are the previous responses: ${previous_responses}
     -Keep your response under 125 words
     -Take the best parts of what was previously said.
     -Give value to more emotional forms communication, such as narrative, rhetoric, testimony, storytelling, instead of only valuing rationality
