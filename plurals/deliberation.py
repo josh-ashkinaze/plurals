@@ -38,23 +38,36 @@ class Moderator(Agent):
         return self.process_task(previous_responses=combined_responses_str)
 
 
-class AbstractPlural(ABC):
+class Structure(ABC):
     def __init__(self, agents: List[Agent],
                  task_description: Optional[str] = None,
                  shuffle: bool = False, cycles: int = 1, last_n: int = 1,
                  combination_instructions: Optional[str] = "default",
                  moderator: Optional[Moderator] = None):
         """
-        Initialize a chain with a list of agents.
+        Initialize the structure with agents and configurations.
 
-        Args:,
+        Args:
+            agents (List[Agent]): A list of agents to include in the structure.
+            task_description (Optional[str]): The task description for the agents to process.
+            shuffle (bool): Whether to shuffle the order of the agents.
+            cycles (int): The number of times to process the task.
+            last_n (int): The number of previous responses to include in the task description.
+            combination_instructions (Optional[str]): The instructions for combining responses.
+            moderator (Optional[Moderator]): A moderator to moderate the responses.
 
-            agents (List[Agent]): List of agents participating in the chain.
-            shuffle (bool): Whether to shuffle the order of agents.
-            cycles (int): Number of cycles of interaction.
-            last_n (int): Number of previous responses to consider.
-            moderated (Optional[bool]): Whether to use a moderator.
-            moderator_config (Optional[Dict[str, Any]]): Configuration for the moderator.
+        Attributes:
+            defaults (Dict[str, Any]): Default instructions for the structure.
+            task_description (Optional[str]): The task description for the agents to process.
+            agents (List[Agent]): A list of agents to include in the structure.
+            combination_instructions (str): The instructions for combining responses.
+            shuffle (bool): Whether to shuffle the order of the agents.
+            last_n (int): The number of previous responses to include in the task description.
+            cycles (int): The number of times to process the task.
+            responses (List[str]): A list of responses from the agents.
+            final_response (Optional[str]): The final response from the agents.
+            moderator (Optional[Moderator]): A moderator to moderate the responses.
+            moderated (bool): Whether the structure is moderated.
         """
 
         self.defaults = DEFAULTS
@@ -111,14 +124,13 @@ class AbstractPlural(ABC):
                 agent.task_description = self.task_description
                 agent.original_task_description = agent.task_description
 
-    # make this a property so that it can be accessed like an attribute
     @property
     def info(self) -> Dict[str, Any]:
         """
         Return the final response and additional information about the chain.
         """
         if not self.final_response:
-            raise ValueError("The Plural has not been processed yet. Call the process method first.")
+            raise ValueError("The structure has not been processed yet. Call the process method first.")
         return {
             "final_response": self.final_response,
             "responses": self.responses,
@@ -137,7 +149,7 @@ class AbstractPlural(ABC):
         raise NotImplementedError("This method must be implemented in a subclass")
 
 
-class Chain(AbstractPlural):
+class Chain(Structure):
     def process(self):
         """
         Process the task through a chain of agents, each building upon the last.
@@ -161,7 +173,7 @@ class Chain(AbstractPlural):
         self.final_response = self.responses[-1]
 
 
-class Ensemble(AbstractPlural):
+class Ensemble(Structure):
     def process(self):
         """
         Process the tasks through a group of agents, each working independently.
@@ -186,7 +198,7 @@ class Ensemble(AbstractPlural):
         self.final_response = self.responses[-1]
 
 
-class Debate(AbstractPlural):
+class Debate(Structure):
     def __init__(self, agents: List[Agent], task_description: Optional[str] = None, shuffle: bool = False,
                  cycles: int = 1, last_n: int = 1, combination_instructions: Optional[str] = "default",
                  moderator: Optional[Moderator] = None):
@@ -225,7 +237,6 @@ class Debate(AbstractPlural):
                 self.responses.append(response)
 
         if self.moderated and self.moderator:
-            # reformat self.responses to be in the format of the debate for the moderator
             responses_for_mod = ['[Debater 1] ' + response if i % 2 == 0 else '[Debater 2] ' + response for i, response
                                  in enumerate(self.responses)]
             moderated_response = self.moderator.moderate_responses(responses_for_mod, original_task)
