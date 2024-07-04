@@ -118,11 +118,13 @@ class Agent:
         Returns:
             Optional[str]: The response from the LLM.
         """
-        task = self.original_task_description
         if previous_responses:
-            task += f"\n{self.combination_instructions.format(previous_responses=previous_responses)}"
-        self.current_task_description = task
-        return self._get_response(task)
+            combined_responses = SmartString(self.combination_instructions).format(previous_responses=previous_responses)
+            self.current_task_description = SmartString(f"{self.original_task_description}\n{combined_responses}")
+        else:
+            self.current_task_description = self.original_task_description
+        return self._get_response(self.current_task_description)
+
 
     def get_persona_description_ideology(self, data: pd.DataFrame, ideology: str) -> str:
         """

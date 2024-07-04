@@ -1,9 +1,22 @@
 import yaml
 from typing import List, Dict, Any
 import os
+import string
 
 
 def print_values(mapping):
+    """
+    Prints the values of ANES mapping in a human-readable format.
+
+    Args:
+        mapping: ANES mapping
+
+    Returns:
+        None
+
+    Prints:
+        The values of the ANES mapping in a neat/clean/human-readable way.
+    """
     for key in mapping.keys():
         vals = mapping[key]['values']
         if isinstance(vals, dict) and all(isinstance(v, dict) for v in vals.values()):
@@ -26,13 +39,17 @@ def print_values(mapping):
 
 def load_yaml(file_path: str) -> Dict[str, Any]:
     """
-    Load a YAML file and return its content as a dictionary.
+    Load a YAML file and return its content as a dictionary. We first get the directory of the current path
+    and then construct the full path by combining the base_path with the file_path. Hence, the file_path should be
+    relative to this script's location.
 
-    The file_path should be relative to this script's location.
+    Args:
+        file_path: The path to the YAML file to load.
+
+    Returns:
+        A dictionary containing the contents of the YAML file.
     """
-    # Get the directory of the current script
     base_path = os.path.dirname(os.path.abspath(__file__))
-    # Construct the full path by combining base_path with file_path
     full_path = os.path.join(base_path, file_path)
 
     with open(full_path, 'r') as file:
@@ -50,13 +67,27 @@ def format_previous_responses(responses: List[str]) -> str:
         return "".join(resp_list)
 
 
-def get_fromdict_bykey_or_alternative(dictvalue: Dict[str, Any], option: str, alternative: str):
-    values = list(dictvalue.keys())
-    for item in values:
-        if item == option:
-            # found matching in dict, return it
-            return dictvalue[option]
-        else:
-            pass
-    # if not foudn in dict, return alternative
-    return alternative
+class SmartString(str):
+    """
+    A custom string class that overrides the format method to use string.Template's safe substitute.
+
+    Problem it fixes: Oftentimes users will have some kind of json string in their task and this throws an error with
+    normal strings.
+
+    Longer explanation: The format method of the str class uses the curly braces syntax for string formatting. This
+    breaks when the string contains curly braces that are not meant to be replaced. For example:
+
+    s = "Hello, {name} I am a json like {'key':'value'}"
+    new_s = s.format(name="John")
+
+    This will raise a KeyError because the format method will try to replace the curly braces in the json string as well, but we
+    only want to replace {name}. So as a solution one can turn `s` into a string Template and use the safe_substitute method to
+    replace the variables. This is what the SmartString class does: It is a subclass of str that overrides the format method to
+    use string.Template for string formatting.
+    """
+    def format(self, **kwargs):
+        """
+        Override the format method to use string.Template for string formatting.
+        """
+        template = string.Template(self)
+        return template.safe_substitute(**kwargs)
