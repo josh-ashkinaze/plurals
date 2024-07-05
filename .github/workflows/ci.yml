@@ -39,4 +39,4 @@ jobs:
 
     - name: Run tests
       run: |
-        ../../plurals/pytest tests.py
+        pytest plurals/tests.py
