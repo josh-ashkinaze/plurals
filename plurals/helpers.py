@@ -9,7 +9,7 @@ def print_values(mapping):
     Prints the values of ANES mapping in a human-readable format.
 
     Args:
-        mapping: ANES mapping
+        mapping: mapping (just ANEs supported for now)
 
     Returns:
         None
@@ -59,6 +59,14 @@ def load_yaml(file_path: str) -> Dict[str, Any]:
 def format_previous_responses(responses: List[str]) -> str:
     """
     Format the previous responses for inclusion in the next task description.
+
+    Args:
+        responses: A list of previous responses.
+
+    Returns:
+        A formatted string of the previous responses. By default, strings are formatted like:
+        Response 0: response0
+        Response 1: response1
     """
     if not responses:
         return ""
