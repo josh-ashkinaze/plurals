@@ -50,9 +50,9 @@ class Moderator(Agent):
         return self.process_task(previous_responses=combined_responses_str)
 
 
-class Structure(ABC):
+class AbstractStructure(ABC):
     """
-    Structure is an abstract class for processing tasks through a group of agents. As such, it is not meant to be
+    AbstractStructureAbstractStructure is an abstract class for processing tasks through a group of agents. As such, it is not meant to be
     instantiated directly but rather to be subclassed by concrete structures such as an Ensemble.
 
     Args:
@@ -156,7 +156,7 @@ class Structure(ABC):
         raise NotImplementedError("This method must be implemented in a subclass")
 
 
-class Chain(Structure):
+class Chain(AbstractStructure):
     """
     A chain structure for processing tasks through a sequence of agents. In a chain,
     each agent processes the task after seeing a prior agent's response.
@@ -183,7 +183,7 @@ class Chain(Structure):
         self.final_response = self.responses[-1]
 
 
-class Ensemble(Structure):
+class Ensemble(AbstractStructure):
     """
     An ensemble structure for processing tasks through a group of agents. In an ensemble, each agent works independently.
     """
@@ -210,14 +210,14 @@ class Ensemble(Structure):
         self.final_response = self.responses[-1]
 
 
-class Debate(Structure):
+class Debate(AbstractStructure):
     """
     In a debate, two agents take turns responding to a task, with each response building upon the previous one. Debate differs
     from other structures in a few key ways:
-    - It requires exactly two agents.
-    - It alternates between agents for each response, and prefixes each response with "You:" or "Other:" to indicate the speaker.
-    - When moderated, the moderator will provide a final response based on the debate and we will append [Debater 1] and [Debater 2] to the responses.
-        so that the moderator is aware of who said what.
+
+    (1) It requires exactly two agents.
+    (2) It alternates between agents for each response, and prefixes each response with "You:" or "Other:" to indicate the speaker
+    (3) When moderated, the moderator will provide a final response based on the debate and we will append [Debater 1] and [Debater 2] to the responses so that the moderator is aware of who said what.
     """
 
     def __init__(self, agents: List[Agent], task_description: Optional[str] = None, shuffle: bool = False,
