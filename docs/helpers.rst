@@ -1,7 +1,7 @@
 Helpers Module
 ==============
 
-.. automodule:: helpers
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodule:: plurals.helpers
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,7 +1,7 @@
-Deliberation Module
-===================
+Agent Module
+============
 
-.. automodule:: agent
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodule:: plurals.agent
+   :members:
+   :undoc-members:
+   :show-inheritance:
