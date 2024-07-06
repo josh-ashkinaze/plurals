@@ -27,7 +27,8 @@ class Moderator(Agent):
         super().__init__(task_description="", model=model,
                          persona=DEFAULTS["moderator"]['persona'].get(persona, persona))
 
-        self.combination_instructions = (DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions, combination_instructions))
+        self.combination_instructions = (
+            DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions, combination_instructions))
 
     def moderate_responses(self, responses: List[str], original_task: str) -> str:
         """
@@ -41,43 +42,45 @@ class Moderator(Agent):
             str: A combined response based on the moderator's instructions and persona.
         """
         combined_responses_str = format_previous_responses(responses)
-        self.combination_instructions = SmartString(self.combination_instructions).format(previous_responses=combined_responses_str, task=original_task)
-        self.system_instructions = SmartString(self.system_instructions).format(task=original_task, previous_responses=combined_responses_str, persona=self.persona)
+        self.combination_instructions = SmartString(self.combination_instructions).format(
+            previous_responses=combined_responses_str, task=original_task)
+        self.system_instructions = SmartString(self.system_instructions).format(task=original_task,
+                                                                                previous_responses=combined_responses_str,
+                                                                                persona=self.persona)
         return self.process_task(previous_responses=combined_responses_str)
 
 
 class Structure(ABC):
-    """
-    Structure is an abstract class for processing tasks through a group of agents. As such, it is not meant to be
-    instantiated directly but rather to be subclassed by concrete structures such as an Ensemble.
-
-    Args:
-        agents (List[Agent]): A list of agents to include in the structure.
-        task_description (Optional[str]): The task description for the agents to process.
-        shuffle (bool): Whether to shuffle the order of the agents.
-        cycles (int): The number of times to process the task.
-        last_n (int): The number of previous responses to include in the task description.
-        combination_instructions (Optional[str]): The instructions for combining responses.
-        moderator (Optional[Moderator]): A moderator to moderate the responses.
-
-    Attributes:
-        defaults (Dict[str, Any]): Default instructions for the structure.
-        task_description (Optional[str]): The task description for the agents to process.
-        agents (List[Agent]): A list of agents to include in the structure.
-        combination_instructions (str): The instructions for combining responses.
-        shuffle (bool): Whether to shuffle the order of the agents.
-        last_n (int): The number of previous responses to include in the task description.
-        cycles (int): The number of times to process the task.
-        responses (List[str]): A list of responses from the agents.
-        final_response (Optional[str]): The final response from the agents.
-        moderator (Optional[Moderator]): A moderator to moderate the responses.
-        moderated (bool): Whether the structure is moderated.
-    """
-    def __init__(self, agents: List[Agent],
-                 task_description: Optional[str] = None,
-                 shuffle: bool = False, cycles: int = 1, last_n: int = 1,
-                 combination_instructions: Optional[str] = "default",
+    def __init__(self, agents: List[Agent], task_description: Optional[str] = None, shuffle: bool = False,
+                 cycles: int = 1, last_n: int = 1, combination_instructions: Optional[str] = "default",
                  moderator: Optional[Moderator] = None):
+        """
+        Structure is an abstract class for processing tasks through a group of agents. As such, it is not meant to be
+        instantiated directly but rather to be subclassed by concrete structures such as an Ensemble.
+
+        Args:
+            agents (List[Agent]): A list of agents to include in the structure.
+            task_description (Optional[str]): The task description for the agents to process.
+            shuffle (bool): Whether to shuffle the order of the agents.
+            cycles (int): The number of times to process the task.
+            last_n (int): The number of previous responses to include in the task description.
+            combination_instructions (Optional[str]): The instructions for combining responses.
+            moderator (Optional[Moderator]): A moderator to moderate the responses.
+
+        Attributes:
+            defaults (Dict[str, Any]): Default instructions for the structure.
+            task_description (Optional[str]): The task description for the agents to process.
+            agents (List[Agent]): A list of agents to include in the structure.
+            combination_instructions (str): The instructions for combining responses.
+            shuffle (bool): Whether to shuffle the order of the agents.
+            last_n (int): The number of previous responses to include in the task description.
+            cycles (int): The number of times to process the task.
+            responses (List[str]): A list of responses from the agents.
+            final_response (Optional[str]): The final response from the agents.
+            moderator (Optional[Moderator]): A moderator to moderate the responses.
+            moderated (bool): Whether the structure is moderated.
+        """
+
         self.defaults = DEFAULTS
         self.task_description = task_description
         self.agents = agents
@@ -104,8 +107,8 @@ class Structure(ABC):
         """
         Set the combination instructions for agents based on the provided value or the default.
         """
-        self.combination_instructions = SmartString(self.defaults['combination_instructions'].get(
-            self.combination_instructions, self.combination_instructions))
+        self.combination_instructions = SmartString(
+            self.defaults['combination_instructions'].get(self.combination_instructions, self.combination_instructions))
 
         for agent in self.agents:
             if agent.combination_instructions:
@@ -119,14 +122,14 @@ class Structure(ABC):
         Set the task description for agents based on the provided value or the default.
 
         Logic:
-            - If no task description is provided to the chain, then one must be provided to the agents or else an error is thrown.
-            - If a task description is provided to both agents and the chain, then we over-write the agents task description
-            and raise a warning to the user alerting them to this change.
+            - Case 1: Value provided to both chain and agents--overwrite agent's task description with chain's task description and throw a warning to user.
+            - Case 2: Value provided to chain but not agents--set agent's task description to be agent's task description.
+            - Case 3: Value provided to neither agents nor chain: Throw an error
         """
         for agent in self.agents:
             if not self.task_description:
                 if not agent.task_description or agent.task_description.strip() == '':
-                    assert False, "Error: You did not specify a task for agents or chain"
+                   raise ValueError("Error: You did not specify a task for agents or chain")
             else:
                 if agent.task_description:
                     warnings.warn("Writing over agent's task with Chain's task")
@@ -141,15 +144,10 @@ class Structure(ABC):
         """
         if not self.final_response:
             raise ValueError("The structure has not been processed yet. Call the process method first.")
-        return {
-            "final_response": self.final_response,
-            "responses": self.responses,
-            "task_description": self.task_description,
-            "combination_instructions": self.combination_instructions,
-            "moderated": self.moderated,
-            "moderator_persona": self.moderator.persona if self.moderator else None,
-            "moderator_instructions": self.moderator.combination_instructions if self.moderator else None
-        }
+        return {"final_response": self.final_response, "responses": self.responses,
+                "task_description": self.task_description, "combination_instructions": self.combination_instructions,
+                "moderated": self.moderated, "moderator_persona": self.moderator.persona if self.moderator else None,
+                "moderator_instructions": self.moderator.combination_instructions if self.moderator else None}
 
     @abstractmethod
     def process(self) -> None:
@@ -164,6 +162,7 @@ class Chain(Structure):
     A chain structure for processing tasks through a sequence of agents. In a chain,
     each agent processes the task after seeing a prior agent's response.
     """
+
     def process(self):
         """
         Process the task through a chain of agents, each building upon the last.
@@ -189,6 +188,7 @@ class Ensemble(Structure):
     """
     An ensemble structure for processing tasks through a group of agents. In an ensemble, each agent works independently.
     """
+
     def process(self):
         """
         Requests are sent to all agents simultaneously.
@@ -220,6 +220,7 @@ class Debate(Structure):
     - When moderated, the moderator will provide a final response based on the debate and we will append [Debater 1] and [Debater 2] to the responses.
         so that the moderator is aware of who said what.
     """
+
     def __init__(self, agents: List[Agent], task_description: Optional[str] = None, shuffle: bool = False,
                  cycles: int = 1, last_n: int = 1000000, combination_instructions: Optional[str] = "default",
                  moderator: Optional[Moderator] = None):
@@ -230,8 +231,14 @@ class Debate(Structure):
     @staticmethod
     def format_previous_responses(responses: List[str]) -> str:
         """
-        Format the previous responses for a debate-like interaction.
-        Alternates between "You:" and "Other:" for each response in the list.
+        Format the previous responses for a debate-like interaction. This structure formats responses differently from other structures.
+        Formatting alternates between "You:" and "Other:" for each response in the list.
+
+        Args:
+            responses (List[str]): A list of responses to format.
+
+        Returns:
+            str: The formatted responses where for agent it appends "You:" and "Other:"
         """
         if not responses:
             return ""
@@ -247,7 +254,7 @@ class Debate(Structure):
 
     def process(self):
         """
-        Process the task through a chain of agents, each building upon the last.
+        Process the structure.
         """
         previous_responses = []
         original_task = self.agents[0].original_task_description
