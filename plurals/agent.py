@@ -9,19 +9,34 @@ class Agent:
     """
     A class to represent an agent that processes tasks based on specific characteristics.
 
-    Attributes:
+    Args:
+        task_description (Optional[str]): The description of the task to be processed. This will be a user_prompt.
+        data (Optional[pd.DataFrame]): The dataset used for generating persona descriptions if from dataset. But as of now, we only support ANES.
+        persona_mapping (Optional[Dict[str, Any]]): Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.
+        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual's other demographics.
+        query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.
         model (str): The model version to use for processing.
-        task_description (str): The description of the task to be processed.
-        persona (str): The persona description to adopt for the task.
-        system_instructions (str): The complete system instructions including persona and constraints.
+        system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.
+        persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.
+        persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.
+        **kwargs: Additional keyword arguments.
+
+    Attributes:
+        task_description (Optional[str]): The description of the task to be processed. This will be a user_prompt.
+        data (Optional[pd.DataFrame]): The dataset used for generating persona descriptions if from dataset. But as of now, we only support ANES.
+        persona_mapping (Optional[Dict[str, Any]]): Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.
+        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual's other demographics.
+        query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.
+        model (str): The model version to use for processing.
+        system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.
+        persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.
+        persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.
+        **kwargs: Additional keyword arguments.
         original_task_description (str): The original task description without modifications.
-        current_task_description (str): The current task description that may include modifications.
+        current_task_description (str): The current task description that appends `previous_responses'.
         data (pd.DataFrame): The dataset used for generating persona descriptions. As of now, we implement ANES.
-        persona_mapping (dict): Mapping to convert dataset rows into persona descriptions.
-        ideology (str): The ideological filter to apply when selecting data for persona generation.
-        query_str (str): A string used for a pandas query clause on the dataframe.
         history (list): A list of dicts like {'prompt':prompt, 'response':response, 'model':model}
-        **kwargs: Additional keyword arguments...see LiteLLM `completion' function for details
+
     Methods:
         process_task(previous_response=""): Process the task, optionally building upon a previous response.
         get_persona_description_ideology(data, ideology): Generates a persona description based on the dataset and ideology.
@@ -30,6 +45,7 @@ class Agent:
         row2persona(row, persona_mapping): Converts a dataset row into a persona description string.
     """
 
+    # noinspection PyTypeChecker
     def __init__(self,
                  task_description: Optional[str] = None,
                  data: Optional[pd.DataFrame] = None,
@@ -41,9 +57,6 @@ class Agent:
                  persona_template: Optional[str] = "default",
                  persona: Optional[str] = None,
                  **kwargs):
-        """
-        Initialize an agent with specific characteristics and dataset.
-        """
         self.model = model
         self.system_instructions = system_instructions
         self.history = []
