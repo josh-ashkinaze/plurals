@@ -19,6 +19,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: List root directory contents for debugging
+      run: ls -la
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -49,10 +52,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: List root directory contents for debugging
+      run: ls -la
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
+
+    - name: List contents of the docs directory for debugging
+      run: ls -la docs
 
     - name: Install dependencies
       run: |
@@ -64,11 +73,12 @@ jobs:
       run: |
         cd docs
         make html
+        ls -la build/html  # List contents of build/html for debugging
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: docs/build/html
-
-
+        # Keep the nojekyll file
+        keep_files: nojekyll
