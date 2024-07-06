@@ -11,19 +11,19 @@ DEFAULTS = load_yaml("instructions.yaml")
 
 
 class Moderator(Agent):
+    """
+    A moderator agent that combines responses from other agents at the end of structure processing.
+
+    Args:
+        persona (str): The persona of the moderator. View `defaults.yaml` YAML file for templates.
+        combination_instructions (str): The instructions for combining responses. View `defaults.yaml` YAML file for templates.
+        model (str): The model to use for the moderator.
+
+    Attributes:
+        combination_instructions (str): The instructions for combining responses.
+        system_instructions (str): For a Moderator, system instructions are just the persona.
+    """
     def __init__(self, persona: str = 'default', combination_instructions: str = "default", model: str = "gpt-4o"):
-        """
-        A moderator agent that combines responses from other agents.
-
-        Args:
-            persona (str): The persona of the moderator.
-            combination_instructions (str): The instructions for combining responses.
-            model (str): The model to use for the moderator.
-
-        Attributes:
-            combination_instructions (str): The instructions for combining responses.
-            system_instructions (str): The instructions for the system.
-        """
         super().__init__(task_description="", model=model,
                          persona=DEFAULTS["moderator"]['persona'].get(persona, persona))
 
@@ -52,8 +52,9 @@ class Moderator(Agent):
 
 class AbstractStructure(ABC):
     """
-    AbstractStructureAbstractStructure is an abstract class for processing tasks through a group of agents. As such, it is not meant to be
-    instantiated directly but rather to be subclassed by concrete structures such as an Ensemble.
+    AbstractStructure is an abstract class for processing tasks through a group of agents. As such, it is not meant to be
+    instantiated directly but rather to be subclassed by concrete structures such as an Ensemble. However, all the concrete
+    structures share the same attributes and methods, so this class provides a common interface.
 
     Args:
         agents (List[Agent]): A list of agents to include in the structure.
@@ -164,7 +165,8 @@ class Chain(AbstractStructure):
 
     def process(self):
         """
-        Process the task through a chain of agents, each building upon the last.
+        Process the task through a chain of agents, each building upon the last. Use parameters from `AbstractStructure` to control
+        how the chain operates (e.g: last_n for how many previous responses to include in the `previous_resonses` string)
         """
         previous_responses = []
         original_task = self.agents[0].original_task_description
@@ -185,7 +187,7 @@ class Chain(AbstractStructure):
 
 class Ensemble(AbstractStructure):
     """
-    An ensemble structure for processing tasks through a group of agents. In an ensemble, each agent works independently.
+    An ensemble structure for processing tasks through a group of agents. In an ensemble, each agent processes the task independently through async requests.
     """
 
     def process(self):
@@ -215,9 +217,9 @@ class Debate(AbstractStructure):
     In a debate, two agents take turns responding to a task, with each response building upon the previous one. Debate differs
     from other structures in a few key ways:
 
-    (1) It requires exactly two agents.
-    (2) It alternates between agents for each response, and prefixes each response with "You:" or "Other:" to indicate the speaker
-    (3) When moderated, the moderator will provide a final response based on the debate and we will append [Debater 1] and [Debater 2] to the responses so that the moderator is aware of who said what.
+    - It requires exactly two agents.
+    - It alternates between agents for each response, and prefixes each response with "You:" or "Other:" to indicate the speaker.
+    - When moderated, the moderator will provide a final response based on the debate and we will append [Debater 1] and [Debater 2] to the responses so that the moderator is aware of who said what.
     """
 
     def __init__(self, agents: List[Agent], task_description: Optional[str] = None, shuffle: bool = False,
@@ -230,7 +232,7 @@ class Debate(AbstractStructure):
     @staticmethod
     def format_previous_responses(responses: List[str]) -> str:
         """
-        Format the previous responses for a debate-like interaction. This structure formats responses differently from other structures.
+        Format the previous responses for a debate-like interaction. This structure's response format differs from other structures.
         Formatting alternates between "You:" and "Other:" for each response in the list.
 
         Args:
@@ -253,7 +255,7 @@ class Debate(AbstractStructure):
 
     def process(self):
         """
-        Process the structure.
+        Process the debate.
         """
         previous_responses = []
         original_task = self.agents[0].original_task_description
