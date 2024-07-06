@@ -1,7 +1,8 @@
-import yaml
-from typing import List, Dict, Any
 import os
 import string
+from typing import List, Dict, Any
+
+import yaml
 
 
 def print_values(mapping):
@@ -93,6 +94,7 @@ class SmartString(str):
     replace the variables. This is what the SmartString class does: It is a subclass of str that overrides the format method to
     use string.Template for string formatting.
     """
+
     def format(self, **kwargs):
         """
         Override the format method to use string.Template for string formatting.
