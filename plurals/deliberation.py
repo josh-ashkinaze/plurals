@@ -47,38 +47,37 @@ class Moderator(Agent):
 
 
 class Structure(ABC):
+    """
+    Structure is an abstract class for processing tasks through a group of agents. As such, it is not meant to be
+    instantiated directly but rather to be subclassed by concrete structures such as an Ensemble.
+
+    Args:
+        agents (List[Agent]): A list of agents to include in the structure.
+        task_description (Optional[str]): The task description for the agents to process.
+        shuffle (bool): Whether to shuffle the order of the agents.
+        cycles (int): The number of times to process the task.
+        last_n (int): The number of previous responses to include in the task description.
+        combination_instructions (Optional[str]): The instructions for combining responses.
+        moderator (Optional[Moderator]): A moderator to moderate the responses.
+
+    Attributes:
+        defaults (Dict[str, Any]): Default instructions for the structure.
+        task_description (Optional[str]): The task description for the agents to process.
+        agents (List[Agent]): A list of agents to include in the structure.
+        combination_instructions (str): The instructions for combining responses.
+        shuffle (bool): Whether to shuffle the order of the agents.
+        last_n (int): The number of previous responses to include in the task description.
+        cycles (int): The number of times to process the task.
+        responses (List[str]): A list of responses from the agents.
+        final_response (Optional[str]): The final response from the agents.
+        moderator (Optional[Moderator]): A moderator to moderate the responses.
+        moderated (bool): Whether the structure is moderated.
+    """
     def __init__(self, agents: List[Agent],
                  task_description: Optional[str] = None,
                  shuffle: bool = False, cycles: int = 1, last_n: int = 1,
                  combination_instructions: Optional[str] = "default",
                  moderator: Optional[Moderator] = None):
-        """
-        Structure is an abstract class for processing tasks through a group of agents. As such, it is not meant to be
-        instantiated directly but rather to be subclassed by concrete structures such as an Ensemble.
-
-        Args:
-            agents (List[Agent]): A list of agents to include in the structure.
-            task_description (Optional[str]): The task description for the agents to process.
-            shuffle (bool): Whether to shuffle the order of the agents.
-            cycles (int): The number of times to process the task.
-            last_n (int): The number of previous responses to include in the task description.
-            combination_instructions (Optional[str]): The instructions for combining responses.
-            moderator (Optional[Moderator]): A moderator to moderate the responses.
-
-        Attributes:
-            defaults (Dict[str, Any]): Default instructions for the structure.
-            task_description (Optional[str]): The task description for the agents to process.
-            agents (List[Agent]): A list of agents to include in the structure.
-            combination_instructions (str): The instructions for combining responses.
-            shuffle (bool): Whether to shuffle the order of the agents.
-            last_n (int): The number of previous responses to include in the task description.
-            cycles (int): The number of times to process the task.
-            responses (List[str]): A list of responses from the agents.
-            final_response (Optional[str]): The final response from the agents.
-            moderator (Optional[Moderator]): A moderator to moderate the responses.
-            moderated (bool): Whether the structure is moderated.
-        """
-
         self.defaults = DEFAULTS
         self.task_description = task_description
         self.agents = agents

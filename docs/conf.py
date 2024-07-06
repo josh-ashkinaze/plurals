@@ -4,8 +4,8 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 project = 'Plurals'
-author = 'Your Name'
-release = '0.1'
+author = 'Joshua Ashkinaze'
+release = '0.0.1'
 
 # -- General configuration ---------------------------------------------------
 extensions = [
