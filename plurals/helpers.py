@@ -17,7 +17,7 @@ def print_anes_mapping():
     print the values of the ANES mapping in a neat/clean/human-readable way for consumer.
 
     Note: Whenever we print `recode values` this means that we have recoded the values from the original dataset to use in persona strings. For example,
-    for `child18', the question was whether the participant has children under 18 living in their household. For persona processing, we changed
+    for `child18`, the question was whether the participant has children under 18 living in their household. For persona processing, we changed
     `Yes` and `No` to `do have children under 18 living in your household` and `do not have children under 18 living in your household`---though to
     search ANES you'd use the original values. of `Yes` and `No`.
     """
