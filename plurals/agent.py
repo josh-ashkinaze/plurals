@@ -10,9 +10,9 @@ class Agent:
     A class to represent an agent that processes tasks based on specific characteristics.
 
     Args:
-        task_description (Optional[str]): The description of the task to be processed. This will be a user_prompt.
-        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual's other demographics.
-        query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.
+        task (Optional[str]): The description of the task to be processed. This will be a user_prompt.
+        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES 2024 for rows where the participant is a liberal or conservative, and then condition the persona on that individual's other demographics.
+        query_str (Optional[str]): A string used for a pandas query clause on the ANES 2024 data. 
         model (str): The model version to use for processing.
         system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.
         persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.
@@ -36,7 +36,7 @@ class Agent:
     """
 
     def __init__(self,
-                 task_description: Optional[str] = None,
+                 task: Optional[str] = None,
                  data: Optional[pd.DataFrame] = None,
                  persona_mapping: Optional[Dict[str, Any]] = None,
                  ideology: Optional[str] = None,
@@ -50,13 +50,13 @@ class Agent:
         self.system_instructions = system_instructions
         self.history = []
         self.persona_mapping = persona_mapping
-        self.task_description = task_description
+        self.task_description = task
         self.persona = persona
         self.ideology = ideology
         self.data = data if data is not None else self.load_default_data()
         self.query_str = query_str
-        self.original_task_description = task_description
-        self.current_task_description = task_description
+        self.original_task_description = task
+        self.current_task_description = task
         self.combination_instructions = None
         self.persona_template = persona_template
         self.defaults = load_yaml("instructions.yaml")

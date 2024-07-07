@@ -17,12 +17,12 @@ class TestAgentChain(unittest.TestCase):
         }
 
     def test_agent_manual_persona(self):
-        a2 = Agent(task_description=self.task,
+        a2 = Agent(task=self.task,
                    persona='Very conservative White Man from the deep south who strongly believe in second amendment',
                    model=self.model)
-        a3 = Agent(task_description=self.task, persona="Liberal White women from the east coast who has far left takes",
+        a3 = Agent(task=self.task, persona="Liberal White women from the east coast who has far left takes",
                    model=self.model)
-        a4 = Agent(task_description=self.task,
+        a4 = Agent(task=self.task,
                    persona="Young black man from a disadvantaged neighbourhood who has had friends die to gun violence",
                    model=self.model)
         mixed = Chain([a2, a3, a4])
@@ -37,9 +37,9 @@ class TestAgentChain(unittest.TestCase):
                          'Young black man from a disadvantaged neighbourhood who has had friends die to gun violence')
 
     def test_agent_ideology(self):
-        a2 = Agent(task_description=self.task, ideology='neutral', model=self.model)
-        a3 = Agent(task_description=self.task, ideology='liberal', model=self.model)
-        a4 = Agent(task_description=self.task, ideology='conservative', model=self.model)
+        a2 = Agent(task=self.task, ideology='neutral', model=self.model)
+        a3 = Agent(task=self.task, ideology='liberal', model=self.model)
+        a4 = Agent(task=self.task, ideology='conservative', model=self.model)
         mixed = Chain([a2, a3, a4])
         mixed.process()
 
@@ -61,9 +61,9 @@ class TestAgentChain(unittest.TestCase):
         self.assertEqual(mixed.task_description, self.task)
 
     def test_no_task_in_chain(self):
-        a2 = Agent(task_description=self.task, ideology='neutral', model=self.model)
-        a3 = Agent(task_description=self.task, ideology='liberal', model=self.model)
-        a4 = Agent(task_description=self.task, ideology='conservative', model=self.model)
+        a2 = Agent(task=self.task, ideology='neutral', model=self.model)
+        a3 = Agent(task=self.task, ideology='liberal', model=self.model)
+        a4 = Agent(task=self.task, ideology='conservative', model=self.model)
         mixed = Chain([a2, a3, a4])
         mixed.process()
 

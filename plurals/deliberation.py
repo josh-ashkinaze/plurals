@@ -26,7 +26,7 @@ class Moderator(Agent):
         system_instructions (str): For a Moderator, system instructions are just the persona.
     """
     def __init__(self, persona: str = 'default', combination_instructions: str = "default", model: str = "gpt-4o", **kwargs):
-        super().__init__(task_description="", model=model,
+        super().__init__(task="", model=model,
                          persona=DEFAULTS["moderator"]['persona'].get(persona, persona), **kwargs)
 
         self.combination_instructions = (
@@ -147,7 +147,7 @@ class AbstractStructure(ABC):
         if not self.final_response:
             raise ValueError("The structure has not been processed yet. Call the process method first.")
         return {"final_response": self.final_response, "responses": self.responses,
-                "task_description": self.task_description, "combination_instructions": self.combination_instructions,
+                "task": self.task_description, "combination_instructions": self.combination_instructions,
                 "moderated": self.moderated, "moderator_persona": self.moderator.persona if self.moderator else None,
                 "moderator_instructions": self.moderator.combination_instructions if self.moderator else None}
 
