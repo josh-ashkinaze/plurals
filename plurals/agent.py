@@ -31,7 +31,7 @@ class Agent:
         system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.
         persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.
         persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.
-        **kwargs: Additional keyword arguments.
+        **kwargs: Additional keyword arguments.These are from LiteLLM's completion function. (see here: https://litellm.vercel.app/docs/completion/input)
         original_task_description (str): The original task description without modifications.
         current_task_description (str): The current task description that appends `previous_responses'.
         data (pd.DataFrame): The dataset used for generating persona descriptions. As of now, we implement ANES.

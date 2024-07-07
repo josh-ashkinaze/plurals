@@ -15,17 +15,19 @@ class Moderator(Agent):
     A moderator agent that combines responses from other agents at the end of structure processing.
 
     Args:
-        persona (str): The persona of the moderator. View `defaults.yaml` YAML file for templates.
-        combination_instructions (str): The instructions for combining responses. View `defaults.yaml` YAML file for templates.
+        persona (str): The persona of the moderator. View `instructions.yaml` YAML file for templates.
+        combination_instructions (str): The instructions for combining responses. View `instructions.yaml` YAML file for templates.
         model (str): The model to use for the moderator.
+        kwargs (dict): Additional keyword arguments to pass to the Agent constructor. These are from LiteLLM's completion function.
+        see here: https://litellm.vercel.app/docs/completion/input
 
     Attributes:
         combination_instructions (str): The instructions for combining responses.
         system_instructions (str): For a Moderator, system instructions are just the persona.
     """
-    def __init__(self, persona: str = 'default', combination_instructions: str = "default", model: str = "gpt-4o"):
+    def __init__(self, persona: str = 'default', combination_instructions: str = "default", model: str = "gpt-4o", **kwargs):
         super().__init__(task_description="", model=model,
-                         persona=DEFAULTS["moderator"]['persona'].get(persona, persona))
+                         persona=DEFAULTS["moderator"]['persona'].get(persona, persona), **kwargs)
 
         self.combination_instructions = (
             DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions, combination_instructions))
