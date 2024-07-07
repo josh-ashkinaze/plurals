@@ -163,15 +163,15 @@ As of this writing, we have three structures: `ensemble`, `chain`, and `debate`.
 ## Ensemble
 The most basic structure is an Ensemble which is where agents process tasks in parallel. For example, let's say we wanted to have a panel of 10 nationally-representative agents brainstorm ideas to improve America. 
     
-    ```python
-    from plurals.agent import Agent
-    from plurals.structure import Ensemble
-    task = "Brainstorm ideas to improve America."
-    agents = [Agent(persona='random', model='gpt-4o', task=task) for i in range(10)]
-    ensemble = Ensemble(agents)
-    ensemble.process()
-    print(ensemble.responses)
-    ```
+```python
+from plurals.agent import Agent
+from plurals.structure import Ensemble
+task = "Brainstorm ideas to improve America."
+agents = [Agent(persona='random', model='gpt-4o', task=task) for i in range(10)]
+ensemble = Ensemble(agents)
+ensemble.process()
+print(ensemble.responses)
+```
 So we see that this gave 10 responses for each of our agents. Ensemble is the simplest structure yet can still be useful! 
 
 ## Ensemble with a moderator
