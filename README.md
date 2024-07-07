@@ -1,5 +1,25 @@
 
 
+- [Installation](#installation)
+- [Package Overview](#package-overview)
+- [Docs](#docs)
+- [Agents](#agents)
+  * [Quick Start](#quick-start)
+  * [Different ways to set up personas](#different-ways-to-set-up-personas)
+    + [No system prompt](#no-system-prompt)
+    + [User-defined system prompt.](#user-defined-system-prompt)
+    + [Using templates](#using-templates)
+    + [Using ANES for nationally representative personas](#using-anes-for-nationally-representative-personas)
+      - [Option 1: Syntactic Sugar: Searching for ideologies](#option-1--syntactic-sugar--searching-for-ideologies)
+      - [Option 2: Random sampling](#option-2--random-sampling)
+      - [Option 3: Searching ANES using a pandas query string](#option-3--searching-anes-using-a-pandas-query-string)
+- [Structures](#structures)
+  * [Ensemble](#ensemble)
+  * [Ensemble with a moderator](#ensemble-with-a-moderator)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
+
 # Installation
 
 ``
@@ -149,8 +169,8 @@ we have a helper function that will print out the demographic/political columns 
 
 ```python
 from plurals.agent import Agent
-from plurals.helpers import get_anes_columns
-get_anes_columns()
+from plurals.helpers import print_anes_mapping
+print_anes_mapping()
 task = "Write a paragraph about the importance of the environment to America."
 agent = Agent(query_string="ideo5=='very conservative'", model='gpt-4o', task=task)
 ```
@@ -161,14 +181,14 @@ Alright, so we went over how to set up agents and now we are going to discuss ho
 As of this writing, we have three structures: `ensemble`, `chain`, and `debate`. Each of these structures can optionally be `moderated`, meaning that at the end of deliberation, a moderator agent will summarize everything (e.g: make a final classification, take best ideas etc.)
 
 ## Ensemble
-The most basic structure is an Ensemble which is where agents process tasks in parallel. For example, let's say we wanted to have a panel of 10 nationally-representative agents brainstorm ideas to improve America. 
+The most basic structure is an Ensemble which is where agents process tasks in parallel. For example, let's say we wanted to have a panel of 10 nationally-representative agents brainstorm ideas to improve America. We can define our agents, put them in an ensemble, and then simply do `ensemble.process()`. You should pass in the task to the ensemble so all agents know what to do. 
+
     
 ```python
 from plurals.agent import Agent
-from plurals.structure import Ensemble
-task = "Brainstorm ideas to improve America."
-agents = [Agent(persona='random', model='gpt-4o', task=task) for i in range(10)]
-ensemble = Ensemble(agents)
+from plurals.deliberation import Ensemble
+agents = [Agent(persona='random', model='gpt-4o') for i in range(10)]
+ensemble = Ensemble(agents, task = "Brainstorm ideas to improve America.")
 ensemble.process()
 print(ensemble.responses)
 ```
