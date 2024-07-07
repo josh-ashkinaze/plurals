@@ -3,6 +3,7 @@ import string
 from typing import List, Dict, Any
 
 import yaml
+import pkg_resources
 
 
 def print_values(mapping):
@@ -50,8 +51,9 @@ def load_yaml(file_path: str) -> Dict[str, Any]:
     Returns:
         A dictionary containing the contents of the YAML file.
     """
-    base_path = os.path.dirname(os.path.abspath(__file__))
-    full_path = os.path.join(base_path, file_path)
+    full_path = pkg_resources.resource_filename(__name__, file_path)
+    if not os.path.exists(full_path):
+        raise FileNotFoundError(f"The file {full_path} does not exist. Please ensure the file path is correct.")
 
     with open(full_path, 'r') as file:
         return yaml.safe_load(file)

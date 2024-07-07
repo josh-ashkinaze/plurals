@@ -14,6 +14,7 @@ setup(
     author_email="josh.ashkinaze@gmail.com",
     url="https://github.com/josh-ashkinaze/plurals",
     packages=find_packages(),
+    include_package_data=True,
     install_requires=read_requirements(),
     classifiers=[
         "Programming Language :: Python :: 3",
