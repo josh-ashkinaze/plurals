@@ -53,19 +53,19 @@ print(conservative_agent.system_instructions)
 print(liberal_agent.system_instructions)
 ```
 
-```
-
 ## Different ways to set up personas
-``` python
-from plurals.agent import Agent
-```
+
 
 ### No system prompt
+
 In this case, there will be no system prompt (i.e: default for model). 
 
 ```python
 from plurals.agent import Agent
-agent = Agent(model='gpt-4o')
+agent = Agent(system_instructions="You are a predictable independent", 
+              model='gpt-4o',
+              kwargs={'temperature':0.1, 'max_tokens':500})
+
 ```
 
 ### User-defined system prompt. 
