@@ -9,6 +9,7 @@ setup(
     version="0.0.1",
     description="A package supporting pluralistic multi-agent simulations.",
     long_description=open('README.md').read(),
+    long_description_content_type="text/markdown",
     author="Joshua Ashkinaze",
     author_email="josh.ashkinaze@gmail.com",
     url="https://github.com/josh-ashkinaze/plurals",
