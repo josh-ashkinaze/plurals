@@ -19,22 +19,12 @@ class Agent:
         system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.
         persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.
         persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.
-        **kwargs: Additional keyword arguments.
+        **kwargs: Additional keyword arguments. These are from LiteLLM's completion function. (see here: https://litellm.vercel.app/docs/completion/input)
 
     Attributes:
-        task_description (Optional[str]): The description of the task to be processed. This will be a user_prompt.
-        data (Optional[pd.DataFrame]): The dataset used for generating persona descriptions if from dataset. But as of now, we only support ANES.
-        persona_mapping (Optional[Dict[str, Any]]): Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.
-        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual's other demographics.
-        query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.
-        model (str): The model version to use for processing.
-        system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.
-        persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.
-        persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.
-        **kwargs: Additional keyword arguments.These are from LiteLLM's completion function. (see here: https://litellm.vercel.app/docs/completion/input)
+        system_instructions (Optional[str]): The complete system instructions.
         original_task_description (str): The original task description without modifications.
         current_task_description (str): The current task description that appends `previous_responses'.
-        data (pd.DataFrame): The dataset used for generating persona descriptions. As of now, we implement ANES.
         history (list): A list of dicts like {'prompt':prompt, 'response':response, 'model':model}
 
     Methods:
@@ -45,7 +35,6 @@ class Agent:
         row2persona(row, persona_mapping): Converts a dataset row into a persona description string.
     """
 
-    # noinspection PyTypeChecker
     def __init__(self,
                  task_description: Optional[str] = None,
                  data: Optional[pd.DataFrame] = None,
@@ -94,7 +83,8 @@ class Agent:
 
         # Use the persona_template to create system_instructions
         self.persona_template = self.defaults['prefix_template'].get(self.persona_template, self.persona_template)
-        self.system_instructions = SmartString(self.persona_template).format(persona=self.persona, task=self.task_description)
+        self.system_instructions = SmartString(self.persona_template).format(persona=self.persona,
+                                                                             task=self.task_description)
 
     def load_default_data(self) -> pd.DataFrame:
         """
@@ -132,12 +122,12 @@ class Agent:
             Optional[str]: The response from the LLM.
         """
         if previous_responses:
-            combined_responses = SmartString(self.combination_instructions).format(previous_responses=previous_responses)
+            combined_responses = SmartString(self.combination_instructions).format(
+                previous_responses=previous_responses)
             self.current_task_description = SmartString(f"{self.original_task_description}\n{combined_responses}")
         else:
             self.current_task_description = self.original_task_description
         return self._get_response(self.current_task_description)
-
 
     def get_persona_description_ideology(self, data: pd.DataFrame, ideology: str) -> str:
         """
