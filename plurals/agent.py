@@ -135,13 +135,14 @@ class Agent:
         if self.ideology:
             self.query_str = self._convert_ideology_to_query_str(self.ideology)
             filtered_data = self.data.query(self.query_str)
+            if filtered_data.empty: raise AssertionError("No data found satisfying conditions")
             selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
             return self._row2persona(selected_row, self.persona_mapping)
         elif self.query_str:
             filtered_data = self.data.query(self.query_str)
+            if filtered_data.empty: raise AssertionError("No data found satisfying conditions")
             selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
             return self._row2persona(selected_row, self.persona_mapping)
-        return "No persona data available."
 
     def process(self, previous_responses: str = "") -> Optional[str]:
         """
