@@ -1,4 +1,4 @@
-prefix_template:
+persona_template:
  default: |
    INSTRUCTIONS
    When answering questions or performing tasks, always adopt the following persona.

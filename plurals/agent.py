@@ -82,7 +82,7 @@ class Agent:
             self.persona = self._generate_persona()
 
         # Use the persona_template to create system_instructions
-        self.persona_template = self.defaults['prefix_template'].get(self.persona_template, self.persona_template)
+        self.persona_template = self.defaults['persona_template'].get(self.persona_template, self.persona_template)
         self.system_instructions = SmartString(self.persona_template).format(persona=self.persona,
                                                                              task=self.task_description)
 
