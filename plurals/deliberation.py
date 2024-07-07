@@ -182,7 +182,7 @@ class Chain(AbstractStructure):
                 self.responses.append(response)
 
         if self.moderated and self.moderator:
-            moderated_response = self.moderator.moderate_responses(self.responses, original_task)
+            moderated_response = self.moderator._moderate_responses(self.responses, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
 
