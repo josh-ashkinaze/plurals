@@ -40,7 +40,7 @@ jobs:
 
     - name: Run tests
       run: |
-        pytest plurals/tests.py
+        pytest plurals/unit_test.py
 
   build-and-deploy-docs:
     runs-on: ubuntu-latest
