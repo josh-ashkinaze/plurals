@@ -284,7 +284,7 @@ ensemble = Ensemble(agents, task = "Brainstorm ideas to improve America.")
 ensemble.process()
 print(ensemble.responses)
 ```
-So we see that this gave 10 responses for each of our agents. Ensemble is the simplest structure yet can still be useful! 
+This will give 10 responses for each of our agents. Ensemble is the simplest structure yet can still be useful! 
 
 ## Ensemble with a moderator
 Let's say we want some Agent to actually read over some of these ideas and maybe return one that is the best. We can do that by passing in 
@@ -304,6 +304,8 @@ Note that like a persona_template, `combination_instructions` expects a `${previ
  print(ensemble.responses)
  print(ensemble.moderator_response)
    ```
+
+
 
 
 
