@@ -108,7 +108,7 @@
 <span class="sd">        system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.</span>
 <span class="sd">        persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.</span>
 <span class="sd">        persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.</span>
-<span class="sd">        **kwargs: Additional keyword arguments.</span>
+<span class="sd">        **kwargs: Additional keyword arguments.These are from LiteLLM&#39;s completion function. (see here: https://litellm.vercel.app/docs/completion/input)</span>
 <span class="sd">        original_task_description (str): The original task description without modifications.</span>
 <span class="sd">        current_task_description (str): The current task description that appends `previous_responses&#39;.</span>
 <span class="sd">        data (pd.DataFrame): The dataset used for generating persona descriptions. As of now, we implement ANES.</span>
