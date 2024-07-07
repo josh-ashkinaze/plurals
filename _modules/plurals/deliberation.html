@@ -348,9 +348,7 @@
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">)):</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="n">responses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                 <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;Other:&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;You:&quot;</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
                 <span class="n">formatted_responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">formatted_responses</span><span class="p">)</span>
             <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted_responses</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Debate.process">
