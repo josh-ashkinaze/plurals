@@ -49,7 +49,7 @@ class Moderator(Agent):
         self.system_instructions = SmartString(self.system_instructions).format(task=original_task,
                                                                                 previous_responses=combined_responses_str,
                                                                                 persona=self.persona)
-        return self.process_task(previous_responses=combined_responses_str)
+        return self.process(previous_responses=combined_responses_str)
 
 
 class AbstractStructure(ABC):
@@ -177,7 +177,7 @@ class Chain(AbstractStructure):
                 previous_responses_slice = previous_responses[-self.last_n:]
                 previous_responses_str = format_previous_responses(previous_responses_slice)
                 agent.combination_instructions = self.combination_instructions
-                response = agent.process_task(previous_responses_str)
+                response = agent.process(previous_responses_str)
                 previous_responses.append(response)
                 self.responses.append(response)
 
@@ -203,7 +203,7 @@ class Ensemble(AbstractStructure):
                 for agent in self.agents:
                     previous_responses_str = ""
                     agent.combination_instructions = self.combination_instructions
-                    futures.append(executor.submit(agent.process_task, previous_responses_str))
+                    futures.append(executor.submit(agent.process, previous_responses_str))
                 for future in as_completed(futures):
                     response = future.result()
                     self.responses.append(response)
@@ -266,7 +266,7 @@ class Debate(AbstractStructure):
                 previous_responses_slice = previous_responses[-self.last_n:]
                 previous_responses_str = self._format_previous_responses(previous_responses_slice)
                 agent.combination_instructions = self.combination_instructions
-                response = agent.process_task(previous_responses_str)
+                response = agent.process(previous_responses_str)
                 previous_responses.append(response)
                 self.responses.append(response)
 

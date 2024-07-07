@@ -23,7 +23,7 @@ class TestAgentChain(unittest.TestCase):
 
     def test_agent_no_system_instructions(self):
         agent = Agent(task="Write a 10 word story.")
-        agent.process_task()
+        agent.process()
         system_prompt = agent.history[0]['prompts']['system']
         self.assertIsNone(system_prompt)
         self.assertIsNone(agent.system_instructions)

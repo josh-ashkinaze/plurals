@@ -143,7 +143,7 @@ class Agent:
             return self._row2persona(selected_row, self.persona_mapping)
         return "No persona data available."
 
-    def process_task(self, previous_responses: str = "") -> Optional[str]:
+    def process(self, previous_responses: str = "") -> Optional[str]:
         """
         Process the task, optionally building upon a previous response.
 
