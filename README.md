@@ -8,7 +8,7 @@
    * [Quick Start](#quick-start)
    * [Different ways to set up personas](#different-ways-to-set-up-personas)
       + [No system prompt](#no-system-prompt)
-      + [User-defined system prompt. ](#user-defined-system-prompt)
+      + [User-defined system prompt ](#user-defined-system-prompt)
       + [Using templates](#using-templates)
       + [Using ANES for nationally representative personas ](#using-anes-for-nationally-representative-personas)
          - [Option 1: Syntactic Sugar: Searching for ideologies ](#option-1-syntactic-sugar-searching-for-ideologies)
@@ -33,7 +33,7 @@ pip install plurals
 # Package Overview
 `Plurals` is based on two abstractions---`Agents` (who complete tasks) and `Structures` (which are the structures in which `agents` complete their tasks.)
 
-Regarding `agents`, the package allows for various kinds of persona initializations. Some of these leverage American National Electoral Studies (ANES), nationally-representative dataset. By using ANES, we can quickly draw up nationally-representative deliberations. 
+Regarding `agents`, the package allows for various kinds of persona initializations. Some of these leverage American National Election Studies (ANES), nationally-representative dataset. By using ANES, we can quickly draw up nationally-representative deliberations. 
 
 Regarding `structures`, the package allows for various kinds of ways agents can share information. For example, an `ensemble` consists of agents processing tasks in parallel whereas a `chain` consists of agents who each see the prior agent's response. 
 
