@@ -250,9 +250,7 @@ class Debate(AbstractStructure):
             for i in range(len(responses)):
                 response = responses[i]
                 prefix = "Other:" if i % 2 == 0 else "You:"
-                print(i)
                 formatted_responses.append(f"{prefix} {response.strip()}\n")
-                print(formatted_responses)
             return "".join(formatted_responses)
 
     def process(self):
