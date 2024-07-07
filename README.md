@@ -1,23 +1,26 @@
-
+<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
 
 - [Installation](#installation)
 - [Package Overview](#package-overview)
-- [Docs](#docs)
+- [Docs ](#docs)
+- [Uses](#uses)
 - [Agents](#agents)
-  * [Quick Start](#quick-start)
-  * [Different ways to set up personas](#different-ways-to-set-up-personas)
-    + [No system prompt](#no-system-prompt)
-    + [User-defined system prompt.](#user-defined-system-prompt)
-    + [Using templates](#using-templates)
-    + [Using ANES for nationally representative personas](#using-anes-for-nationally-representative-personas)
-      - [Option 1: Syntactic Sugar: Searching for ideologies](#option-1--syntactic-sugar--searching-for-ideologies)
-      - [Option 2: Random sampling](#option-2--random-sampling)
-      - [Option 3: Searching ANES using a pandas query string](#option-3--searching-anes-using-a-pandas-query-string)
+   * [Quick Start](#quick-start)
+   * [Different ways to set up personas](#different-ways-to-set-up-personas)
+      + [No system prompt](#no-system-prompt)
+      + [User-defined system prompt. ](#user-defined-system-prompt)
+      + [Using templates](#using-templates)
+      + [Using ANES for nationally representative personas ](#using-anes-for-nationally-representative-personas)
+         - [Option 1: Syntactic Sugar: Searching for ideologies ](#option-1-syntactic-sugar-searching-for-ideologies)
+         - [Option 2: Random sampling ](#option-2-random-sampling)
+         - [Option 3: Searching ANES using a pandas query string](#option-3-searching-anes-using-a-pandas-query-string)
 - [Structures](#structures)
-  * [Ensemble](#ensemble)
-  * [Ensemble with a moderator](#ensemble-with-a-moderator)
+   * [Ensemble](#ensemble)
+   * [Ensemble with a moderator](#ensemble-with-a-moderator)
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+<!-- TOC end -->
+
+
 
 
 # Installation
@@ -36,6 +39,14 @@ Regarding `structures`, the package allows for various kinds of ways agents can 
 
 # Docs 
 https://josh-ashkinaze.github.io/plurals/
+
+# Uses
+- Persona-based experiments: Quickly create personas for agents, optionally using ANES for fast nationally-representative personas. For example, you can create a panel of 100 nationally-representative personas and send parallel requests to process a prompt in just 2 lines of code
+- Deliberation structure experiments: In just a few lines of code, generate various multi-agent interactions: ensembles, debates, or 'chains' of LLM deliberation 
+- Deliberation instruction experiments: Experiment with providing LLMs with different kinds of instructions for how to optimally combine information
+- Curation/Moderation: Use `Moderator` LLMs to moderate (e.g.) ensembles of LLMs to only select the best outputs to feed forward
+- Persuasion: Use LLMs to collaboratively brainstorm persuasive messaging 
+- Augmentation: Use LLMs to augment human decision-making by providing additional information/perspectives
 
 # Agents
 Each agent has two core attributes: `system_instructions` (which are the personas) and `task` (which is the user prompt). There are a few ways
@@ -62,7 +73,9 @@ task = "Should the United States ban assault rifles? Answer in 50 words."
 # by default the persona_template is `default' from `instructions.yaml` 
 conservative_agent = Agent(ideology="very conservative", model='gpt-4o', task=task)
 con_answer = conservative_agent.process() # call agent.process() to get the response. 
+```
 
+```python
 
 # Search ANES 2024 for rows where the respondent identifies as very liberal and condition 
 # other demographic variables as well. Use the `empathetic` persona template from instructions.yaml which 
@@ -70,14 +83,17 @@ con_answer = conservative_agent.process() # call agent.process() to get the resp
 liberal_agent = Agent(ideology="very liberal", persona_template='empathetic', model='gpt-4o', task=task)
 liberal_agent.process()
 lib_answer = liberal_agent.history[0]['response'] # Can get prompts and response from history
-
+ ```
+ 
+```python
 # Pass in system instructions directly 
 pirate_agent = Agent(system_instructions="You are a pirate.", model='gpt-4o', task=task)
 
 # No system instructions so we get back default behavior
 default_agent = Agent(model='gpt-4o', task=task, kwargs={'temperature':0.1, 'max_tokens':100})
+```
 
-
+```python
 ############ Print the results ############
 print(conservative_agent.system_instructions)
 print("="*20)
@@ -136,9 +152,7 @@ In this case, there will be no system prompt (i.e: default for model).
 
 ```python
 from plurals.agent import Agent
-agent = Agent(system_instructions="You are a predictable independent", 
-              model='gpt-4o',
-              kwargs={'temperature':0.1, 'max_tokens':500})
+agent = Agent(model='gpt-4o',kwargs={'temperature':1, 'max_tokens':500})
 
 ```
 
@@ -150,7 +164,7 @@ In this case, the system prompt is user-defined.
 from plurals.agent import Agent
 agent = Agent(system_instructions="You are a predictable independent", 
               model='gpt-4o',
-              kwargs={'temperature':0.1, 'max_tokens':500})
+              kwargs={'temperature':0.1, 'max_tokens':200})
 
 ```
 
