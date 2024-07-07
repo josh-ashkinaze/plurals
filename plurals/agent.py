@@ -11,8 +11,6 @@ class Agent:
 
     Args:
         task_description (Optional[str]): The description of the task to be processed. This will be a user_prompt.
-        data (Optional[pd.DataFrame]): The dataset used for generating persona descriptions if from dataset. But as of now, we only support ANES.
-        persona_mapping (Optional[Dict[str, Any]]): Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.
         ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual's other demographics.
         query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.
         model (str): The model version to use for processing.
@@ -23,7 +21,6 @@ class Agent:
 
     Attributes:
         task_description (Optional[str]): The description of the task to be processed. This will be a user_prompt.
-        data (Optional[pd.DataFrame]): The dataset used for generating persona descriptions if from dataset. But as of now, we only support ANES.
         persona_mapping (Optional[Dict[str, Any]]): Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.
         ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual's other demographics.
         query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.
@@ -96,10 +93,16 @@ class Agent:
         Returns:
             pd.DataFrame: The loaded ANES dataset.
         """
-        default_data_path = os.path.join(os.path.dirname(__file__), 'data', 'anes_pilot_2022_csv_20221214.csv')
+        default_data_path = os.path.join(os.path.dirname(__file__), 'data', 'anes_pilot_2024_20240319.csv')
         self.persona_mapping = load_yaml("anes-mapping.yaml")
+        dataset = pd.read_csv(default_data_path, low_memory=False)
 
-        return pd.read_csv(default_data_path, low_memory=False)
+        # As per codebook page 2 section 1, 409 cases don't have weights and are not meant
+        # for population inference.
+        # codebook url:
+        # https://electionstudies.org/wp-content/uploads/2024/03/anes_pilot_2024_userguidecodebook_20240319.pdf
+        dataset = dataset.dropna(subset=['weight'])
+        return dataset
 
     def _generate_persona(self) -> str:
         """
@@ -111,7 +114,9 @@ class Agent:
         if self.ideology:
             return self.get_persona_description_ideology(self.data, self.ideology)
         elif self.query_str:
-            return self.row2persona(self.data.query(self.query_str).sample(1).iloc[0], self.persona_mapping)
+            filtered_data = self.data.query(self.query_str)
+            selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
+            return self.row2persona(selected_row, self.persona_mapping)
         return "No persona data available."
 
     def process_task(self, previous_responses: str = "") -> Optional[str]:
@@ -145,7 +150,7 @@ class Agent:
         """
         filtered_data = self.filter_data_by_ideology(data, ideology)
         if not filtered_data.empty:
-            selected_row = filtered_data.sample(n=1).iloc[0]
+            selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
             return self.row2persona(selected_row, self.persona_mapping)
         return "No data available for the specified ideology."
 
@@ -161,9 +166,9 @@ class Agent:
             pd.DataFrame: Filtered dataset.
         """
         if ideology == 'liberal':
-            return data[data['ideo5'].isin([1, 2])]
+            return data[data['ideo5'].isin(['Liberal', 'Very liberal'])]
         elif ideology == 'conservative':
-            return data[data['ideo5'].isin([4, 5])]
+            return data[data['ideo5'].isin(['Conservative', 'Very conservative'])]
         return data
 
     def _get_response(self, task: str) -> Optional[str]:
@@ -206,29 +211,22 @@ class Agent:
         Returns:
             str: Generated persona description.
         """
-        persona_description_str = ""
-        for key, value in persona_mapping.items():
-            field_name = value['name']
-            if key == 'race':
-                race_found = False
-                for race_key in ['eth', 'rwh', 'rbl', 'rain', 'ras', 'rpi', 'roth']:
-                    if race_key in row and str(row[race_key]) == '1':
-                        race_description = value['values'][race_key].get('1', 'Unknown')
-                        if race_description:
-                            persona_description_str += f"{field_name} {race_description}. "
-                            race_found = True
-                            break
-                if not race_found:
-                    persona_description_str += f"{field_name} Unknown. "
-            elif key in row:
-                if key == "birthyr_dropdown" and 'integer' in value['values']:
-                    age = datetime.now().year - row[key]
-                    persona_description_str += f"{field_name} {age}. "
-                else:
-                    mapped_value = value['values'].get(str(row[key]), 'Unknown')
-                    if "inapplicable" not in mapped_value.lower() and "legitimate skip" not in mapped_value.lower() and "unknown" not in mapped_value.lower():
-                        persona_description_str += f"{field_name} {mapped_value}. "
-        return persona_description_str.lower()
+        persona = []
+        for var, details in persona_mapping.items():
+            value = row.get(var)
+
+            if var == "birthyr" and value is not None:
+                value = 2024 - int(value)
+
+            if value is None or (details.get('bad_vals') and str(value) in details['bad_vals']):
+                continue
+
+            if details.get('recode_vals') and str(value) in details['recode_vals']:
+                value = details['recode_vals'][str(value)]
+
+            clean_name = details['name']
+            persona.append(f"{clean_name} {value}.")
+        return " ".join(persona).lower()
 
     def validate_system_instructions(self):
         """
