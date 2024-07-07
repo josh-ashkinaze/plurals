@@ -22,17 +22,20 @@ class Agent:
         **kwargs: Additional keyword arguments. These are from LiteLLM's completion function. (see here: https://litellm.vercel.app/docs/completion/input)
 
     Attributes:
+        task_description (Optional[str]): The description of the task to be processed. This will be a user_prompt.
+        data (Optional[pd.DataFrame]): The dataset used for generating persona descriptions if from dataset. But as of now, we only support ANES.
+        persona_mapping (Optional[Dict[str, Any]]): Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.
+        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual's other demographics.
+        query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.
+        model (str): The model version to use for processing.
+        system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.
+        persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.
+        persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.
+        **kwargs: Additional keyword arguments. These are from LiteLLM's completion function. (see here: https://litellm.vercel.app/docs/completion/input)
         system_instructions (Optional[str]): The complete system instructions.
         original_task_description (str): The original task description without modifications.
         current_task_description (str): The current task description that appends `previous_responses'.
         history (list): A list of dicts like {'prompt':prompt, 'response':response, 'model':model}
-
-    Methods:
-        process_task(previous_response=""): Process the task, optionally building upon a previous response.
-        get_persona_description_ideology(data, ideology): Generates a persona description based on the dataset and ideology.
-        filter_data_by_ideology(data, ideology): Filters the dataset based on the specified ideology.
-        _get_response(task): Internal method to interact with the API and get a response.
-        row2persona(row, persona_mapping): Converts a dataset row into a persona description string.
     """
 
     def __init__(self,
