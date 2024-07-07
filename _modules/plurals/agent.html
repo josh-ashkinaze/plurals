@@ -220,9 +220,9 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_row2persona</span><span class="p">(</span><span class="n">selected_row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;No persona data available.&quot;</span>
 
-<div class="viewcode-block" id="Agent.process_task">
-<a class="viewcode-back" href="../../agent.html#plurals.agent.Agent.process_task">[docs]</a>
-    <span class="k">def</span> <span class="nf">process_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_responses</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="Agent.process">
+<a class="viewcode-back" href="../../agent.html#plurals.agent.Agent.process">[docs]</a>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_responses</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process the task, optionally building upon a previous response.</span>
 
