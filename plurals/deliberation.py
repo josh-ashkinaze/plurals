@@ -32,7 +32,7 @@ class Moderator(Agent):
         self.combination_instructions = (
             DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions, combination_instructions))
 
-    def moderate_responses(self, responses: List[str], original_task: str) -> str:
+    def _moderate_responses(self, responses: List[str], original_task: str) -> str:
         """
         Combine responses using the moderator persona and instructions.
 
@@ -87,8 +87,8 @@ class AbstractStructure(ABC):
         self.task_description = task_description
         self.agents = agents
         self.combination_instructions = combination_instructions
-        self.set_combination_instructions()
-        self.set_task_descriptions()
+        self._set_combination_instructions()
+        self._set_task_descriptions()
         self.shuffle = shuffle
         self.last_n = last_n
         self.cycles = cycles
@@ -105,7 +105,7 @@ class AbstractStructure(ABC):
         if shuffle:
             self.agents = random.sample(self.agents, len(self.agents))
 
-    def set_combination_instructions(self) -> None:
+    def _set_combination_instructions(self) -> None:
         """
         Set the combination instructions for agents based on the provided value or the default.
         """
@@ -119,7 +119,7 @@ class AbstractStructure(ABC):
                 pass
             agent.combination_instructions = self.combination_instructions
 
-    def set_task_descriptions(self) -> None:
+    def _set_task_descriptions(self) -> None:
         """
         Set the task description for agents based on the provided value or the default.
 
@@ -232,7 +232,7 @@ class Debate(AbstractStructure):
         super().__init__(agents, task_description, shuffle, cycles, last_n, combination_instructions, moderator)
 
     @staticmethod
-    def format_previous_responses(responses: List[str]) -> str:
+    def _format_previous_responses(responses: List[str]) -> str:
         """
         Format the previous responses for a debate-like interaction. This structure's response format differs from other structures.
         Formatting alternates between "You:" and "Other:" for each response in the list.
@@ -264,7 +264,7 @@ class Debate(AbstractStructure):
         for _ in range(self.cycles):
             for agent in self.agents:
                 previous_responses_slice = previous_responses[-self.last_n:]
-                previous_responses_str = self.format_previous_responses(previous_responses_slice)
+                previous_responses_str = self._format_previous_responses(previous_responses_slice)
                 agent.combination_instructions = self.combination_instructions
                 response = agent.process_task(previous_responses_str)
                 previous_responses.append(response)
