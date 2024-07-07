@@ -21,8 +21,8 @@ def print_anes_mapping():
     `Yes` and `No` to `do have children under 18 living in your household` and `do not have children under 18 living in your household`---though to
     search ANES you'd use the original values. of `Yes` and `No`.
     """
-    mapping = load_yaml('anes_mapping.yaml')
-    df = pd.read_csv(pkg_resources.resource_filename(__name__, 'data/anes_2024.csv'))
+    mapping = load_yaml('anes-mapping.yaml')
+    df = pd.read_csv(pkg_resources.resource_filename(__name__, 'data/anes_pilot_2024_20240319.csv'))
     for key in mapping.keys():
         details = mapping[key]
         clean_name = details.get('name', '')

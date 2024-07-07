@@ -12,7 +12,7 @@ persona_template:
    - Use plain language.
    - Adopt the characteristics of your persona.
    - Do not be overly polite or politically correct.
- 
+
  rational: |
   INSTRUCTIONS
   When answering questions or performing tasks, always adopt the following persona.
@@ -25,15 +25,15 @@ persona_template:
   - Think, talk, and write like your persona.
   - Use plain language.
   - Adopt the characteristics of your persona.
-  - Place an emphasis on reason-giving and providing rational bases for your answers
-  - When faced with information, give more value to factual and rational arguments rather than emotional ones
+  - Place an emphasis on reason-giving and providing rational bases for your answers.
+  - When faced with information, give more value to factual and rational arguments rather than emotional ones.
 
  empathetic: |
   INSTRUCTIONS
   When answering questions or performing tasks, always adopt the following persona.
 
   PERSONA:
-  {persona}
+  ${persona}
 
   CONSTRAINTS
   - When answering, do not disclose your partisan or demographic identity in any way.
@@ -41,7 +41,7 @@ persona_template:
   - Use plain language.
   - Adopt the characteristics of your persona.
   - Be empathetic and compassionate
-  - Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts
+  - Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts.
 
 combination_instructions:
  default: |
@@ -87,15 +87,15 @@ moderator:
     - Here are the previous responses: ${previous_responses}
     - Take the best parts of what was previously said.
   voting: |
-    - Incorporate the best parts of what others said to arrive at at a definite conclusion. Do so by aggregating previous responses. ${previous_responses}
+    - Incorporate the best parts of what others said to arrive at at a definite conclusion. Do so by aggregating previous responses: ${previous_responses}
   rational: |
     -Here are the previous responses: ${previous_responses}
     -Take the best parts of what was previously said.
-    -Keep your response under 125 words
+    -Keep your response under 125 words.
     -Within your response, try to achieve the common good, mutual respect, and a rationally motivated consensus to which all could agree
   empathetic: |
     -Here are the previous responses: ${previous_responses}
-    -Keep your response under 125 words
+    -Keep your response under 125 words.
     -Take the best parts of what was previously said.
-    -Give value to more emotional forms communication, such as narrative, rhetoric, testimony, storytelling, instead of only valuing rationality
-    -Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample
+    -Give value to more emotional forms communication, such as narrative, rhetoric, testimony, storytelling, instead of only valuing rationality.
+    -Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.

@@ -3,7 +3,7 @@ import pandas as pd
 from typing import Optional, Dict, Any
 from plurals.helpers import *
 from litellm import completion
-
+DEFAULTS = load_yaml("instructions.yaml")
 
 class Agent:
     """
@@ -58,8 +58,9 @@ class Agent:
         self.original_task_description = task
         self.current_task_description = task
         self.combination_instructions = None
+        self.defaults = DEFAULTS
         self.persona_template = persona_template
-        self.defaults = load_yaml("instructions.yaml")
+        self._validate_templates()
         self._validate_system_instructions()
         self._set_system_instructions()
         self.kwargs = kwargs
@@ -99,9 +100,9 @@ class Agent:
             self.persona = self._generate_persona()
 
         # Use the persona_template to create system_instructions
-        self.persona_template = self.defaults['persona_template'].get(self.persona_template, self.persona_template)
+        self.persona_template = self.defaults['persona_template'].get(self.persona_template, self.persona_template).strip()
         self.system_instructions = SmartString(self.persona_template).format(persona=self.persona,
-                                                                             task=self.task_description)
+                                                                             task=self.task_description).strip()
 
     def _load_default_data(self) -> pd.DataFrame:
         """
@@ -160,28 +161,6 @@ class Agent:
             self.current_task_description = self.original_task_description
         return self._get_response(self.current_task_description)
 
-    def _get_ideology_persona(self, data: pd.DataFrame, ideology: str) -> str:
-        """
-        Generates a persona description based on the dataset and ideology.
-
-        Args:
-            data (pd.DataFrame): The dataset to use for generating persona descriptions.
-            ideology (str): The ideological filter to apply.
-
-        Returns:
-            str: Generated persona description.
-        """
-        if ideology == 'liberal':
-            filtered_data = data[data['ideo5'].isin(['Liberal', 'Very liberal'])]
-        elif ideology == 'conservative':
-            filtered_data = data[data['ideo5'].isin(['Conservative', 'Very conservative'])]
-        elif ideology == 'moderate':
-            filtered_data = data[data['ideo5'].isin(['Moderate'])]
-
-        if not filtered_data.empty:
-            selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
-            return self._row2persona(selected_row, self.persona_mapping)
-        return "No data available for the specified ideology."
 
     def _get_random_persona(self, data: pd.DataFrame) -> str:
         """
@@ -252,8 +231,8 @@ class Agent:
                 value = details['recode_vals'][str(value)]
 
             clean_name = details['name']
-            persona.append(f"{clean_name} {value}.")
-        return " ".join(persona).lower()
+            persona.append(f"{clean_name} {str(value).lower()}.")
+        return " ".join(persona)
 
     def _validate_system_instructions(self):
         """
@@ -290,20 +269,22 @@ class Agent:
         """
         # if pass in persona_template, must contain persona placeholder
         if self.persona_template:
-            assert '${persona}' in self.persona_template, "If you pass in a persona_template, it must contain a ${persona} placeholder."
+            default_templates = list(self.defaults['persona_template'].keys())
+
+            assert '${persona}' in self.persona_template or self.persona_template in default_templates, "If you pass in a persona_template, it must contain a ${persona} placeholder or be one of the default templates:" + str(default_templates)
 
     def _convert_ideology_to_query_str(self, ideology: str) -> str:
         """
         Converts ideology to a query string for pandas DataFrame.
         """
-        if ideology == 'liberal':
-            return "ideo5 in ['Liberal', 'Very liberal']"
-        elif ideology == 'conservative':
-            return "ideo5 in ['Conservative', 'Very conservative']"
-        elif ideology == 'moderate':
+        if ideology.lower() == 'liberal':
+            return "ideo5=='Liberal'|ideo5=='Very liberal'"
+        elif ideology.lower() == 'conservative':
+            return"ideo5=='Conservative'|ideo5=='Very conservative'"
+        elif ideology.lower() == 'moderate':
             return "ideo5 == 'Moderate'"
-        elif ideology == "very liberal":
-            return "ideo5 == 'Very liberal"
-        elif ideology == "very conservative":
+        elif ideology.lower() == "very liberal":
+            return "ideo5 == 'Very liberal'"
+        elif ideology.lower() == "very conservative":
             return "ideo5 == 'Very conservative'"
         return ""
