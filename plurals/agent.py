@@ -71,7 +71,7 @@ class Agent:
         self.combination_instructions = None
         self.persona_template = persona_template
         self.defaults = load_yaml("instructions.yaml")
-        self.validate()
+        self.validate_system_instructions()
         self.set_system_instructions()
         self.kwargs = kwargs
 
@@ -237,9 +237,13 @@ class Agent:
                         persona_description_str += f"{field_name} {mapped_value}. "
         return persona_description_str.lower()
 
-    def validate(self):
+    def validate_system_instructions(self):
         """
-        Validates the necessary attributes for the Agent.
+        Validates the system instructions arguments.
+
+        Errors raised if:
+        - ideology or query_str is passed in without data and persona_mapping
+        - system_instructions is passed in with persona or persona_template
         """
         #  assert self.original_task_description is not None, "Need to provide some task instructions"
         if self.ideology or self.query_str:
@@ -249,3 +253,12 @@ class Agent:
         if self.system_instructions:
             assert not (
                     self.persona_template != 'default' or self.persona), "Cannot pass in system_instructions AND (persona_template or persona)"
+
+    def validate_templates(self):
+        """
+        Errors raised if:
+        - a user passes in persona_template but it does not contain a persona placeholder (so there is no way to format it)
+        """
+        # if pass in persona_template, must contain persona placeholder
+        if self.persona_template:
+            assert '${persona}' in self.persona_template, "If you pass in a persona_template, it must contain a ${persona} placeholder."
