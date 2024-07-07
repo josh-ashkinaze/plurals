@@ -99,17 +99,20 @@
 <span class="sd">        **kwargs: Additional keyword arguments. These are from LiteLLM&#39;s completion function. (see here: https://litellm.vercel.app/docs/completion/input)</span>
 
 <span class="sd">    Attributes:</span>
+<span class="sd">        task_description (Optional[str]): The description of the task to be processed. This will be a user_prompt.</span>
+<span class="sd">        data (Optional[pd.DataFrame]): The dataset used for generating persona descriptions if from dataset. But as of now, we only support ANES.</span>
+<span class="sd">        persona_mapping (Optional[Dict[str, Any]]): Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.</span>
+<span class="sd">        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual&#39;s other demographics.</span>
+<span class="sd">        query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.</span>
+<span class="sd">        model (str): The model version to use for processing.</span>
+<span class="sd">        system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.</span>
+<span class="sd">        persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.</span>
+<span class="sd">        persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.</span>
+<span class="sd">        **kwargs: Additional keyword arguments. These are from LiteLLM&#39;s completion function. (see here: https://litellm.vercel.app/docs/completion/input)</span>
 <span class="sd">        system_instructions (Optional[str]): The complete system instructions.</span>
 <span class="sd">        original_task_description (str): The original task description without modifications.</span>
 <span class="sd">        current_task_description (str): The current task description that appends `previous_responses&#39;.</span>
 <span class="sd">        history (list): A list of dicts like {&#39;prompt&#39;:prompt, &#39;response&#39;:response, &#39;model&#39;:model}</span>
-
-<span class="sd">    Methods:</span>
-<span class="sd">        process_task(previous_response=&quot;&quot;): Process the task, optionally building upon a previous response.</span>
-<span class="sd">        get_persona_description_ideology(data, ideology): Generates a persona description based on the dataset and ideology.</span>
-<span class="sd">        filter_data_by_ideology(data, ideology): Filters the dataset based on the specified ideology.</span>
-<span class="sd">        _get_response(task): Internal method to interact with the API and get a response.</span>
-<span class="sd">        row2persona(row, persona_mapping): Converts a dataset row into a persona description string.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -255,8 +258,6 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="Agent._get_response">
-<a class="viewcode-back" href="../../agent.html#plurals.agent.Agent._get_response">[docs]</a>
     <span class="k">def</span> <span class="nf">_get_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Internal method to interact with the LLM API and get a response.</span>
@@ -283,8 +284,7 @@
             <span class="k">return</span> <span class="n">content</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching response from LLM: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">None</span></div>
-
+            <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Agent.row2persona">
 <a class="viewcode-back" href="../../agent.html#plurals.agent.Agent.row2persona">[docs]</a>

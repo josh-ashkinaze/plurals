@@ -48,20 +48,24 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Agent Module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#plurals.agent.Agent"><code class="docutils literal notranslate"><span class="pre">Agent</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.task_description"><code class="docutils literal notranslate"><span class="pre">Agent.task_description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.data"><code class="docutils literal notranslate"><span class="pre">Agent.data</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.persona_mapping"><code class="docutils literal notranslate"><span class="pre">Agent.persona_mapping</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.ideology"><code class="docutils literal notranslate"><span class="pre">Agent.ideology</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.query_str"><code class="docutils literal notranslate"><span class="pre">Agent.query_str</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.model"><code class="docutils literal notranslate"><span class="pre">Agent.model</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.system_instructions"><code class="docutils literal notranslate"><span class="pre">Agent.system_instructions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.persona_template"><code class="docutils literal notranslate"><span class="pre">Agent.persona_template</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.persona"><code class="docutils literal notranslate"><span class="pre">Agent.persona</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">Agent.system_instructions</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.original_task_description"><code class="docutils literal notranslate"><span class="pre">Agent.original_task_description</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.current_task_description"><code class="docutils literal notranslate"><span class="pre">Agent.current_task_description</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.history"><code class="docutils literal notranslate"><span class="pre">Agent.history</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.process_task"><code class="docutils literal notranslate"><span class="pre">Agent.process_task()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.get_persona_description_ideology"><code class="docutils literal notranslate"><span class="pre">Agent.get_persona_description_ideology()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.filter_data_by_ideology"><code class="docutils literal notranslate"><span class="pre">Agent.filter_data_by_ideology()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent._get_response"><code class="docutils literal notranslate"><span class="pre">Agent._get_response()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.row2persona"><code class="docutils literal notranslate"><span class="pre">Agent.row2persona()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">Agent.filter_data_by_ideology()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id3"><code class="docutils literal notranslate"><span class="pre">Agent.get_persona_description_ideology()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.get_persona_description_ideology"><code class="docutils literal notranslate"><span class="pre">Agent.get_persona_description_ideology()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.load_default_data"><code class="docutils literal notranslate"><span class="pre">Agent.load_default_data()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id4"><code class="docutils literal notranslate"><span class="pre">Agent.process_task()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id5"><code class="docutils literal notranslate"><span class="pre">Agent.row2persona()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.process_task"><code class="docutils literal notranslate"><span class="pre">Agent.process_task()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.row2persona"><code class="docutils literal notranslate"><span class="pre">Agent.row2persona()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.set_system_instructions"><code class="docutils literal notranslate"><span class="pre">Agent.set_system_instructions()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.validate_system_instructions"><code class="docutils literal notranslate"><span class="pre">Agent.validate_system_instructions()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.validate_templates"><code class="docutils literal notranslate"><span class="pre">Agent.validate_templates()</span></code></a></li>
@@ -121,8 +125,113 @@
 </dd>
 </dl>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.task_description">
+<span class="sig-name descname"><span class="pre">task_description</span></span><a class="headerlink" href="#plurals.agent.Agent.task_description" title="Link to this definition"></a></dt>
+<dd><p>The description of the task to be processed. This will be a user_prompt.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.data">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#plurals.agent.Agent.data" title="Link to this definition"></a></dt>
+<dd><p>The dataset used for generating persona descriptions if from dataset. But as of now, we only support ANES.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[pd.DataFrame]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.persona_mapping">
+<span class="sig-name descname"><span class="pre">persona_mapping</span></span><a class="headerlink" href="#plurals.agent.Agent.persona_mapping" title="Link to this definition"></a></dt>
+<dd><p>Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.ideology">
+<span class="sig-name descname"><span class="pre">ideology</span></span><a class="headerlink" href="#plurals.agent.Agent.ideology" title="Link to this definition"></a></dt>
+<dd><p>Ideology can be <cite>liberal</cite> or <cite>conservative</cite> and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual’s other demographics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.query_str">
+<span class="sig-name descname"><span class="pre">query_str</span></span><a class="headerlink" href="#plurals.agent.Agent.query_str" title="Link to this definition"></a></dt>
+<dd><p>A string used for a pandas query clause on the dataframe. As of now, we only support ANES.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#plurals.agent.Agent.model" title="Link to this definition"></a></dt>
+<dd><p>The model version to use for processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="plurals.agent.Agent.system_instructions">
 <span class="sig-name descname"><span class="pre">system_instructions</span></span><a class="headerlink" href="#plurals.agent.Agent.system_instructions" title="Link to this definition"></a></dt>
+<dd><p>The complete system instructions. If this is included, it will override any persona and persona_template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.persona_template">
+<span class="sig-name descname"><span class="pre">persona_template</span></span><a class="headerlink" href="#plurals.agent.Agent.persona_template" title="Link to this definition"></a></dt>
+<dd><p>Template for the persona description. This persona must have a ${persona} placeholder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.persona">
+<span class="sig-name descname"><span class="pre">persona</span></span><a class="headerlink" href="#plurals.agent.Agent.persona" title="Link to this definition"></a></dt>
+<dd><p>The persona description to adopt for the task. This is a string that will be used with the <cite>persona_template</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">\*\*kwargs</span></span></dt>
+<dd><p>Additional keyword arguments. These are from LiteLLM’s completion function. (see here: <a class="reference external" href="https://litellm.vercel.app/docs/completion/input">https://litellm.vercel.app/docs/completion/input</a>)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">system_instructions</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
 <dd><p>The complete system instructions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -165,38 +274,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="plurals.agent.Agent.process_task">
-<span class="sig-name descname"><span class="pre">process_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">previous_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#Agent.process_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.process_task" title="Link to this definition"></a></dt>
-<dd><p>Process the task, optionally building upon a previous response.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="plurals.agent.Agent.get_persona_description_ideology">
-<span class="sig-name descname"><span class="pre">get_persona_description_ideology</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ideology</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#Agent.get_persona_description_ideology"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.get_persona_description_ideology" title="Link to this definition"></a></dt>
-<dd><p>Generates a persona description based on the dataset and ideology.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="plurals.agent.Agent.filter_data_by_ideology">
-<span class="sig-name descname"><span class="pre">filter_data_by_ideology</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ideology</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#Agent.filter_data_by_ideology"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.filter_data_by_ideology" title="Link to this definition"></a></dt>
-<dd><p>Filters the dataset based on the specified ideology.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="plurals.agent.Agent._get_response">
-<span class="sig-name descname"><span class="pre">_get_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#Agent._get_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent._get_response" title="Link to this definition"></a></dt>
-<dd><p>Internal method to interact with the API and get a response.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="plurals.agent.Agent.row2persona">
-<span class="sig-name descname"><span class="pre">row2persona</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persona_mapping</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#Agent.row2persona"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.row2persona" title="Link to this definition"></a></dt>
-<dd><p>Converts a dataset row into a persona description string.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">filter_data_by_ideology</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ideology</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#Agent.filter_data_by_ideology"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">filter_data_by_ideology</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ideology</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#Agent.filter_data_by_ideology"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.filter_data_by_ideology" title="Link to this definition"></a></dt>
 <dd><p>Filters the dataset based on the specified ideology.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -215,8 +294,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id3">
-<span class="sig-name descname"><span class="pre">get_persona_description_ideology</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ideology</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#Agent.get_persona_description_ideology"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="plurals.agent.Agent.get_persona_description_ideology">
+<span class="sig-name descname"><span class="pre">get_persona_description_ideology</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ideology</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#Agent.get_persona_description_ideology"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.get_persona_description_ideology" title="Link to this definition"></a></dt>
 <dd><p>Generates a persona description based on the dataset and ideology.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -249,8 +328,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id4">
-<span class="sig-name descname"><span class="pre">process_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">previous_responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#Agent.process_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="plurals.agent.Agent.process_task">
+<span class="sig-name descname"><span class="pre">process_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">previous_responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#Agent.process_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.process_task" title="Link to this definition"></a></dt>
 <dd><p>Process the task, optionally building upon a previous response.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -266,8 +345,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id5">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">row2persona</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persona_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#Agent.row2persona"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="plurals.agent.Agent.row2persona">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">row2persona</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persona_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#Agent.row2persona"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.row2persona" title="Link to this definition"></a></dt>
 <dd><p>Converts a dataset row into a persona description string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
