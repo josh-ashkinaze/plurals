@@ -3,6 +3,8 @@ import pandas as pd
 from typing import Optional, Dict, Any
 from plurals.helpers import *
 from litellm import completion
+import warnings
+
 DEFAULTS = load_yaml("instructions.yaml")
 
 class Agent:
@@ -33,6 +35,7 @@ class Agent:
         original_task_description (str): The original task description without modifications.
         current_task_description (str): The current task description that appends `previous_responses'.
         history (list): A list of dicts like {'prompt':prompt, 'response':response, 'model':model}
+        info (dict): A dictionary of different attributes of the agent.
     """
 
     def __init__(self,
@@ -48,7 +51,7 @@ class Agent:
                  **kwargs):
         self.model = model
         self.system_instructions = system_instructions
-        self.history = []
+        self._history = []
         self.persona_mapping = persona_mapping
         self.task_description = task
         self.persona = persona
@@ -200,7 +203,7 @@ class Agent:
             content = response.choices[0].message.content
             prompts = {'system': next((msg['content'] for msg in messages if msg['role'] == 'system'), None),
                        'user': next((msg['content'] for msg in messages if msg['role'] == 'user'), None)}
-            self.history.append({'prompts': prompts, 'response': content, 'model': self.model})
+            self._history.append({'prompts': prompts, 'response': content, 'model': self.model})
             return content
         except Exception as e:
             print(f"Error fetching response from LLM: {e}")
@@ -289,3 +292,26 @@ class Agent:
         elif ideology.lower() == "very conservative":
             return "ideo5 == 'Very conservative'"
         return ""
+
+    @property
+    def history(self):
+        if not self._history:
+            warnings.warn("No history found. Please process a task first!")
+            return None
+        else:
+            return self._history
+
+    @ property
+    def info(self):
+        return {"task": self.task_description,
+                "system_instructions": self.system_instructions,
+                "history": self.history,
+                "persona": self.persona,
+                "ideology": self.ideology,
+                "query_str": self.query_str,
+                "model": self.model,
+                "persona_template": self.persona_template,
+                "kwargs": self.kwargs}
+    def __repr__(self):
+        return str(self.info)
+
