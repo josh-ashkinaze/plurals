@@ -1,6 +1,4 @@
 include README.md
 include LICENSE
 include requirements.txt
-include plurals/anes-mapping.yaml
-include plurals/plurals/instructions.yaml
-include plurals/plurals/data/anes.csv
+recursive-include plurals *
