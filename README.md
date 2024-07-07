@@ -30,7 +30,7 @@ pip install plurals
 # Package Overview
 `Plurals` is based on two abstractions---`Agents` (who complete tasks) and `Structures` (which are the structures in which `agents` complete their tasks.)
 
-Regarding `agents`, the package allows for various kinds of persona initializations. Some of these leverage American National Electoral Studies (ANES), nationally-representative dataset. By using ANES, we can quickly draw up personas that represent the population. 
+Regarding `agents`, the package allows for various kinds of persona initializations. Some of these leverage American National Electoral Studies (ANES), nationally-representative dataset. By using ANES, we can quickly draw up nationally-representative deliberations. 
 
 Regarding `structures`, the package allows for various kinds of ways agents can share information. For example, an `ensemble` consists of agents processing tasks in parallel whereas a `chain` consists of agents who each see the prior agent's response. 
 
@@ -142,7 +142,7 @@ print(agents[1].system_instructions)
 ```
 
 ### Using ANES for nationally representative personas 
-We have several ways to leverage government datasets for creating simulated personas. The basic idea is that we search ANES for a row that satisifes some data criteria, and then condition the persona variable on the demographics in that row. So, if one wanted to get a persona of a liberal, we would search ANES for liberal Americans, sample a citizen at random, and then use their other attributes in the persona as well. 
+We have several ways to leverage government datasets for creating simulated personas. The basic idea is that we search ANES for a row that satisfies some data criteria, and then condition the persona variable on the demographics in that row. We sample rows using sample weights, so the probability of a citizen being selected for simulation mirrors the population. For example, if one wanted to get a persona of a liberal, we would search ANES for liberal Americans, sample a citizen at random (using weights), and then use that citizen's other attributes in the persona as well. 
 
 #### Option 1: Syntactic Sugar: Searching for ideologies 
 We support a `ideology` keyword that can be one of `['very liberal', 'liberal', 'moderate', 'conservative', 'very conservative']` where the 'veries' are a subset of the normals. This uses the column `ideo5` to filter data and then randomly selects somebody who has this ideology. 
