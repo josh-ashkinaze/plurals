@@ -109,9 +109,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span><span class="s1">&#39;combination_instructions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">combination_instructions</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="p">))</span>
 
-<div class="viewcode-block" id="Moderator.moderate_responses">
-<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Moderator.moderate_responses">[docs]</a>
-    <span class="k">def</span> <span class="nf">moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">original_task</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">original_task</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Combine responses using the moderator persona and instructions.</span>
 
@@ -129,7 +127,6 @@
                                                                                 <span class="n">previous_responses</span><span class="o">=</span><span class="n">combined_responses_str</span><span class="p">,</span>
                                                                                 <span class="n">persona</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_task</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">combined_responses_str</span><span class="p">)</span></div>
-</div>
 
 
 
@@ -170,8 +167,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="n">task_description</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">=</span> <span class="n">agents</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">combination_instructions</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_combination_instructions</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_task_descriptions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_combination_instructions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_task_descriptions</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span> <span class="o">=</span> <span class="n">shuffle</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_n</span> <span class="o">=</span> <span class="n">last_n</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cycles</span> <span class="o">=</span> <span class="n">cycles</span>
@@ -188,9 +185,7 @@
         <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">))</span>
 
-<div class="viewcode-block" id="AbstractStructure.set_combination_instructions">
-<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.AbstractStructure.set_combination_instructions">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_combination_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_set_combination_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the combination instructions for agents based on the provided value or the default.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -202,12 +197,9 @@
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Writing over agent&#39;s combination instructions with Chain&#39;s combination instructions&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">pass</span>
-            <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span></div>
+            <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
 
-
-<div class="viewcode-block" id="AbstractStructure.set_task_descriptions">
-<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.AbstractStructure.set_task_descriptions">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_task_descriptions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_set_task_descriptions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the task description for agents based on the provided value or the default.</span>
 
@@ -225,8 +217,7 @@
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Writing over agent&#39;s task with Chain&#39;s task&quot;</span><span class="p">)</span>
                 <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_description</span>
                 <span class="n">agent</span><span class="o">.</span><span class="n">original_task_description</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span>
-                <span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task_description</span><span class="p">)</span></div>
-
+                <span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task_description</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -279,7 +270,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
-            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span> <span class="n">original_task</span><span class="p">)</span>
+            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span> <span class="n">original_task</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 </div>
@@ -338,10 +329,8 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Debate requires exactly two agents.&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="n">task_description</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">last_n</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="p">,</span> <span class="n">moderator</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Debate.format_previous_responses">
-<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Debate.format_previous_responses">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Format the previous responses for a debate-like interaction. This structure&#39;s response format differs from other structures.</span>
 <span class="sd">        Formatting alternates between &quot;You:&quot; and &quot;Other:&quot; for each response in the list.</span>
@@ -362,8 +351,7 @@
                 <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
                 <span class="n">formatted_responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">formatted_responses</span><span class="p">)</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted_responses</span><span class="p">)</span></div>
-
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted_responses</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Debate.process">
 <a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Debate.process">[docs]</a>
@@ -376,7 +364,7 @@
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
                 <span class="n">previous_responses_slice</span> <span class="o">=</span> <span class="n">previous_responses</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span><span class="p">:]</span>
-                <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_previous_responses</span><span class="p">(</span><span class="n">previous_responses_slice</span><span class="p">)</span>
+                <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_previous_responses</span><span class="p">(</span><span class="n">previous_responses_slice</span><span class="p">)</span>
                 <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process_task</span><span class="p">(</span><span class="n">previous_responses_str</span><span class="p">)</span>
                 <span class="n">previous_responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
