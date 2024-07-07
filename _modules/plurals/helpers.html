@@ -80,40 +80,58 @@
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">pkg_resources</span>
 
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<div class="viewcode-block" id="print_values">
-<a class="viewcode-back" href="../../helpers.html#plurals.helpers.print_values">[docs]</a>
-<span class="k">def</span> <span class="nf">print_values</span><span class="p">(</span><span class="n">mapping</span><span class="p">):</span>
+
+<div class="viewcode-block" id="print_anes_mapping">
+<a class="viewcode-back" href="../../helpers.html#plurals.helpers.print_anes_mapping">[docs]</a>
+<span class="k">def</span> <span class="nf">print_anes_mapping</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Prints the values of ANES mapping in a human-readable format.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        mapping: mapping (just ANEs supported for now)</span>
+<span class="sd">    The purpose of this function is that in some cases users will want to conduct their own query on the ANES dataset, but</span>
+<span class="sd">    it is difficult to know what the values are without consulting a codebook. We also recode certain values. So here we</span>
+<span class="sd">    print the values of the ANES mapping in a neat/clean/human-readable way for consumer.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        None</span>
-
-<span class="sd">    Prints:</span>
-<span class="sd">        The values of the ANES mapping in a neat/clean/human-readable way.</span>
+<span class="sd">    Note: Whenever we print `recode values` this means that we have recoded the values from the original dataset to use in persona strings. For example,</span>
+<span class="sd">    for `child18&#39;, the question was whether the participant has children under 18 living in their household. For persona processing, we changed</span>
+<span class="sd">    `Yes` and `No` to `do have children under 18 living in your household` and `do not have children under 18 living in your household`---though to</span>
+<span class="sd">    search ANES you&#39;d use the original values. of `Yes` and `No`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s1">&#39;anes_mapping.yaml&#39;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;data/anes_2024.csv&#39;</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="n">vals</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;values&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
-            <span class="k">for</span> <span class="n">sub_key</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">sub_vals</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="n">sub_key</span><span class="p">]</span>
-                <span class="n">sorted_sub_vals</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-                    <span class="nb">sorted</span><span class="p">(</span><span class="n">sub_vals</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mapping</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">sub_key</span><span class="si">}</span><span class="s2">):&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">val_key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">sorted_sub_vals</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">val_key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">sorted_vals</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-                <span class="nb">sorted</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">mapping</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">val_key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">sorted_vals</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">==</span><span class="si">{</span><span class="n">val_key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">details</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">clean_name</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">var_name</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;clean_var&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ANES Variable Name: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Handle recode_vals</span>
+        <span class="n">recode_vals</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;recode_vals&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">recode_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">recode_vals</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">recode_vals</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clean_name</span><span class="si">}</span><span class="s2"> (recode values):&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">val_key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">recode_vals</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">val_key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Skip printing bad_vals</span>
+        <span class="n">bad_vals</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bad_vals&#39;</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
+
+        <span class="c1"># Print the main values from the DataFrame, excluding those that are recode values</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Persona string: `</span><span class="si">{</span><span class="n">clean_name</span><span class="si">}</span><span class="s2">`:&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+            <span class="c1"># If it&#39;s the case that all values are recoded don&#39;t double print</span>
+            <span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">recode_keys</span><span class="p">):</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bad_vals</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">recode_keys</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">()</span></div>
+
 
 
 

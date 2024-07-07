@@ -54,7 +54,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#plurals.helpers.format_previous_responses"><code class="docutils literal notranslate"><span class="pre">format_previous_responses()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#plurals.helpers.load_yaml"><code class="docutils literal notranslate"><span class="pre">load_yaml()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#plurals.helpers.print_values"><code class="docutils literal notranslate"><span class="pre">print_values()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plurals.helpers.print_anes_mapping"><code class="docutils literal notranslate"><span class="pre">print_anes_mapping()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -143,21 +143,16 @@ relative to this script’s location.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="plurals.helpers.print_values">
-<span class="sig-prename descclassname"><span class="pre">plurals.helpers.</span></span><span class="sig-name descname"><span class="pre">print_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/helpers.html#print_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.helpers.print_values" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="plurals.helpers.print_anes_mapping">
+<span class="sig-prename descclassname"><span class="pre">plurals.helpers.</span></span><span class="sig-name descname"><span class="pre">print_anes_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/helpers.html#print_anes_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.helpers.print_anes_mapping" title="Link to this definition"></a></dt>
 <dd><p>Prints the values of ANES mapping in a human-readable format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mapping</strong> – mapping (just ANEs supported for now)</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Prints:</dt><dd><p>The values of the ANES mapping in a neat/clean/human-readable way.</p>
-</dd>
-</dl>
+<p>The purpose of this function is that in some cases users will want to conduct their own query on the ANES dataset, but
+it is difficult to know what the values are without consulting a codebook. We also recode certain values. So here we
+print the values of the ANES mapping in a neat/clean/human-readable way for consumer.</p>
+<p>Note: Whenever we print <cite>recode values</cite> this means that we have recoded the values from the original dataset to use in persona strings. For example,
+for <cite>child18’, the question was whether the participant has children under 18 living in their household. For persona processing, we changed
+`Yes</cite> and <cite>No</cite> to <cite>do have children under 18 living in your household</cite> and <cite>do not have children under 18 living in your household</cite>—though to
+search ANES you’d use the original values. of <cite>Yes</cite> and <cite>No</cite>.</p>
 </dd></dl>
 
 </section>

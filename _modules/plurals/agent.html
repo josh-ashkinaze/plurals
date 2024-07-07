@@ -87,11 +87,9 @@
 <span class="sd">    A class to represent an agent that processes tasks based on specific characteristics.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        task_description (Optional[str]): The description of the task to be processed. This will be a user_prompt.</span>
-<span class="sd">        data (Optional[pd.DataFrame]): The dataset used for generating persona descriptions if from dataset. But as of now, we only support ANES.</span>
-<span class="sd">        persona_mapping (Optional[Dict[str, Any]]): Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.</span>
-<span class="sd">        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual&#39;s other demographics.</span>
-<span class="sd">        query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.</span>
+<span class="sd">        task (Optional[str]): The description of the task to be processed. This will be a user_prompt.</span>
+<span class="sd">        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES 2024 for rows where the participant is a liberal or conservative, and then condition the persona on that individual&#39;s other demographics.</span>
+<span class="sd">        query_str (Optional[str]): A string used for a pandas query clause on the ANES 2024 data. </span>
 <span class="sd">        model (str): The model version to use for processing.</span>
 <span class="sd">        system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.</span>
 <span class="sd">        persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.</span>
@@ -100,7 +98,6 @@
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        task_description (Optional[str]): The description of the task to be processed. This will be a user_prompt.</span>
-<span class="sd">        data (Optional[pd.DataFrame]): The dataset used for generating persona descriptions if from dataset. But as of now, we only support ANES.</span>
 <span class="sd">        persona_mapping (Optional[Dict[str, Any]]): Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.</span>
 <span class="sd">        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual&#39;s other demographics.</span>
 <span class="sd">        query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.</span>
@@ -116,7 +113,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">task_description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">persona_mapping</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">ideology</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -130,13 +127,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">system_instructions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span> <span class="o">=</span> <span class="n">persona_mapping</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="n">task_description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="n">task</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">persona</span> <span class="o">=</span> <span class="n">persona</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span> <span class="o">=</span> <span class="n">ideology</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_default_data</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span> <span class="o">=</span> <span class="n">query_str</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span> <span class="o">=</span> <span class="n">task_description</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="n">task_description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span> <span class="o">=</span> <span class="n">task</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="n">task</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="o">=</span> <span class="n">persona_template</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s2">&quot;instructions.yaml&quot;</span><span class="p">)</span>
@@ -178,10 +175,16 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            pd.DataFrame: The loaded ANES dataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">default_data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;anes_pilot_2022_csv_20221214.csv&#39;</span><span class="p">)</span>
+        <span class="n">default_data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;anes_pilot_2024_20240319.csv&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s2">&quot;anes-mapping.yaml&quot;</span><span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="c1"># As per codebook page 2 section 1, 409 cases don&#39;t have weights and are not meant</span>
+        <span class="c1"># for population inference.</span>
+        <span class="c1"># codebook url:</span>
+        <span class="c1"># https://electionstudies.org/wp-content/uploads/2024/03/anes_pilot_2024_userguidecodebook_20240319.pdf</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">dataset</span></div>
 
 
     <span class="k">def</span> <span class="nf">_generate_persona</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -194,7 +197,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_persona_description_ideology</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">row2persona</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span><span class="p">)</span>
+            <span class="n">filtered_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">)</span>
+            <span class="n">selected_row</span> <span class="o">=</span> <span class="n">filtered_data</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">filtered_data</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">row2persona</span><span class="p">(</span><span class="n">selected_row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;No persona data available.&quot;</span>
 
 <div class="viewcode-block" id="Agent.process_task">
@@ -233,7 +238,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filtered_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_data_by_ideology</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ideology</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filtered_data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-            <span class="n">selected_row</span> <span class="o">=</span> <span class="n">filtered_data</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">selected_row</span> <span class="o">=</span> <span class="n">filtered_data</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">filtered_data</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">row2persona</span><span class="p">(</span><span class="n">selected_row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;No data available for the specified ideology.&quot;</span></div>
 
@@ -252,9 +257,9 @@
 <span class="sd">            pd.DataFrame: Filtered dataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">ideology</span> <span class="o">==</span> <span class="s1">&#39;liberal&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])]</span>
+            <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s1">&#39;Liberal&#39;</span><span class="p">,</span> <span class="s1">&#39;Very liberal&#39;</span><span class="p">])]</span>
         <span class="k">elif</span> <span class="n">ideology</span> <span class="o">==</span> <span class="s1">&#39;conservative&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])]</span>
+            <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s1">&#39;Conservative&#39;</span><span class="p">,</span> <span class="s1">&#39;Very conservative&#39;</span><span class="p">])]</span>
         <span class="k">return</span> <span class="n">data</span></div>
 
 
@@ -300,29 +305,22 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            str: Generated persona description.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">persona_description_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">persona_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">field_name</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;race&#39;</span><span class="p">:</span>
-                <span class="n">race_found</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="k">for</span> <span class="n">race_key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;eth&#39;</span><span class="p">,</span> <span class="s1">&#39;rwh&#39;</span><span class="p">,</span> <span class="s1">&#39;rbl&#39;</span><span class="p">,</span> <span class="s1">&#39;rain&#39;</span><span class="p">,</span> <span class="s1">&#39;ras&#39;</span><span class="p">,</span> <span class="s1">&#39;rpi&#39;</span><span class="p">,</span> <span class="s1">&#39;roth&#39;</span><span class="p">]:</span>
-                    <span class="k">if</span> <span class="n">race_key</span> <span class="ow">in</span> <span class="n">row</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">race_key</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
-                        <span class="n">race_description</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">][</span><span class="n">race_key</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;Unknown&#39;</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">race_description</span><span class="p">:</span>
-                            <span class="n">persona_description_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">race_description</span><span class="si">}</span><span class="s2">. &quot;</span>
-                            <span class="n">race_found</span> <span class="o">=</span> <span class="kc">True</span>
-                            <span class="k">break</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">race_found</span><span class="p">:</span>
-                    <span class="n">persona_description_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> Unknown. &quot;</span>
-            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">row</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;birthyr_dropdown&quot;</span> <span class="ow">and</span> <span class="s1">&#39;integer&#39;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]:</span>
-                    <span class="n">age</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span> <span class="o">-</span> <span class="n">row</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-                    <span class="n">persona_description_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">age</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">mapped_value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">key</span><span class="p">]),</span> <span class="s1">&#39;Unknown&#39;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="s2">&quot;inapplicable&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mapped_value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="s2">&quot;legitimate skip&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mapped_value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="s2">&quot;unknown&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mapped_value</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
-                        <span class="n">persona_description_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">mapped_value</span><span class="si">}</span><span class="s2">. &quot;</span>
-        <span class="k">return</span> <span class="n">persona_description_str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
+        <span class="n">persona</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">details</span> <span class="ow">in</span> <span class="n">persona_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;birthyr&quot;</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="mi">2024</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bad_vals&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;bad_vals&#39;</span><span class="p">]):</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;recode_vals&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;recode_vals&#39;</span><span class="p">]:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;recode_vals&#39;</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span>
+
+            <span class="n">clean_name</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            <span class="n">persona</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clean_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">persona</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="Agent.validate_system_instructions">
