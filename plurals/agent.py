@@ -11,7 +11,7 @@ class Agent:
 
     Args:
         task (Optional[str]): The description of the task to be processed. This will be a user_prompt.
-        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES 2024 for rows where the participant is a liberal or conservative, and then condition the persona on that individual's other demographics.
+        ideology (Optional[str]): Ideology can be 'liberal',  'conservative', or 'moderate'. And if passed in, this will search ANES 2024 for rows where the participant is a liberal or conservative or moderate, and then condition the persona on that individual's other demographics.
         query_str (Optional[str]): A string used for a pandas query clause on the ANES 2024 data. 
         model (str): The model version to use for processing.
         system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.
@@ -20,7 +20,7 @@ class Agent:
         **kwargs: Additional keyword arguments. These are from LiteLLM's completion function. (see here: https://litellm.vercel.app/docs/completion/input)
 
     Attributes:
-        task_description (Optional[str]): The description of the task to be processed. This will be a user_prompt.
+        task (Optional[str]): The description of the task to be processed. This will be a user_prompt.
         persona_mapping (Optional[Dict[str, Any]]): Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.
         ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual's other demographics.
         query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.
@@ -67,6 +67,15 @@ class Agent:
     def set_system_instructions(self):
         """
         Users can directly pass in system_instructions. Or, we can generate system instructions by combining a persona_template and a persona.
+
+        In these two cases, persona_template does not do anything since system_instructions is set directly or is None.
+        - If system_instructions is already provided, we don't need to do anything since system_instructions is already set.
+        - If neither system_instructions, persona, ideology, nor query_str is provided (default) set system_instructions to None.
+
+        Otherwise, we generate system instructions using a persona:
+        - If persona is directly provided, use this.
+        - If persona is "random" generate a random ANES persona
+        - If persona is not already provided, generate it. This can be generated from a `query_str` or from `ideology`.
         """
         # If system_instructions is already provided, we don't need to do anything
         if self.system_instructions is not None:
@@ -76,6 +85,14 @@ class Agent:
         if not self.system_instructions and not self.persona and not self.ideology and not self.query_str:
             self.system_instructions = None
             return
+
+        # If persona is already provided, use it.
+        if self.persona:
+            self.persona = self.persona
+
+        # If persona is "random" generate a random ANES persona
+        if self.persona == "random":
+            self.persona = self._generate_persona()
 
         # If persona is not already provided, generate it
         if not self.persona:
@@ -111,8 +128,10 @@ class Agent:
         Returns:
             str: Generated persona description.
         """
+        if self.persona=="random":
+            return self.get_random_persona(self.data)
         if self.ideology:
-            return self.get_persona_description_ideology(self.data, self.ideology)
+            return self.get_ideology_persona(self.data, self.ideology)
         elif self.query_str:
             filtered_data = self.data.query(self.query_str)
             selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
@@ -137,7 +156,7 @@ class Agent:
             self.current_task_description = self.original_task_description
         return self._get_response(self.current_task_description)
 
-    def get_persona_description_ideology(self, data: pd.DataFrame, ideology: str) -> str:
+    def get_ideology_persona(self, data: pd.DataFrame, ideology: str) -> str:
         """
         Generates a persona description based on the dataset and ideology.
 
@@ -148,28 +167,30 @@ class Agent:
         Returns:
             str: Generated persona description.
         """
-        filtered_data = self.filter_data_by_ideology(data, ideology)
+        if ideology == 'liberal':
+            filtered_data = data[data['ideo5'].isin(['Liberal', 'Very liberal'])]
+        elif ideology == 'conservative':
+            filtered_data = data[data['ideo5'].isin(['Conservative', 'Very conservative'])]
+        elif ideology == 'moderate':
+            filtered_data = data[data['ideo5'].isin(['Moderate'])]
+
         if not filtered_data.empty:
             selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
             return self.row2persona(selected_row, self.persona_mapping)
         return "No data available for the specified ideology."
 
-    def filter_data_by_ideology(self, data: pd.DataFrame, ideology: str) -> pd.DataFrame:
+    def get_random_persona(self, data: pd.DataFrame) -> str:
         """
-        Filters the dataset based on the specified ideology.
+        Generates a random persona description based on the dataset.
 
         Args:
-            data (pd.DataFrame): The dataset to filter.
-            ideology (str): The ideological filter to apply.
+            data (pd.DataFrame): The dataset to use for generating persona descriptions.
 
         Returns:
-            pd.DataFrame: Filtered dataset.
+            str: Generated persona description.
         """
-        if ideology == 'liberal':
-            return data[data['ideo5'].isin(['Liberal', 'Very liberal'])]
-        elif ideology == 'conservative':
-            return data[data['ideo5'].isin(['Conservative', 'Very conservative'])]
-        return data
+        selected_row = data.sample(n=1, weights=data['weight']).iloc[0]
+        return self.row2persona(selected_row, self.persona_mapping)
 
     def _get_response(self, task: str) -> Optional[str]:
         """
@@ -193,7 +214,9 @@ class Agent:
         try:
             response = completion(model=self.model, messages=messages, **self.kwargs)
             content = response.choices[0].message.content
-            self.history.append({'prompts': messages, 'response': content, 'model': self.model})
+            prompts = {'system': next((msg['content'] for msg in messages if msg['role'] == 'system'), None),
+                       'user': next((msg['content'] for msg in messages if msg['role'] == 'user'), None)}
+            self.history.append({'prompts': prompts, 'response': content, 'model': self.model})
             return content
         except Exception as e:
             print(f"Error fetching response from LLM: {e}")
@@ -235,6 +258,8 @@ class Agent:
         Errors raised if:
         - ideology or query_str is passed in without data and persona_mapping
         - system_instructions is passed in with persona or persona_template
+        - ideology or query_str is passed in with persona
+        - ideology is passed in and it's not in ['liberal', 'moderate', 'conservative']
         """
         #  assert self.original_task_description is not None, "Need to provide some task instructions"
         if self.ideology or self.query_str:
@@ -244,6 +269,15 @@ class Agent:
         if self.system_instructions:
             assert not (
                     self.persona_template != 'default' or self.persona), "Cannot pass in system_instructions AND (persona_template or persona)"
+
+        # cannot pass in (idelogy or query_str) AND (persona)
+        if self.ideology or self.query_str:
+            assert not self.persona, "Cannot pass in (ideology or query_str) AND persona"
+
+        # ideology must be in ['liberal', 'conservative', 'moderate']
+        if self.ideology:
+            assert self.ideology in ['liberal', 'conservative', 'moderate'], "Ideology has to be one of: 'liberal', 'conservative', 'moderate'"
+
 
     def validate_templates(self):
         """
