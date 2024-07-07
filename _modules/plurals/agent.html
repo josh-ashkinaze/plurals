@@ -96,22 +96,12 @@
 <span class="sd">        system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.</span>
 <span class="sd">        persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.</span>
 <span class="sd">        persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.</span>
-<span class="sd">        **kwargs: Additional keyword arguments.</span>
+<span class="sd">        **kwargs: Additional keyword arguments. These are from LiteLLM&#39;s completion function. (see here: https://litellm.vercel.app/docs/completion/input)</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        task_description (Optional[str]): The description of the task to be processed. This will be a user_prompt.</span>
-<span class="sd">        data (Optional[pd.DataFrame]): The dataset used for generating persona descriptions if from dataset. But as of now, we only support ANES.</span>
-<span class="sd">        persona_mapping (Optional[Dict[str, Any]]): Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.</span>
-<span class="sd">        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual&#39;s other demographics.</span>
-<span class="sd">        query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.</span>
-<span class="sd">        model (str): The model version to use for processing.</span>
-<span class="sd">        system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.</span>
-<span class="sd">        persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.</span>
-<span class="sd">        persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.</span>
-<span class="sd">        **kwargs: Additional keyword arguments.These are from LiteLLM&#39;s completion function. (see here: https://litellm.vercel.app/docs/completion/input)</span>
+<span class="sd">        system_instructions (Optional[str]): The complete system instructions.</span>
 <span class="sd">        original_task_description (str): The original task description without modifications.</span>
 <span class="sd">        current_task_description (str): The current task description that appends `previous_responses&#39;.</span>
-<span class="sd">        data (pd.DataFrame): The dataset used for generating persona descriptions. As of now, we implement ANES.</span>
 <span class="sd">        history (list): A list of dicts like {&#39;prompt&#39;:prompt, &#39;response&#39;:response, &#39;model&#39;:model}</span>
 
 <span class="sd">    Methods:</span>
@@ -122,7 +112,6 @@
 <span class="sd">        row2persona(row, persona_mapping): Converts a dataset row into a persona description string.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># noinspection PyTypeChecker</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">task_description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -173,7 +162,8 @@
 
         <span class="c1"># Use the persona_template to create system_instructions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;prefix_template&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task_description</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span>
+                                                                             <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task_description</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Agent.load_default_data">
@@ -217,12 +207,12 @@
 <span class="sd">            Optional[str]: The response from the LLM.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">previous_responses</span><span class="p">:</span>
-            <span class="n">combined_responses</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses</span><span class="p">)</span>
+            <span class="n">combined_responses</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">combined_responses</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span><span class="p">)</span></div>
-
 
 
 <div class="viewcode-block" id="Agent.get_persona_description_ideology">
