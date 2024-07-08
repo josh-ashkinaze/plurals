@@ -2,7 +2,7 @@
 
 - [Installation](#installation)
 - [Package Overview](#package-overview)
-- [Read full documentation here:](#read-full-documentation-here)
+- [Read full documentation here](#read-full-documentation-here)
 - [Uses](#uses)
 - [Agents](#agents)
    * [Quick Start](#quick-start)
@@ -39,7 +39,7 @@ Regarding `structures`, the package allows for various kinds of ways agents can 
 an `ensemble` consists of agents processing tasks in parallel whereas a `chain` consists of agents who each see the
 prior agent's response.
 
-# Read full documentation here:
+# Read full documentation here
 
 https://josh-ashkinaze.github.io/plurals/
 
