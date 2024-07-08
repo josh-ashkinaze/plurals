@@ -65,8 +65,7 @@ class Agent:
         info (dict): Comprehensive attributes of the agent's current configuration and state.
     """
 
-    def __init__(self, task: Optional[str] = None, data: Optional[pd.DataFrame] = None,
-                 persona_mapping: Optional[Dict[str, Any]] = None, ideology: Optional[str] = None,
+    def __init__(self, task: Optional[str] = None, ideology: Optional[str] = None,
                  query_str: Optional[str] = None, model: str = "gpt-4o", system_instructions: Optional[str] = None,
                  persona_template: Optional[str] = "default", persona: Optional[str] = None, **kwargs):
         self.model = model
@@ -152,16 +151,22 @@ class Agent:
             selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
             return self._row2persona(selected_row, self.persona_mapping)
 
-    def process(self, previous_responses: str = "") -> Optional[str]:
+    def process(self, task: Optional[str] = None, previous_responses: str = "", ) -> Optional[str]:
         """
-        Process the task, optionally building upon a previous response.
+        Process the task, optionally building upon a previous response. If you pass in a task, it will replace the
+        Agent's initialized task description. If you pass in a previous responses, it will be incorporated into the task
+        description if combination_instructions are set via a Structure.
 
         Args:
-            previous_responses (str): The previous response to incorporate.
+            previous_responses (str): The previous responses to incorporate.
+            task (Optional[str]): The task description to process. If not provided, the agent will use its current task.
 
         Returns:
             Optional[str]: The response from the LLM.
         """
+        if task:
+            self.set_task(task)
+
         if previous_responses:
             combined_responses = SmartString(self.combination_instructions).format(
                 previous_responses=previous_responses)
@@ -237,7 +242,6 @@ class Agent:
             persona.append(f"{clean_name} {str(value).lower()}.")
         return " ".join(persona)
 
-
     def _filter_data_by_ideology(self, ideology: str) -> pd.DataFrame:
         """
         Filters the dataset based on the ideology.
@@ -263,7 +267,6 @@ class Agent:
         except Exception as e:
             raise AssertionError(f"Error filtering data by ideology: {e}")
 
-
     def _validate_system_instructions(self):
         """
         Validates the system instructions arguments.
@@ -282,9 +285,8 @@ class Agent:
                                                                                 "process rows of the dataframe.")
 
         if self.system_instructions:
-            assert not (
-                    self.persona_template != 'default' or self.persona), ("Cannot pass in system_instructions AND ("
-                                                                          "persona_template or persona)")
+            assert not (self.persona_template != 'default' or self.persona), ("Cannot pass in system_instructions AND ("
+                                                                              "persona_template or persona)")
 
         if self.ideology or self.query_str:
             assert not self.persona, "Cannot pass in (ideology or query_str) AND persona"
@@ -320,10 +322,8 @@ class Agent:
     def info(self):
         return {"original_task": self.original_task_description,
                 "current_task_description": self.current_task_description,
-                "system_instructions":
-                    self.system_instructions,
-                "history": self.history,
-                "persona": self.persona, "ideology": self.ideology, "query_str": self.query_str, "model": self.model,
+                "system_instructions": self.system_instructions, "history": self.history, "persona": self.persona,
+                "ideology": self.ideology, "query_str": self.query_str, "model": self.model,
                 "persona_template": self.persona_template, "kwargs": self.kwargs}
 
     def __repr__(self):
@@ -331,12 +331,10 @@ class Agent:
 
     def set_task(self, task: str):
         """
-        Set the task description for the agent to process. This will also clear the history.
+        Set the task description for the agent to process.
 
         Args:
             task (str): The new task description.
         """
-        self._history = []
         self.original_task_description = task
         self.current_task_description = task
-        self._set_system_instructions()

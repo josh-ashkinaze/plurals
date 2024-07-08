@@ -18,11 +18,13 @@ class TestAgentChain(unittest.TestCase):
         }
 
     def test_agent_system_instructions(self):
+        """Test whether agents can be properly initialized with system instructions"""
         agent = Agent(task="test task", system_instructions="Here are some random system instructions.")
         self.assertIsNotNone(agent.system_instructions)
         self.assertIn("Here are some random system instructions.", agent.system_instructions)
 
     def test_agent_no_system_instructions(self):
+        """Test whether agents are initialized with no system instructions"""
         agent = Agent(task="Write a 10 word story.")
         agent.process()
         system_prompt = agent.history[0]['prompts']['system']
@@ -38,19 +40,56 @@ class TestAgentChain(unittest.TestCase):
 
         persona1 = a.persona
         system_instructions1 = a.system_instructions
-        task_1 = a.original_task_description
+        task_original_1 = a.original_task_description
+        task_current_1 = a.current_task_description
 
         a.set_task(task2)
 
         persona2 = a.persona
         system_instructions2 = a.system_instructions
-        task_2 = a.original_task_description
+        task_original_2 = a.original_task_description
+        task_current_2 = a.current_task_description
 
         self.assertEqual(persona1, persona2)
         self.assertEqual(system_instructions1, system_instructions2)
-        self.assertEqual(task_1, task1)
-        self.assertEqual(task_2, task2)
-        self.assertNotEqual(task_1, task_2)
+        self.assertEqual(task_original_1, task1)
+        self.assertEqual(task_original_2, task2)
+        self.assertEqual(task_current_1, task1)
+        self.assertEqual(task_current_2, task2)
+        self.assertNotEqual(task_original_1, task_original_2)
+        self.assertNotEqual(task_current_1, task_current_2)
+
+
+    def test_agent_process_task_parm(self):
+        """Test whether the task parameter is passed to the process method appropriately. The desired behavior is
+        that the system_instructions and persona are the same and the original_task and current_task description
+        differ"""
+        task1 = "Test Task1"
+        task2 = "Test Task2"
+
+        a = Agent(ideology='conservative', task=task1)
+        a.process()
+
+        persona1 = a.persona
+        system_instructions1 = a.system_instructions
+        task_original_1 = a.original_task_description
+        task_current_1 = a.current_task_description
+
+        a.process(task=task2)
+
+        persona2 = a.persona
+        system_instructions2 = a.system_instructions
+        task_original_2 = a.original_task_description
+        task_current_2 = a.current_task_description
+
+        self.assertEqual(persona1, persona2)
+        self.assertEqual(system_instructions1, system_instructions2)
+        self.assertEqual(task_original_1, task1)
+        self.assertEqual(task_original_2, task2)
+        self.assertEqual(task_current_1, task1)
+        self.assertEqual(task_current_2, task2)
+        self.assertNotEqual(task_original_1, task_original_2)
+        self.assertNotEqual(task_current_1, task_current_2)
 
     def test_agent_random_persona(self):
         agent = Agent(task="test task", persona="random")
