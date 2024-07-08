@@ -11,33 +11,39 @@ DEFAULTS = load_yaml("instructions.yaml")
 
 class Agent:
     """
-    A class to represent an agent that processes tasks based on specific characteristics.
+    Represents an intelligent agent that processes tasks with customizable personas and ideological perspectives.
+    This agent uses external data, like ANES 2024, to tailor responses based on demographic information associated
+    with various ideologies. It can operate under specific system instructions or dynamically generate instructions
+    using predefined templates.
+
+    The agent interacts with language models to generate task-specific responses, potentially incorporating
+    previous interactions to simulate a continuous dialogue or decision-making process.
 
     Args:
-        task (Optional[str]): The description of the task to be processed. This will be a user_prompt.
-        ideology (Optional[str]): Ideology can in  ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative'].  And if passed in, this will search ANES 2024 for rows where the participant is a liberal or conservative or moderate, and then condition the persona on that individual's other demographics.
-        query_str (Optional[str]): A string used for a pandas query clause on the ANES 2024 data. 
-        model (str): The model version to use for processing.
-        system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.
-        persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.
-        persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.
-        **kwargs: Additional keyword arguments. These are from LiteLLM's completion function. (see here: https://litellm.vercel.app/docs/completion/input)
+        task (Optional[str]): Initial description of the task for the agent to process.
+        ideology (Optional[str]): Ideological perspective to influence persona creation, supported values are
+                                  ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative'].
+        query_str (Optional[str]): Custom query string for filtering the ANES dataset according to specific criteria.
+        model (str): The language model version to use for generating responses.
+        system_instructions (Optional[str]): Overrides automated instructions with a custom set of directives for the
+        model.
+        persona_template (Optional[str]): Template string for constructing the persona, must include a ${persona}
+        placeholder.
+        persona (Optional[str]): Direct specification of a persona description.
+        **kwargs: Additional keyword arguments for the model's completion function. These are provided by LiteLLM (
+        https://litellm.vercel.app/docs/completion/input#input-params-1). Enter `help(litellm.completion)` for details.
 
     Attributes:
-        task (Optional[str]): The description of the task to be processed. This will be a user_prompt.
-        persona_mapping (Optional[Dict[str, Any]]): Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.
-        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual's other demographics.
-        query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.
-        model (str): The model version to use for processing.
-        system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.
-        persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.
-        persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.
-        **kwargs: Additional keyword arguments. These are from LiteLLM's completion function. (see here: https://litellm.vercel.app/docs/completion/input)
-        system_instructions (Optional[str]): The complete system instructions.
-        original_task_description (str): The original task description without modifications.
-        current_task_description (str): The current task description that appends `previous_responses'.
-        history (list): A list of dicts like {'prompt':prompt, 'response':response, 'model':model}
-        info (dict): A dictionary of different attributes of the agent. Contains keys for: 'task', 'system_instructions', 'history', 'persona', 'ideology', 'query_str', 'model', 'persona_template', and 'kwargs'
+        task_description (Optional[str]): Current active description of the task, incorporating modifications over time.
+        persona_mapping (Optional[Dict[str, Any]]): Dictionary to map dataset rows to persona descriptions.
+        data (pd.DataFrame): Loaded dataset for persona and ideological queries.
+        original_task_description (str): The original, unmodified task description.
+        current_task_description (str): Dynamically updated task description that may include prior responses.
+        history (list): Chronological record of prompts, responses, and models used during the agent's operation.
+        info (dict): Comprehensive attributes of the agent's current configuration and state.
+
+    The class is designed to be flexible, allowing the agent to adopt different personas based on ideological leanings
+    or randomly from the dataset, supporting dynamic interactions with nuanced persona management.
     """
 
     def __init__(self, task: Optional[str] = None, data: Optional[pd.DataFrame] = None,
@@ -65,11 +71,14 @@ class Agent:
 
     def _set_system_instructions(self):
         """
-        Users can directly pass in system_instructions. Or, we can generate system instructions by combining a persona_template and a persona.
+        Users can directly pass in system_instructions. Or, we can generate system instructions by combining a
+        persona_template and a persona.
 
         In these two cases, persona_template does not do anything since system_instructions is set directly or is None.
-        - If system_instructions is already provided, we don't need to do anything since system_instructions is already set.
-        - If neither system_instructions, persona, ideology, nor query_str is provided (default) set system_instructions to None.
+        - If system_instructions is already provided, we don't need to do anything since system_instructions is
+        already set.
+        - If neither system_instructions, persona, ideology, nor query_str is provided (default) set
+        system_instructions to None.
 
         Otherwise, we generate system instructions using a persona:
         - If persona is directly provided, use this.
@@ -236,16 +245,21 @@ class Agent:
         - ideology or query_str is passed in without data and persona_mapping
         - system_instructions is passed in with persona or persona_template
         - ideology or query_str is passed in with persona
-        - ideology is passed in and it's not in  ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative']
+        - ideology is passed in and it's not in  ['liberal', 'conservative', 'moderate', 'very liberal',
+        'very conservative']
         """
         #  assert self.original_task_description is not None, "Need to provide some task instructions"
         if self.ideology or self.query_str:
-            assert self.data is not None and self.persona_mapping is not None, "If you use either `ideology` or `query_str` you need to provide both a dataframe and a persona mapping to process rows of the dataframe."
+            assert self.data is not None and self.persona_mapping is not None, ("If you use either `ideology` or "
+                                                                                "`query_str` you need to provide both "
+                                                                                "a dataframe and a persona mapping to "
+                                                                                "process rows of the dataframe.")
 
         # cannot pass in system_instructions AND (persona_template or persona)
         if self.system_instructions:
             assert not (
-                    self.persona_template != 'default' or self.persona), "Cannot pass in system_instructions AND (persona_template or persona)"
+                    self.persona_template != 'default' or self.persona), ("Cannot pass in system_instructions AND ("
+                                                                          "persona_template or persona)")
 
         # cannot pass in (ideology or query_str) AND (persona)
         if self.ideology or self.query_str:
@@ -259,13 +273,16 @@ class Agent:
     def _validate_templates(self):
         """
         Errors raised if:
-        - a user passes in persona_template but it does not contain a persona placeholder (so there is no way to format it)
+        - a user passes in persona_template but it does not contain a persona placeholder (so there is no way to
+        format it)
         """
         # if pass in persona_template, must contain persona placeholder
         if self.persona_template:
             default_templates = list(self.defaults['persona_template'].keys())
 
-            assert '${persona}' in self.persona_template or self.persona_template in default_templates, "If you pass in a persona_template, it must contain a ${persona} placeholder or be one of the default templates:" + str(
+            assert '${persona}' in self.persona_template or self.persona_template in default_templates, ("If you pass "
+                                                                                                         "in a "
+                                                                                                         "persona_template, it must contain a ${persona} placeholder or be one of the default templates:") + str(
                 default_templates)
 
     def _convert_ideology_to_query_str(self, ideology: str) -> str:
