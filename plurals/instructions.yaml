@@ -87,10 +87,11 @@ moderator:
     -Here are the previous responses: ${previous_responses}
     -Take the best parts of what was previously said.
     -Keep your response under 125 words.
-    -Within your response, try to achieve the common good, mutual respect, and a rationally motivated consensus to which all could agree.
+    -Give more weight to factual and rational arguments rather than emotional ones.
+    -Aim to achieve the common good, mutual respect, and a rationally motivated consensus to which all could agree.
   empathetic: |
     -Here are the previous responses: ${previous_responses}
-    -Keep your response under 125 words.
     -Take the best parts of what was previously said.
+    -Keep your response under 125 words.
     -Give value to more emotional forms communication, such as narrative, rhetoric, testimony, storytelling, instead of only valuing rationality.
     -Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
