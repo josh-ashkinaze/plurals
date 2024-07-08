@@ -8,7 +8,7 @@
    * [Quick Start](#quick-start)
    * [Different ways to set up personas](#different-ways-to-set-up-personas)
       + [No system prompt](#no-system-prompt)
-      + [User-defined system prompt ](#user-defined-system-prompt)
+      + [User-defined system prompt](#user-defined-system-prompt)
       + [Using templates](#using-templates)
       + [Using ANES for nationally representative personas ](#using-anes-for-nationally-representative-personas)
          - [Option 1: Syntactic Sugar: Searching for ideologies ](#option-1-syntactic-sugar-searching-for-ideologies)
@@ -19,7 +19,6 @@
    * [Ensemble with a moderator](#ensemble-with-a-moderator)
 
 <!-- TOC end -->
-
 
 
 
@@ -52,10 +51,12 @@ https://josh-ashkinaze.github.io/plurals/
 Each agent has two core attributes: `system_instructions` (which are the personas) and `task` (which is the user prompt). There are a few ways
 to create `system_instructions`:
 - Passing in full system instructions
-- Combining a persona and a persona template
+- Using a persona template with a placeholder for the persona
 - Interfacing with American National Election Studies to draw up a persona to use with a persona template 
 
-Users can make their own persona templates or use the defaults in `instructions.yaml`. So let's see some examples!
+Users can make their own persona templates or use the defaults in `instructions.yaml`. 
+
+Let's see some examples!
 
 
 ## Quick Start
@@ -70,7 +71,7 @@ task = "Should the United States ban assault rifles? Answer in 50 words."
 
 # Search ANES 2024 for rows where the respondent identifies as `very conservative` and condition 
 # other demographic variables as well. Use the default persona template from instructions.yaml 
-# by default the persona_template is `default' from `instructions.yaml` 
+# (By default the persona_template is `default' from `instructions.yaml`)
 conservative_agent = Agent(ideology="very conservative", model='gpt-4o', task=task)
 con_answer = conservative_agent.process() # call agent.process() to get the response. 
 ```
@@ -160,7 +161,7 @@ agent = Agent(model='gpt-4o',kwargs={'temperature':1, 'max_tokens':500})
 
 ```
 
-### User-defined system prompt. 
+### User-defined system prompt
 
 In this case, the system prompt is user-defined. 
 
@@ -290,9 +291,33 @@ print(ensemble.responses)
 ```
 This will give 10 responses for each of our agents. Ensemble is the simplest structure yet can still be useful! 
 
+Ensemble also allows you to combine models without any persona and so we can test if different models ensembled together give 
+different results from the same model ensembled together. 
+```python
+from plurals.agent import Agent
+from plurals.deliberation import Ensemble
+gpt4 = [Agent(persona='random', model='gpt-4o') for i in range(10)]
+gpt3 = [Agent(persona='random', model='gpt-3.5-turbo') for i in range(10)]
+mixed = gpt4[:5] + gpt3[:5]
+
+ensembles = {'gpt4': Ensemble(gpt4, task = "Brainstorm ideas to improve America."),
+             'gpt3': Ensemble(gpt3, task = "Brainstorm ideas to improve America."),
+             'mixed': Ensemble(mixed, task = "Brainstorm ideas to improve America.")}
+
+for key, ensemble in ensembles.items():
+    ensemble.process()
+    print(key, ensemble.responses)
+```
+
+```python
+
+```
+
 ## Ensemble with a moderator
 Let's say we want some Agent to actually read over some of these ideas and maybe return one that is the best. We can do that by passing in 
 a `moderator` agent, which is a special kind of Agent. It only has two arguments: `persona` (the moderator persona) and `combination_instructions` (how to combine the responses). 
+
+This is the first time that we are seeing `combination_instructions` and it is a special kind of instruction that will only kick in when there are previous responses in an Agent's view. Of course, the moderator is at the end of this whole process so there are always going to be previous responses. 
 
 Note that like a persona_template, `combination_instructions` expects a `${previous_responses}` placeholder. This will get filled in with the previous responses. We have default `combination_instructions` in `instructions.yaml` but you can pass in your own, too---here is an example.
 
