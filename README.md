@@ -327,13 +327,36 @@ may not know the exact variables in ANES and so
 we have a helper function that will print out the demographic/political columns we are using so you know what value to
 pass in.
 
+Let's look at somebody who identifies (ideologically) as very conservative and is from West Virginia. 
+
 ```python
 from plurals.agent import Agent
 from plurals.helpers import print_anes_mapping
 
 print_anes_mapping()
-task = "Write a paragraph about the importance of the environment to America."
-agent = Agent(query_string="ideo5=='very conservative'", model='gpt-4o', task=task)
+task = "Should the United States move away from coal as an energy source? Answer Yes or No and provide a rationale."
+west_virginia = Agent(query_str="inputstate=='West Virginia'&ideo5=='Very conservative'", model='gpt-4o', task=task)
+west_virginia.process()
+# No.  Coal has been a backbone of our energy supply for generations and is
+# particularly important in states like West Virginia. It provides reliable and
+# affordable energy, which is crucial for keeping the lights on and the economy
+# running. Moving away from coal too quickly can lead to job losses and economic
+# hardships in regions that depend on coal mining. Additionally, current renewable
+# energy sources are not yet reliable or efficient enough to fully replace coal
+# without causing disruptions. We need to approach this transition carefully to
+# ensure we don't hurt communities that rely on coal and keep our energy supply
+# stable.
+```
+
+Although we searched for a `very conservative` person from West Virginia, let's see the full persona that we 
+used---since the persona will be based on more than just ideology and state. 
+```python
+print(west_virginia.persona)
+# Your age is 72. Your education is post-grad. Your gender is woman. Your race is
+# white. Politically, you identify as a(n) independent. Your ideology is very
+# conservative. Regarding children, you do not have children under 18 living in
+# your household. Your employment status is retired. Your geographic region is the
+# south. You live in a rural area. You live in the state of west virginia
 ```
 
 # Structures
