@@ -19,7 +19,6 @@ class Moderator(Agent):
         combination_instructions (str): The instructions for combining responses. View `instructions.yaml` YAML file for templates.
         model (str): The model to use for the moderator.
         **kwargs (dict): Additional keyword arguments. These are from LiteLLM's completion function. (see here: https://litellm.vercel.app/docs/completion/input)
-        see here: https://litellm.vercel.app/docs/completion/input
 
     Attributes:
         combination_instructions (str): The instructions for combining responses.
