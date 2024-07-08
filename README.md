@@ -352,11 +352,14 @@ Although we searched for a `very conservative` person from West Virginia, let's 
 used---since the persona will be based on more than just ideology and state. 
 ```python
 print(west_virginia.persona)
-# Your age is 72. Your education is post-grad. Your gender is woman. Your race is
-# white. Politically, you identify as a(n) independent. Your ideology is very
-# conservative. Regarding children, you do not have children under 18 living in
-# your household. Your employment status is retired. Your geographic region is the
-# south. You live in a rural area. You live in the state of west virginia
+```
+
+```
+Your age is 72. Your education is post-grad. Your gender is woman. Your race is
+white. Politically, you identify as a(n) independent. Your ideology is very
+conservative. Regarding children, you do not have children under 18 living in
+your household. Your employment status is retired. Your geographic region is the
+south. You live in a rural area. You live in the state of west virginia
 ```
 
 # Structures
