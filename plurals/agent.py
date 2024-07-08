@@ -9,6 +9,28 @@ from plurals.helpers import *
 DEFAULTS = load_yaml("instructions.yaml")
 
 
+def load_global_anes_data():
+    """
+    Load global ANES data for the agent. As per codebook page 2 section 1, the cases that don't have weights are
+    not meant for population inference.
+
+    Here is the codebook url:
+    https://electionstudies.org/wp-content/uploads/2024/03/anes_pilot_2024_userguidecodebook_20240319.pdf
+
+    Loads:
+    - PERSONA_MAPPING: Mapping for converting dataset rows to persona descriptions.
+    - DATASET: ANES dataset for persona and ideological queries
+    """
+    global PERSONA_MAPPING, DATASET
+    PERSONA_MAPPING = load_yaml("anes-mapping.yaml")
+    DATASET = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'anes_pilot_2024_20240319.csv'),
+                          low_memory=False)
+    DATASET.dropna(subset=['weight'], inplace=True)
+
+
+load_global_anes_data()
+
+
 class Agent:
     """
     Represents an intelligent agent that processes tasks with customizable personas and ideological perspectives.
@@ -31,10 +53,10 @@ class Agent:
         placeholder.
         persona (Optional[str]): Direct specification of a persona description.
         **kwargs: Additional keyword arguments for the model's completion function. These are provided by LiteLLM (
-            https://litellm.vercel.app/docs/completion/input#input-params-1). Enter `help(litellm.completion)` for details.
+            https://litellm.vercel.app/docs/completion/input#input-params-1). Enter `help(litellm.completion)` for
+            details.
 
     Attributes:
-        task_description (Optional[str]): Current active description of the task, incorporating modifications over time.
         persona_mapping (Optional[Dict[str, Any]]): Dictionary to map dataset rows to persona descriptions.
         data (pd.DataFrame): Loaded dataset for persona and ideological queries.
         original_task_description (str): The original, unmodified task description.
@@ -50,11 +72,11 @@ class Agent:
         self.model = model
         self.system_instructions = system_instructions
         self._history = []
-        self.persona_mapping = persona_mapping
+        self.persona_mapping = PERSONA_MAPPING
         self.task_description = task
         self.persona = persona
         self.ideology = ideology
-        self.data = data if data is not None else self._load_default_data()
+        self.data = DATASET
         self.query_str = query_str
         self.original_task_description = task
         self.current_task_description = task
@@ -109,24 +131,6 @@ class Agent:
         self.system_instructions = SmartString(self.persona_template).format(persona=self.persona,
                                                                              task=self.task_description).strip()
 
-    def _load_default_data(self) -> pd.DataFrame:
-        """
-        Load the default ANES dataset.
-
-        Returns:
-            pd.DataFrame: The loaded ANES dataset.
-        """
-        default_data_path = os.path.join(os.path.dirname(__file__), 'data', 'anes_pilot_2024_20240319.csv')
-        self.persona_mapping = load_yaml("anes-mapping.yaml")
-        dataset = pd.read_csv(default_data_path, low_memory=False)
-
-        # As per codebook page 2 section 1, 409 cases don't have weights and are not meant
-        # for population inference.
-        # codebook url:
-        # https://electionstudies.org/wp-content/uploads/2024/03/anes_pilot_2024_userguidecodebook_20240319.pdf
-        dataset = dataset.dropna(subset=['weight'])
-        return dataset
-
     # noinspection PyTypeChecker
     def _generate_persona(self) -> str:
         """
@@ -138,8 +142,7 @@ class Agent:
         if self.persona == "random":
             return self._get_random_persona(self.data)
         if self.ideology:
-            self.query_str = self._convert_ideology_to_query_str(self.ideology)
-            filtered_data = self.data.query(self.query_str)
+            filtered_data = self._filter_data_by_ideology(self.ideology)
             if filtered_data.empty: raise AssertionError("No data found satisfying conditions")
             selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
             return self._row2persona(selected_row, self.persona_mapping)
@@ -234,6 +237,33 @@ class Agent:
             persona.append(f"{clean_name} {str(value).lower()}.")
         return " ".join(persona)
 
+
+    def _filter_data_by_ideology(self, ideology: str) -> pd.DataFrame:
+        """
+        Filters the dataset based on the ideology.
+
+        Args:
+            ideology (str): The ideology to filter by.
+
+        Returns:
+            pd.DataFrame: The filtered dataset.
+        """
+        try:
+            if ideology.lower() == 'liberal':
+                return self.data[self.data['ideo5'].isin(['Liberal', 'Very liberal'])]
+            elif ideology.lower() == 'conservative':
+                return self.data[self.data['ideo5'].isin(['Conservative', 'Very conservative'])]
+            elif ideology.lower() == 'moderate':
+                return self.data[self.data['ideo5'] == 'Moderate']
+            elif ideology.lower() == "very liberal":
+                return self.data[self.data['ideo5'] == 'Very liberal']
+            elif ideology.lower() == "very conservative":
+                return self.data[self.data['ideo5'] == 'Very conservative']
+            return pd.DataFrame()
+        except Exception as e:
+            raise AssertionError(f"Error filtering data by ideology: {e}")
+
+
     def _validate_system_instructions(self):
         """
         Validates the system instructions arguments.
@@ -245,24 +275,20 @@ class Agent:
         - ideology is passed in and it's not in  ['liberal', 'conservative', 'moderate', 'very liberal',
         'very conservative']
         """
-        #  assert self.original_task_description is not None, "Need to provide some task instructions"
         if self.ideology or self.query_str:
             assert self.data is not None and self.persona_mapping is not None, ("If you use either `ideology` or "
                                                                                 "`query_str` you need to provide both "
                                                                                 "a dataframe and a persona mapping to "
                                                                                 "process rows of the dataframe.")
 
-        # cannot pass in system_instructions AND (persona_template or persona)
         if self.system_instructions:
             assert not (
                     self.persona_template != 'default' or self.persona), ("Cannot pass in system_instructions AND ("
                                                                           "persona_template or persona)")
 
-        # cannot pass in (ideology or query_str) AND (persona)
         if self.ideology or self.query_str:
             assert not self.persona, "Cannot pass in (ideology or query_str) AND persona"
 
-        # ideology must be in  ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative']
         if self.ideology:
             allowed_vals = ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative']
             assert self.ideology in allowed_vals, f"Ideology has to be one of: {str(allowed_vals)}"
@@ -282,22 +308,6 @@ class Agent:
                                                                                                          "persona_template, it must contain a ${persona} placeholder or be one of the default templates:") + str(
                 default_templates)
 
-    def _convert_ideology_to_query_str(self, ideology: str) -> str:
-        """
-        Converts ideology to a query string for pandas DataFrame.
-        """
-        if ideology.lower() == 'liberal':
-            return "ideo5=='Liberal'|ideo5=='Very liberal'"
-        elif ideology.lower() == 'conservative':
-            return "ideo5=='Conservative'|ideo5=='Very conservative'"
-        elif ideology.lower() == 'moderate':
-            return "ideo5 == 'Moderate'"
-        elif ideology.lower() == "very liberal":
-            return "ideo5 == 'Very liberal'"
-        elif ideology.lower() == "very conservative":
-            return "ideo5 == 'Very conservative'"
-        return ""
-
     @property
     def history(self):
         if not self._history:
@@ -308,9 +318,25 @@ class Agent:
 
     @property
     def info(self):
-        return {"task": self.task_description, "system_instructions": self.system_instructions, "history": self.history,
+        return {"original_task": self.original_task_description,
+                "current_task_description": self.current_task_description,
+                "system_instructions":
+                    self.system_instructions,
+                "history": self.history,
                 "persona": self.persona, "ideology": self.ideology, "query_str": self.query_str, "model": self.model,
                 "persona_template": self.persona_template, "kwargs": self.kwargs}
 
     def __repr__(self):
         return str(self.info)
+
+    def set_task(self, task: str):
+        """
+        Set the task description for the agent to process. This will also clear the history.
+
+        Args:
+            task (str): The new task description.
+        """
+        self._history = []
+        self.original_task_description = task
+        self.current_task_description = task
+        self._set_system_instructions()

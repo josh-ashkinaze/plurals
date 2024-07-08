@@ -59,7 +59,7 @@ class AbstractStructure(ABC):
 
     Args:
         agents (List[Agent]): A list of agents to include in the structure.
-        task_description (Optional[str]): The task description for the agents to process.
+        task (Optional[str]): The task description for the agents to process.
         shuffle (bool): Whether to shuffle the order of the agents.
         cycles (int): The number of times to process the task.
         last_n (int): The number of previous responses to include in the task description.
@@ -68,7 +68,7 @@ class AbstractStructure(ABC):
 
     Attributes:
         defaults (Dict[str, Any]): Default instructions for the structure.
-        task_description (Optional[str]): The task description for the agents to process.
+        task (Optional[str]): The task description for the agents to process.
         agents (List[Agent]): A list of agents to include in the structure.
         combination_instructions (str): The instructions for combining responses.
         shuffle (bool): Whether to shuffle the order of the agents.
@@ -79,11 +79,11 @@ class AbstractStructure(ABC):
         moderator (Optional[Moderator]): A moderator to moderate the responses.
         moderated (bool): Whether the structure is moderated.
     """
-    def __init__(self, agents: List[Agent], task_description: Optional[str] = None, shuffle: bool = False,
+    def __init__(self, agents: List[Agent], task: Optional[str] = None, shuffle: bool = False,
                  cycles: int = 1, last_n: int = 1, combination_instructions: Optional[str] = "default",
                  moderator: Optional[Moderator] = None):
         self.defaults = DEFAULTS
-        self.task_description = task_description
+        self.task = task
         self.agents = agents
         self.combination_instructions = combination_instructions
         self._set_combination_instructions()
@@ -98,8 +98,8 @@ class AbstractStructure(ABC):
 
         # If we have a moderator we assign a task description and then we populate the templates
         if self.moderator:
-            self.moderator.task_description = self.task_description
-            self.moderator.persona = SmartString(self.moderator.persona).format(task=self.task_description)
+            self.moderator.task_description = self.task
+            self.moderator.persona = SmartString(self.moderator.persona).format(task=self.task)
 
         if shuffle:
             self.agents = random.sample(self.agents, len(self.agents))
@@ -128,15 +128,15 @@ class AbstractStructure(ABC):
             - Case 3: Value provided to neither agents nor chain: Throw an error
         """
         for agent in self.agents:
-            if not self.task_description:
+            if not self.task:
                 if not agent.task_description or agent.task_description.strip() == '':
                    raise ValueError("Error: You did not specify a task for agents or chain")
             else:
                 if agent.task_description:
                     warnings.warn("Writing over agent's task with Chain's task")
-                agent.task_description = self.task_description
+                agent.task_description = self.task
                 agent.original_task_description = agent.task_description
-                agent.system_instructions = SmartString(agent.system_instructions).format(task=self.task_description)
+                agent.system_instructions = SmartString(agent.system_instructions).format(task=self.task)
 
     @property
     def info(self) -> Dict[str, Any]:
@@ -146,7 +146,7 @@ class AbstractStructure(ABC):
         if not self.final_response:
             raise ValueError("The structure has not been processed yet. Call the process method first.")
         return {"final_response": self.final_response, "responses": self.responses,
-                "task": self.task_description, "combination_instructions": self.combination_instructions,
+                "task": self.task, "combination_instructions": self.combination_instructions,
                 "moderated": self.moderated, "moderator_persona": self.moderator.persona if self.moderator else None,
                 "moderator_instructions": self.moderator.combination_instructions if self.moderator else None}
 
@@ -223,12 +223,12 @@ class Debate(AbstractStructure):
     - When moderated, the moderator will provide a final response based on the debate and we will append [Debater 1] and [Debater 2] to the responses so that the moderator is aware of who said what.
     """
 
-    def __init__(self, agents: List[Agent], task_description: Optional[str] = None, shuffle: bool = False,
+    def __init__(self, agents: List[Agent], task: Optional[str] = None, shuffle: bool = False,
                  cycles: int = 1, last_n: int = 1000000, combination_instructions: Optional[str] = "default",
                  moderator: Optional[Moderator] = None):
         if len(agents) != 2:
             raise ValueError("Debate requires exactly two agents.")
-        super().__init__(agents, task_description, shuffle, cycles, last_n, combination_instructions, moderator)
+        super().__init__(agents, task, shuffle, cycles, last_n, combination_instructions, moderator)
 
     @staticmethod
     def _format_previous_responses(responses: List[str]) -> str:
