@@ -31,7 +31,7 @@ class Agent:
         placeholder.
         persona (Optional[str]): Direct specification of a persona description.
         **kwargs: Additional keyword arguments for the model's completion function. These are provided by LiteLLM (
-        https://litellm.vercel.app/docs/completion/input#input-params-1). Enter `help(litellm.completion)` for details.
+            https://litellm.vercel.app/docs/completion/input#input-params-1). Enter `help(litellm.completion)` for details.
 
     Attributes:
         task_description (Optional[str]): Current active description of the task, incorporating modifications over time.
