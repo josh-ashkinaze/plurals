@@ -76,17 +76,21 @@ con_answer = conservative_agent.process() # call agent.process() to get the resp
 ```
 
 ```python
+from plurals.agent import Agent 
 
 # Search ANES 2024 for rows where the respondent identifies as very liberal and condition 
 # other demographic variables as well. Use the `empathetic` persona template from instructions.yaml which 
 # encourages storytelling above reason-giving. 
 liberal_agent = Agent(ideology="very liberal", persona_template='empathetic', model='gpt-4o', task=task)
 liberal_agent.process()
-lib_answer = liberal_agent.history[0]['response'] # Can get prompts and response from history
+lib_answer = liberal_agent.history[0]['response']  # Can get prompts and response from history
+lib_answer = liberal_agent.info['history'][0]['response']  # Can get history and more from info 
  ```
  
 ```python
 # Pass in system instructions directly 
+from plurals.agent import Agent 
+
 pirate_agent = Agent(system_instructions="You are a pirate.", model='gpt-4o', task=task)
 
 # No system instructions so we get back default behavior
