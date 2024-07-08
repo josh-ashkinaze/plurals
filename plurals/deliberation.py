@@ -27,7 +27,7 @@ class Moderator(Agent):
     """
     def __init__(self, persona: str = 'default', combination_instructions: str = "default", model: str = "gpt-4o", **kwargs):
         super().__init__(task="", model=model,
-                         persona=DEFAULTS["moderator"]['persona'].get(persona, persona), **kwargs)
+                         persona=DEFAULTS["moderator"]['persona'].get(persona, persona), persona_template="${persona}", **kwargs)
 
         self.combination_instructions = (
             DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions, combination_instructions))
@@ -209,7 +209,7 @@ class Ensemble(AbstractStructure):
                     self.responses.append(response)
 
         if self.moderated and self.moderator:
-            moderated_response = self.moderator.moderate_responses(self.responses, original_task)
+            moderated_response = self.moderator._moderate_responses(self.responses, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
 
@@ -271,6 +271,6 @@ class Debate(AbstractStructure):
         if self.moderated and self.moderator:
             responses_for_mod = ['[Debater 1] ' + response if i % 2 == 0 else '[Debater 2] ' + response for i, response
                                  in enumerate(self.responses)]
-            moderated_response = self.moderator.moderate_responses(responses_for_mod, original_task)
+            moderated_response = self.moderator._moderate_responses(responses_for_mod, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
