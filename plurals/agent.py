@@ -41,7 +41,6 @@ class Agent:
         current_task_description (str): Dynamically updated task description that may include prior responses.
         history (list): Chronological record of prompts, responses, and models used during the agent's operation.
         info (dict): Comprehensive attributes of the agent's current configuration and state.
-
     """
 
     def __init__(self, task: Optional[str] = None, data: Optional[pd.DataFrame] = None,
