@@ -5,26 +5,24 @@
 - [Read full documentation here](#read-full-documentation-here)
 - [Uses](#uses)
 - [Agents](#agents)
-    * [Quick Start](#quick-start)
-    * [Different ways to set up personas](#different-ways-to-set-up-personas)
-        + [No system prompt](#no-system-prompt)
-        + [User-defined system prompt](#user-defined-system-prompt)
-        + [Using templates](#using-templates)
-        + [Using ANES for nationally representative personas](#using-anes-for-nationally-representative-personas)
-            - [Option 1: Syntactic Sugar: Searching for ideologies](#option-1-syntactic-sugar-searching-for-ideologies)
-            - [Option 2: Random sampling](#option-2-random-sampling)
-            - [Option 3: Searching ANES using a pandas query string](#option-3-searching-anes-using-a-pandas-query-string)
+  - [Quick Start](#quick-start)
+  - [Different ways to set up personas](#different-ways-to-set-up-personas)
+    - [No system prompt](#no-system-prompt)
+    - [User-defined system prompt](#user-defined-system-prompt)
+    - [Using templates](#using-templates)
+    - [Using ANES for nationally representative personas](#using-anes-for-nationally-representative-personas)
+      - [Option 1: Syntactic Sugar: Searching for ideologies](#option-1-syntactic-sugar-searching-for-ideologies)
+      - [Option 2: Random sampling](#option-2-random-sampling)
+      - [Option 3: Searching ANES using a pandas query string](#option-3-searching-anes-using-a-pandas-query-string)
 - [Structures](#structures)
-    * [Ensemble](#ensemble)
-    * [Ensemble with a moderator](#ensemble-with-a-moderator)
+  - [Ensemble](#ensemble)
+  - [Ensemble with a moderator](#ensemble-with-a-moderator)
 
 <!-- TOC end -->
 
 # Installation
 
-``
-pip install plurals
-``
+`pip install plurals`
 
 # Package Overview
 
@@ -101,7 +99,7 @@ liberal_agent = Agent(ideology="very liberal", persona_template='empathetic', mo
 liberal_agent.process()
 lib_answer = liberal_agent.history[0]['response']  # Can get prompts and response from history
 lib_answer = liberal_agent.info['history'][0]['response']  # Can get history and more from info 
- ```
+```
 
 ```python
 # Pass in system instructions directly 
@@ -367,8 +365,8 @@ Note that like a persona_template, `combination_instructions` expects a `${previ
 get filled in with the previous responses. We have default `combination_instructions` in `instructions.yaml` but you can
 pass in your own, too---here is an example.
 
- ```python
- from plurals.agent import Agent
+```python
+from plurals.agent import Agent
 from plurals.deliberation import Ensemble
 
 task = "Brainstorm ideas to improve America."
@@ -379,9 +377,4 @@ ensemble = Ensemble(agents, moderator=moderator)
 ensemble.process()
 print(ensemble.responses)
 print(ensemble.moderator_response)
-   ```
-
-
-
-
-
+```
