@@ -337,15 +337,17 @@ print_anes_mapping()
 task = "Should the United States move away from coal as an energy source? Answer Yes or No and provide a rationale."
 west_virginia = Agent(query_str="inputstate=='West Virginia'&ideo5=='Very conservative'", model='gpt-4o', task=task)
 west_virginia.process()
-# No.  Coal has been a backbone of our energy supply for generations and is
-# particularly important in states like West Virginia. It provides reliable and
-# affordable energy, which is crucial for keeping the lights on and the economy
-# running. Moving away from coal too quickly can lead to job losses and economic
-# hardships in regions that depend on coal mining. Additionally, current renewable
-# energy sources are not yet reliable or efficient enough to fully replace coal
-# without causing disruptions. We need to approach this transition carefully to
-# ensure we don't hurt communities that rely on coal and keep our energy supply
-# stable.
+```
+```
+No.  Coal has been a backbone of our energy supply for generations and is
+particularly important in states like West Virginia. It provides reliable and
+affordable energy, which is crucial for keeping the lights on and the economy
+running. Moving away from coal too quickly can lead to job losses and economic
+hardships in regions that depend on coal mining. Additionally, current renewable
+energy sources are not yet reliable or efficient enough to fully replace coal
+without causing disruptions. We need to approach this transition carefully to
+ensure we don't hurt communities that rely on coal and keep our energy supply
+stable.
 ```
 
 Although we searched for a `very conservative` person from West Virginia, let's see the full persona that we 
