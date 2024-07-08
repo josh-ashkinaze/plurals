@@ -42,8 +42,6 @@ class Agent:
         history (list): Chronological record of prompts, responses, and models used during the agent's operation.
         info (dict): Comprehensive attributes of the agent's current configuration and state.
 
-    The class is designed to be flexible, allowing the agent to adopt different personas based on ideological leanings
-    or randomly from the dataset, supporting dynamic interactions with nuanced persona management.
     """
 
     def __init__(self, task: Optional[str] = None, data: Optional[pd.DataFrame] = None,
