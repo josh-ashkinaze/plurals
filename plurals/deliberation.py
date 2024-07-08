@@ -6,6 +6,7 @@ from plurals.helpers import load_yaml, format_previous_responses
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from plurals.helpers import SmartString
+import re
 
 DEFAULTS = load_yaml("instructions.yaml")
 
@@ -224,7 +225,7 @@ class Debate(AbstractStructure):
     """
 
     def __init__(self, agents: List[Agent], task: Optional[str] = None, shuffle: bool = False,
-                 cycles: int = 1, last_n: int = 1000000, combination_instructions: Optional[str] = "default",
+                 cycles: int = 1, last_n: int = 1000000, combination_instructions: Optional[str] = "debate",
                  moderator: Optional[Moderator] = None):
         if len(agents) != 2:
             raise ValueError("Debate requires exactly two agents.")
@@ -248,7 +249,7 @@ class Debate(AbstractStructure):
             formatted_responses = []
             for i in range(len(responses)):
                 response = responses[i]
-                prefix = "Other:" if i % 2 == 0 else "You:"
+                prefix = "You:" if i % 2 == 0 else "Other:"
                 formatted_responses.append(f"{prefix} {response.strip()}\n")
             return "".join(formatted_responses)
 
@@ -256,20 +257,36 @@ class Debate(AbstractStructure):
         """
         Process the debate.
         """
-        previous_responses = []
+        # Initialize lists for storing responses from the perspective of each agent
+        previous_responses_agent1 = []
+        previous_responses_agent2 = []
         original_task = self.agents[0].original_task_description
-        for _ in range(self.cycles):
-            for agent in self.agents:
-                previous_responses_slice = previous_responses[-self.last_n:]
-                previous_responses_str = self._format_previous_responses(previous_responses_slice)
+
+        for cycle in range(self.cycles):
+            for i, agent in enumerate(self.agents):
+                # Choose the appropriate response history based on the agent index
+                if i == 0:
+                    previous_responses_str = format_previous_responses(previous_responses_agent1[-self.last_n:])
+                else:
+                    previous_responses_str = format_previous_responses(previous_responses_agent2[-self.last_n:])
+
                 agent.combination_instructions = self.combination_instructions
                 response = agent.process(previous_responses=previous_responses_str)
-                previous_responses.append(response)
-                self.responses.append(response)
+                self.responses.append("[Debater {}] ".format(i+1) + response)
+
+                # Apply the correct prefix and update both lists
+                if i == 0:
+                    response_with_prefix = f"[You]: {response}"
+                    previous_responses_agent1.append(response_with_prefix)
+                    response_with_prefix = f"[Other]: {response}"
+                    previous_responses_agent2.append(response_with_prefix)
+                else:
+                    response_with_prefix = f"[You]: {response}"
+                    previous_responses_agent2.append(response_with_prefix)
+                    response_with_prefix = f"[Other]: {response}"
+                    previous_responses_agent1.append(response_with_prefix)
 
         if self.moderated and self.moderator:
-            responses_for_mod = ['[Debater 1] ' + response if i % 2 == 0 else '[Debater 2] ' + response for i, response
-                                 in enumerate(self.responses)]
-            moderated_response = self.moderator._moderate_responses(responses_for_mod, original_task)
+            moderated_response = self.moderator._moderate_responses(self.responses, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
