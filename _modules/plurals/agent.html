@@ -88,33 +88,36 @@
 <a class="viewcode-back" href="../../agent.html#plurals.agent.Agent">[docs]</a>
 <span class="k">class</span> <span class="nc">Agent</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A class to represent an agent that processes tasks based on specific characteristics.</span>
+<span class="sd">    Represents an intelligent agent that processes tasks with customizable personas and ideological perspectives.</span>
+<span class="sd">    This agent uses external data, like ANES 2024, to tailor responses based on demographic information associated</span>
+<span class="sd">    with various ideologies. It can operate under specific system instructions or dynamically generate instructions</span>
+<span class="sd">    using predefined templates.</span>
+
+<span class="sd">    The agent interacts with language models to generate task-specific responses, potentially incorporating</span>
+<span class="sd">    previous interactions to simulate a continuous dialogue or decision-making process.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        task (Optional[str]): The description of the task to be processed. This will be a user_prompt.</span>
-<span class="sd">        ideology (Optional[str]): Ideology can in  [&#39;liberal&#39;, &#39;conservative&#39;, &#39;moderate&#39;, &#39;very liberal&#39;, &#39;very conservative&#39;].  And if passed in, this will search ANES 2024 for rows where the participant is a liberal or conservative or moderate, and then condition the persona on that individual&#39;s other demographics.</span>
-<span class="sd">        query_str (Optional[str]): A string used for a pandas query clause on the ANES 2024 data. </span>
-<span class="sd">        model (str): The model version to use for processing.</span>
-<span class="sd">        system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.</span>
-<span class="sd">        persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.</span>
-<span class="sd">        persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.</span>
-<span class="sd">        **kwargs: Additional keyword arguments. These are from LiteLLM&#39;s completion function. (see here: https://litellm.vercel.app/docs/completion/input)</span>
+<span class="sd">        task (Optional[str]): Initial description of the task for the agent to process.</span>
+<span class="sd">        ideology (Optional[str]): Ideological perspective to influence persona creation, supported values are</span>
+<span class="sd">                                  [&#39;liberal&#39;, &#39;conservative&#39;, &#39;moderate&#39;, &#39;very liberal&#39;, &#39;very conservative&#39;].</span>
+<span class="sd">        query_str (Optional[str]): Custom query string for filtering the ANES dataset according to specific criteria.</span>
+<span class="sd">        model (str): The language model version to use for generating responses.</span>
+<span class="sd">        system_instructions (Optional[str]): Overrides automated instructions with a custom set of directives for the</span>
+<span class="sd">        model.</span>
+<span class="sd">        persona_template (Optional[str]): Template string for constructing the persona, must include a ${persona}</span>
+<span class="sd">        placeholder.</span>
+<span class="sd">        persona (Optional[str]): Direct specification of a persona description.</span>
+<span class="sd">        **kwargs: Additional keyword arguments for the model&#39;s completion function. These are provided by LiteLLM (</span>
+<span class="sd">            https://litellm.vercel.app/docs/completion/input#input-params-1). Enter `help(litellm.completion)` for details.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        task (Optional[str]): The description of the task to be processed. This will be a user_prompt.</span>
-<span class="sd">        persona_mapping (Optional[Dict[str, Any]]): Mapping to convert dataset rows into persona descriptions. As of now, we only support ANES.</span>
-<span class="sd">        ideology (Optional[str]): Ideology can be `liberal` or `conservative` and if passed in, this will search ANES for rows where the participant is a liberal or conservative, and then condition the persona on that individual&#39;s other demographics.</span>
-<span class="sd">        query_str (Optional[str]): A string used for a pandas query clause on the dataframe. As of now, we only support ANES.</span>
-<span class="sd">        model (str): The model version to use for processing.</span>
-<span class="sd">        system_instructions (Optional[str]): The complete system instructions. If this is included, it will override any persona and persona_template.</span>
-<span class="sd">        persona_template (Optional[str]): Template for the persona description. This persona must have a ${persona} placeholder.</span>
-<span class="sd">        persona (Optional[str]): The persona description to adopt for the task. This is a string that will be used with the `persona_template`.</span>
-<span class="sd">        **kwargs: Additional keyword arguments. These are from LiteLLM&#39;s completion function. (see here: https://litellm.vercel.app/docs/completion/input)</span>
-<span class="sd">        system_instructions (Optional[str]): The complete system instructions.</span>
-<span class="sd">        original_task_description (str): The original task description without modifications.</span>
-<span class="sd">        current_task_description (str): The current task description that appends `previous_responses&#39;.</span>
-<span class="sd">        history (list): A list of dicts like {&#39;prompt&#39;:prompt, &#39;response&#39;:response, &#39;model&#39;:model}</span>
-<span class="sd">        info (dict): A dictionary of different attributes of the agent. Contains keys for: &#39;task&#39;, &#39;system_instructions&#39;, &#39;history&#39;, &#39;persona&#39;, &#39;ideology&#39;, &#39;query_str&#39;, &#39;model&#39;, &#39;persona_template&#39;, and &#39;kwargs&#39;</span>
+<span class="sd">        task_description (Optional[str]): Current active description of the task, incorporating modifications over time.</span>
+<span class="sd">        persona_mapping (Optional[Dict[str, Any]]): Dictionary to map dataset rows to persona descriptions.</span>
+<span class="sd">        data (pd.DataFrame): Loaded dataset for persona and ideological queries.</span>
+<span class="sd">        original_task_description (str): The original, unmodified task description.</span>
+<span class="sd">        current_task_description (str): Dynamically updated task description that may include prior responses.</span>
+<span class="sd">        history (list): Chronological record of prompts, responses, and models used during the agent&#39;s operation.</span>
+<span class="sd">        info (dict): Comprehensive attributes of the agent&#39;s current configuration and state.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -142,11 +145,14 @@
 
     <span class="k">def</span> <span class="nf">_set_system_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Users can directly pass in system_instructions. Or, we can generate system instructions by combining a persona_template and a persona.</span>
+<span class="sd">        Users can directly pass in system_instructions. Or, we can generate system instructions by combining a</span>
+<span class="sd">        persona_template and a persona.</span>
 
 <span class="sd">        In these two cases, persona_template does not do anything since system_instructions is set directly or is None.</span>
-<span class="sd">        - If system_instructions is already provided, we don&#39;t need to do anything since system_instructions is already set.</span>
-<span class="sd">        - If neither system_instructions, persona, ideology, nor query_str is provided (default) set system_instructions to None.</span>
+<span class="sd">        - If system_instructions is already provided, we don&#39;t need to do anything since system_instructions is</span>
+<span class="sd">        already set.</span>
+<span class="sd">        - If neither system_instructions, persona, ideology, nor query_str is provided (default) set</span>
+<span class="sd">        system_instructions to None.</span>
 
 <span class="sd">        Otherwise, we generate system instructions using a persona:</span>
 <span class="sd">        - If persona is directly provided, use this.</span>
@@ -316,16 +322,21 @@
 <span class="sd">        - ideology or query_str is passed in without data and persona_mapping</span>
 <span class="sd">        - system_instructions is passed in with persona or persona_template</span>
 <span class="sd">        - ideology or query_str is passed in with persona</span>
-<span class="sd">        - ideology is passed in and it&#39;s not in  [&#39;liberal&#39;, &#39;conservative&#39;, &#39;moderate&#39;, &#39;very liberal&#39;, &#39;very conservative&#39;]</span>
+<span class="sd">        - ideology is passed in and it&#39;s not in  [&#39;liberal&#39;, &#39;conservative&#39;, &#39;moderate&#39;, &#39;very liberal&#39;,</span>
+<span class="sd">        &#39;very conservative&#39;]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1">#  assert self.original_task_description is not None, &quot;Need to provide some task instructions&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;If you use either `ideology` or `query_str` you need to provide both a dataframe and a persona mapping to process rows of the dataframe.&quot;</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;If you use either `ideology` or &quot;</span>
+                                                                                <span class="s2">&quot;`query_str` you need to provide both &quot;</span>
+                                                                                <span class="s2">&quot;a dataframe and a persona mapping to &quot;</span>
+                                                                                <span class="s2">&quot;process rows of the dataframe.&quot;</span><span class="p">)</span>
 
         <span class="c1"># cannot pass in system_instructions AND (persona_template or persona)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="o">!=</span> <span class="s1">&#39;default&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">),</span> <span class="s2">&quot;Cannot pass in system_instructions AND (persona_template or persona)&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="o">!=</span> <span class="s1">&#39;default&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Cannot pass in system_instructions AND (&quot;</span>
+                                                                          <span class="s2">&quot;persona_template or persona)&quot;</span><span class="p">)</span>
 
         <span class="c1"># cannot pass in (ideology or query_str) AND (persona)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">:</span>
@@ -339,13 +350,16 @@
     <span class="k">def</span> <span class="nf">_validate_templates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Errors raised if:</span>
-<span class="sd">        - a user passes in persona_template but it does not contain a persona placeholder (so there is no way to format it)</span>
+<span class="sd">        - a user passes in persona_template but it does not contain a persona placeholder (so there is no way to</span>
+<span class="sd">        format it)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># if pass in persona_template, must contain persona placeholder</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span><span class="p">:</span>
             <span class="n">default_templates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;persona_template&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
-            <span class="k">assert</span> <span class="s1">&#39;$</span><span class="si">{persona}</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="ow">in</span> <span class="n">default_templates</span><span class="p">,</span> <span class="s2">&quot;If you pass in a persona_template, it must contain a $</span><span class="si">{persona}</span><span class="s2"> placeholder or be one of the default templates:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+            <span class="k">assert</span> <span class="s1">&#39;$</span><span class="si">{persona}</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="ow">in</span> <span class="n">default_templates</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;If you pass &quot;</span>
+                                                                                                         <span class="s2">&quot;in a &quot;</span>
+                                                                                                         <span class="s2">&quot;persona_template, it must contain a $</span><span class="si">{persona}</span><span class="s2"> placeholder or be one of the default templates:&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
                 <span class="n">default_templates</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_convert_ideology_to_query_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ideology</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
