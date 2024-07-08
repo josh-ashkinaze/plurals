@@ -48,7 +48,6 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Agent Module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#plurals.agent.Agent"><code class="docutils literal notranslate"><span class="pre">Agent</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.task_description"><code class="docutils literal notranslate"><span class="pre">Agent.task_description</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.persona_mapping"><code class="docutils literal notranslate"><span class="pre">Agent.persona_mapping</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.data"><code class="docutils literal notranslate"><span class="pre">Agent.data</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.original_task_description"><code class="docutils literal notranslate"><span class="pre">Agent.original_task_description</span></code></a></li>
@@ -58,8 +57,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">Agent.history</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">Agent.info</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.process"><code class="docutils literal notranslate"><span class="pre">Agent.process()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.set_task"><code class="docutils literal notranslate"><span class="pre">Agent.set_task()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#plurals.agent.load_global_anes_data"><code class="docutils literal notranslate"><span class="pre">load_global_anes_data()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="deliberation.html">Deliberation Module</a></li>
@@ -116,21 +117,11 @@ previous interactions to simulate a continuous dialogue or decision-making proce
 <li><p><strong>placeholder.</strong></p></li>
 <li><p><strong>persona</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Direct specification of a persona description.</p></li>
 <li><p><strong>**kwargs</strong> – Additional keyword arguments for the model’s completion function. These are provided by LiteLLM (
-<a class="reference external" href="https://litellm.vercel.app/docs/completion/input#input-params-1">https://litellm.vercel.app/docs/completion/input#input-params-1</a>). Enter <cite>help(litellm.completion)</cite> for details.</p></li>
+<a class="reference external" href="https://litellm.vercel.app/docs/completion/input#input-params-1">https://litellm.vercel.app/docs/completion/input#input-params-1</a>). Enter <cite>help(litellm.completion)</cite> for
+details.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="plurals.agent.Agent.task_description">
-<span class="sig-name descname"><span class="pre">task_description</span></span><a class="headerlink" href="#plurals.agent.Agent.task_description" title="Link to this definition"></a></dt>
-<dd><p>Current active description of the task, incorporating modifications over time.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[str]</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="plurals.agent.Agent.persona_mapping">
 <span class="sig-name descname"><span class="pre">persona_mapping</span></span><a class="headerlink" href="#plurals.agent.Agent.persona_mapping" title="Link to this definition"></a></dt>
@@ -224,6 +215,29 @@ previous interactions to simulate a continuous dialogue or decision-making proce
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.Agent.set_task">
+<span class="sig-name descname"><span class="pre">set_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#Agent.set_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.set_task" title="Link to this definition"></a></dt>
+<dd><p>Set the task description for the agent to process. This will also clear the history.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>task</strong> (<em>str</em>) – The new task description.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="plurals.agent.load_global_anes_data">
+<span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">load_global_anes_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#load_global_anes_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.load_global_anes_data" title="Link to this definition"></a></dt>
+<dd><p>Load global ANES data for the agent. As per codebook page 2 section 1, the cases that don’t have weights are
+not meant for population inference.</p>
+<p>Here is the codebook url:
+<a class="reference external" href="https://electionstudies.org/wp-content/uploads/2024/03/anes_pilot_2024_userguidecodebook_20240319.pdf">https://electionstudies.org/wp-content/uploads/2024/03/anes_pilot_2024_userguidecodebook_20240319.pdf</a></p>
+<p>Loads:
+- PERSONA_MAPPING: Mapping for converting dataset rows to persona descriptions.
+- DATASET: ANES dataset for persona and ideological queries</p>
 </dd></dl>
 
 </section>

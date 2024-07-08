@@ -84,6 +84,31 @@
 <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s2">&quot;instructions.yaml&quot;</span><span class="p">)</span>
 
 
+<div class="viewcode-block" id="load_global_anes_data">
+<a class="viewcode-back" href="../../agent.html#plurals.agent.load_global_anes_data">[docs]</a>
+<span class="k">def</span> <span class="nf">load_global_anes_data</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load global ANES data for the agent. As per codebook page 2 section 1, the cases that don&#39;t have weights are</span>
+<span class="sd">    not meant for population inference.</span>
+
+<span class="sd">    Here is the codebook url:</span>
+<span class="sd">    https://electionstudies.org/wp-content/uploads/2024/03/anes_pilot_2024_userguidecodebook_20240319.pdf</span>
+
+<span class="sd">    Loads:</span>
+<span class="sd">    - PERSONA_MAPPING: Mapping for converting dataset rows to persona descriptions.</span>
+<span class="sd">    - DATASET: ANES dataset for persona and ideological queries</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">PERSONA_MAPPING</span><span class="p">,</span> <span class="n">DATASET</span>
+    <span class="n">PERSONA_MAPPING</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s2">&quot;anes-mapping.yaml&quot;</span><span class="p">)</span>
+    <span class="n">DATASET</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;anes_pilot_2024_20240319.csv&#39;</span><span class="p">),</span>
+                          <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">DATASET</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<span class="n">load_global_anes_data</span><span class="p">()</span>
+
+
 <div class="viewcode-block" id="Agent">
 <a class="viewcode-back" href="../../agent.html#plurals.agent.Agent">[docs]</a>
 <span class="k">class</span> <span class="nc">Agent</span><span class="p">:</span>
@@ -108,10 +133,10 @@
 <span class="sd">        placeholder.</span>
 <span class="sd">        persona (Optional[str]): Direct specification of a persona description.</span>
 <span class="sd">        **kwargs: Additional keyword arguments for the model&#39;s completion function. These are provided by LiteLLM (</span>
-<span class="sd">            https://litellm.vercel.app/docs/completion/input#input-params-1). Enter `help(litellm.completion)` for details.</span>
+<span class="sd">            https://litellm.vercel.app/docs/completion/input#input-params-1). Enter `help(litellm.completion)` for</span>
+<span class="sd">            details.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        task_description (Optional[str]): Current active description of the task, incorporating modifications over time.</span>
 <span class="sd">        persona_mapping (Optional[Dict[str, Any]]): Dictionary to map dataset rows to persona descriptions.</span>
 <span class="sd">        data (pd.DataFrame): Loaded dataset for persona and ideological queries.</span>
 <span class="sd">        original_task_description (str): The original, unmodified task description.</span>
@@ -127,11 +152,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">system_instructions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span> <span class="o">=</span> <span class="n">persona_mapping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span> <span class="o">=</span> <span class="n">PERSONA_MAPPING</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="n">task</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">persona</span> <span class="o">=</span> <span class="n">persona</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span> <span class="o">=</span> <span class="n">ideology</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_default_data</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">DATASET</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span> <span class="o">=</span> <span class="n">query_str</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span> <span class="o">=</span> <span class="n">task</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="n">task</span>
@@ -186,24 +211,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span>
                                                                              <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task_description</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_load_default_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load the default ANES dataset.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            pd.DataFrame: The loaded ANES dataset.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">default_data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;anes_pilot_2024_20240319.csv&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s2">&quot;anes-mapping.yaml&quot;</span><span class="p">)</span>
-        <span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-        <span class="c1"># As per codebook page 2 section 1, 409 cases don&#39;t have weights and are not meant</span>
-        <span class="c1"># for population inference.</span>
-        <span class="c1"># codebook url:</span>
-        <span class="c1"># https://electionstudies.org/wp-content/uploads/2024/03/anes_pilot_2024_userguidecodebook_20240319.pdf</span>
-        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">dataset</span>
-
     <span class="c1"># noinspection PyTypeChecker</span>
     <span class="k">def</span> <span class="nf">_generate_persona</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -215,8 +222,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span> <span class="o">==</span> <span class="s2">&quot;random&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_random_persona</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_ideology_to_query_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">)</span>
-            <span class="n">filtered_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">)</span>
+            <span class="n">filtered_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_data_by_ideology</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">filtered_data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;No data found satisfying conditions&quot;</span><span class="p">)</span>
             <span class="n">selected_row</span> <span class="o">=</span> <span class="n">filtered_data</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">filtered_data</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_row2persona</span><span class="p">(</span><span class="n">selected_row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span><span class="p">)</span>
@@ -314,6 +320,33 @@
             <span class="n">persona</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clean_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">persona</span><span class="p">)</span>
 
+
+    <span class="k">def</span> <span class="nf">_filter_data_by_ideology</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ideology</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filters the dataset based on the ideology.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ideology (str): The ideology to filter by.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: The filtered dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;liberal&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s1">&#39;Liberal&#39;</span><span class="p">,</span> <span class="s1">&#39;Very liberal&#39;</span><span class="p">])]</span>
+            <span class="k">elif</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;conservative&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s1">&#39;Conservative&#39;</span><span class="p">,</span> <span class="s1">&#39;Very conservative&#39;</span><span class="p">])]</span>
+            <span class="k">elif</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;moderate&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Moderate&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;very liberal&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Very liberal&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;very conservative&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Very conservative&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error filtering data by ideology: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
     <span class="k">def</span> <span class="nf">_validate_system_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Validates the system instructions arguments.</span>
@@ -325,24 +358,20 @@
 <span class="sd">        - ideology is passed in and it&#39;s not in  [&#39;liberal&#39;, &#39;conservative&#39;, &#39;moderate&#39;, &#39;very liberal&#39;,</span>
 <span class="sd">        &#39;very conservative&#39;]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#  assert self.original_task_description is not None, &quot;Need to provide some task instructions&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">:</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;If you use either `ideology` or &quot;</span>
                                                                                 <span class="s2">&quot;`query_str` you need to provide both &quot;</span>
                                                                                 <span class="s2">&quot;a dataframe and a persona mapping to &quot;</span>
                                                                                 <span class="s2">&quot;process rows of the dataframe.&quot;</span><span class="p">)</span>
 
-        <span class="c1"># cannot pass in system_instructions AND (persona_template or persona)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="o">!=</span> <span class="s1">&#39;default&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Cannot pass in system_instructions AND (&quot;</span>
                                                                           <span class="s2">&quot;persona_template or persona)&quot;</span><span class="p">)</span>
 
-        <span class="c1"># cannot pass in (ideology or query_str) AND (persona)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span> <span class="s2">&quot;Cannot pass in (ideology or query_str) AND persona&quot;</span>
 
-        <span class="c1"># ideology must be in  [&#39;liberal&#39;, &#39;conservative&#39;, &#39;moderate&#39;, &#39;very liberal&#39;, &#39;very conservative&#39;]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">:</span>
             <span class="n">allowed_vals</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;liberal&#39;</span><span class="p">,</span> <span class="s1">&#39;conservative&#39;</span><span class="p">,</span> <span class="s1">&#39;moderate&#39;</span><span class="p">,</span> <span class="s1">&#39;very liberal&#39;</span><span class="p">,</span> <span class="s1">&#39;very conservative&#39;</span><span class="p">]</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span> <span class="ow">in</span> <span class="n">allowed_vals</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Ideology has to be one of: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">allowed_vals</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -362,22 +391,6 @@
                                                                                                          <span class="s2">&quot;persona_template, it must contain a $</span><span class="si">{persona}</span><span class="s2"> placeholder or be one of the default templates:&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
                 <span class="n">default_templates</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_convert_ideology_to_query_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ideology</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Converts ideology to a query string for pandas DataFrame.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;liberal&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;ideo5==&#39;Liberal&#39;|ideo5==&#39;Very liberal&#39;&quot;</span>
-        <span class="k">elif</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;conservative&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;ideo5==&#39;Conservative&#39;|ideo5==&#39;Very conservative&#39;&quot;</span>
-        <span class="k">elif</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;moderate&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;ideo5 == &#39;Moderate&#39;&quot;</span>
-        <span class="k">elif</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;very liberal&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;ideo5 == &#39;Very liberal&#39;&quot;</span>
-        <span class="k">elif</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;very conservative&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;ideo5 == &#39;Very conservative&#39;&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">:</span>
@@ -388,12 +401,31 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_description</span><span class="p">,</span> <span class="s2">&quot;system_instructions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">,</span> <span class="s2">&quot;history&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">,</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;original_task&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span><span class="p">,</span>
+                <span class="s2">&quot;current_task_description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span><span class="p">,</span>
+                <span class="s2">&quot;system_instructions&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">,</span>
+                <span class="s2">&quot;history&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">,</span>
                 <span class="s2">&quot;persona&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span> <span class="s2">&quot;ideology&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">,</span> <span class="s2">&quot;query_str&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
                 <span class="s2">&quot;persona_template&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span><span class="p">,</span> <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Agent.set_task">
+<a class="viewcode-back" href="../../agent.html#plurals.agent.Agent.set_task">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the task description for the agent to process. This will also clear the history.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            task (str): The new task description.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span> <span class="o">=</span> <span class="n">task</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="n">task</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_system_instructions</span><span class="p">()</span></div>
+</div>
 
 </pre></div>
 
