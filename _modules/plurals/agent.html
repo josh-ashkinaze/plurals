@@ -145,8 +145,7 @@
 <span class="sd">        info (dict): Comprehensive attributes of the agent&#39;s current configuration and state.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">persona_mapping</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ideology</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ideology</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">query_str</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span> <span class="n">system_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">persona_template</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">persona</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
@@ -234,16 +233,22 @@
 
 <div class="viewcode-block" id="Agent.process">
 <a class="viewcode-back" href="../../agent.html#plurals.agent.Agent.process">[docs]</a>
-    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_responses</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">previous_responses</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Process the task, optionally building upon a previous response.</span>
+<span class="sd">        Process the task, optionally building upon a previous response. If you pass in a task, it will replace the</span>
+<span class="sd">        Agent&#39;s initialized task description. If you pass in a previous responses, it will be incorporated into the task</span>
+<span class="sd">        description if combination_instructions are set via a Structure.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            previous_responses (str): The previous response to incorporate.</span>
+<span class="sd">            previous_responses (str): The previous responses to incorporate.</span>
+<span class="sd">            task (Optional[str]): The task description to process. If not provided, the agent will use its current task.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Optional[str]: The response from the LLM.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">task</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">previous_responses</span><span class="p">:</span>
             <span class="n">combined_responses</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses</span><span class="p">)</span>
@@ -320,7 +325,6 @@
             <span class="n">persona</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clean_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">persona</span><span class="p">)</span>
 
-
     <span class="k">def</span> <span class="nf">_filter_data_by_ideology</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ideology</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Filters the dataset based on the ideology.</span>
@@ -346,7 +350,6 @@
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error filtering data by ideology: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-
     <span class="k">def</span> <span class="nf">_validate_system_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Validates the system instructions arguments.</span>
@@ -365,9 +368,8 @@
                                                                                 <span class="s2">&quot;process rows of the dataframe.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="o">!=</span> <span class="s1">&#39;default&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Cannot pass in system_instructions AND (&quot;</span>
-                                                                          <span class="s2">&quot;persona_template or persona)&quot;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="o">!=</span> <span class="s1">&#39;default&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Cannot pass in system_instructions AND (&quot;</span>
+                                                                              <span class="s2">&quot;persona_template or persona)&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span> <span class="s2">&quot;Cannot pass in (ideology or query_str) AND persona&quot;</span>
@@ -403,10 +405,8 @@
     <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;original_task&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span><span class="p">,</span>
                 <span class="s2">&quot;current_task_description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span><span class="p">,</span>
-                <span class="s2">&quot;system_instructions&quot;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">,</span>
-                <span class="s2">&quot;history&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">,</span>
-                <span class="s2">&quot;persona&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span> <span class="s2">&quot;ideology&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">,</span> <span class="s2">&quot;query_str&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+                <span class="s2">&quot;system_instructions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">,</span> <span class="s2">&quot;history&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">,</span> <span class="s2">&quot;persona&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span>
+                <span class="s2">&quot;ideology&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">,</span> <span class="s2">&quot;query_str&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
                 <span class="s2">&quot;persona_template&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span><span class="p">,</span> <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -416,15 +416,13 @@
 <a class="viewcode-back" href="../../agent.html#plurals.agent.Agent.set_task">[docs]</a>
     <span class="k">def</span> <span class="nf">set_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the task description for the agent to process. This will also clear the history.</span>
+<span class="sd">        Set the task description for the agent to process.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            task (str): The new task description.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span> <span class="o">=</span> <span class="n">task</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="n">task</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_system_instructions</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="n">task</span></div>
 </div>
 
 </pre></div>
