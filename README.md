@@ -292,12 +292,12 @@ print(ensemble.responses)
 This will give 10 responses for each of our agents. Ensemble is the simplest structure yet can still be useful! 
 
 Ensemble also allows you to combine models without any persona and so we can test if different models ensembled together give 
-different results from the same model ensembled together. 
+different results relative to the same model ensembled together. Remember that when we don't pass in system instructions or a persona, this is just a normal API call. 
 ```python
 from plurals.agent import Agent
 from plurals.deliberation import Ensemble
-gpt4 = [Agent(persona='random', model='gpt-4o') for i in range(10)]
-gpt3 = [Agent(persona='random', model='gpt-3.5-turbo') for i in range(10)]
+gpt4 = [Agent(model='gpt-4o') for i in range(10)]
+gpt3 = [Agent(model='gpt-3.5-turbo') for i in range(10)]
 mixed = gpt4[:5] + gpt3[:5]
 
 ensembles = {'gpt4': Ensemble(gpt4, task = "Brainstorm ideas to improve America."),
@@ -309,15 +309,13 @@ for key, ensemble in ensembles.items():
     print(key, ensemble.responses)
 ```
 
-```python
 
-```
 
 ## Ensemble with a moderator
 Let's say we want some Agent to actually read over some of these ideas and maybe return one that is the best. We can do that by passing in 
 a `moderator` agent, which is a special kind of Agent. It only has two arguments: `persona` (the moderator persona) and `combination_instructions` (how to combine the responses). 
 
-This is the first time that we are seeing `combination_instructions` and it is a special kind of instruction that will only kick in when there are previous responses in an Agent's view. Of course, the moderator is at the end of this whole process so there are always going to be previous responses. 
+NOTE: This is the first time that we are seeing `combination_instructions` and it is a special kind of instruction that will only kick in when there are previous responses in an Agent's view. Of course, the moderator is at the end of this whole process so there are always going to be previous responses. 
 
 Note that like a persona_template, `combination_instructions` expects a `${previous_responses}` placeholder. This will get filled in with the previous responses. We have default `combination_instructions` in `instructions.yaml` but you can pass in your own, too---here is an example.
 
