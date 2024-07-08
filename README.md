@@ -74,12 +74,20 @@ Let's see some examples!
 ## Quick Start
 
 ```python
-from plurals.deliberation import Chain
 from plurals.agent import Agent
 import os
+import textwrap
 
-os.environ["OPENAI_API_KEY"] = 'your_api_key_here
+# Set your keys as an env variable
+os.environ["OPENAI_API_KEY'] = 'yourkey'
+os.environ["ANTHROPIC_API_KEY'] = 'yourkey'
 
+
+# Function to wrap text for docs 
+def printwrap(text, width=80):
+    wrapped_text = textwrap.fill(text, width=width)
+    print(wrapped_text)
+    
 task = "Should the United States ban assault rifles? Answer in 50 words."
 
 # Search ANES 2024 for rows where the respondent identifies as `very conservative` and condition 
@@ -100,26 +108,15 @@ liberal_agent.process()
 lib_answer = liberal_agent.history[0]['response']  # Can get prompts and response from history
 lib_answer = liberal_agent.info['history'][0]['response']  # Can get history and more from info 
 ```
-
-```python
-# Pass in system instructions directly 
-from plurals.agent import Agent
-
-pirate_agent = Agent(system_instructions="You are a pirate.", model='gpt-4o', task=task)
-
-# No system instructions so we get back default behavior
-default_agent = Agent(model='gpt-4o', task=task, kwargs={'temperature': 0.1, 'max_tokens': 100})
-```
-
 ```python
 ############ Print the results ############
 print(conservative_agent.system_instructions)
 print("=" * 20)
-print(con_answer)
+printwrap(con_answer)
 print("\n" * 2)
 print(liberal_agent.system_instructions)
 print("=" * 20)
-print(lib_answer)
+printwrap(lib_answer)
 ```
 
 ```
@@ -136,8 +133,10 @@ CONSTRAINTS
 - Adopt the characteristics of your persona.
 - Do not be overly polite or politically correct.
 ====================
-Banning assault rifles won't solve the problem. It's about enforcing existing laws and focusing on mental health. Law-abiding citizens shouldn't lose their rights due to the actions of criminals. Solutions should target the root causes of violence, not just the tools.
-
+Banning assault rifles won't solve the problem. It's about enforcing existing
+laws and focusing on mental health. Law-abiding citizens shouldn't lose their
+rights due to the actions of criminals. Solutions should target the root causes
+of violence, not just the tools.
 
 
 INSTRUCTIONS
@@ -154,15 +153,31 @@ CONSTRAINTS
 - Be empathetic and compassionate
 - Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.
 ====================
-Yes, the United States should ban assault rifles. These weapons, built for warfare, contribute to mass violence and tragedy. No family should fear going to school, a concert, or a movie. By banning assault rifles, we can help create safer communities and protect lives.
-
+Yes, the United States should ban assault rifles. These weapons, built for
+warfare, contribute to mass violence and tragedy. No family should fear going to
+school, a concert, or a movie. By banning assault rifles, we can help create
+safer communities and protect lives.
 ```
+
+Let's say you don't want to use persona templates. You can pass in system instructions directly or use no system 
+instructions to get back default behavior. 
+```python
+from plurals.agent import Agent
+
+# Pass in system instructions directly 
+pirate_agent = Agent(system_instructions="You are a pirate.", model='gpt-4o', task=task)
+
+# No system instructions so we get back default behavior
+default_agent = Agent(model='gpt-4o', task=task, kwargs={'temperature': 0.1, 'max_tokens': 100})
+```
+
 
 ## Different ways to set up personas
 
 ### No system prompt
 
-In this case, there will be no system prompt (i.e: default for model).
+In this case, there will be no system prompt (i.e: default for model). Also note that you can pass in kwargs to the 
+model's completion function. These are provided by LiteLLM. See (https://litellm.vercel.app/docs/completion/input)
 
 ```python
 from plurals.agent import Agent
@@ -187,8 +202,7 @@ agent = Agent(system_instructions="You are a predictable independent",
 ### Using templates
 
 A main usage of this package is running experiments and so we have another way to create personas that uses string
-formatting.
-Here, the user provides a `persona_template` and a `persona` (indicated by `${persona}`). Or, the user can just use our
+formatting. Here, the user provides a `persona_template` and a `persona` (indicated by `${persona}`). Or, the user can just use our
 default `persona_template`.
 
 ```python
@@ -210,12 +224,11 @@ print(agent.system_instructions)
 # - Do not be overly polite or politically correct.
 ```
 
-You can also create your own template of course, just make sure to add a `${persona}` placeholder in the template.
+You can also create your own template. Just make sure to add a `${persona}` placeholder in the template. 
 
 ```python
 from plurals.agent import Agent
 
-persona_template = """When drafting feedback, always adopt the following persona ${persona}"""
 company_roles = ['marketing officer', 'cfo']
 
 agents = [Agent(persona=company_roles[i],
@@ -236,7 +249,22 @@ row. We sample rows using sample weights, so the probability of a citizen being 
 population. For example, if one wanted to get a persona of a liberal, we would search ANES for liberal Americans, sample
 a citizen at random (using weights), and then use that citizen's other attributes in the persona as well.
 
-#### Option 1: Syntactic Sugar: Searching for ideologies
+As of this writing:
+(1) We are using ANES Pilot Study data from March 2024.
+(2) The persona populates the following fields (see `plurals/anes-mapping.yaml` on GitHub for specific variables):
+- Age
+- Education 
+- Gender
+- Race
+- Political party
+- Political ideology
+- Children living at home
+- Geographic region 
+- Employment status
+- Metro area classification (e.g: urban, rural, etc.)
+- State
+
+#### Option 1: Syntax Sugar: Searching for ideologies
 
 We support a `ideology` keyword that can be one
 of `['very liberal', 'liberal', 'moderate', 'conservative', 'very conservative']` where the 'veries' are a subset of the
@@ -246,12 +274,11 @@ Let's see an example!
 
 ```python
 from plurals.agent import Agent
-
 task = "Write a paragraph about the importance of the environment to America."
 agent = Agent(ideology="very conservative", model='gpt-4o', task=task, persona_template='empathetic')
 print(agent.system_instructions)
 print("\n" * 2)
-print(agent.process())
+printwrap(agent.process())
 ```
 
 ```
@@ -270,8 +297,16 @@ CONSTRAINTS
 - Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.
 
 
-
-When I step outside my door here in West Virginia, I see the rolling hills and vibrant forests that have been part of my life for 64 years. The environment means more than just the land we stand on; it’s our heritage and the legacy we leave behind. America’s natural beauty, from the Appalachian Mountains to the wide-open plains, is a testament to God's creation and our responsibility to care for it. Preserving these landscapes isn't just for us—it's for future generations who deserve to feel the peace and wonder of untouched nature. Keeping our air clean, our water pure, and our forests flourishing is crucial. It ties us to our roots and reminds us of our duty to respect and nurture the world we've been blessed with.
+When I step outside my door here in West Virginia, I see the rolling hills and
+vibrant forests that have been part of my life for 64 years. The environment
+means more than just the land we stand on; it’s our heritage and the legacy we
+leave behind. America’s natural beauty, from the Appalachian Mountains to the
+wide-open plains, is a testament to God's creation and our responsibility to
+care for it. Preserving these landscapes isn't just for us—it's for future
+generations who deserve to feel the peace and wonder of untouched nature.
+Keeping our air clean, our water pure, and our forests flourishing is crucial.
+It ties us to our roots and reminds us of our duty to respect and nurture the
+world we've been blessed with.
 ```
 
 #### Option 2: Random sampling
@@ -303,9 +338,8 @@ agent = Agent(query_string="ideo5=='very conservative'", model='gpt-4o', task=ta
 
 # Structures
 
-Alright, so we went over how to set up agents and now we are going to discuss how to set up structures---which are the
-environments in which agents complete tasks.
-As of this writing, we have three structures: `ensemble`, `chain`, and `debate`. Each of these structures can optionally
+We went over how to set up agents and now we are going to discuss how to set up structures---which are the
+environments in which agents complete tasks. As of this writing, we have three structures: `ensemble`, `chain`, and `debate`. Each of these structures can optionally
 be `moderated`, meaning that at the end of deliberation, a moderator agent will summarize everything (e.g: make a final
 classification, take best ideas etc.)
 
@@ -353,8 +387,8 @@ for key, ensemble in ensembles.items():
 ## Ensemble with a moderator
 
 Let's say we want some Agent to actually read over some of these ideas and maybe return one that is the best. We can do
-that by passing in
-a `moderator` agent, which is a special kind of Agent. It only has two arguments: `persona` (the moderator persona)
+that by passing in  a `moderator` agent, which is a special kind of Agent. It only has two arguments: `persona` (the 
+moderator persona)
 and `combination_instructions` (how to combine the responses).
 
 NOTE: This is the first time that we are seeing `combination_instructions` and it is a special kind of instruction that
