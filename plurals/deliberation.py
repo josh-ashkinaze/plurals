@@ -78,10 +78,8 @@ class Moderator(Agent):
 class AbstractStructure(ABC):
     """
     AbstractStructure is an abstract class for processing tasks through a group of agents. As such, it is not meant
-    to be
-    instantiated directly but rather to be subclassed by concrete structures such as an Ensemble. However,
-    all the concrete
-    structures share the same attributes and methods, so this class provides a common interface.
+    to be instantiated directly but rather to be subclassed by concrete structures such as an Ensemble. However,
+    all the concrete structures share the same attributes and methods, so this class provides a common interface.
 
     Args:
         agents (List[Agent]): A list of agents to include in the structure.
@@ -223,17 +221,15 @@ class Chain(AbstractStructure):
     def process(self):
         """
         Process the task through a chain of agents, each building upon the last. Use parameters from
-        `AbstractStructure` to control
-        how the chain operates (e.g: last_n for how many previous responses to include in the `previous_resonses`
-        string)
+        `AbstractStructure` to control how the chain operates (e.g: last_n for how many previous responses to include
+        in the `previous_responses` string)
         """
         previous_responses = []
         original_task = self.agents[0].original_task_description
         for _ in range(self.cycles):
             for agent in self.agents:
                 previous_responses_slice = previous_responses[-self.last_n:]
-                previous_responses_str = format_previous_responses(
-                    previous_responses_slice)
+                previous_responses_str = format_previous_responses(previous_responses_slice)
                 agent.combination_instructions = self.combination_instructions
                 response = agent.process(
                     previous_responses=previous_responses_str)
@@ -241,8 +237,7 @@ class Chain(AbstractStructure):
                 self.responses.append(response)
 
         if self.moderated and self.moderator:
-            moderated_response = self.moderator._moderate_responses(
-                self.responses, original_task)
+            moderated_response = self.moderator._moderate_responses(self.responses, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
 
@@ -264,10 +259,7 @@ class Ensemble(AbstractStructure):
                 for agent in self.agents:
                     previous_responses_str = ""
                     agent.combination_instructions = self.combination_instructions
-                    futures.append(
-                        executor.submit(
-                            agent.process,
-                            previous_responses=previous_responses_str))
+                    futures.append(executor.submit(agent.process,previous_responses=previous_responses_str))
                 for future in as_completed(futures):
                     response = future.result()
                     self.responses.append(response)
@@ -282,9 +274,7 @@ class Ensemble(AbstractStructure):
 class Debate(AbstractStructure):
     """
     In a debate, two agents take turns responding to a task, with each response building upon the previous one.
-    Debate differs
-    from other structures in a few key ways:
-
+    Debate differs from other structures in a few key ways:
     - It requires exactly two agents.
     - It alternates between agents for each response, and prefixes each response with "[You]:" or "[Other]:" to
     indicate

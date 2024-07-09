@@ -50,14 +50,15 @@ class Agent:
             and the task is provided to the structure, then the agent will inherit that task.
         combination_instructions (Optional[str]): Instructions for combining previous responses with the current
             task. If the agent is part of a structure and the combination_instructions are provided to the structure,
-            then the agent will inherit those combination instructions.
+            then the agent will inherit those combination instructions. Must include a ${previous_responses}
+            placeholder.
         ideology (Optional[str]): Ideological perspective to influence persona creation, supported values are
                                   ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative'].
         query_str (Optional[str]): Custom query string for filtering the ANES dataset according to specific criteria.
         model (str): The language model version to use for generating responses.
         system_instructions (Optional[str]): Overrides automated instructions with a custom set of directives for the
             model.
-        persona_template (Optional[str]): Template string for constructing the persona, must include a ${persona}
+        persona_template (Optional[str]): Template string for constructing the persona. Must include a ${persona}
             placeholder.
         persona (Optional[str]): Direct specification of a persona description.
         **kwargs: Additional keyword arguments for the model's completion function. These are provided by LiteLLM (
@@ -230,8 +231,7 @@ class Agent:
             Optional[str]: The response from the LLM.
         """
         if self.system_instructions:
-            messages = [{"role": "system", "content": self.system_instructions}, {
-                "role": "user", "content": task}]
+            messages = [{"role": "system", "content": self.system_instructions}, {"role": "user", "content": task}]
         else:
             messages = [{"role": "user", "content": task}]
         try:
@@ -241,12 +241,8 @@ class Agent:
                 **self.kwargs)
             content = response.choices[0].message.content
             prompts = {
-                'system': next(
-                    (msg['content'] for msg in messages if msg['role'] == 'system'),
-                    None),
-                'user': next(
-                    (msg['content'] for msg in messages if msg['role'] == 'user'),
-                    None)}
+                'system': next((msg['content'] for msg in messages if msg['role'] == 'system'),None),
+                'user': next((msg['content'] for msg in messages if msg['role'] == 'user'),None)}
             self._history.append(
                 {'prompts': prompts, 'response': content, 'model': self.model})
             return content
@@ -273,12 +269,10 @@ class Agent:
             if var == "birthyr" and value is not None:
                 value = 2024 - int(value)
 
-            if value is None or (
-                    details.get('bad_vals') and str(value) in details['bad_vals']):
+            if value is None or (details.get('bad_vals') and str(value) in details['bad_vals']):
                 continue
 
-            if details.get('recode_vals') and str(
-                    value) in details['recode_vals']:
+            if details.get('recode_vals') and str(value) in details['recode_vals']:
                 value = details['recode_vals'][str(value)]
 
             clean_name = details['name']
@@ -356,8 +350,7 @@ class Agent:
             default_templates = list(self.defaults['persona_template'].keys())
 
             assert '${persona}' in self.persona_template or self.persona_template in default_templates, (
-                "If you pass " "in a " "persona_template, it must contain a ${persona} placeholder or be one of the default templates:") + str(default_templates)
-
+                    "If you pass in a persona_template, it must contain a ${persona} placeholder or be one of the default templates:" + str(default_templates))
     @property
     def history(self):
         if not self._history:
