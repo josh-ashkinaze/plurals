@@ -259,7 +259,7 @@ class Ensemble(AbstractStructure):
                 for agent in self.agents:
                     previous_responses_str = ""
                     agent.combination_instructions = self.combination_instructions
-                    futures.append(executor.submit(agent.process,previous_responses=previous_responses_str))
+                    futures.append(executor.submit(agent.process, previous_responses=previous_responses_str))
                 for future in as_completed(futures):
                     response = future.result()
                     self.responses.append(response)
@@ -275,12 +275,12 @@ class Debate(AbstractStructure):
     """
     In a debate, two agents take turns responding to a task, with each response building upon the previous one.
     Debate differs from other structures in a few key ways:
-    - It requires exactly two agents.
-    - It alternates between agents for each response, and prefixes each response with "[You]:" or "[Other]:" to
-    indicate
-    the speaker.
-    - When moderated, the moderator will provide a final response based on the debate and we will append [Debater 1]
-    and [Debater 2] to the responses so that the moderator is aware of who said what.
+
+    1. It requires exactly two agents.
+    2. It alternates between agents for each response, and prefixes each response with `[You]:` or `[Other]:` to
+       indicate the speaker.
+    3. When moderated, the moderator will provide a final response based on the debate, and we will append
+       `[Debater 1]` and `[Debater 2]` to the responses so that the moderator is aware of who said what.
     """
 
     def __init__(
