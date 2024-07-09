@@ -96,14 +96,31 @@ normal strings.</p>
 breaks when the string contains curly braces that are not meant to be replaced. For example:</p>
 <p>s = “Hello, {name} I am a json like {‘key’:’value’}”
 new_s = s.format(name=”John”)</p>
-<p>This will raise a KeyError because the format method will try to replace the curly braces in the json string as well, but we
-only want to replace {name}. So as a solution one can turn <cite>s</cite> into a string Template and use the safe_substitute method to
-replace the variables. This is what the SmartString class does: It is a subclass of str that overrides the format method to
-use string.Template for string formatting.</p>
+<p>This will raise a KeyError because the format method will try to replace the curly braces in the json string as
+well, but we only want to replace {name}. So as a solution one can turn <cite>s</cite> into a string Template and use the
+safe_substitute method to replace the variables. This is what the SmartString class does: It is a subclass of str that overrides the format
+method to use string.Template for string formatting.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="plurals.helpers.SmartString.format">
-<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/helpers.html#SmartString.format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.helpers.SmartString.format" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">avoid_double_period</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/helpers.html#SmartString.format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.helpers.SmartString.format" title="Link to this definition"></a></dt>
 <dd><p>Override the format method to use string.Template for string formatting.</p>
+<p>Also, if avoid_double_period is True, then we will remove the trailing period from the formatted string if it
+is already present. This happens if the string is like <cite>Complete the {task}.</cite> and the user passes <cite>task=Do
+the thing</cite>. In this case, we want to remove the extra period. This is particularly useful for Moderator
+personas where in defaults they often end on the task.</p>
+<p>Double-period algorithm:
+Foreach key, value in kwargs:
+1. Construct a placeholder-plus-period like “{task}.” (assuming {task} is placeholder here)
+2. Check if the placeholder-plus-period is in the string AND the replacement ends with a period.
+3. If both conditions are met, replace the replacement-plus-period with just the replacement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>avoid_double_period</strong> (<em>bool</em>) – Whether to avoid double periods in the final string. (Default: False)</p></li>
+<li><p><strong>**kwargs</strong> – Key-value pairs to replace in the string.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -146,12 +163,13 @@ relative to this script’s location.</p>
 <dt class="sig sig-object py" id="plurals.helpers.print_anes_mapping">
 <span class="sig-prename descclassname"><span class="pre">plurals.helpers.</span></span><span class="sig-name descname"><span class="pre">print_anes_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/helpers.html#print_anes_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.helpers.print_anes_mapping" title="Link to this definition"></a></dt>
 <dd><p>Prints the values of ANES mapping in a human-readable format.</p>
-<p>The purpose of this function is that in some cases users will want to conduct their own query on the ANES dataset, but
-it is difficult to know what the values are without consulting a codebook. We also recode certain values. So here we
-print the values of the ANES mapping in a neat/clean/human-readable way for consumer.</p>
-<p>Note: Whenever we print <cite>recode values</cite> this means that we have recoded the values from the original dataset to use in persona strings. For example,
-for <cite>child18</cite>, the question was whether the participant has children under 18 living in their household. For persona processing, we changed
-<cite>Yes</cite> and <cite>No</cite> to <cite>do have children under 18 living in your household</cite> and <cite>do not have children under 18 living in your household</cite>—though to
+<p>The purpose of this function is that in some cases users will want to conduct their own query on the ANES
+dataset, but it is difficult to know what the values are without consulting a codebook. We also recode certain
+values. So here we print the values of the ANES mapping in a neat/clean/human-readable way for consumer.</p>
+<p>Note: Whenever we print <cite>recode values</cite> this means that we have recoded the values from the original dataset to
+use in persona strings. For example, for <cite>child18</cite>, the question was whether the participant has children under
+18 living in their household. For persona processing, we changed <cite>Yes</cite> and <cite>No</cite> to <cite>do have children under 18
+living in your household</cite> and <cite>do not have children under 18 living in your household</cite>—though to
 search ANES you’d use the original values. of <cite>Yes</cite> and <cite>No</cite>.</p>
 </dd></dl>
 
