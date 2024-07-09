@@ -110,8 +110,7 @@ previous interactions to simulate a continuous dialogue or decision-making proce
 and the task is provided to the structure, then the agent will inherit that task.</p></li>
 <li><p><strong>combination_instructions</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Instructions for combining previous responses with the current
 task. If the agent is part of a structure and the combination_instructions are provided to the structure,
-then
-the agent will inherit those combination instructions.</p></li>
+then the agent will inherit those combination instructions.</p></li>
 <li><p><strong>ideology</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Ideological perspective to influence persona creation, supported values are
 [‘liberal’, ‘conservative’, ‘moderate’, ‘very liberal’, ‘very conservative’].</p></li>
 <li><p><strong>query_str</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Custom query string for filtering the ANES dataset according to specific criteria.</p></li>
@@ -220,7 +219,7 @@ instructions can be set directly or generated from a persona-based method.</p>
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#Agent.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.process" title="Link to this definition"></a></dt>
 <dd><p>Process the task, optionally building upon a previous response. If you pass in a task, it will replace the
 Agent’s initialized task description. If you pass in a previous responses, it will be incorporated into the task
-description if combination_instructions are set via a Structure.</p>
+description if combination_instructions have not been set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
