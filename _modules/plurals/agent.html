@@ -114,13 +114,18 @@
 <a class="viewcode-back" href="../../agent.html#plurals.agent.Agent">[docs]</a>
 <span class="k">class</span> <span class="nc">Agent</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Represents an intelligent agent that processes tasks with customizable personas and ideological perspectives.</span>
-<span class="sd">    This agent uses external data, like ANES 2024, to tailor responses based on demographic information associated</span>
-<span class="sd">    with various ideologies. It can operate under specific system instructions or dynamically generate instructions</span>
-<span class="sd">    using predefined templates.</span>
+<span class="sd">    Agents are LLMs with customizable personas, who complete tasks with other Agents working together in Structures.</span>
+<span class="sd">    Personas of Agents can be instantiated directly, null (i.e: default system prompt), or leverage external datasets like ANES for</span>
+<span class="sd">    nationally-representative personas.</span>
 
-<span class="sd">    The agent interacts with language models to generate task-specific responses, potentially incorporating</span>
-<span class="sd">    previous interactions to simulate a continuous dialogue or decision-making process.</span>
+<span class="sd">    The main features of the Agent class are:</span>
+<span class="sd">    - system_instructions: Set either directly or through various persona methods</span>
+<span class="sd">    - combination_instructions: Dictates how Agents should combine previous responses with the current task</span>
+<span class="sd">    - task: The task (i.e: user prompt) that Agents respond to</span>
+
+<span class="sd">    Agents can be used alone or in conjunction with Structures to create multi-agent simulations. When used with</span>
+<span class="sd">    Structures, the Structure-level attribute values will override the Agent-level attribute values. Eg: If you set a task</span>
+<span class="sd">    at an agent level and a Structure-level, the Structure-level task will be used.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        task (Optional[str]): Description of the task for the agent to process. If the agent is part of a structure,</span>
