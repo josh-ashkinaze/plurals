@@ -22,7 +22,8 @@ def print_anes_mapping():
     search ANES you'd use the original values. of `Yes` and `No`.
     """
     mapping = load_yaml('anes-mapping.yaml')
-    df = pd.read_csv(pkg_resources.resource_filename(__name__, 'data/anes_pilot_2024_20240319.csv'))
+    df = pd.read_csv(pkg_resources.resource_filename(
+        __name__, 'data/anes_pilot_2024_20240319.csv'))
     for key in mapping.keys():
         details = mapping[key]
         clean_name = details.get('name', '')
@@ -41,7 +42,8 @@ def print_anes_mapping():
         # Skip printing bad_vals
         bad_vals = details.get('bad_vals', set())
 
-        # Print the main values from the DataFrame, excluding those that are recode values
+        # Print the main values from the DataFrame, excluding those that are
+        # recode values
         print(f"Persona string: `{clean_name}`:")
         if key in df.columns:
             values = df[key].unique()
@@ -51,7 +53,8 @@ def print_anes_mapping():
                 pass
             else:
                 for val in values:
-                    if str(val) not in bad_vals and str(val) not in recode_keys:
+                    if str(val) not in bad_vals and str(
+                            val) not in recode_keys:
                         print(f"  {val}")
         print()
 
@@ -70,7 +73,8 @@ def load_yaml(file_path: str) -> Dict[str, Any]:
     """
     full_path = pkg_resources.resource_filename(__name__, file_path)
     if not os.path.exists(full_path):
-        raise FileNotFoundError(f"The file {full_path} does not exist. Please ensure the file path is correct.")
+        raise FileNotFoundError(
+            f"The file {full_path} does not exist. Please ensure the file path is correct.")
 
     with open(full_path, 'r') as file:
         return yaml.safe_load(file)
@@ -91,7 +95,10 @@ def format_previous_responses(responses: List[str]) -> str:
     if not responses:
         return ""
     else:
-        resp_list = ["Response {}: {}\n".format(i, responses[i]) for i in range(len(responses))]
+        resp_list = [
+            "Response {}: {}\n".format(
+                i, responses[i]) for i in range(
+                len(responses))]
         return "".join(resp_list).strip()
 
 
@@ -139,6 +146,7 @@ class SmartString(str):
             for key, value in kwargs.items():
                 placeholder = f"${{{key}}}."
                 if placeholder in self and value.endswith('.'):
-                    formatted_string = formatted_string.replace(f"{value}.", value)
+                    formatted_string = formatted_string.replace(
+                        f"{value}.", value)
 
         return formatted_string

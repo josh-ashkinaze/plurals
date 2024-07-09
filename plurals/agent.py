@@ -23,8 +23,12 @@ def _load_global_anes_data():
     """
     global PERSONA_MAPPING, DATASET
     PERSONA_MAPPING = load_yaml("anes-mapping.yaml")
-    DATASET = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'anes_pilot_2024_20240319.csv'),
-                          low_memory=False)
+    DATASET = pd.read_csv(
+        os.path.join(
+            os.path.dirname(__file__),
+            'data',
+            'anes_pilot_2024_20240319.csv'),
+        low_memory=False)
     DATASET.dropna(subset=['weight'], inplace=True)
 
 
@@ -46,8 +50,7 @@ class Agent:
             and the task is provided to the structure, then the agent will inherit that task.
         combination_instructions (Optional[str]): Instructions for combining previous responses with the current
             task. If the agent is part of a structure and the combination_instructions are provided to the structure,
-            then
-            the agent will inherit those combination instructions.
+            then the agent will inherit those combination instructions.
         ideology (Optional[str]): Ideological perspective to influence persona creation, supported values are
                                   ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative'].
         query_str (Optional[str]): Custom query string for filtering the ANES dataset according to specific criteria.
@@ -117,11 +120,13 @@ class Agent:
         - If persona is "random" generate a random ANES persona
         - If persona is not already provided, generate it. This can be generated from a `query_str` or from `ideology`.
         """
-        # If system_instructions is already provided, we don't need to do anything
+        # If system_instructions is already provided, we don't need to do
+        # anything
         if self.system_instructions is not None:
             return
 
-        # If system_instructions, persona, ideology, nor query_str is provided, set system_instructions to None
+        # If system_instructions, persona, ideology, nor query_str is provided,
+        # set system_instructions to None
         if not self.system_instructions and not self.persona and not self.ideology and not self.query_str:
             self.system_instructions = None
             return
@@ -139,10 +144,12 @@ class Agent:
             self.persona = self._generate_persona()
 
         # Use the persona_template to create system_instructions
-        self.persona_template = self.defaults['persona_template'].get(self.persona_template,
-                                                                      self.persona_template).strip()
-        self.system_instructions = SmartString(self.persona_template).format(persona=self.persona,
-                                                                             task=self.task_description).strip()
+        self.persona_template = self.defaults['persona_template'].get(
+            self.persona_template, self.persona_template).strip()
+        self.system_instructions = SmartString(
+            self.persona_template).format(
+            persona=self.persona,
+            task=self.task_description).strip()
 
     # noinspection PyTypeChecker
     def _generate_persona(self) -> str:
@@ -156,20 +163,28 @@ class Agent:
             return self._get_random_persona(self.data)
         if self.ideology:
             filtered_data = self._filter_data_by_ideology(self.ideology)
-            if filtered_data.empty: raise AssertionError("No data found satisfying conditions")
-            selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
+            if filtered_data.empty:
+                raise AssertionError("No data found satisfying conditions")
+            selected_row = filtered_data.sample(
+                n=1, weights=filtered_data['weight']).iloc[0]
             return self._row2persona(selected_row, self.persona_mapping)
         elif self.query_str:
             filtered_data = self.data.query(self.query_str)
-            if filtered_data.empty: raise AssertionError("No data found satisfying conditions")
-            selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
+            if filtered_data.empty:
+                raise AssertionError("No data found satisfying conditions")
+            selected_row = filtered_data.sample(
+                n=1, weights=filtered_data['weight']).iloc[0]
             return self._row2persona(selected_row, self.persona_mapping)
 
-    def process(self, task: Optional[str] = None, previous_responses: str = "", ) -> Optional[str]:
+    def process(
+        self,
+        task: Optional[str] = None,
+        previous_responses: str = "",
+    ) -> Optional[str]:
         """
         Process the task, optionally building upon a previous response. If you pass in a task, it will replace the
         Agent's initialized task description. If you pass in a previous responses, it will be incorporated into the task
-        description if combination_instructions are set via a Structure.
+        description if combination_instructions have not been set.
 
         Args:
             previous_responses (str): The previous responses to incorporate.
@@ -182,9 +197,11 @@ class Agent:
             self.set_task(task)
 
         if previous_responses:
-            combined_responses = SmartString(self.combination_instructions).format(
+            combined_responses = SmartString(
+                self.combination_instructions).format(
                 previous_responses=previous_responses)
-            self.current_task_description = SmartString(f"{self.original_task_description}\n{combined_responses}")
+            self.current_task_description = SmartString(
+                f"{self.original_task_description}\n{combined_responses}")
         else:
             self.current_task_description = self.original_task_description
         return self._get_response(self.current_task_description)
@@ -213,15 +230,25 @@ class Agent:
             Optional[str]: The response from the LLM.
         """
         if self.system_instructions:
-            messages = [{"role": "system", "content": self.system_instructions}, {"role": "user", "content": task}]
+            messages = [{"role": "system", "content": self.system_instructions}, {
+                "role": "user", "content": task}]
         else:
             messages = [{"role": "user", "content": task}]
         try:
-            response = completion(model=self.model, messages=messages, **self.kwargs)
+            response = completion(
+                model=self.model,
+                messages=messages,
+                **self.kwargs)
             content = response.choices[0].message.content
-            prompts = {'system': next((msg['content'] for msg in messages if msg['role'] == 'system'), None),
-                       'user': next((msg['content'] for msg in messages if msg['role'] == 'user'), None)}
-            self._history.append({'prompts': prompts, 'response': content, 'model': self.model})
+            prompts = {
+                'system': next(
+                    (msg['content'] for msg in messages if msg['role'] == 'system'),
+                    None),
+                'user': next(
+                    (msg['content'] for msg in messages if msg['role'] == 'user'),
+                    None)}
+            self._history.append(
+                {'prompts': prompts, 'response': content, 'model': self.model})
             return content
         except Exception as e:
             print(f"Error fetching response from LLM: {e}")
@@ -246,10 +273,12 @@ class Agent:
             if var == "birthyr" and value is not None:
                 value = 2024 - int(value)
 
-            if value is None or (details.get('bad_vals') and str(value) in details['bad_vals']):
+            if value is None or (
+                    details.get('bad_vals') and str(value) in details['bad_vals']):
                 continue
 
-            if details.get('recode_vals') and str(value) in details['recode_vals']:
+            if details.get('recode_vals') and str(
+                    value) in details['recode_vals']:
                 value = details['recode_vals'][str(value)]
 
             clean_name = details['name']
@@ -268,9 +297,11 @@ class Agent:
         """
         try:
             if ideology.lower() == 'liberal':
-                return self.data[self.data['ideo5'].isin(['Liberal', 'Very liberal'])]
+                return self.data[self.data['ideo5'].isin(
+                    ['Liberal', 'Very liberal'])]
             elif ideology.lower() == 'conservative':
-                return self.data[self.data['ideo5'].isin(['Conservative', 'Very conservative'])]
+                return self.data[self.data['ideo5'].isin(
+                    ['Conservative', 'Very conservative'])]
             elif ideology.lower() == 'moderate':
                 return self.data[self.data['ideo5'] == 'Moderate']
             elif ideology.lower() == "very liberal":
@@ -299,14 +330,19 @@ class Agent:
                                                                                 "process rows of the dataframe.")
 
         if self.system_instructions:
-            assert not (self.persona_template != 'default' or self.persona), ("Cannot pass in system_instructions AND ("
-                                                                              "persona_template or persona)")
+            assert not (self.persona_template != 'default' or self.persona), (
+                "Cannot pass in system_instructions AND (" "persona_template or persona)")
 
         if self.ideology or self.query_str:
             assert not self.persona, "Cannot pass in (ideology or query_str) AND persona"
 
         if self.ideology:
-            allowed_vals = ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative']
+            allowed_vals = [
+                'liberal',
+                'conservative',
+                'moderate',
+                'very liberal',
+                'very conservative']
             assert self.ideology in allowed_vals, f"Ideology has to be one of: {str(allowed_vals)}"
 
     def _validate_templates(self):
@@ -319,10 +355,8 @@ class Agent:
         if self.persona_template:
             default_templates = list(self.defaults['persona_template'].keys())
 
-            assert '${persona}' in self.persona_template or self.persona_template in default_templates, ("If you pass "
-                                                                                                         "in a "
-                                                                                                         "persona_template, it must contain a ${persona} placeholder or be one of the default templates:") + str(
-                default_templates)
+            assert '${persona}' in self.persona_template or self.persona_template in default_templates, (
+                "If you pass " "in a " "persona_template, it must contain a ${persona} placeholder or be one of the default templates:") + str(default_templates)
 
     @property
     def history(self):
@@ -334,11 +368,17 @@ class Agent:
 
     @property
     def info(self):
-        return {"original_task": self.original_task_description,
-                "current_task_description": self.current_task_description,
-                "system_instructions": self.system_instructions, "history": self.history, "persona": self.persona,
-                "ideology": self.ideology, "query_str": self.query_str, "model": self.model,
-                "persona_template": self.persona_template, "kwargs": self.kwargs}
+        return {
+            "original_task": self.original_task_description,
+            "current_task_description": self.current_task_description,
+            "system_instructions": self.system_instructions,
+            "history": self.history,
+            "persona": self.persona,
+            "ideology": self.ideology,
+            "query_str": self.query_str,
+            "model": self.model,
+            "persona_template": self.persona_template,
+            "kwargs": self.kwargs}
 
     def __repr__(self):
         return str(self.info)

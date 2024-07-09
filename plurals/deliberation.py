@@ -28,16 +28,29 @@ class Moderator(Agent):
         system_instructions (str): For a Moderator, system instructions are just the persona.
     """
 
-    def __init__(self, persona: str = 'default', combination_instructions: str = "default", model: str = "gpt-4o",
-                 **kwargs):
-        super().__init__(task="", model=model,
-                         persona=DEFAULTS["moderator"]['persona'].get(persona, persona), persona_template="${persona}",
-                         **kwargs)
+    def __init__(
+            self,
+            persona: str = 'default',
+            combination_instructions: str = "default",
+            model: str = "gpt-4o",
+            **kwargs):
+        super().__init__(
+            task="",
+            model=model,
+            persona=DEFAULTS["moderator"]['persona'].get(
+                persona,
+                persona),
+            persona_template="${persona}",
+            **kwargs)
 
         self.combination_instructions = (
-            DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions, combination_instructions))
+            DEFAULTS["moderator"]['combination_instructions'].get(
+                combination_instructions, combination_instructions))
 
-    def _moderate_responses(self, responses: List[str], original_task: str) -> str:
+    def _moderate_responses(
+            self,
+            responses: List[str],
+            original_task: str) -> str:
         """
         Combine responses using the moderator persona and instructions.
 
@@ -49,11 +62,16 @@ class Moderator(Agent):
             str: A combined response based on the moderator's instructions and persona.
         """
         combined_responses_str = format_previous_responses(responses)
-        self.combination_instructions = SmartString(self.combination_instructions).format(
-            previous_responses=combined_responses_str, task=original_task, avoid_double_period=True)
-        self.system_instructions = SmartString(self.system_instructions).format(task=original_task,
-                                                                                previous_responses=combined_responses_str,
-                                                                                persona=self.persona)
+        self.combination_instructions = SmartString(
+            self.combination_instructions).format(
+            previous_responses=combined_responses_str,
+            task=original_task,
+            avoid_double_period=True)
+        self.system_instructions = SmartString(
+            self.system_instructions).format(
+            task=original_task,
+            previous_responses=combined_responses_str,
+            persona=self.persona)
         return self.process(previous_responses=combined_responses_str)
 
 
@@ -88,9 +106,15 @@ class AbstractStructure(ABC):
         moderated (bool): Whether the structure is moderated.
     """
 
-    def __init__(self, agents: List[Agent], task: Optional[str] = None, shuffle: bool = False,
-                 cycles: int = 1, last_n: int = 1, combination_instructions: Optional[str] = "default",
-                 moderator: Optional[Moderator] = None):
+    def __init__(
+            self,
+            agents: List[Agent],
+            task: Optional[str] = None,
+            shuffle: bool = False,
+            cycles: int = 1,
+            last_n: int = 1,
+            combination_instructions: Optional[str] = "default",
+            moderator: Optional[Moderator] = None):
         self.defaults = DEFAULTS
         self.task = task
         self.agents = agents
@@ -105,10 +129,13 @@ class AbstractStructure(ABC):
         self.moderator = moderator
         self.moderated = True if moderator else False
 
-        # If we have a moderator we assign a task description and then we populate the templates
+        # If we have a moderator we assign a task description and then we
+        # populate the templates
         if self.moderator:
             self.moderator.task_description = self.task
-            self.moderator.persona = SmartString(self.moderator.persona).format(task=self.task)
+            self.moderator.persona = SmartString(
+                self.moderator.persona).format(
+                task=self.task)
 
         if shuffle:
             self.agents = random.sample(self.agents, len(self.agents))
@@ -118,11 +145,14 @@ class AbstractStructure(ABC):
         Set the combination instructions for agents based on the provided value or the default.
         """
         self.combination_instructions = SmartString(
-            self.defaults['combination_instructions'].get(self.combination_instructions, self.combination_instructions))
+            self.defaults['combination_instructions'].get(
+                self.combination_instructions,
+                self.combination_instructions))
 
         for agent in self.agents:
             if agent.combination_instructions:
-                warnings.warn("Writing over agent's combination instructions with Chain's combination instructions")
+                warnings.warn(
+                    "Writing over agent's combination instructions with Chain's combination instructions")
             else:
                 pass
             agent.combination_instructions = self.combination_instructions
@@ -141,13 +171,17 @@ class AbstractStructure(ABC):
         for agent in self.agents:
             if not self.task:
                 if not agent.task_description or agent.task_description.strip() == '':
-                    raise ValueError("Error: You did not specify a task for agents or chain")
+                    raise ValueError(
+                        "Error: You did not specify a task for agents or chain")
             else:
                 if agent.task_description:
-                    warnings.warn("Writing over agent's task with Chain's task")
+                    warnings.warn(
+                        "Writing over agent's task with Chain's task")
                 agent.task_description = self.task
                 agent.original_task_description = agent.task_description
-                agent.system_instructions = SmartString(agent.system_instructions).format(task=self.task)
+                agent.system_instructions = SmartString(
+                    agent.system_instructions).format(
+                    task=self.task)
 
     @property
     def info(self) -> Dict[str, Any]:
@@ -155,7 +189,8 @@ class AbstractStructure(ABC):
         Return information about the structure and its agents.
         """
         if not self.final_response:
-            raise ValueError("The structure has not been processed yet. Call the process method first.")
+            raise ValueError(
+                "The structure has not been processed yet. Call the process method first.")
         result = {
             "structure_information": {
                 "final_response": self.final_response,
@@ -175,7 +210,8 @@ class AbstractStructure(ABC):
         """
         Abstract method for processing agents. Must be implemented in a subclass.
         """
-        raise NotImplementedError("This method must be implemented in a subclass")
+        raise NotImplementedError(
+            "This method must be implemented in a subclass")
 
 
 class Chain(AbstractStructure):
@@ -196,14 +232,17 @@ class Chain(AbstractStructure):
         for _ in range(self.cycles):
             for agent in self.agents:
                 previous_responses_slice = previous_responses[-self.last_n:]
-                previous_responses_str = format_previous_responses(previous_responses_slice)
+                previous_responses_str = format_previous_responses(
+                    previous_responses_slice)
                 agent.combination_instructions = self.combination_instructions
-                response = agent.process(previous_responses=previous_responses_str)
+                response = agent.process(
+                    previous_responses=previous_responses_str)
                 previous_responses.append(response)
                 self.responses.append(response)
 
         if self.moderated and self.moderator:
-            moderated_response = self.moderator._moderate_responses(self.responses, original_task)
+            moderated_response = self.moderator._moderate_responses(
+                self.responses, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
 
@@ -225,13 +264,17 @@ class Ensemble(AbstractStructure):
                 for agent in self.agents:
                     previous_responses_str = ""
                     agent.combination_instructions = self.combination_instructions
-                    futures.append(executor.submit(agent.process, previous_responses=previous_responses_str))
+                    futures.append(
+                        executor.submit(
+                            agent.process,
+                            previous_responses=previous_responses_str))
                 for future in as_completed(futures):
                     response = future.result()
                     self.responses.append(response)
 
         if self.moderated and self.moderator:
-            moderated_response = self.moderator._moderate_responses(self.responses, original_task)
+            moderated_response = self.moderator._moderate_responses(
+                self.responses, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
 
@@ -250,12 +293,25 @@ class Debate(AbstractStructure):
     and [Debater 2] to the responses so that the moderator is aware of who said what.
     """
 
-    def __init__(self, agents: List[Agent], task: Optional[str] = None, shuffle: bool = False,
-                 cycles: int = 1, last_n: int = 1000000, combination_instructions: Optional[str] = "debate",
-                 moderator: Optional[Moderator] = None):
+    def __init__(
+            self,
+            agents: List[Agent],
+            task: Optional[str] = None,
+            shuffle: bool = False,
+            cycles: int = 1,
+            last_n: int = 1000000,
+            combination_instructions: Optional[str] = "debate",
+            moderator: Optional[Moderator] = None):
         if len(agents) != 2:
             raise ValueError("Debate requires exactly two agents.")
-        super().__init__(agents, task, shuffle, cycles, last_n, combination_instructions, moderator)
+        super().__init__(
+            agents,
+            task,
+            shuffle,
+            cycles,
+            last_n,
+            combination_instructions,
+            moderator)
 
     @staticmethod
     def _format_previous_responses(responses: List[str]) -> str:
@@ -269,7 +325,10 @@ class Debate(AbstractStructure):
         if not responses:
             return ""
         else:
-            resp_list = ["\n{}".format(responses[i]) for i in range(len(responses))]
+            resp_list = [
+                "\n{}".format(
+                    responses[i]) for i in range(
+                    len(responses))]
             return "".join(resp_list).strip()
 
     def process(self):
@@ -291,14 +350,18 @@ class Debate(AbstractStructure):
 
         for cycle in range(self.cycles):
             for i, agent in enumerate(self.agents):
-                # Choose the appropriate response history based on the agent index
+                # Choose the appropriate response history based on the agent
+                # index
                 if i == 0:
-                    previous_responses_str = self._format_previous_responses(previous_responses_agent1[-self.last_n:])
+                    previous_responses_str = self._format_previous_responses(
+                        previous_responses_agent1[-self.last_n:])
                 else:
-                    previous_responses_str = self._format_previous_responses(previous_responses_agent2[-self.last_n:])
+                    previous_responses_str = self._format_previous_responses(
+                        previous_responses_agent2[-self.last_n:])
 
                 agent.combination_instructions = self.combination_instructions
-                response = agent.process(previous_responses=previous_responses_str)
+                response = agent.process(
+                    previous_responses=previous_responses_str)
                 self.responses.append("[Debater {}] ".format(i + 1) + response)
 
                 # Apply the correct prefix and update both lists
@@ -310,6 +373,7 @@ class Debate(AbstractStructure):
                     previous_responses_agent1.append(f"[Other]: {response}")
 
         if self.moderated and self.moderator:
-            moderated_response = self.moderator._moderate_responses(self.responses, original_task)
+            moderated_response = self.moderator._moderate_responses(
+                self.responses, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
