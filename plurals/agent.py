@@ -37,13 +37,18 @@ _load_global_anes_data()
 
 class Agent:
     """
-    Represents an intelligent agent that processes tasks with customizable personas and ideological perspectives.
-    This agent uses external data, like ANES 2024, to tailor responses based on demographic information associated
-    with various ideologies. It can operate under specific system instructions or dynamically generate instructions
-    using predefined templates.
+    Agents are LLMs with customizable personas, who complete tasks with other Agents working together in Structures.
+    Personas of Agents can be instantiated directly, null (i.e: default system prompt), or leverage external datasets like ANES for
+    nationally-representative personas.
 
-    The agent interacts with language models to generate task-specific responses, potentially incorporating
-    previous interactions to simulate a continuous dialogue or decision-making process.
+    The main features of the Agent class are:
+    - system_instructions: Set either directly or through various persona methods
+    - combination_instructions: Dictates how Agents should combine previous responses with the current task
+    - task: The task (i.e: user prompt) that Agents respond to
+
+    Agents can be used alone or in conjunction with Structures to create multi-agent simulations. When used with
+    Structures, the Structure-level attribute values will override the Agent-level attribute values. Eg: If you set a task
+    at an agent level and a Structure-level, the Structure-level task will be used.
 
     Args:
         task (Optional[str]): Description of the task for the agent to process. If the agent is part of a structure,
