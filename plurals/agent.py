@@ -9,7 +9,7 @@ from plurals.helpers import *
 DEFAULTS = load_yaml("instructions.yaml")
 
 
-def load_global_anes_data():
+def _load_global_anes_data():
     """
     Load global ANES data for the agent. As per codebook page 2 section 1, the cases that don't have weights are
     not meant for population inference.
@@ -28,7 +28,7 @@ def load_global_anes_data():
     DATASET.dropna(subset=['weight'], inplace=True)
 
 
-load_global_anes_data()
+_load_global_anes_data()
 
 
 class Agent:
@@ -42,15 +42,19 @@ class Agent:
     previous interactions to simulate a continuous dialogue or decision-making process.
 
     Args:
-        task (Optional[str]): Initial description of the task for the agent to process.
+        task (Optional[str]): Description of the task for the agent to process. If the agent is part of a structure,
+            and the task is provided to the structure, then the agent will inherit that task.
+        combination_instructions (Optional[str]): Instructions for combining previous responses with the current
+            task. If the agent is part of a structure and the combination_instructions are provided to the structure, then
+            the agent will inherit those combination instructions.
         ideology (Optional[str]): Ideological perspective to influence persona creation, supported values are
                                   ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative'].
         query_str (Optional[str]): Custom query string for filtering the ANES dataset according to specific criteria.
         model (str): The language model version to use for generating responses.
         system_instructions (Optional[str]): Overrides automated instructions with a custom set of directives for the
-        model.
+            model.
         persona_template (Optional[str]): Template string for constructing the persona, must include a ${persona}
-        placeholder.
+            placeholder.
         persona (Optional[str]): Direct specification of a persona description.
         **kwargs: Additional keyword arguments for the model's completion function. These are provided by LiteLLM (
             https://litellm.vercel.app/docs/completion/input#input-params-1). Enter `help(litellm.completion)` for
@@ -59,17 +63,27 @@ class Agent:
     Attributes:
         persona_mapping (Optional[Dict[str, Any]]): Dictionary to map dataset rows to persona descriptions.
         data (pd.DataFrame): Loaded dataset for persona and ideological queries.
+        system_instructions (Optional[str]): Final system instructions for the agent to follow. The system
+            instructions can be set directly or generated from a persona-based method.
         original_task_description (str): The original, unmodified task description.
         current_task_description (str): Dynamically updated task description that may include prior responses.
         history (list): Chronological record of prompts, responses, and models used during the agent's operation.
         info (dict): Comprehensive attributes of the agent's current configuration and state.
     """
 
-    def __init__(self, task: Optional[str] = None, ideology: Optional[str] = None,
-                 query_str: Optional[str] = None, model: str = "gpt-4o", system_instructions: Optional[str] = None,
-                 persona_template: Optional[str] = "default", persona: Optional[str] = None, **kwargs):
+    def __init__(self,
+                 task: Optional[str] = None,
+                 combination_instructions: Optional[str] = None,
+                 ideology: Optional[str] = None,
+                 query_str: Optional[str] = None,
+                 model: str = "gpt-4o",
+                 system_instructions: Optional[str] = None,
+                 persona_template: Optional[str] = "default",
+                 persona: Optional[str] = None,
+                 **kwargs):
         self.model = model
         self.system_instructions = system_instructions
+        self.combination_instructions = combination_instructions
         self._history = []
         self.persona_mapping = PERSONA_MAPPING
         self.task_description = task

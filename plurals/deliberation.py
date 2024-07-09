@@ -146,10 +146,19 @@ class AbstractStructure(ABC):
         """
         if not self.final_response:
             raise ValueError("The structure has not been processed yet. Call the process method first.")
-        return {"final_response": self.final_response, "responses": self.responses,
-                "task": self.task, "combination_instructions": self.combination_instructions,
-                "moderated": self.moderated, "moderator_persona": self.moderator.persona if self.moderator else None,
-                "moderator_instructions": self.moderator.combination_instructions if self.moderator else None}
+        result = {
+            "structure_information": {
+                "final_response": self.final_response,
+                "responses": self.responses,
+                "task": self.task,
+                "combination_instructions": self.combination_instructions,
+                "moderated": self.moderated,
+                "moderator_persona": self.moderator.persona if self.moderator else None,
+                "moderator_instructions": self.moderator.combination_instructions if self.moderator else None
+            },
+            "agent_information": [agent.info for agent in self.agents]
+        }
+        return result
 
     @abstractmethod
     def process(self) -> None:
