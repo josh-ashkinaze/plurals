@@ -50,6 +50,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#plurals.agent.Agent"><code class="docutils literal notranslate"><span class="pre">Agent</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.persona_mapping"><code class="docutils literal notranslate"><span class="pre">Agent.persona_mapping</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.data"><code class="docutils literal notranslate"><span class="pre">Agent.data</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.system_instructions"><code class="docutils literal notranslate"><span class="pre">Agent.system_instructions</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.original_task_description"><code class="docutils literal notranslate"><span class="pre">Agent.original_task_description</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.current_task_description"><code class="docutils literal notranslate"><span class="pre">Agent.current_task_description</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.history"><code class="docutils literal notranslate"><span class="pre">Agent.history</span></code></a></li>
@@ -60,7 +61,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.set_task"><code class="docutils literal notranslate"><span class="pre">Agent.set_task()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#plurals.agent.load_global_anes_data"><code class="docutils literal notranslate"><span class="pre">load_global_anes_data()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="deliberation.html">Deliberation Module</a></li>
@@ -95,7 +95,7 @@
 <span id="agent-module"></span><h1>Agent Module<a class="headerlink" href="#module-plurals.agent" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="plurals.agent.Agent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">Agent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ideology</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gpt-4o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persona_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persona</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#Agent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">Agent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combination_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ideology</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gpt-4o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persona_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persona</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#Agent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represents an intelligent agent that processes tasks with customizable personas and ideological perspectives.
 This agent uses external data, like ANES 2024, to tailor responses based on demographic information associated
@@ -106,15 +106,20 @@ previous interactions to simulate a continuous dialogue or decision-making proce
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>task</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Initial description of the task for the agent to process.</p></li>
+<li><p><strong>task</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Description of the task for the agent to process. If the agent is part of a structure,
+and the task is provided to the structure, then the agent will inherit that task.</p></li>
+<li><p><strong>combination_instructions</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Instructions for combining previous responses with the current
+task. If the agent is part of a structure and the combination_instructions are provided to the structure,
+then
+the agent will inherit those combination instructions.</p></li>
 <li><p><strong>ideology</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Ideological perspective to influence persona creation, supported values are
 [‘liberal’, ‘conservative’, ‘moderate’, ‘very liberal’, ‘very conservative’].</p></li>
 <li><p><strong>query_str</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Custom query string for filtering the ANES dataset according to specific criteria.</p></li>
 <li><p><strong>model</strong> (<em>str</em>) – The language model version to use for generating responses.</p></li>
-<li><p><strong>system_instructions</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Overrides automated instructions with a custom set of directives for the</p></li>
-<li><p><strong>model.</strong></p></li>
-<li><p><strong>persona_template</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Template string for constructing the persona, must include a ${persona}</p></li>
-<li><p><strong>placeholder.</strong></p></li>
+<li><p><strong>system_instructions</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Overrides automated instructions with a custom set of directives for the
+model.</p></li>
+<li><p><strong>persona_template</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Template string for constructing the persona, must include a ${persona}
+placeholder.</p></li>
 <li><p><strong>persona</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Direct specification of a persona description.</p></li>
 <li><p><strong>**kwargs</strong> – Additional keyword arguments for the model’s completion function. These are provided by LiteLLM (
 <a class="reference external" href="https://litellm.vercel.app/docs/completion/input#input-params-1">https://litellm.vercel.app/docs/completion/input#input-params-1</a>). Enter <cite>help(litellm.completion)</cite> for
@@ -140,6 +145,18 @@ details.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.system_instructions">
+<span class="sig-name descname"><span class="pre">system_instructions</span></span><a class="headerlink" href="#plurals.agent.Agent.system_instructions" title="Link to this definition"></a></dt>
+<dd><p>Final system instructions for the agent to follow. The system
+instructions can be set directly or generated from a persona-based method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[str]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -231,18 +248,6 @@ description if combination_instructions are set via a Structure.</p>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="plurals.agent.load_global_anes_data">
-<span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">load_global_anes_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#load_global_anes_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.load_global_anes_data" title="Link to this definition"></a></dt>
-<dd><p>Load global ANES data for the agent. As per codebook page 2 section 1, the cases that don’t have weights are
-not meant for population inference.</p>
-<p>Here is the codebook url:
-<a class="reference external" href="https://electionstudies.org/wp-content/uploads/2024/03/anes_pilot_2024_userguidecodebook_20240319.pdf">https://electionstudies.org/wp-content/uploads/2024/03/anes_pilot_2024_userguidecodebook_20240319.pdf</a></p>
-<p>Loads:
-- PERSONA_MAPPING: Mapping for converting dataset rows to persona descriptions.
-- DATASET: ANES dataset for persona and ideological queries</p>
 </dd></dl>
 
 </section>
