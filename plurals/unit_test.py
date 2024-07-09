@@ -14,7 +14,7 @@ class TestAgentChain(unittest.TestCase):
         self.model = 'gpt-3.5-turbo'
         self.kwargs = {
             "temperature": 0.7,
-            "max_tokens": 150,
+            "max_tokens": 50,
             "top_p": 0.9
         }
 
@@ -37,12 +37,12 @@ class TestAgentChain(unittest.TestCase):
 
         info = structure.info
 
-        # Validate the dictionary structure and types
+        # validate the dictionary structure and types
         self.assertIsInstance(info, dict)
         self.assertIn('structure_information', info)
         self.assertIn('agent_information', info)
 
-        # Validate content of the structure_information
+        # validate structure_information
         self.assertEqual(info['structure_information']['task'], "General task for agents")
         self.assertIn('final_response', info['structure_information'])
         self.assertTrue(isinstance(info['structure_information']['responses'], list))
@@ -50,7 +50,7 @@ class TestAgentChain(unittest.TestCase):
         self.assertIn("Response from First task", info['structure_information']['responses'])
         self.assertIn("Response from Second task", info['structure_information']['responses'])
 
-        # verify agent details
+        # validate agent_information
         self.assertTrue(isinstance(info['agent_information'], list))
         self.assertEqual(len(info['agent_information']), 2)
         for agent_info in info['agent_information']:
@@ -99,8 +99,19 @@ class TestAgentChain(unittest.TestCase):
         self.assertNotEqual(task_original_1, task_original_2)
         self.assertNotEqual(task_current_1, task_current_2)
 
-    def test_agent_combination_instructions(self):
-        """Test whether combination instructions are properly set for agents"""
+
+    def test_agent_combo_inst_in_user_prompt(self):
+        """Test if when combination instructions are set they are appropriately used in user prompt"""
+        a = Agent(ideology='moderate', task="write a haiku", model=self.model,
+                  combination_instructions='eccentric instructions', **self.kwargs)
+        previous_responses = format_previous_responses(['response1', 'response2'])
+        a.process(previous_responses=previous_responses)
+        user_prompt = a.info['history'][0]['prompts']['user']
+        self.assertIn("eccentric instructions", user_prompt)
+
+    def test_agent_combo_inst_overwrite(self):
+        """Test whether combination instructions are properly set for agents. If they are provided to agents and
+        structures the desired behavior is that structures will overwrite agents combination instructions"""
         a2 = Agent(ideology='moderate', model=self.model, combination_instructions='initial instructions',
                    **self.kwargs)
         a3 = Agent(ideology='liberal', model=self.model, **self.kwargs)
@@ -118,7 +129,7 @@ class TestAgentChain(unittest.TestCase):
         self.assertEqual(a4.combination_instructions,
                          SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task))
 
-    def test_agent_combination_instructions_warning(self):
+    def test_agent_combo_instr_overwrite_warning(self):
         """Test whether a warning is raised when combination instructions are overwritten"""
         a2 = Agent(ideology='moderate', model=self.model, combination_instructions='initial instructions',
                    **self.kwargs)
@@ -138,10 +149,12 @@ class TestAgentChain(unittest.TestCase):
         self.assertEqual(a4.combination_instructions,
                          SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task))
 
-    def test_agent_process_task_parm(self):
-        """Test whether the task parameter is passed to the process method appropriately. The desired behavior is
+    def test_agent_process_task_with_task_arg(self):
+        """
+        Test whether the task parameter is passed to the process method appropriately. The desired behavior is
         that the system_instructions and persona are the same and the original_task and current_task description
-        differ"""
+        differ
+        """
         task1 = "Test Task1"
         task2 = "Test Task2"
 
@@ -327,7 +340,7 @@ class TestAgentChain(unittest.TestCase):
         self.assertIsNotNone(mixed.final_response)
         self.assertEqual(mixed.combination_instructions, DEFAULTS['combination_instructions']['chain'])
 
-    def test_chain_debate(self):
+    def test_chain_debate_instructions(self):
         a2 = Agent(ideology='moderate', model=self.model)
         a3 = Agent(ideology='liberal', model=self.model)
         a4 = Agent(ideology='conservative', model=self.model)
@@ -338,7 +351,7 @@ class TestAgentChain(unittest.TestCase):
         self.assertIsNotNone(mixed.final_response)
         self.assertEqual(mixed.combination_instructions, DEFAULTS['combination_instructions']['debate'])
 
-    def test_chain_voting(self):
+    def test_chain_voting_instructions(self):
         """Test chain voting instructions"""
         a2 = Agent(ideology='moderate', model=self.model)
         a3 = Agent(ideology='liberal', model=self.model)
@@ -351,7 +364,7 @@ class TestAgentChain(unittest.TestCase):
         self.assertEqual(mixed.combination_instructions, DEFAULTS['combination_instructions']['voting'])
 
     def test_kwargs(self):
-        """Test setting kwargs for agents"""
+        """Test setting kwargs for agents results in valid response and are accurately passed to agents"""
         a2 = Agent(ideology='moderate', model=self.model, **self.kwargs)
         a3 = Agent(ideology='liberal', model=self.model, **self.kwargs)
         a4 = Agent(ideology='conservative', model=self.model, **self.kwargs)

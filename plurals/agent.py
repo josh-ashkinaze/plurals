@@ -45,7 +45,8 @@ class Agent:
         task (Optional[str]): Description of the task for the agent to process. If the agent is part of a structure,
             and the task is provided to the structure, then the agent will inherit that task.
         combination_instructions (Optional[str]): Instructions for combining previous responses with the current
-            task. If the agent is part of a structure and the combination_instructions are provided to the structure, then
+            task. If the agent is part of a structure and the combination_instructions are provided to the structure,
+            then
             the agent will inherit those combination instructions.
         ideology (Optional[str]): Ideological perspective to influence persona creation, supported values are
                                   ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative'].
@@ -93,7 +94,6 @@ class Agent:
         self.query_str = query_str
         self.original_task_description = task
         self.current_task_description = task
-        self.combination_instructions = None
         self.defaults = DEFAULTS
         self.persona_template = persona_template
         self._validate_templates()
