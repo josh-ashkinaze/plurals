@@ -413,11 +413,12 @@
                                                                                 <span class="s2">&quot;process rows of the dataframe.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="o">!=</span> <span class="s1">&#39;default&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">),</span> <span class="p">(</span>
-                <span class="s2">&quot;Cannot pass in system_instructions AND (&quot;</span> <span class="s2">&quot;persona_template or persona)&quot;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="o">!=</span> <span class="s1">&#39;default&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Cannot pass in system_instructions AND &quot;</span>
+                                                                              <span class="s2">&quot;(persona_template or persona) since &quot;</span>
+                                                                              <span class="s2">&quot;the first would override the latter&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span> <span class="s2">&quot;Cannot pass in (ideology or query_str) AND persona&quot;</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;Cannot pass in (ideology or query_str) AND persona since the first two would construct a persona&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">:</span>
             <span class="n">allowed_vals</span> <span class="o">=</span> <span class="p">[</span>
