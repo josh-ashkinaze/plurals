@@ -333,11 +333,12 @@ class Agent:
                                                                                 "process rows of the dataframe.")
 
         if self.system_instructions:
-            assert not (self.persona_template != 'default' or self.persona), (
-                "Cannot pass in system_instructions AND (" "persona_template or persona)")
+            assert not (self.persona_template != 'default' or self.persona), ("Cannot pass in system_instructions AND "
+                                                                              "(persona_template or persona) since "
+                                                                              "the first would override the latter")
 
         if self.ideology or self.query_str:
-            assert not self.persona, "Cannot pass in (ideology or query_str) AND persona"
+            assert not self.persona, ("Cannot pass in (ideology or query_str) AND persona since the first two would construct a persona")
 
         if self.ideology:
             allowed_vals = [
