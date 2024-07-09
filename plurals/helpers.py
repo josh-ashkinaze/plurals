@@ -2,23 +2,23 @@ import os
 import string
 from typing import List, Dict, Any
 
-import yaml
-import pkg_resources
-
 import pandas as pd
+import pkg_resources
+import yaml
 
 
 def print_anes_mapping():
     """
     Prints the values of ANES mapping in a human-readable format.
 
-    The purpose of this function is that in some cases users will want to conduct their own query on the ANES dataset, but
-    it is difficult to know what the values are without consulting a codebook. We also recode certain values. So here we
-    print the values of the ANES mapping in a neat/clean/human-readable way for consumer.
+    The purpose of this function is that in some cases users will want to conduct their own query on the ANES
+    dataset, but it is difficult to know what the values are without consulting a codebook. We also recode certain
+    values. So here we print the values of the ANES mapping in a neat/clean/human-readable way for consumer.
 
-    Note: Whenever we print `recode values` this means that we have recoded the values from the original dataset to use in persona strings. For example,
-    for `child18`, the question was whether the participant has children under 18 living in their household. For persona processing, we changed
-    `Yes` and `No` to `do have children under 18 living in your household` and `do not have children under 18 living in your household`---though to
+    Note: Whenever we print `recode values` this means that we have recoded the values from the original dataset to
+    use in persona strings. For example, for `child18`, the question was whether the participant has children under
+    18 living in their household. For persona processing, we changed `Yes` and `No` to `do have children under 18
+    living in your household` and `do not have children under 18 living in your household`---though to
     search ANES you'd use the original values. of `Yes` and `No`.
     """
     mapping = load_yaml('anes-mapping.yaml')
@@ -54,7 +54,6 @@ def print_anes_mapping():
                     if str(val) not in bad_vals and str(val) not in recode_keys:
                         print(f"  {val}")
         print()
-
 
 
 def load_yaml(file_path: str) -> Dict[str, Any]:
@@ -109,15 +108,37 @@ class SmartString(str):
     s = "Hello, {name} I am a json like {'key':'value'}"
     new_s = s.format(name="John")
 
-    This will raise a KeyError because the format method will try to replace the curly braces in the json string as well, but we
-    only want to replace {name}. So as a solution one can turn `s` into a string Template and use the safe_substitute method to
-    replace the variables. This is what the SmartString class does: It is a subclass of str that overrides the format method to
-    use string.Template for string formatting.
+    This will raise a KeyError because the format method will try to replace the curly braces in the json string as
+    well, but we only want to replace {name}. So as a solution one can turn `s` into a string Template and use the
+    safe_substitute method to replace the variables. This is what the SmartString class does: It is a subclass of str that overrides the format
+    method to use string.Template for string formatting.
     """
 
-    def format(self, **kwargs):
+    def format(self, avoid_double_period=False, **kwargs):
         """
         Override the format method to use string.Template for string formatting.
+
+        Also, if avoid_double_period is True, then we will remove the trailing period from the formatted string if it
+        is already present. This happens if the string is like `Complete the {task}.` and the user passes `task=Do
+        the thing`. In this case, we want to remove the extra period. This is particularly useful for Moderator
+        personas where in defaults they often end on the task.
+
+        Double-period algorithm:
+        Foreach key, value in kwargs:
+        1. Construct a placeholder-plus-period like "{task}." (assuming {task} is placeholder here)
+        2. Check if the placeholder-plus-period is in the string AND the replacement ends with a period.
+        3. If both conditions are met, replace the replacement-plus-period with just the replacement.
+
+        Args:
+            avoid_double_period (bool): Whether to avoid double periods in the final string. (Default: False)
+            **kwargs: Key-value pairs to replace in the string.
         """
         template = string.Template(self)
-        return template.safe_substitute(**kwargs)
+        formatted_string = template.safe_substitute(**kwargs)
+        if avoid_double_period:
+            for key, value in kwargs.items():
+                placeholder = f"${{{key}}}."
+                if placeholder in self and value.endswith('.'):
+                    formatted_string = formatted_string.replace(f"{value}.", value)
+
+        return formatted_string

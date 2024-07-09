@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
+
 from plurals.agent import Agent
 from plurals.deliberation import Chain, Moderator, Ensemble, Debate
 from plurals.helpers import load_yaml, format_previous_responses, SmartString
@@ -7,23 +8,17 @@ from plurals.helpers import load_yaml, format_previous_responses, SmartString
 DEFAULTS = load_yaml("instructions.yaml")
 
 
-class TestAgentChain(unittest.TestCase):
+class TestAgentStructures(unittest.TestCase):
 
     def setUp(self):
         self.task = "How should the US handle gun control? Answer in 100 words."
         self.model = 'gpt-3.5-turbo'
-        self.kwargs = {
-            "temperature": 0.7,
-            "max_tokens": 50,
-            "top_p": 0.9
-        }
+        self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
 
     def test_info_method(self):
 
-        agents = [
-            Agent(task="First task", model=self.model, **self.kwargs),
-            Agent(task="Second task", model=self.model, **self.kwargs)
-        ]
+        agents = [Agent(task="First task", model=self.model, **self.kwargs),
+            Agent(task="Second task", model=self.model, **self.kwargs)]
 
         moderator = Moderator(persona="default", model=self.model)
 
@@ -33,7 +28,6 @@ class TestAgentChain(unittest.TestCase):
         structure.process = MagicMock(return_value=None)
         structure.final_response = "Aggregated final response from mock"
         structure.responses = ["Response from First task", "Response from Second task"]
-
 
         info = structure.info
 
@@ -98,7 +92,6 @@ class TestAgentChain(unittest.TestCase):
         self.assertEqual(task_current_2, task2)
         self.assertNotEqual(task_original_1, task_original_2)
         self.assertNotEqual(task_current_1, task_current_2)
-
 
     def test_agent_combo_inst_in_user_prompt(self):
         """Test if when combination instructions are set they are appropriately used in user prompt"""
@@ -201,8 +194,7 @@ class TestAgentChain(unittest.TestCase):
                    model=self.model)
         a3 = Agent(task=self.task, persona="Liberal White women from the east coast who has far left takes",
                    model=self.model)
-        a4 = Agent(task=self.task,
-                   persona="Young man from a neighbourhood who has had friends die to gun violence",
+        a4 = Agent(task=self.task, persona="Young man from a neighbourhood who has had friends die to gun violence",
                    model=self.model)
         mixed = Chain([a2, a3, a4])
 
@@ -298,15 +290,12 @@ class TestAgentChain(unittest.TestCase):
         # Assertions
 
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(mixed.moderator.persona,
-                         SmartString(
-                             "You are a conservative moderator overseeing a discussion about the following task: ${"
-                             "task}.").format(
-                             task=self.task))
+        self.assertEqual(mixed.moderator.persona, SmartString(
+            "You are a conservative moderator overseeing a discussion about the following task: ${"
+            "task}.").format(task=self.task))
         self.assertEqual(mixed.moderator.combination_instructions,
-                         SmartString(
-                             "- Here are the previous responses: ${previous_responses}- Take only the most "
-                             "conservative parts of what was previously said.").format(
+                         SmartString("- Here are the previous responses: ${previous_responses}- Take only the most "
+                                     "conservative parts of what was previously said.").format(
                              previous_responses=format_previous_responses(formatted_responses)))
 
     def test_moderator_voting(self):
@@ -379,6 +368,77 @@ class TestAgentChain(unittest.TestCase):
             self.assertEqual(agent.kwargs['temperature'], self.kwargs['temperature'])
             self.assertEqual(agent.kwargs['max_tokens'], self.kwargs['max_tokens'])
             self.assertEqual(agent.kwargs['top_p'], self.kwargs['top_p'])
+
+    def test_debate_formatting(self):
+        agents = [Agent(persona="You are a mac fanatic trying to convince a user to switch to Mac.", model=self.model,
+                        **self.kwargs), Agent(persona="A PC fanatic", model=self.model, **self.kwargs)]
+
+        debate_structure = Debate(agents=agents, task="Which computer is better? Mac or PC? Answer in 10 words.",
+                                  moderator=Moderator(), cycles=3)
+
+        debate_structure.process()
+
+        # Make sure final responses are formatted correctly
+        self.assertTrue(debate_structure.responses[0].startswith("[Debater 1]"))
+        self.assertTrue(debate_structure.responses[1].startswith("[Debater 2]"))
+        self.assertTrue(debate_structure.responses[2].startswith("[Debater 1]"))
+
+        # Check that for Debater 2 on the first turn it is the case that Debater 1's answer is in the user prompt
+        # and prefixed by "[Other]:"
+        user_prompt = agents[1].info['history'][0]['prompts']['user']
+        self.assertIn("[Other]:", user_prompt)
+        prev_response = user_prompt.split("[Other]:")[1].split("<end>")[0].strip()
+        debater_1_initial_response = agents[0].info['history'][0]['response'].strip()
+        self.assertEqual(prev_response, debater_1_initial_response)
+
+        # Check that for Debater 1 on the second term it is the case that...
+        # Check 1: There is only a [You] and [Other] placeholder
+        user_prompt = agents[0].info['history'][1]['prompts']['user']
+        you_counts = user_prompt.count("[You]:")
+        other_counts = user_prompt.count("[Other]:")
+        self.assertEqual(you_counts, 1)
+        self.assertEqual(other_counts, 1)
+
+        # Check 2: Debater 1's previous response is in the user prompt and prefixed by [You]
+        debater_1_initial_response = agents[0].info['history'][0]['response'].strip()
+        debater_2_initial_response = agents[1].info['history'][0]['response'].strip()
+        self.assertIn("[You]: " + debater_1_initial_response, user_prompt)
+        self.assertIn("[Other]: " + debater_2_initial_response, user_prompt)
+
+
+class TestSmartString(unittest.TestCase):
+    def correctly_replaces_placeholders_no_brackets(self):
+        """Test that placeholders are correctly replaced when only thing in brackets is desired replacement."""
+        initial_s = "Complete the following task: {task}."
+        formatted_string = SmartString(initial_s).format(task="Do the thing")
+        self.assertEqual("Complete the following task: Do the thing.", formatted_string)
+
+    def correctly_replaces_placeholders_with_brackets(self):
+        """Test that placeholders are correctly replaced when something else uses curly brackets not meant to be
+        replaced"""
+        initial_s = "Complete the following task: {task} in json format like {'answer':answer}"
+        formatted_string = SmartString(initial_s).format(task="Do the thing")
+        self.assertEqual("Complete the following task: Do the thing in json format like {'answer':answer}",
+                         formatted_string)
+
+    def test_avoid_double_period(self):
+        """Test that double periods are correctly removed."""
+        initial_s = "Complete the following task: ${task}."
+        formatted_string = SmartString(initial_s).format(task="Do the thing.", avoid_double_period=True)
+        self.assertEqual("Complete the following task: Do the thing.", formatted_string)
+
+    def test_no_change_needed(self):
+        """Test that the string is not distorted if no change is needed."""
+        initial_s = "Complete the following task: ${task}."
+        formatted_string = SmartString(initial_s).format(task="Do the thing", avoid_double_period=True)
+        self.assertEqual("Complete the following task: Do the thing.", formatted_string)
+
+    def test_only_remove_double_period(self):
+        """Only remove redundant periods induced by the placeholder and not extra ones from user"""
+        initial_s = "Think about this task, ${task}."
+        task = "respond slowly..."
+        formatted_string = SmartString(initial_s).format(task=task, avoid_double_period=True)
+        self.assertEqual("Think about this task, respond slowly...", formatted_string, )
 
 
 if __name__ == '__main__':

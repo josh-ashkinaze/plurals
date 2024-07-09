@@ -50,7 +50,7 @@ class Moderator(Agent):
         """
         combined_responses_str = format_previous_responses(responses)
         self.combination_instructions = SmartString(self.combination_instructions).format(
-            previous_responses=combined_responses_str, task=original_task)
+            previous_responses=combined_responses_str, task=original_task, avoid_double_period=True)
         self.system_instructions = SmartString(self.system_instructions).format(task=original_task,
                                                                                 previous_responses=combined_responses_str,
                                                                                 persona=self.persona)
