@@ -110,14 +110,15 @@ previous interactions to simulate a continuous dialogue or decision-making proce
 and the task is provided to the structure, then the agent will inherit that task.</p></li>
 <li><p><strong>combination_instructions</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Instructions for combining previous responses with the current
 task. If the agent is part of a structure and the combination_instructions are provided to the structure,
-then the agent will inherit those combination instructions.</p></li>
+then the agent will inherit those combination instructions. Must include a ${previous_responses}
+placeholder.</p></li>
 <li><p><strong>ideology</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Ideological perspective to influence persona creation, supported values are
 [‘liberal’, ‘conservative’, ‘moderate’, ‘very liberal’, ‘very conservative’].</p></li>
 <li><p><strong>query_str</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Custom query string for filtering the ANES dataset according to specific criteria.</p></li>
 <li><p><strong>model</strong> (<em>str</em>) – The language model version to use for generating responses.</p></li>
 <li><p><strong>system_instructions</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Overrides automated instructions with a custom set of directives for the
 model.</p></li>
-<li><p><strong>persona_template</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Template string for constructing the persona, must include a ${persona}
+<li><p><strong>persona_template</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Template string for constructing the persona. Must include a ${persona}
 placeholder.</p></li>
 <li><p><strong>persona</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Direct specification of a persona description.</p></li>
 <li><p><strong>**kwargs</strong> – Additional keyword arguments for the model’s completion function. These are provided by LiteLLM (

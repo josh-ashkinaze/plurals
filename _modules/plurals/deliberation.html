@@ -158,10 +158,8 @@
 <span class="k">class</span> <span class="nc">AbstractStructure</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    AbstractStructure is an abstract class for processing tasks through a group of agents. As such, it is not meant</span>
-<span class="sd">    to be</span>
-<span class="sd">    instantiated directly but rather to be subclassed by concrete structures such as an Ensemble. However,</span>
-<span class="sd">    all the concrete</span>
-<span class="sd">    structures share the same attributes and methods, so this class provides a common interface.</span>
+<span class="sd">    to be instantiated directly but rather to be subclassed by concrete structures such as an Ensemble. However,</span>
+<span class="sd">    all the concrete structures share the same attributes and methods, so this class provides a common interface.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        agents (List[Agent]): A list of agents to include in the structure.</span>
@@ -311,17 +309,15 @@
     <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process the task through a chain of agents, each building upon the last. Use parameters from</span>
-<span class="sd">        `AbstractStructure` to control</span>
-<span class="sd">        how the chain operates (e.g: last_n for how many previous responses to include in the `previous_resonses`</span>
-<span class="sd">        string)</span>
+<span class="sd">        `AbstractStructure` to control how the chain operates (e.g: last_n for how many previous responses to include</span>
+<span class="sd">        in the `previous_responses` string)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">previous_responses</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">original_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">original_task_description</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
                 <span class="n">previous_responses_slice</span> <span class="o">=</span> <span class="n">previous_responses</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span><span class="p">:]</span>
-                <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span>
-                    <span class="n">previous_responses_slice</span><span class="p">)</span>
+                <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span><span class="n">previous_responses_slice</span><span class="p">)</span>
                 <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
                     <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
@@ -329,8 +325,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
-            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span> <span class="n">original_task</span><span class="p">)</span>
+            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span> <span class="n">original_task</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 </div>
@@ -358,10 +353,7 @@
                 <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
                     <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
                     <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
-                    <span class="n">futures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
-                            <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">,</span>
-                            <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">))</span>
+                    <span class="n">futures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">,</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">))</span>
                 <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">):</span>
                     <span class="n">response</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
@@ -380,9 +372,7 @@
 <span class="k">class</span> <span class="nc">Debate</span><span class="p">(</span><span class="n">AbstractStructure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    In a debate, two agents take turns responding to a task, with each response building upon the previous one.</span>
-<span class="sd">    Debate differs</span>
-<span class="sd">    from other structures in a few key ways:</span>
-
+<span class="sd">    Debate differs from other structures in a few key ways:</span>
 <span class="sd">    - It requires exactly two agents.</span>
 <span class="sd">    - It alternates between agents for each response, and prefixes each response with &quot;[You]:&quot; or &quot;[Other]:&quot; to</span>
 <span class="sd">    indicate</span>
