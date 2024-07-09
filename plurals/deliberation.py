@@ -17,17 +17,22 @@ class Moderator(Agent):
 
     Args:
         persona (str): The persona of the moderator. View `instructions.yaml` YAML file for templates.
-        combination_instructions (str): The instructions for combining responses. View `instructions.yaml` YAML file for templates.
+        combination_instructions (str): The instructions for combining responses. View `instructions.yaml` YAML file
+        for templates.
         model (str): The model to use for the moderator.
-        **kwargs (dict): Additional keyword arguments. These are from LiteLLM's completion function. (see here: https://litellm.vercel.app/docs/completion/input)
+        **kwargs (dict): Additional keyword arguments. These are from LiteLLM's completion function. (see here:
+        https://litellm.vercel.app/docs/completion/input)
 
     Attributes:
         combination_instructions (str): The instructions for combining responses.
         system_instructions (str): For a Moderator, system instructions are just the persona.
     """
-    def __init__(self, persona: str = 'default', combination_instructions: str = "default", model: str = "gpt-4o", **kwargs):
+
+    def __init__(self, persona: str = 'default', combination_instructions: str = "default", model: str = "gpt-4o",
+                 **kwargs):
         super().__init__(task="", model=model,
-                         persona=DEFAULTS["moderator"]['persona'].get(persona, persona), persona_template="${persona}", **kwargs)
+                         persona=DEFAULTS["moderator"]['persona'].get(persona, persona), persona_template="${persona}",
+                         **kwargs)
 
         self.combination_instructions = (
             DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions, combination_instructions))
@@ -54,8 +59,10 @@ class Moderator(Agent):
 
 class AbstractStructure(ABC):
     """
-    AbstractStructure is an abstract class for processing tasks through a group of agents. As such, it is not meant to be
-    instantiated directly but rather to be subclassed by concrete structures such as an Ensemble. However, all the concrete
+    AbstractStructure is an abstract class for processing tasks through a group of agents. As such, it is not meant
+    to be
+    instantiated directly but rather to be subclassed by concrete structures such as an Ensemble. However,
+    all the concrete
     structures share the same attributes and methods, so this class provides a common interface.
 
     Args:
@@ -80,6 +87,7 @@ class AbstractStructure(ABC):
         moderator (Optional[Moderator]): A moderator to moderate the responses.
         moderated (bool): Whether the structure is moderated.
     """
+
     def __init__(self, agents: List[Agent], task: Optional[str] = None, shuffle: bool = False,
                  cycles: int = 1, last_n: int = 1, combination_instructions: Optional[str] = "default",
                  moderator: Optional[Moderator] = None):
@@ -124,14 +132,16 @@ class AbstractStructure(ABC):
         Set the task description for agents based on the provided value or the default.
 
         Logic:
-            - Case 1: Value provided to both chain and agents--overwrite agent's task description with chain's task description and throw a warning to user.
-            - Case 2: Value provided to chain but not agents--set agent's task description to be agent's task description.
+            - Case 1: Value provided to both chain and agents--overwrite agent's task description with chain's task
+            description and throw a warning to user.
+            - Case 2: Value provided to chain but not agents--set agent's task description to be agent's task
+            description.
             - Case 3: Value provided to neither agents nor chain: Throw an error
         """
         for agent in self.agents:
             if not self.task:
                 if not agent.task_description or agent.task_description.strip() == '':
-                   raise ValueError("Error: You did not specify a task for agents or chain")
+                    raise ValueError("Error: You did not specify a task for agents or chain")
             else:
                 if agent.task_description:
                     warnings.warn("Writing over agent's task with Chain's task")
@@ -176,8 +186,10 @@ class Chain(AbstractStructure):
 
     def process(self):
         """
-        Process the task through a chain of agents, each building upon the last. Use parameters from `AbstractStructure` to control
-        how the chain operates (e.g: last_n for how many previous responses to include in the `previous_resonses` string)
+        Process the task through a chain of agents, each building upon the last. Use parameters from
+        `AbstractStructure` to control
+        how the chain operates (e.g: last_n for how many previous responses to include in the `previous_resonses`
+        string)
         """
         previous_responses = []
         original_task = self.agents[0].original_task_description
@@ -198,7 +210,8 @@ class Chain(AbstractStructure):
 
 class Ensemble(AbstractStructure):
     """
-    An ensemble structure for processing tasks through a group of agents. In an ensemble, each agent processes the task independently through async requests.
+    An ensemble structure for processing tasks through a group of agents. In an ensemble, each agent processes the
+    task independently through async requests.
     """
 
     def process(self):
@@ -225,12 +238,16 @@ class Ensemble(AbstractStructure):
 
 class Debate(AbstractStructure):
     """
-    In a debate, two agents take turns responding to a task, with each response building upon the previous one. Debate differs
+    In a debate, two agents take turns responding to a task, with each response building upon the previous one.
+    Debate differs
     from other structures in a few key ways:
 
     - It requires exactly two agents.
-    - It alternates between agents for each response, and prefixes each response with "You:" or "Other:" to indicate the speaker.
-    - When moderated, the moderator will provide a final response based on the debate and we will append [Debater 1] and [Debater 2] to the responses so that the moderator is aware of who said what.
+    - It alternates between agents for each response, and prefixes each response with "[You]:" or "[Other]:" to
+    indicate
+    the speaker.
+    - When moderated, the moderator will provide a final response based on the debate and we will append [Debater 1]
+    and [Debater 2] to the responses so that the moderator is aware of who said what.
     """
 
     def __init__(self, agents: List[Agent], task: Optional[str] = None, shuffle: bool = False,
@@ -243,30 +260,31 @@ class Debate(AbstractStructure):
     @staticmethod
     def _format_previous_responses(responses: List[str]) -> str:
         """
-        Format the previous responses for a debate-like interaction. This structure's response format differs from other structures.
-        Formatting alternates between "You:" and "Other:" for each response in the list.
-
-        Args:
-            responses (List[str]): A list of responses to format.
+        We don't need to append [Response 0] and [Response 1] to the responses here because they will be prefixed
+        with [You] and [Other] in the process method already.
 
         Returns:
-            str: The formatted responses where for agent it appends "You:" and "Other:"
+            str: The formatted responses newline seperated
         """
         if not responses:
             return ""
         else:
-            formatted_responses = []
-            for i in range(len(responses)):
-                response = responses[i]
-                prefix = "You:" if i % 2 == 0 else "Other:"
-                formatted_responses.append(f"{prefix} {response.strip()}\n")
-            return "".join(formatted_responses)
+            resp_list = ["\n{}".format(responses[i]) for i in range(len(responses))]
+            return "".join(resp_list).strip()
 
     def process(self):
         """
-        Process the debate.
+        Process the debate. In a debate, two agents take turns responding to a task. Prompts for agents are prefixed
+        with [You] and [Other] to indicate the speaker. For moderators the responses are prefixed with [Debater 1] and
+        [Debater 2] to indicate the speaker.
         """
-        # Initialize lists for storing responses from the perspective of each agent
+        # Initialize lists for storing responses from the perspective of each agent.
+        # This is necessary for the debate structure because each agent needs to see which is there's and which is
+        # the other agent's response.
+        #
+        # This structure (of storing seperate lists) is useful since we need to return an agent's history of what
+        # they saw, but there may be a more way to achieve this functionality.
+
         previous_responses_agent1 = []
         previous_responses_agent2 = []
         original_task = self.agents[0].original_task_description
@@ -275,25 +293,21 @@ class Debate(AbstractStructure):
             for i, agent in enumerate(self.agents):
                 # Choose the appropriate response history based on the agent index
                 if i == 0:
-                    previous_responses_str = format_previous_responses(previous_responses_agent1[-self.last_n:])
+                    previous_responses_str = self._format_previous_responses(previous_responses_agent1[-self.last_n:])
                 else:
-                    previous_responses_str = format_previous_responses(previous_responses_agent2[-self.last_n:])
+                    previous_responses_str = self._format_previous_responses(previous_responses_agent2[-self.last_n:])
 
                 agent.combination_instructions = self.combination_instructions
                 response = agent.process(previous_responses=previous_responses_str)
-                self.responses.append("[Debater {}] ".format(i+1) + response)
+                self.responses.append("[Debater {}] ".format(i + 1) + response)
 
                 # Apply the correct prefix and update both lists
                 if i == 0:
-                    response_with_prefix = f"[You]: {response}"
-                    previous_responses_agent1.append(response_with_prefix)
-                    response_with_prefix = f"[Other]: {response}"
-                    previous_responses_agent2.append(response_with_prefix)
+                    previous_responses_agent1.append(f"[You]: {response}")
+                    previous_responses_agent2.append(f"[Other]: {response}")
                 else:
-                    response_with_prefix = f"[You]: {response}"
-                    previous_responses_agent2.append(response_with_prefix)
-                    response_with_prefix = f"[Other]: {response}"
-                    previous_responses_agent1.append(response_with_prefix)
+                    previous_responses_agent2.append(f"[You]: {response}")
+                    previous_responses_agent1.append(f"[Other]: {response}")
 
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(self.responses, original_task)
