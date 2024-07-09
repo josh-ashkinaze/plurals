@@ -6,7 +6,7 @@ def read_requirements():
 
 setup(
     name="plurals",
-    version="0.1.24",
+    version="0.1.25",
     description="A package supporting pluralistic multi-agent simulations.",
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
