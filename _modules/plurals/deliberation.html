@@ -353,7 +353,7 @@
                 <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
                     <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
                     <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
-                    <span class="n">futures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">,</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">))</span>
+                    <span class="n">futures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">))</span>
                 <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">):</span>
                     <span class="n">response</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
@@ -373,12 +373,12 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    In a debate, two agents take turns responding to a task, with each response building upon the previous one.</span>
 <span class="sd">    Debate differs from other structures in a few key ways:</span>
-<span class="sd">    - It requires exactly two agents.</span>
-<span class="sd">    - It alternates between agents for each response, and prefixes each response with &quot;[You]:&quot; or &quot;[Other]:&quot; to</span>
-<span class="sd">    indicate</span>
-<span class="sd">    the speaker.</span>
-<span class="sd">    - When moderated, the moderator will provide a final response based on the debate and we will append [Debater 1]</span>
-<span class="sd">    and [Debater 2] to the responses so that the moderator is aware of who said what.</span>
+
+<span class="sd">    1. It requires exactly two agents.</span>
+<span class="sd">    2. It alternates between agents for each response, and prefixes each response with `[You]:` or `[Other]:` to</span>
+<span class="sd">       indicate the speaker.</span>
+<span class="sd">    3. When moderated, the moderator will provide a final response based on the debate, and we will append</span>
+<span class="sd">       `[Debater 1]` and `[Debater 2]` to the responses so that the moderator is aware of who said what.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
