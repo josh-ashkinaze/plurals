@@ -1,33 +1,38 @@
 <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
 
+- [System Diagram ](#system-diagram)
 - [Installation](#installation)
 - [Package Overview](#package-overview)
 - [Read full documentation here](#read-full-documentation-here)
 - [Uses](#uses)
 - [Agents](#agents)
-  - [Quick Start](#quick-start)
-  - [Different ways to set up personas](#different-ways-to-set-up-personas)
-    - [No system prompt](#no-system-prompt)
-    - [User-defined system prompt](#user-defined-system-prompt)
-    - [Using templates](#using-templates)
-    - [Using ANES for nationally representative personas](#using-anes-for-nationally-representative-personas)
-      - [Option 1: Syntactic Sugar: Searching for ideologies](#option-1-syntactic-sugar-searching-for-ideologies)
-      - [Option 2: Random sampling](#option-2-random-sampling)
-      - [Option 3: Searching ANES using a pandas query string](#option-3-searching-anes-using-a-pandas-query-string)
+   * [Quick Start](#quick-start)
+   * [Different ways to set up personas](#different-ways-to-set-up-personas)
+      + [No system prompt](#no-system-prompt)
+      + [User-defined system prompt](#user-defined-system-prompt)
+      + [Using templates](#using-templates)
+      + [Using ANES for nationally representative personas](#using-anes-for-nationally-representative-personas)
+         - [Option 1: Syntax Sugar: Searching for ideologies](#option-1-syntax-sugar-searching-for-ideologies)
+         - [Option 2: Random sampling](#option-2-random-sampling)
+         - [Option 3: Searching ANES using a pandas query string](#option-3-searching-anes-using-a-pandas-query-string)
 - [Structures](#structures)
-  - [Ensemble](#ensemble)
-  - [Ensemble with a moderator](#ensemble-with-a-moderator)
+   * [Ensemble](#ensemble)
+   * [Ensemble with a moderator](#ensemble-with-a-moderator)
 
 <!-- TOC end -->
 
 
+<!-- TOC --><a name="system-diagram"></a>
+# System Diagram 
 <img src="https://github.com/josh-ashkinaze/plurals/raw/main/system_diagram.jpeg" alt="System Diagram" width="100%">
 
 
+<!-- TOC --><a name="installation"></a>
 # Installation
 
 `pip install plurals`
 
+<!-- TOC --><a name="package-overview"></a>
 # Package Overview
 
 `Plurals` is based on two abstractions---`Agents` (who complete tasks) and `Structures` (which are the structures in
@@ -41,12 +46,14 @@ Regarding `structures`, the package allows for various kinds of ways agents can 
 an `ensemble` consists of agents processing tasks in parallel whereas a `chain` consists of agents who each see the
 prior agent's response.
 
+<!-- TOC --><a name="read-full-documentation-here"></a>
 # Read full documentation here
 
 https://josh-ashkinaze.github.io/plurals/
 
 The README file gives specific examples; the documentation gives a more comprehensive overview of the package.
 
+<!-- TOC --><a name="uses"></a>
 # Uses
 
 - Persona-based experiments: Quickly create personas for agents, optionally using ANES for fast
@@ -61,6 +68,7 @@ The README file gives specific examples; the documentation gives a more comprehe
 - Persuasion: Use LLMs to collaboratively brainstorm persuasive messaging
 - Augmentation: Use LLMs to augment human decision-making by providing additional information/perspectives
 
+<!-- TOC --><a name="agents"></a>
 # Agents
 
 Each agent has two core attributes: `system_instructions` (which are the personas) and `task` (which is the user
@@ -75,6 +83,7 @@ Users can make their own persona templates or use the defaults in `instructions.
 
 Let's see some examples!
 
+<!-- TOC --><a name="quick-start"></a>
 ## Quick Start
 
 ```python
@@ -176,8 +185,10 @@ default_agent = Agent(model='gpt-4o', task=task, kwargs={'temperature': 0.1, 'ma
 ```
 
 
+<!-- TOC --><a name="different-ways-to-set-up-personas"></a>
 ## Different ways to set up personas
 
+<!-- TOC --><a name="no-system-prompt"></a>
 ### No system prompt
 
 In this case, there will be no system prompt (i.e: default for model). Also note that you can pass in kwargs to the 
@@ -190,6 +201,7 @@ agent = Agent(model='gpt-4o', kwargs={'temperature': 1, 'max_tokens': 500})
 
 ```
 
+<!-- TOC --><a name="user-defined-system-prompt"></a>
 ### User-defined system prompt
 
 In this case, the system prompt is user-defined.
@@ -203,6 +215,7 @@ agent = Agent(system_instructions="You are a predictable independent",
 
 ```
 
+<!-- TOC --><a name="using-templates"></a>
 ### Using templates
 
 A main usage of this package is running experiments and so we have another way to create personas that uses string
@@ -245,6 +258,7 @@ print(agents[1].system_instructions)
 # When drafting feedback, always adopt the following persona: cfo
 ```
 
+<!-- TOC --><a name="using-anes-for-nationally-representative-personas"></a>
 ### Using ANES for nationally representative personas
 
 We have several ways to leverage government datasets for creating simulated personas. The basic idea is that we search
@@ -268,6 +282,7 @@ As of this writing:
 - Metro area classification (e.g: urban, rural, etc.)
 - State
 
+<!-- TOC --><a name="option-1-syntax-sugar-searching-for-ideologies"></a>
 #### Option 1: Syntax Sugar: Searching for ideologies
 
 We support a `ideology` keyword that can be one
@@ -313,6 +328,7 @@ It ties us to our roots and reminds us of our duty to respect and nurture the
 world we've been blessed with.
 ```
 
+<!-- TOC --><a name="option-2-random-sampling"></a>
 #### Option 2: Random sampling
 
 If you make `persona=='random'` then we will randomly sample a row from ANES and use that as the persona.
@@ -324,6 +340,7 @@ task = "Write a paragraph about the importance of the environment to America."
 agent = Agent(persona='random', model='gpt-4o', task=task)
 ```
 
+<!-- TOC --><a name="option-3-searching-anes-using-a-pandas-query-string"></a>
 #### Option 3: Searching ANES using a pandas query string
 
 If you want to get more specific, you can pass in a query string that will be used to filter the ANES dataset. Now, you
@@ -368,6 +385,7 @@ your household. Your employment status is retired. Your geographic region is the
 south. You live in a rural area. You live in the state of west virginia
 ```
 
+<!-- TOC --><a name="structures"></a>
 # Structures
 
 We went over how to set up agents and now we are going to discuss how to set up structures---which are the
@@ -375,6 +393,7 @@ environments in which agents complete tasks. As of this writing, we have three s
 be `moderated`, meaning that at the end of deliberation, a moderator agent will summarize everything (e.g: make a final
 classification, take best ideas etc.)
 
+<!-- TOC --><a name="ensemble"></a>
 ## Ensemble
 
 The most basic structure is an Ensemble which is where agents process tasks in parallel. For example, let's say we
@@ -416,6 +435,7 @@ for key, ensemble in ensembles.items():
     print(key, ensemble.responses)
 ```
 
+<!-- TOC --><a name="ensemble-with-a-moderator"></a>
 ## Ensemble with a moderator
 
 Let's say we want some Agent to actually read over some of these ideas and maybe return one that is the best. We can do
