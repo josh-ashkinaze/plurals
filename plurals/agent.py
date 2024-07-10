@@ -43,11 +43,11 @@ class Agent:
 
     The main attributes of the Agent class are:
 
-    1. system_instructions: Set either directly or through various persona methods.
+    1. `system_instructions`: Set either directly or through various persona methods.
 
-    2. combination_instructions: Dictates how Agents should combine previous responses with the current task.
+    2. `combination_instructions`: Dictates how Agents should combine previous responses with the current task.
 
-    3. task: The task (i.e., user prompt) that Agents respond to.
+    3. `task`: The task (i.e., user prompt) that Agents respond to.
 
     Agents can be used alone or in conjunction with Structures to create multi-agent simulations. When used with
     Structures, the Structure-level attribute values will override the Agent-level attribute values. Eg: If you set a task
