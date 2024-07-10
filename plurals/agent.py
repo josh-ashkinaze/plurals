@@ -69,7 +69,7 @@ class Agent:
         persona_template (Optional[str]): Template string for constructing the persona. Must include a ${persona}
             placeholder.
         persona (Optional[str]): Direct specification of a persona description.
-        **kwargs: Additional keyword arguments for the model's completion function. These are provided by LiteLLM (
+        kwargs (Optional[dict]): Additional keyword arguments for the model's completion function. These are provided by LiteLLM (
             https://litellm.vercel.app/docs/completion/input#input-params-1). Enter `help(litellm.completion)` for
             details.
 
@@ -94,7 +94,7 @@ class Agent:
                  system_instructions: Optional[str] = None,
                  persona_template: Optional[str] = "default",
                  persona: Optional[str] = None,
-                 **kwargs):
+                 kwargs: Optional[Dict[str, Any]] = None):
         self.model = model
         self.system_instructions = system_instructions
         self.combination_instructions = combination_instructions
@@ -112,7 +112,8 @@ class Agent:
         self._validate_templates()
         self._validate_system_instructions()
         self._set_system_instructions()
-        self.kwargs = kwargs
+        self.kwargs = kwargs if kwargs is not None else {}
+
 
     def _set_system_instructions(self):
         """
@@ -355,7 +356,6 @@ class Agent:
         - a user passes in persona_template but it does not contain a persona placeholder (so there is no way to
         format it)
         """
-        # if pass in persona_template, must contain persona placeholder
         if self.persona_template:
             default_templates = list(self.defaults['persona_template'].keys())
 

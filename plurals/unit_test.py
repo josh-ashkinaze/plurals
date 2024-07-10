@@ -17,8 +17,8 @@ class TestAgentStructures(unittest.TestCase):
 
     def test_info_method(self):
 
-        agents = [Agent(task="First task", model=self.model, **self.kwargs),
-                  Agent(task="Second task", model=self.model, **self.kwargs)]
+        agents = [Agent(task="First task", model=self.model, kwargs=self.kwargs),
+                  Agent(task="Second task", model=self.model, kwargs=self.kwargs)]
 
         moderator = Moderator(persona="default", model=self.model)
 
@@ -72,7 +72,7 @@ class TestAgentStructures(unittest.TestCase):
         agent = Agent(
             task="test task",
             system_instructions="Here are some random system instructions.",
-            **self.kwargs)
+            kwargs=self.kwargs)
         self.assertIsNotNone(agent.system_instructions)
         self.assertIn(
             "Here are some random system instructions.",
@@ -80,7 +80,7 @@ class TestAgentStructures(unittest.TestCase):
 
     def test_agent_no_system_instructions(self):
         """Test whether agents are initialized with no system instructions"""
-        agent = Agent(task="Write a 10 word story.", **self.kwargs)
+        agent = Agent(task="Write a 10 word story.", kwargs=self.kwargs)
         agent.process()
         system_prompt = agent.history[0]['prompts']['system']
         self.assertIsNone(system_prompt)
@@ -95,7 +95,7 @@ class TestAgentStructures(unittest.TestCase):
             ideology='liberal',
             task=task1,
             model=self.model,
-            **self.kwargs)
+            kwargs=self.kwargs)
 
         persona1 = a.persona
         system_instructions1 = a.system_instructions
@@ -125,7 +125,7 @@ class TestAgentStructures(unittest.TestCase):
             task="write a haiku",
             model=self.model,
             combination_instructions='eccentric instructions',
-            **self.kwargs)
+            kwargs=self.kwargs)
         previous_responses = format_previous_responses(
             ['response1', 'response2'])
         a.process(previous_responses=previous_responses)
@@ -139,13 +139,13 @@ class TestAgentStructures(unittest.TestCase):
             ideology='moderate',
             model=self.model,
             combination_instructions='initial instructions',
-            **self.kwargs)
-        a3 = Agent(ideology='liberal', model=self.model, **self.kwargs)
+            kwargs=self.kwargs)
+        a3 = Agent(ideology='liberal', model=self.model, kwargs=self.kwargs)
         a4 = Agent(
             ideology='conservative',
             model=self.model,
             combination_instructions='initial instructions',
-            **self.kwargs)
+            kwargs=self.kwargs)
         mixed = Chain([a2, a3, a4], task=self.task,
                       combination_instructions='voting')
 
@@ -171,13 +171,13 @@ class TestAgentStructures(unittest.TestCase):
             ideology='moderate',
             model=self.model,
             combination_instructions='initial instructions',
-            **self.kwargs)
-        a3 = Agent(ideology='liberal', model=self.model, **self.kwargs)
+            kwargs=self.kwargs)
+        a3 = Agent(ideology='liberal', model=self.model, kwargs=self.kwargs)
         a4 = Agent(
             ideology='conservative',
             model=self.model,
             combination_instructions='initial instructions',
-            **self.kwargs)
+            kwargs=self.kwargs)
         mixed = Chain([a2, a3, a4], task=self.task,
                       combination_instructions='voting')
 
@@ -440,9 +440,9 @@ class TestAgentStructures(unittest.TestCase):
 
     def test_kwargs(self):
         """Test setting kwargs for agents results in valid response and are accurately passed to agents"""
-        a2 = Agent(ideology='moderate', model=self.model, **self.kwargs)
-        a3 = Agent(ideology='liberal', model=self.model, **self.kwargs)
-        a4 = Agent(ideology='conservative', model=self.model, **self.kwargs)
+        a2 = Agent(ideology='moderate', model=self.model, kwargs=self.kwargs)
+        a3 = Agent(ideology='liberal', model=self.model, kwargs=self.kwargs)
+        a4 = Agent(ideology='conservative', model=self.model, kwargs=self.kwargs)
         agentlist = [a2, a3, a4]
         mixed = Chain(
             agentlist,
@@ -469,11 +469,11 @@ class TestAgentStructures(unittest.TestCase):
             Agent(
                 persona="You are a mac fanatic trying to convince a user to switch to Mac.",
                 model=self.model,
-                **self.kwargs),
+                kwargs=self.kwargs),
             Agent(
                 persona="A PC fanatic",
                 model=self.model,
-                **self.kwargs)]
+                kwargs=self.kwargs)]
 
         debate_structure = Debate(
             agents=agents,
