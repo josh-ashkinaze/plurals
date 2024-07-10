@@ -122,12 +122,12 @@ class TestAgentChain(unittest.TestCase):
         mixed._set_combination_instructions()
 
         # Assertions
-        self.assertEqual(a2.combination_instructions,
-                         SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task))
-        self.assertEqual(a3.combination_instructions,
-                         SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task))
-        self.assertEqual(a4.combination_instructions,
-                         SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task))
+        self.assertEqual(SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task),
+                         a2.combination_instructions)
+        self.assertEqual(SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task),
+                         a3.combination_instructions)
+        self.assertEqual(SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task),
+                         a4.combination_instructions)
 
     def test_agent_combo_instr_overwrite_warning(self):
         """Test whether a warning is raised when combination instructions are overwritten"""
@@ -142,12 +142,12 @@ class TestAgentChain(unittest.TestCase):
             mixed._set_combination_instructions()
 
         # Assertions
-        self.assertEqual(a2.combination_instructions,
-                         SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task))
-        self.assertEqual(a3.combination_instructions,
-                         SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task))
-        self.assertEqual(a4.combination_instructions,
-                         SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task))
+        self.assertEqual(SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task),
+                         a2.combination_instructions)
+        self.assertEqual(SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task),
+                         a3.combination_instructions)
+        self.assertEqual(SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task),
+                         a4.combination_instructions)
 
     def test_agent_process_task_with_task_arg(self):
         """
@@ -175,10 +175,10 @@ class TestAgentChain(unittest.TestCase):
 
         self.assertEqual(persona1, persona2)
         self.assertEqual(system_instructions1, system_instructions2)
-        self.assertEqual(task_original_1, task1)
-        self.assertEqual(task_original_2, task2)
-        self.assertEqual(task_current_1, task1)
-        self.assertEqual(task_current_2, task2)
+        self.assertEqual(task1,task_original_1)
+        self.assertEqual(task2,task_original_2)
+        self.assertEqual(task1,task_current_1)
+        self.assertEqual(task2,task_current_2)
         self.assertNotEqual(task_original_1, task_original_2)
         self.assertNotEqual(task_current_1, task_current_2)
 
@@ -207,11 +207,12 @@ class TestAgentChain(unittest.TestCase):
         mixed = Chain([a2, a3, a4])
 
         # Assertions
-        self.assertEqual(mixed.agents[0].persona,
-                         'Very conservative White Man from the deep south who strongly believe in second amendment')
-        self.assertEqual(mixed.agents[1].persona, 'Liberal White women from the east coast who has far left takes')
-        self.assertEqual(mixed.agents[2].persona,
-                         'Young man from a neighbourhood who has had friends die to gun violence')
+        self.assertEqual('Very conservative White Man from the deep south who strongly believe in second amendment',
+                         mixed.agents[0].persona)
+        self.assertEqual('Liberal White women from the east coast who has far left takes',
+                         mixed.agents[1].persona)
+        self.assertEqual('Young man from a neighbourhood who has had friends die to gun violence',
+                         mixed.agents[2].persona)
 
     def test_agent_ideology(self):
         """Test ANES persona ideology method"""
@@ -220,9 +221,9 @@ class TestAgentChain(unittest.TestCase):
         a4 = Agent(task=self.task, ideology='conservative', model=self.model)
         mixed = Chain([a2, a3, a4])
 
-        self.assertIn("moderate", mixed.agents[0].persona)
-        self.assertIn("liberal", mixed.agents[1].persona)
-        self.assertIn("conservative", mixed.agents[2].persona)
+        self.assertIn("moderate", a2.persona)
+        self.assertIn("liberal", a3.persona)
+        self.assertIn("conservative", a4.persona)
 
     def test_no_task_in_agent(self):
         """Test whether Structures work with no task in the agent"""
@@ -234,7 +235,7 @@ class TestAgentChain(unittest.TestCase):
 
         # Assertions
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(mixed.task, self.task)
+        self.assertEqual(self.task, mixed.task)
 
     def test_no_task_in_chain(self):
         """Test whether Structures work with no task in the chain"""
@@ -246,7 +247,7 @@ class TestAgentChain(unittest.TestCase):
 
         # Assertions
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(mixed.agents[0].task_description, self.task)
+        self.assertEqual(self.task, mixed.agents[0].task_description)
 
     def test_task_in_chain(self):
         """Test whether Structures work with a task in the chain"""
@@ -258,7 +259,7 @@ class TestAgentChain(unittest.TestCase):
 
         # Assertions
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(mixed.task, self.task)
+        self.assertEqual(self.task, mixed.task)
 
     def test_moderator_default(self):
         """Test whether the moderator is properly initialized with default instructions"""
@@ -295,19 +296,19 @@ class TestAgentChain(unittest.TestCase):
         mixed.process()
         formatted_responses = mixed.responses[:-1]
 
+        expected_persona = SmartString(
+                             "You are a conservative moderator overseeing a discussion about the following task: ${"
+                             "task}.").format(
+                             task=self.task)
+        expected_combination_instructions = SmartString(
+                             "- Here are the previous responses: ${previous_responses}- Take only the most "
+                             "conservative parts of what was previously said.").format(
+                             previous_responses=format_previous_responses(formatted_responses))
         # Assertions
 
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(mixed.moderator.persona,
-                         SmartString(
-                             "You are a conservative moderator overseeing a discussion about the following task: ${"
-                             "task}.").format(
-                             task=self.task))
-        self.assertEqual(mixed.moderator.combination_instructions,
-                         SmartString(
-                             "- Here are the previous responses: ${previous_responses}- Take only the most "
-                             "conservative parts of what was previously said.").format(
-                             previous_responses=format_previous_responses(formatted_responses)))
+        self.assertEqual(expected_persona, mixed.moderator.persona)
+        self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
 
     def test_moderator_voting(self):
         """Test moderator persona and combination instructions for voting"""
@@ -318,14 +319,15 @@ class TestAgentChain(unittest.TestCase):
         mixed = Ensemble([a2, a3, a4], task=self.task, moderator=mod)
         mixed.process()
         formatted_responses = mixed.responses[:-1]
-
+        expected_persona = (SmartString(DEFAULTS['moderator']['persona']['voting']).format(task=self.task))
+        expected_combination_instructions = SmartString(DEFAULTS['moderator']['combination_instructions']['voting']).format(
+            previous_responses=format_previous_responses(formatted_responses))
         # Assertions
         self.maxDiff = None
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(SmartString(DEFAULTS['moderator']['persona']['voting']).format(task=self.task),
+        self.assertEqual(expected_persona,
                          mixed.moderator.persona)
-        self.assertEqual(SmartString(DEFAULTS['moderator']['combination_instructions']['voting']).format(
-            previous_responses=format_previous_responses(formatted_responses)),
+        self.assertEqual(expected_combination_instructions,
             mixed.moderator.combination_instructions)
 
     def test_chain_chain(self):
@@ -335,10 +337,11 @@ class TestAgentChain(unittest.TestCase):
         a4 = Agent(ideology='conservative', model=self.model)
         mixed = Chain([a2, a3, a4], task=self.task, combination_instructions='chain')
         mixed.process()
+        expected_combination_instructions = DEFAULTS['combination_instructions']['chain']
 
         # Assertions
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(mixed.combination_instructions, DEFAULTS['combination_instructions']['chain'])
+        self.assertEqual(expected_combination_instructions,mixed.combination_instructions)
 
     def test_chain_debate_instructions(self):
         a2 = Agent(ideology='moderate', model=self.model)
@@ -346,10 +349,10 @@ class TestAgentChain(unittest.TestCase):
         a4 = Agent(ideology='conservative', model=self.model)
         mixed = Chain([a2, a3, a4], task=self.task, combination_instructions='debate')
         mixed.process()
-
+        expected_combination_instructions = DEFAULTS['combination_instructions']['debate']
         # Assertions
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(mixed.combination_instructions, DEFAULTS['combination_instructions']['debate'])
+        self.assertEqual(expected_combination_instructions,mixed.combination_instructions)
 
     def test_chain_voting_instructions(self):
         """Test chain voting instructions"""
@@ -358,10 +361,11 @@ class TestAgentChain(unittest.TestCase):
         a4 = Agent(ideology='conservative', model=self.model)
         mixed = Chain([a2, a3, a4], task=self.task, combination_instructions='voting')
         mixed.process()
+        expected_combination_instructions = DEFAULTS['combination_instructions']['voting']
 
         # Assertions
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(mixed.combination_instructions, DEFAULTS['combination_instructions']['voting'])
+        self.assertEqual(expected_combination_instructions , mixed.combination_instructions)
 
     def test_kwargs(self):
         """Test setting kwargs for agents results in valid response and are accurately passed to agents"""
@@ -380,6 +384,15 @@ class TestAgentChain(unittest.TestCase):
             self.assertEqual(agent.kwargs['max_tokens'], self.kwargs['max_tokens'])
             self.assertEqual(agent.kwargs['top_p'], self.kwargs['top_p'])
 
+    def test_debate(self):
+        a2 = Agent(ideology='conservative', model=self.model,combination_instructions='debate')
+        a3 = Agent(ideology='liberal', model=self.model,combination_instructions='debate')
+        mod = Moderator()
+        mixed = Debate([a2, a3], task=self.task, combination_instructions='debate',moderator=mod)
+        mixed.process()
+        # Assertions
+        self.assertIn("Other",mixed.agents[1].combination_instructions)
+        self.assertIn("Debater 1",mixed.moderator.combination_instructions)
 
 if __name__ == '__main__':
     unittest.main()
