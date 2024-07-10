@@ -20,6 +20,10 @@
 
 <!-- TOC end -->
 
+
+<img src="https://github.com/josh-ashkinaze/plurals/raw/main/system_diagram.jpeg" alt="System Diagram" width="50%">
+
+
 # Installation
 
 `pip install plurals`
