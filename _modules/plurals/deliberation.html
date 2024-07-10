@@ -97,7 +97,7 @@
 <span class="sd">        combination_instructions (str): The instructions for combining responses. View `instructions.yaml` YAML file</span>
 <span class="sd">        for templates.</span>
 <span class="sd">        model (str): The model to use for the moderator.</span>
-<span class="sd">        **kwargs (dict): Additional keyword arguments. These are from LiteLLM&#39;s completion function. (see here:</span>
+<span class="sd">        kwargs (Optional[Dict]): Additional keyword arguments. These are from LiteLLM&#39;s completion function. (see here:</span>
 <span class="sd">        https://litellm.vercel.app/docs/completion/input)</span>
 
 <span class="sd">    Attributes:</span>
@@ -110,7 +110,7 @@
             <span class="n">persona</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span>
             <span class="n">combination_instructions</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
             <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">task</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
@@ -118,7 +118,7 @@
                 <span class="n">persona</span><span class="p">,</span>
                 <span class="n">persona</span><span class="p">),</span>
             <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;$</span><span class="si">{persona}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span><span class="s1">&#39;combination_instructions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
