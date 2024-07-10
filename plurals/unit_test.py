@@ -370,6 +370,13 @@ class TestAgentStructures(unittest.TestCase):
                 "conservative parts of what was previously said.").format(
                 previous_responses=format_previous_responses(formatted_responses)))
 
+    def test_moderator_kwargs(self):
+        """Test setting kwargs for moderators results in valid response and are accurately passed to moderators"""
+        mod = Moderator(persona='default', model=self.model, kwargs=self.kwargs)
+        self.assertEqual(mod.kwargs, self.kwargs)
+
+
+
     def test_moderator_voting(self):
         """Test moderator persona and combination instructions for voting"""
         a2 = Agent(ideology='moderate', model=self.model)

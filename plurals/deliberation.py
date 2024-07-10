@@ -20,7 +20,7 @@ class Moderator(Agent):
         combination_instructions (str): The instructions for combining responses. View `instructions.yaml` YAML file
         for templates.
         model (str): The model to use for the moderator.
-        **kwargs (dict): Additional keyword arguments. These are from LiteLLM's completion function. (see here:
+        kwargs (Optional[Dict]): Additional keyword arguments. These are from LiteLLM's completion function. (see here:
         https://litellm.vercel.app/docs/completion/input)
 
     Attributes:
@@ -33,7 +33,7 @@ class Moderator(Agent):
             persona: str = 'default',
             combination_instructions: str = "default",
             model: str = "gpt-4o",
-            **kwargs):
+            kwargs=None):
         super().__init__(
             task="",
             model=model,
@@ -41,7 +41,7 @@ class Moderator(Agent):
                 persona,
                 persona),
             persona_template="${persona}",
-            **kwargs)
+            kwargs=kwargs)
 
         self.combination_instructions = (
             DEFAULTS["moderator"]['combination_instructions'].get(
