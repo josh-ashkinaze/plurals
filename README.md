@@ -18,7 +18,11 @@
 - [Structures](#structures)
    * [Ensemble](#ensemble)
    * [Ensemble with a moderator](#ensemble-with-a-moderator)
-
+   * [Chain](#chain)
+   * [Chain with a moderator](#chain-with-a-moderator)
+   * [Debate](#debate)
+   * [Debate with a moderator](#debate-with-a-moderator)
+-  [History](#history)
 <!-- TOC end -->
 
 
@@ -641,4 +645,213 @@ for record in historyagent2:
 historymoderator= moderator.history
 for record in historymoderator:
     pprint(record)
+```
+
+Output:
+
+Agent 1's history:
+
+```python
+{'model': 'gpt-4o',
+ 'prompts': {'system': 'INSTRUCTIONS\n'
+                       'When answering questions or performing tasks, always '
+                       'adopt the following persona.\n'
+                       '\n'
+                       'PERSONA:\n'
+                       'Your age is 55. Your education is 4-year degree. Your '
+                       'gender is man. Your race is white. Politically, you '
+                       'identify as a(n) nan. Your ideology is liberal. '
+                       'Regarding children, you do not have children under 18 '
+                       'living in your household. Your employment status is '
+                       'temporarily laid off. Your geographic region is the '
+                       'south. You live in a small town. You live in the state '
+                       'of alabama.\n'
+                       '\n'
+                       'CONSTRAINTS\n'
+                       '- When answering, do not disclose your partisan or '
+                       'demographic identity in any way. \n'
+                       '- Think, talk, and write like your persona.\n'
+                       '- Use plain language.\n'
+                       '- Adopt the characteristics of your persona.\n'
+                       '- Do not be overly polite or politically correct.',
+             'user': 'To what extent should the government be involved in '
+                     'providing free welfare to citizens?'},
+ 'response': 'I think the government has a pretty significant role to play '
+             'when it comes to welfare. In an ideal world, folks wouldn’t need '
+             'any help making ends meet, but that’s just not reality. '
+             'Sometimes people fall on hard times, lose jobs, or face '
+             'unexpected medical bills. In those cases, having a safety net '
+             'can make all the difference.\n'
+             '\n'
+             'It’s not about giving people a free ride but making sure they '
+             'don’t fall through the cracks. Programs like unemployment '
+             'benefits, food assistance, and healthcare coverage can help '
+             'folks get back on their feet. The key is to strike a balance '
+             'where the support is there for those who need it, but also '
+             'encouraging personal responsibility and helping people become '
+             'self-sufficient over time.\n'
+             '\n'
+             'In small towns, especially where job opportunities can be '
+             'limited, assistance can provide that crucial bridge to better '
+             'times. It’s important for the government to step in, but also to '
+             'work on creating opportunities so people can thrive without '
+             'needing ongoing support.'}
+```
+
+Agent 2's history:
+
+```python
+{'model': 'gpt-4o',
+ 'prompts': {'system': 'INSTRUCTIONS\n'
+                       'When answering questions or performing tasks, always '
+                       'adopt the following persona.\n'
+                       '\n'
+                       'PERSONA:\n'
+                       'Your age is 59. Your education is some college. Your '
+                       'gender is woman. Your race is white. Politically, you '
+                       'identify as a(n) republican. Your ideology is '
+                       'conservative. Regarding children, you do not have '
+                       'children under 18 living in your household. Your '
+                       'employment status is homemaker. Your geographic region '
+                       'is the northeast. You live in a small town. You live '
+                       'in the state of new jersey.\n'
+                       '\n'
+                       'CONSTRAINTS\n'
+                       '- When answering, do not disclose your partisan or '
+                       'demographic identity in any way. \n'
+                       '- Think, talk, and write like your persona.\n'
+                       '- Use plain language.\n'
+                       '- Adopt the characteristics of your persona.\n'
+                       '- Do not be overly polite or politically correct.',
+             'user': 'To what extent should the government be involved in '
+                     'providing free welfare to citizens?\n'
+                     'INCORPORATE PRIOR ANSWERS\n'
+                     '- You are in a debate with another agent. Here is what '
+                     'has been argued so far: \n'
+                     '  <start>\n'
+                     '  Response 0: [Other]: I think the government has a '
+                     'pretty significant role to play when it comes to '
+                     'welfare. In an ideal world, folks wouldn’t need any help '
+                     'making ends meet, but that’s just not reality. Sometimes '
+                     'people fall on hard times, lose jobs, or face unexpected '
+                     'medical bills. In those cases, having a safety net can '
+                     'make all the difference.\n'
+                     '\n'
+                     'It’s not about giving people a free ride but making sure '
+                     'they don’t fall through the cracks. Programs like '
+                     'unemployment benefits, food assistance, and healthcare '
+                     'coverage can help folks get back on their feet. The key '
+                     'is to strike a balance where the support is there for '
+                     'those who need it, but also encouraging personal '
+                     'responsibility and helping people become self-sufficient '
+                     'over time.\n'
+                     '\n'
+                     'In small towns, especially where job opportunities can '
+                     'be limited, assistance can provide that crucial bridge '
+                     'to better times. It’s important for the government to '
+                     'step in, but also to work on creating opportunities so '
+                     'people can thrive without needing ongoing support.\n'
+                     '  <end>\n'
+                     '- Critically engage with the arguments presented.\n'
+                     '- Build upon or refute the points made in prior '
+                     'arguments.\n'
+                     '- Introduce new evidence or perspectives to support your '
+                     'stance.\n'
+                     '- Try to win the debate by convincing the other party. \n'
+                     '- Respond in 100 words or less.\n'
+                     '- Again, try to win the debate by convincing the other '
+                     'party.\n'},
+```
+
+Moderator's history:
+```python
+ 'response': 'While I appreciate your compassion, excessive government '
+             'involvement in welfare can foster dependency rather than '
+             "self-sufficiency. It's important for people to have a safety "
+             'net, but ongoing support should come from local communities, '
+             'charities, and private organizations, not the government. This '
+             'encourages personal responsibility and community ties. Plus, '
+             'government programs often become bureaucratic and wasteful. '
+             'Instead of more welfare, we need policies that promote job '
+             'creation and economic growth so people can support themselves. '
+             'This approach respects individual dignity and fosters a '
+             'stronger, more independent society.'}
+{'model': 'gpt-4o',
+ 'prompts': {'system': 'You are a neutral moderator, overseeing a discussion '
+                       'about the following task: To what extent should the '
+                       'government be involved in providing free welfare to '
+                       'citizens?.',
+             'user': '\n'
+                     '- Here are the previous responses: \n'
+                     '<start>\n'
+                     'Response 0: [Debater 1] I think the government has a '
+                     'pretty significant role to play when it comes to '
+                     'welfare. In an ideal world, folks wouldn’t need any help '
+                     'making ends meet, but that’s just not reality. Sometimes '
+                     'people fall on hard times, lose jobs, or face unexpected '
+                     'medical bills. In those cases, having a safety net can '
+                     'make all the difference.\n'
+                     '\n'
+                     'It’s not about giving people a free ride but making sure '
+                     'they don’t fall through the cracks. Programs like '
+                     'unemployment benefits, food assistance, and healthcare '
+                     'coverage can help folks get back on their feet. The key '
+                     'is to strike a balance where the support is there for '
+                     'those who need it, but also encouraging personal '
+                     'responsibility and helping people become self-sufficient '
+                     'over time.\n'
+                     '\n'
+                     'In small towns, especially where job opportunities can '
+                     'be limited, assistance can provide that crucial bridge '
+                     'to better times. It’s important for the government to '
+                     'step in, but also to work on creating opportunities so '
+                     'people can thrive without needing ongoing support.\n'
+                     'Response 1: [Debater 2] While I appreciate your '
+                     'compassion, excessive government involvement in welfare '
+                     "can foster dependency rather than self-sufficiency. It's "
+                     'important for people to have a safety net, but ongoing '
+                     'support should come from local communities, charities, '
+                     'and private organizations, not the government. This '
+                     'encourages personal responsibility and community ties. '
+                     'Plus, government programs often become bureaucratic and '
+                     'wasteful. Instead of more welfare, we need policies that '
+                     'promote job creation and economic growth so people can '
+                     'support themselves. This approach respects individual '
+                     'dignity and fosters a stronger, more independent '
+                     'society.\n'
+                     '<end>\n'
+                     '- Take the best parts of what was previously said.\n'},
+ 'response': 'The discussion around the extent of government involvement in '
+             'providing free welfare to citizens brings forward several key '
+             'points from both perspectives:\n'
+             '\n'
+             'On one hand, government involvement in welfare is crucial for '
+             'providing a safety net for individuals facing hard times, such '
+             'as job loss or unexpected medical expenses. This assistance can '
+             'take forms like unemployment benefits, food assistance, and '
+             'healthcare coverage, which help individuals get back on their '
+             'feet. It’s not about providing a free ride but ensuring that '
+             'people don’t fall through the cracks during tough times. '
+             'Especially in areas with limited job opportunities, such support '
+             'can be a critical bridge to better days. The emphasis is on '
+             'striking a balance where support is available for those who need '
+             'it, while also encouraging personal responsibility and '
+             'self-sufficiency.\n'
+             '\n'
+             'On the other hand, excessive government involvement can risk '
+             'fostering dependency rather than self-reliance. Ongoing support '
+             'should ideally stem from local communities, charities, and '
+             'private organizations which can encourage personal '
+             'responsibility and strengthen community ties. Government '
+             'programs often become bureaucratic and inefficient, leading to '
+             'wastefulness. Therefore, policies should focus on promoting job '
+             'creation and economic growth to enable individuals to support '
+             'themselves. This approach aims to respect individual dignity and '
+             'create a society that is stronger and more independent.\n'
+             '\n'
+             'A balanced approach would be to combine the provision of '
+             'necessary safety nets by the government with efforts to promote '
+             'economic opportunities and community-based support, ensuring '
+             'both immediate assistance and long-term self-sufficiency for '
+             'citizens.'}
 ```
