@@ -21,7 +21,7 @@
 <!-- TOC end -->
 
 
-<img src="https://github.com/josh-ashkinaze/plurals/raw/main/system_diagram.jpeg" alt="System Diagram" width="50%">
+<img src="https://github.com/josh-ashkinaze/plurals/raw/main/system_diagram.jpeg" alt="System Diagram" width="100%">
 
 
 # Installation
