@@ -279,7 +279,7 @@ class Agent:
             if var == "birthyr" and value is not None:
                 value = 2024 - int(value)
 
-            if value is None or pd.isna(value) or (details.get('bad_vals') and str(value) in details['bad_vals']):
+            if value is None or (details.get('bad_vals') and str(value) in details['bad_vals']):
                 continue
 
             if details.get('recode_vals') and str(value) in details['recode_vals']:
@@ -333,13 +333,10 @@ class Agent:
                                                                                 "a dataframe and a persona mapping to "
                                                                                 "process rows of the dataframe.")
 
-        if self.system_instructions:
-            assert not (self.persona_template != 'default' or self.persona), ("Cannot pass in system_instructions AND "
-                                                                              "(persona_template or persona) since "
-                                                                              "the first would override the latter")
+        if (sum([bool(self.ideology), bool(self.query_str), bool(self.persona),
+                 bool(self.system_instructions)]) > 1):
+            raise AssertionError("You can only pass in one of ideology, query_str, system_instructions, or persona")
 
-        if self.ideology or self.query_str:
-            assert not self.persona, ("Cannot pass in (ideology or query_str) AND persona since the first two would construct a persona")
 
         if self.ideology:
             allowed_vals = [
