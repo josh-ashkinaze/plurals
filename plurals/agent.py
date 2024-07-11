@@ -279,7 +279,7 @@ class Agent:
             if var == "birthyr" and value is not None:
                 value = 2024 - int(value)
 
-            if value is None or (details.get('bad_vals') and str(value) in details['bad_vals']):
+            if value is None or pd.isna(value) or (details.get('bad_vals') and str(value) in details['bad_vals']):
                 continue
 
             if details.get('recode_vals') and str(value) in details['recode_vals']:
