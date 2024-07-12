@@ -227,6 +227,8 @@ class Chain(AbstractStructure):
         previous_responses = []
         original_task = self.agents[0].original_task_description
         for _ in range(self.cycles):
+            if self.shuffle:
+                self.agents = random.sample(self.agents, len(self.agents))
             for agent in self.agents:
                 previous_responses_slice = previous_responses[-self.last_n:]
                 previous_responses_str = format_previous_responses(previous_responses_slice)
