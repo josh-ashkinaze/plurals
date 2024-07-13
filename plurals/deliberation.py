@@ -126,15 +126,31 @@ class AbstractStructure(ABC):
             last_n: int = 1,
             combination_instructions: Optional[str] = "default",
             moderator: Optional[Moderator] = None):
+
+
         self.defaults = DEFAULTS
         self.task = task
+
+        if not agents:
+            raise ValueError("Agent list cannot be empty.")
         self.agents = agents
+
         self.combination_instructions = combination_instructions
         self._set_combination_instructions()
         self._set_task_descriptions()
+
+        if not isinstance(shuffle, bool):
+            raise ValueError("Shuffle must be a boolean.")
         self.shuffle = shuffle
-        self.last_n = last_n
+
+        if not isinstance(cycles, int) or cycles < 1:
+            raise ValueError("Cycles must be a positive integer.")
         self.cycles = cycles
+
+        if not isinstance(last_n, int) or last_n < 1:
+            raise ValueError("Last_n must be a positive integer.")
+        self.last_n = last_n
+
         self.responses = []
         self.final_response = None
         self.moderator = moderator
@@ -200,8 +216,8 @@ class AbstractStructure(ABC):
         Return information about the structure and its agents.
         """
         if not self.final_response:
-            raise ValueError(
-                "The structure has not been processed yet. Call the process method first.")
+            warnings.warn(
+                "The structure has not been processed yet so there are no responses.")
         result = {
             "structure_information": {
                 "final_response": self.final_response,
