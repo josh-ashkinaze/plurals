@@ -16,41 +16,54 @@ class Moderator(Agent):
     A moderator agent that combines responses from other agents at the end of structure processing.
 
     Args:
-        persona (str): The persona of the moderator. View `instructions.yaml` YAML file for templates.
-        combination_instructions (str): The instructions for combining responses. View `instructions.yaml` YAML file
-        for templates.
-        model (str): The model to use for the moderator.
-        kwargs (Optional[Dict]): Additional keyword arguments. These are from LiteLLM's completion function. (see here:
-        https://litellm.vercel.app/docs/completion/input)
+        persona (str, optional): The persona of the moderator. Default is 'default'.
+        system_instructions (str, optional): The system instructions for the moderator. Default is None.
+        combination_instructions (str, optional): The instructions for combining responses. Default is 'default'.
+        model (str, optional): The model to use for the moderator. Default is 'gpt-4o'.
+        kwargs (Optional[Dict]): Additional keyword arguments. These are from LiteLLM's completion function.
+            (see here: https://litellm.vercel.app/docs/completion/input)
 
     Attributes:
-        combination_instructions (str): The instructions for combining responses.
+        persona (str): The persona of the moderator.
         system_instructions (str): For a Moderator, system instructions are just the persona.
+        combination_instructions (str): The instructions for combining responses.
     """
 
     def __init__(
             self,
-            persona: str = 'default',
+            persona: Optional[str] = None,
+            system_instructions: Optional[str] = None,
             combination_instructions: str = "default",
             model: str = "gpt-4o",
-            kwargs=None):
-        super().__init__(
-            task="",
-            model=model,
-            persona=DEFAULTS["moderator"]['persona'].get(
-                persona,
-                persona),
-            persona_template="${persona}",
-            kwargs=kwargs)
+            kwargs: Optional[Dict] = None):
 
-        self.combination_instructions = (
-            DEFAULTS["moderator"]['combination_instructions'].get(
-                combination_instructions, combination_instructions))
+        if kwargs is None:
+            kwargs = {}
 
-    def _moderate_responses(
-            self,
-            responses: List[str],
-            original_task: str) -> str:
+        # Case 1: if both persona and system_instructions are provided, raise a ValueError
+        if persona and system_instructions:
+            raise ValueError("Cannot provide both persona and system instructions")
+
+        # Case 2: if only persona is provided, use persona with dummy persona template ${persona}
+        if persona and not system_instructions:
+            persona_template = "${persona}"
+            persona_value = DEFAULTS["moderator"]['persona'].get(persona, persona)
+            super().__init__(persona=persona_value, persona_template=persona_template, model=model, kwargs=kwargs)
+
+        # Case 3: if only system_instructions is provided, set system_instructions and set persona and persona_template to None
+        elif system_instructions and not persona:
+            super().__init__(system_instructions=system_instructions, persona=None, persona_template=None, model=model,
+                             kwargs=kwargs)
+
+        # Case 4: if neither persona nor system_instructions are provided, use default persona
+        else:
+            default_persona = DEFAULTS["moderator"]['persona'].get('default', 'default_moderator_persona')
+            super().__init__(persona=default_persona, persona_template="${persona}", model=model, kwargs=kwargs)
+
+        self.combination_instructions = DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions,
+                                                                                              combination_instructions)
+
+    def _moderate_responses(self, responses: List[str], original_task: str) -> str:
         """
         Combine responses using the moderator persona and instructions.
 
@@ -62,16 +75,16 @@ class Moderator(Agent):
             str: A combined response based on the moderator's instructions and persona.
         """
         combined_responses_str = format_previous_responses(responses)
-        self.combination_instructions = SmartString(
-            self.combination_instructions).format(
+        self.combination_instructions = SmartString(self.combination_instructions).format(
             previous_responses=combined_responses_str,
             task=original_task,
-            avoid_double_period=True)
-        self.system_instructions = SmartString(
-            self.system_instructions).format(
+            avoid_double_period=True
+        )
+        self.system_instructions = SmartString(self.system_instructions).format(
             task=original_task,
             previous_responses=combined_responses_str,
-            persona=self.persona)
+            persona=self.persona
+        )
         return self.process(previous_responses=combined_responses_str)
 
 
