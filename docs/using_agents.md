@@ -275,7 +275,8 @@ task = "Should the United States move away from coal as an energy source? Answer
 west_virginia = Agent(query_str="inputstate=='West Virginia'&ideo5=='Very conservative'", model='gpt-4o', task=task)
 west_virginia.process()
 ```
-```
+
+```markdown
 No.  Coal has been a backbone of our energy supply for generations and is
 particularly important in states like West Virginia. It provides reliable and
 affordable energy, which is crucial for keeping the lights on and the economy

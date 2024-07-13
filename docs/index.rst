@@ -7,11 +7,12 @@ Welcome to Plurals's documentation!
 ===================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    introduction
    using_agents
+   structures_and_moderators
    agent
    deliberation
    helpers
