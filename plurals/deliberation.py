@@ -239,8 +239,13 @@ class AbstractStructure(ABC):
         """
         raise NotImplementedError(
             "This method must be implemented in a subclass")
+    def __repr__(self):
+        return str(self.info)
 
 
+# Concrete Structures
+#########################################################################
+#########################################################################
 class Chain(AbstractStructure):
     """
     A chain structure for processing tasks through a sequence of agents. In a chain,
@@ -363,7 +368,7 @@ class Debate(AbstractStructure):
         # the other agent's response.
         #
         # This structure (of storing seperate lists) is useful since we need to return an agent's history of what
-        # they saw, but there may be a more way to achieve this functionality.
+        # they saw, but there may be a more elegant way to do this.
 
         previous_responses_agent1 = []
         previous_responses_agent2 = []

@@ -121,7 +121,7 @@ class SmartString(str):
     method to use string.Template for string formatting.
     """
 
-    def format(self, avoid_double_period=False, **kwargs):
+    def format(self, avoid_double_period=True, **kwargs):
         """
         Override the format method to use string.Template for string formatting.
 
