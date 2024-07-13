@@ -13,6 +13,37 @@
 - Augmentation: Use LLMs to augment human decision-making by providing additional information/perspectives
 
 
+# Plurals System
+
+Plurals consists of three core abstractions (Figure 1):
+
+1. **Agents:**
+    - Users can initialize system instructions as null to get back model behavior.
+    - Users can pass in direct system instructions.
+    - Users can combine personas with persona templates, giving more instructions to the model on how to enact the persona.
+    - We have various pre-populated templates.
+    - We support creating personas from American National Election Studies (ANES, 2024):
+        - Our system finds a real individual satisfying some criteria (e.g: A Michigan resident) and then creates a persona based on the totality of this individual's attributes.
+        - The marginal distribution of Plurals-generated personas matches that of the general population.
+        - Sampling is probability-weighted, so the probability of a citizen being simulated matches their national sample probability weight.
+        - We also support a `random` argument where users can quickly draw up random personas.
+
+2. **Structures:** Structures are the environments in which agents work together. Broadly, structures are defined by:
+    - **Information-sharing:**
+        - Direction of information sharing (i.e: is it directed or undirected).
+        - Amount of information-sharing.
+        - Example: In an `Ensemble`, no information is shared and Agents process requests in parallel whereas in a `Chain`, agents each build upon each other's answers.
+        - Users can create in-between structures. Our system supports a `$last_n$` parameter that dictates how much information an agent sees from the current deliberation stack. Setting `$last_n$` to 1 would result in a Markov-esque chain.
+        - Users can also control `$cycles$` of a structure, which is how many times the sequence is run and whether to `$shuffle$` the ordering of agents on each cycle.
+    - **Combination instructions:** 
+        - How agents are instructed to combine information in the structure.
+        - Interactions can be adversarial or amicable.
+        - We offer a list of templates which can be used via keywords.
+        - Templates are inspired by research on derivative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
+
+3. **Moderators:** We support Moderators, who are special classes of Agents that oversee deliberation. Moderators are defined by their personas and combination instructions (how to combine information). As with combination instructions and persona templates, we support various pre-defined moderator instructions such as `information aggregators` or `synthesizers`.
+
+
 # Quick start 
 
 ## Using ANES to create a conservative persona-based agent
