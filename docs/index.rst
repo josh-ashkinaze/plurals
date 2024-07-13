@@ -10,8 +10,6 @@ Welcome to Plurals's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   introduction
-   using_agents
    agent
    deliberation
    helpers
