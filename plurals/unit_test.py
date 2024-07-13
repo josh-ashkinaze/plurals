@@ -18,7 +18,7 @@ class TestAgent(unittest.TestCase):
     def test_agent_system_instructions(self):
         """Test whether agents can be properly initialized with system instructions"""
         agent = Agent(task="test task", system_instructions="Here are some random system instructions.",
-            kwargs=self.kwargs)
+                      kwargs=self.kwargs)
         self.assertIsNotNone(agent.system_instructions)
         self.assertIn("Here are some random system instructions.", agent.system_instructions)
 
@@ -61,7 +61,7 @@ class TestAgent(unittest.TestCase):
     def test_agent_combo_inst_in_user_prompt(self):
         """Test if when combination instructions are set they are appropriately used in user prompt"""
         a = Agent(ideology='moderate', task="write a haiku", model=self.model,
-            combination_instructions='eccentric instructions', kwargs=self.kwargs)
+                  combination_instructions='eccentric instructions', kwargs=self.kwargs)
         previous_responses = format_previous_responses(['response1', 'response2'])
         a.process(previous_responses=previous_responses)
         user_prompt = a.info['history'][0]['prompts']['user']
@@ -71,10 +71,10 @@ class TestAgent(unittest.TestCase):
         """Test whether combination instructions are properly set for agents. If they are provided to agents and
         structures the desired behavior is that structures will overwrite agents combination instructions"""
         a2 = Agent(ideology='moderate', model=self.model, combination_instructions='initial instructions',
-            kwargs=self.kwargs)
+                   kwargs=self.kwargs)
         a3 = Agent(ideology='liberal', model=self.model, kwargs=self.kwargs)
         a4 = Agent(ideology='conservative', model=self.model, combination_instructions='initial instructions',
-            kwargs=self.kwargs)
+                   kwargs=self.kwargs)
         mixed = Chain([a2, a3, a4], task=self.task, combination_instructions='voting')
 
         mixed._set_combination_instructions()
@@ -89,10 +89,10 @@ class TestAgent(unittest.TestCase):
     def test_agent_combo_instr_overwrite_warning(self):
         """Test whether a warning is raised when combination instructions are overwritten"""
         a2 = Agent(ideology='moderate', model=self.model, combination_instructions='initial instructions',
-            kwargs=self.kwargs)
+                   kwargs=self.kwargs)
         a3 = Agent(ideology='liberal', model=self.model, kwargs=self.kwargs)
         a4 = Agent(ideology='conservative', model=self.model, combination_instructions='initial instructions',
-            kwargs=self.kwargs)
+                   kwargs=self.kwargs)
         mixed = Chain([a2, a3, a4], task=self.task, combination_instructions='voting')
 
         with self.assertWarns(UserWarning):
@@ -150,23 +150,33 @@ class TestAgent(unittest.TestCase):
         self.assertIsNotNone(agent.system_instructions)
         self.assertIn("michigan", agent.system_instructions)
 
+    def test_agent_with_nonexistent_ideology(self):
+        """Test whether the agent raises an error or handles gracefully when no matching ideology is found"""
+        with self.assertRaises(AssertionError):
+            Agent(task=self.task, ideology='nonexistent', model=self.model, kwargs=self.kwargs)
+
+    def test_agent_with_invalid_query_str(self):
+        """Test whether the agent raises an error or handles gracefully when query_str results in no data"""
+        with self.assertRaises(AssertionError):
+            Agent(task=self.task, query_str="inputstate=='Atlantis'", model=self.model, kwargs=self.kwargs)
+
     def test_agent_manual_persona(self):
         """Test manual persona setting"""
         a2 = Agent(task=self.task,
-            persona='Very conservative White Man from the deep south who strongly believe in second amendment',
-            model=self.model)
+                   persona='Very conservative White Man from the deep south who strongly believe in second amendment',
+                   model=self.model)
         a3 = Agent(task=self.task, persona="Liberal White women from the east coast who has far left takes",
-            model=self.model)
+                   model=self.model)
         a4 = Agent(task=self.task, persona="Young man from a neighbourhood who has had friends die to gun violence",
-            model=self.model)
+                   model=self.model)
         mixed = Chain([a2, a3, a4])
 
         # Assertions
         self.assertEqual('Very conservative White Man from the deep south who strongly believe in second amendment',
-            mixed.agents[0].persona)
+                         mixed.agents[0].persona)
         self.assertEqual('Liberal White women from the east coast who has far left takes', mixed.agents[1].persona)
         self.assertEqual('Young man from a neighbourhood who has had friends die to gun violence',
-            mixed.agents[2].persona)
+                         mixed.agents[2].persona)
 
     def test_agent_ideology(self):
         """Test ANES persona ideology method"""
@@ -335,7 +345,7 @@ class TestSmartString(unittest.TestCase):
         initial_s = "Complete the following task: ${task} in json format like {'answer':answer}"
         formatted_string = SmartString(initial_s).format(task="Do the thing")
         self.assertEqual("Complete the following task: Do the thing in json format like {'answer':answer}",
-            formatted_string)
+                         formatted_string)
 
     def test_avoid_double_period(self):
         """Test that double periods are correctly removed."""
@@ -421,7 +431,7 @@ class TestEnsemble(unittest.TestCase):
         self.maxDiff = None
         self.assertIsNotNone(mixed.final_response)
         self.assertEqual(SmartString(DEFAULTS['moderator']['persona']['voting']).format(task=self.task),
-            mixed.moderator.persona)
+                         mixed.moderator.persona)
         self.assertEqual(SmartString(DEFAULTS['moderator']['combination_instructions']['voting']).format(
             previous_responses=format_previous_responses(formatted_responses)),
             mixed.moderator.combination_instructions)
@@ -436,10 +446,10 @@ class TestDebate(unittest.TestCase):
 
     def test_debate_formatting(self):
         agents = [Agent(persona="You are a mac fanatic trying to convince a user to switch to Mac.", model=self.model,
-            kwargs=self.kwargs), Agent(persona="A PC fanatic", model=self.model, kwargs=self.kwargs)]
+                        kwargs=self.kwargs), Agent(persona="A PC fanatic", model=self.model, kwargs=self.kwargs)]
 
         debate_structure = Debate(agents=agents, task="Which computer is better? Mac or PC? Answer in 10 words.",
-            moderator=Moderator(), cycles=3)
+                                  moderator=Moderator(), cycles=3)
 
         debate_structure.process()
 
@@ -470,6 +480,31 @@ class TestDebate(unittest.TestCase):
         debater_2_initial_response = agents[1].info['history'][0]['response'].strip()
         self.assertIn("[You]: " + debater_1_initial_response, user_prompt)
         self.assertIn("[Other]: " + debater_2_initial_response, user_prompt)
+
+        correct_strings = [
+            "Response 0: [Debater 1]",
+            "Response 1: [Debater 2]",
+            "Response 2: [Debater 1]",
+            "Response 3: [Debater 2]",
+        ]
+
+        # Incorrectly formatted response strings that should not appear in the moderator's task description
+        incorrect_strings = [
+            "Response 0: [Debater 2]",
+            "Response 1: [Debater 1]",
+            "Response 2: [Debater 2]",
+            "Response 3: Debater [1]"
+        ]
+
+        # Check for correct strings in the current task description
+        for correct_string in correct_strings:
+            self.assertIn(correct_string, debate_structure.moderator.info['current_task_description'],
+                          f"{correct_string} should be in the moderator's current task description.")
+
+        # Check for incorrect strings not in the current task description
+        for incorrect_string in incorrect_strings:
+            self.assertNotIn(incorrect_string, debate_structure.moderator.info['current_task_description'],
+                             f"{incorrect_string} should not be in the moderator's current task description.")
 
 
 class TestAgentStructures(unittest.TestCase):
