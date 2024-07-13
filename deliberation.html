@@ -77,8 +77,9 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#plurals.deliberation.Moderator"><code class="docutils literal notranslate"><span class="pre">Moderator</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.Moderator.combination_instructions"><code class="docutils literal notranslate"><span class="pre">Moderator.combination_instructions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.Moderator.persona"><code class="docutils literal notranslate"><span class="pre">Moderator.persona</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.Moderator.system_instructions"><code class="docutils literal notranslate"><span class="pre">Moderator.system_instructions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.Moderator.combination_instructions"><code class="docutils literal notranslate"><span class="pre">Moderator.combination_instructions</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -322,25 +323,25 @@ task independently through async requests.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="plurals.deliberation.Moderator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.deliberation.</span></span><span class="sig-name descname"><span class="pre">Moderator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">persona</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combination_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gpt-4o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#Moderator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Moderator" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.deliberation.</span></span><span class="sig-name descname"><span class="pre">Moderator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">persona</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combination_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gpt-4o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#Moderator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Moderator" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="agent.html#plurals.agent.Agent" title="plurals.agent.Agent"><code class="xref py py-class docutils literal notranslate"><span class="pre">Agent</span></code></a></p>
 <p>A moderator agent that combines responses from other agents at the end of structure processing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>persona</strong> (<em>str</em>) – The persona of the moderator. View <cite>instructions.yaml</cite> YAML file for templates.</p></li>
-<li><p><strong>combination_instructions</strong> (<em>str</em>) – The instructions for combining responses. View <cite>instructions.yaml</cite> YAML file</p></li>
-<li><p><strong>templates.</strong> (<em>for</em>)</p></li>
-<li><p><strong>model</strong> (<em>str</em>) – The model to use for the moderator.</p></li>
-<li><p><strong>kwargs</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>]</em>) – Additional keyword arguments. These are from LiteLLM’s completion function. (see here:</p></li>
-<li><p><strong>https</strong> – //litellm.vercel.app/docs/completion/input)</p></li>
+<li><p><strong>persona</strong> (<em>str</em><em>, </em><em>optional</em>) – The persona of the moderator. Default is ‘default’.</p></li>
+<li><p><strong>system_instructions</strong> (<em>str</em><em>, </em><em>optional</em>) – The system instructions for the moderator. Default is None.</p></li>
+<li><p><strong>combination_instructions</strong> (<em>str</em><em>, </em><em>optional</em>) – The instructions for combining responses. Default is ‘default’.</p></li>
+<li><p><strong>model</strong> (<em>str</em><em>, </em><em>optional</em>) – The model to use for the moderator. Default is ‘gpt-4o’.</p></li>
+<li><p><strong>kwargs</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>]</em>) – Additional keyword arguments. These are from LiteLLM’s completion function.
+(see here: <a class="reference external" href="https://litellm.vercel.app/docs/completion/input">https://litellm.vercel.app/docs/completion/input</a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="plurals.deliberation.Moderator.combination_instructions">
-<span class="sig-name descname"><span class="pre">combination_instructions</span></span><a class="headerlink" href="#plurals.deliberation.Moderator.combination_instructions" title="Link to this definition"></a></dt>
-<dd><p>The instructions for combining responses.</p>
+<dt class="sig sig-object py" id="plurals.deliberation.Moderator.persona">
+<span class="sig-name descname"><span class="pre">persona</span></span><a class="headerlink" href="#plurals.deliberation.Moderator.persona" title="Link to this definition"></a></dt>
+<dd><p>The persona of the moderator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
@@ -352,6 +353,17 @@ task independently through async requests.</p>
 <dt class="sig sig-object py" id="plurals.deliberation.Moderator.system_instructions">
 <span class="sig-name descname"><span class="pre">system_instructions</span></span><a class="headerlink" href="#plurals.deliberation.Moderator.system_instructions" title="Link to this definition"></a></dt>
 <dd><p>For a Moderator, system instructions are just the persona.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.Moderator.combination_instructions">
+<span class="sig-name descname"><span class="pre">combination_instructions</span></span><a class="headerlink" href="#plurals.deliberation.Moderator.combination_instructions" title="Link to this definition"></a></dt>
+<dd><p>The instructions for combining responses.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
