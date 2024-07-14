@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 from plurals.agent import Agent
 from plurals.deliberation import Chain, Moderator, Ensemble, Debate
 from plurals.helpers import load_yaml, format_previous_responses, SmartString
+from unittest.mock import MagicMock, patch
 
 DEFAULTS = load_yaml("instructions.yaml")
 
@@ -251,6 +252,43 @@ class TestModerator(unittest.TestCase):
         mod = Moderator()
         self.assertEqual(default_persona, mod.persona)
         self.assertEqual("${persona}", mod.persona_template)
+
+    @patch.object(Agent, 'process', return_value="System Instructions: Moderate the responses carefully.")
+    def test_generate_system_instructions(self, mock_process):
+        """Test system instructions generation when set to auto"""
+        mod = Moderator()
+        task = "Test task for auto generation"
+        model = "gpt-4o"
+        kwargs = {"temperature": 0.7}
+
+        system_instructions = mod.generate_system_instructions(task, model, kwargs)
+        self.assertEqual("Moderate the responses carefully.", system_instructions)
+        mock_process.assert_called_once()
+
+    @patch.object(Agent, 'process',
+                  side_effect=["Invalid response", "System Instructions: Review responses thoroughly."])
+    def test_generate_system_instructions_multiple_tries(self, mock_process):
+        """Test system instructions generation handles multiple tries"""
+        mod = Moderator()
+        task = "Test task for multiple tries"
+        model = "gpt-4o"
+        kwargs = {"temperature": 0.7}
+
+        system_instructions = mod.generate_system_instructions(task, model, kwargs)
+        self.assertEqual(system_instructions, "Review responses thoroughly.")
+        self.assertEqual(mock_process.call_count, 2)
+
+    @patch.object(Agent, 'process', side_effect=["Invalid response"] * 10)
+    def test_generate_system_instructions_max_tries_exceeded(self, mock_process):
+        """Test system instructions generation raises ValueError after max tries exceeded"""
+        mod = Moderator()
+        task = "Test task exceeding max tries"
+        model = "gpt-4o"
+        kwargs = {"temperature": 0.7}
+
+        with self.assertRaises(ValueError):
+            mod.generate_system_instructions(task, model, kwargs)
+        self.assertEqual(mock_process.call_count, 10)
 
     def test_moderator_kwargs(self):
         """Test setting kwargs for moderators results in valid response and are accurately passed to moderators"""

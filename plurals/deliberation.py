@@ -35,33 +35,74 @@ class Moderator(Agent):
             system_instructions: Optional[str] = None,
             combination_instructions: str = "default",
             model: str = "gpt-4o",
+            task: Optional[str] = None,
             kwargs: Optional[Dict] = None):
 
         if kwargs is None:
             kwargs = {}
 
         # Case 1: if both persona and system_instructions are provided, raise a ValueError
-        if persona and system_instructions:
+        if persona and system_instructions and system_instructions != 'auto':
             raise ValueError("Cannot provide both persona and system instructions")
 
-        # Case 2: if only persona is provided, use persona with dummy persona template ${persona}
+        # Case 2: if system_instructions is 'auto', generate system instructions using an LLM
+        if system_instructions == 'auto':
+            if not task:
+                raise ValueError("Task must be provided if system_instructions is set to 'auto'")
+            system_instructions = self.generate_system_instructions(task, model, kwargs)
+
+        # Case 3: if only persona is provided, use persona with dummy persona template ${persona}
         if persona and not system_instructions:
             persona_template = "${persona}"
             persona_value = DEFAULTS["moderator"]['persona'].get(persona, persona)
             super().__init__(persona=persona_value, persona_template=persona_template, model=model, kwargs=kwargs)
 
-        # Case 3: if only system_instructions is provided, set system_instructions and set persona and persona_template to None
+        # Case 4: if only system_instructions is provided, set system_instructions and set persona and persona_template to None
         elif system_instructions and not persona:
             super().__init__(system_instructions=system_instructions, persona=None, persona_template=None, model=model,
                              kwargs=kwargs)
 
-        # Case 4: if neither persona nor system_instructions are provided, use default persona
+        # Case 5: if neither persona nor system_instructions are provided, use default persona
         else:
             default_persona = DEFAULTS["moderator"]['persona'].get('default', 'default_moderator_persona')
             super().__init__(persona=default_persona, persona_template="${persona}", model=model, kwargs=kwargs)
 
         self.combination_instructions = DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions,
                                                                                               combination_instructions)
+
+    def generate_system_instructions(self, task: str, model: str, kwargs: Optional[Dict], max_tries: int = 10) -> str:
+        """
+        Generate system instructions using an LLM based on the task. We try 10 times to generate valid system
+        instructions and then give up.
+
+        Args:
+            task (str): The task description.
+            model (str): The model to use for generating system instructions.
+            kwargs (Optional[Dict]): Additional keyword arguments for the LLM query.
+            max_tries (int): The maximum number of attempts to generate valid system instructions.
+
+        Returns:
+            str: The generated system instructions.
+        """
+        for _ in range(max_tries):
+            prompt = (f"INSTRUCTIONS\nA moderator LLM will see responses for the following task: {task}. Generate "
+                      f"system instructions for the moderator to best aggregate these responses after all responses are "
+                      f"submitted. Return system instructions and nothing else. Instructions should be 50 words or "
+                      f"less and start with 'System Instructions':\n"
+                      f"System Instructions:")
+            try:
+                response = Agent(task=prompt, model=model, kwargs=kwargs).process()
+                # 1. check if the response starts with "System Instructions:" (case-insensitive and allows for spaces)
+                # 2. remove the "System Instructions:" part and any leading/trailing whitespace
+
+                if re.match(r"^\s*system\s+instructions\s*:\s*", response, re.IGNORECASE):
+                    system_instructions = re.sub(r"^\s*system\s+instructions\s*:\s*", "", response,
+                                                 flags=re.IGNORECASE).strip()
+                    return system_instructions
+            except Exception as e:
+                pass
+
+        raise ValueError("Failed to generate valid system instructions after max tries.")
 
     def _moderate_responses(self, responses: List[str], original_task: str) -> str:
         """
@@ -86,6 +127,7 @@ class Moderator(Agent):
             persona=self.persona
         )
         return self.process(previous_responses=combined_responses_str)
+
 
 
 class AbstractStructure(ABC):
