@@ -229,6 +229,12 @@ class TestAgent(unittest.TestCase):
 
 class TestModerator(unittest.TestCase):
 
+    def setUp(self):
+        self.task = "How should the US handle gun control? Answer in 100 words."
+        self.model = 'gpt-3.5-turbo'
+        self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
+
+
     def test_init_with_persona_and_system_instructions(self):
         with self.assertRaises(ValueError):
             Moderator(persona="some_persona", system_instructions="some_instructions")
@@ -249,7 +255,7 @@ class TestModerator(unittest.TestCase):
 
     def test_init_with_default(self):
         default_persona = DEFAULTS["moderator"]['persona'].get('default', 'default_moderator_persona')
-        mod = Moderator()
+        mod = Moderator(model=self.model)
         self.assertEqual(default_persona, mod.persona)
         self.assertEqual("${persona}", mod.persona_template)
 
@@ -258,7 +264,7 @@ class TestModerator(unittest.TestCase):
         """Test system instructions generation when set to auto"""
         mod = Moderator()
         task = "Test task for auto generation"
-        model = "gpt-4o"
+        model = "gpt-3.5-turbo"
         kwargs = {"temperature": 0.7}
 
         system_instructions = mod.generate_system_instructions(task, model, kwargs)
@@ -283,90 +289,88 @@ class TestModerator(unittest.TestCase):
         """Test system instructions generation raises ValueError after max tries exceeded"""
         mod = Moderator()
         task = "Test task exceeding max tries"
-        model = "gpt-4o"
-        kwargs = {"temperature": 0.7}
 
         with self.assertRaises(ValueError):
-            mod.generate_system_instructions(task, model, kwargs)
+            mod.generate_system_instructions(task, model=self.model, kwargs=self.kwargs)
         self.assertEqual(mock_process.call_count, 10)
 
     def test_moderator_kwargs(self):
         """Test setting kwargs for moderators results in valid response and are accurately passed to moderators"""
         kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
-        mod = Moderator(persona='default', model='gpt-3.5-turbo', kwargs=kwargs)
+        mod = Moderator(persona='default', model='gpt-3.5-turbo', kwargs=self.kwargs)
         self.assertEqual(kwargs, mod.kwargs)
 
-        def test_moderator_default(self):
-            """Test whether the moderator is properly initialized with default instructions"""
-            a2 = Agent(ideology='moderate', model=self.model)
-            a3 = Agent(ideology='liberal', model=self.model)
-            a4 = Agent(ideology='conservative', model=self.model)
-            mod = Moderator()
-            mixed = Chain([a2, a3, a4], task=self.task, moderator=mod)
-            mixed.process()
-            formatted_responses = mixed.responses[:-1]
+    def test_moderator_default(self):
+        """Test whether the moderator is properly initialized with default instructions"""
+        a2 = Agent(ideology='moderate', model=self.model)
+        a3 = Agent(ideology='liberal', model=self.model)
+        a4 = Agent(ideology='conservative', model=self.model)
+        mod = Moderator()
+        mixed = Chain([a2, a3, a4], task=self.task, moderator=mod)
+        mixed.process()
+        formatted_responses = mixed.responses[:-1]
 
-            expected_persona = SmartString(DEFAULTS['moderator']['persona']['default']).format(task=self.task)
-            expected_combination_instructions = SmartString(
-                DEFAULTS['moderator']['combination_instructions']['default']).format(
-                previous_responses=format_previous_responses(formatted_responses))
+        expected_persona = SmartString(DEFAULTS['moderator']['persona']['default']).format(task=self.task)
+        expected_combination_instructions = SmartString(
+            DEFAULTS['moderator']['combination_instructions']['default']).format(
+            previous_responses=format_previous_responses(formatted_responses))
 
-            # Assertions
-            self.assertIsNotNone(mixed.final_response)
-            self.assertEqual(expected_persona, mixed.moderator.persona)
-            self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
+        # Assertions
+        self.assertIsNotNone(mixed.final_response)
+        self.assertEqual(expected_persona, mixed.moderator.persona)
+        self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
 
-        def test_moderator_manual(self):
-            """Test manual moderator persona and combination instructions"""
-            a2 = Agent(ideology='moderate', model=self.model)
-            a3 = Agent(ideology='liberal', model=self.model)
-            a4 = Agent(ideology='conservative', model=self.model)
-            mod = Moderator(
-                persona="You are a conservative moderator overseeing a discussion about the following task: ${task}.",
-                combination_instructions="- Here are the previous responses: ${previous_responses}- Take only the most "
-                                         "conservative parts of what was previously said.")
-            mixed = Chain([a2, a3, a4], task=self.task, moderator=mod)
-            mixed.process()
-            formatted_responses = mixed.responses[:-1]
+    def test_moderator_manual(self):
+        """Test manual moderator persona and combination instructions"""
+        a2 = Agent(ideology='moderate', model=self.model)
+        a3 = Agent(ideology='liberal', model=self.model)
+        a4 = Agent(ideology='conservative', model=self.model)
+        mod = Moderator(
+            persona="You are a conservative moderator overseeing a discussion about the following task: ${task}.",
+            combination_instructions="- Here are the previous responses: ${previous_responses}- Take only the most "
+                                     "conservative parts of what was previously said.")
+        mixed = Chain([a2, a3, a4], task=self.task, moderator=mod)
+        mixed.process()
+        formatted_responses = mixed.responses[:-1]
 
-            expected_persona = SmartString(
-                "You are a conservative moderator overseeing a discussion about the following task: ${task}.").format(
-                task=self.task)
-            expected_combination_instructions = SmartString(
-                "- Here are the previous responses: ${previous_responses}- Take only the most "
-                "conservative parts of what was previously said.").format(
-                previous_responses=format_previous_responses(formatted_responses))
+        expected_persona = SmartString(
+            "You are a conservative moderator overseeing a discussion about the following task: ${task}.").format(
+            task=self.task)
+        expected_combination_instructions = SmartString(
+            "- Here are the previous responses: ${previous_responses}- Take only the most "
+            "conservative parts of what was previously said.").format(
+            previous_responses=format_previous_responses(formatted_responses))
 
-            # Assertions
-            self.assertIsNotNone(mixed.final_response)
-            self.assertEqual(expected_persona, mixed.moderator.persona)
-            self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
+        # Assertions
+        self.assertIsNotNone(mixed.final_response)
+        self.assertEqual(expected_persona, mixed.moderator.persona)
+        self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
 
-        def test_moderator_kwargs(self):
-            """Test setting kwargs for moderators results in valid response and are accurately passed to moderators"""
-            mod = Moderator(persona='default', model=self.model, kwargs=self.kwargs)
-            self.assertEqual(self.kwargs, mod.kwargs)
+    def test_moderator_kwargs(self):
+        """Test setting kwargs for moderators results in valid response and are accurately passed to moderators"""
+        mod = Moderator(persona='default', model=self.model, kwargs=self.kwargs)
+        self.assertEqual(self.kwargs, mod.kwargs)
 
-        def test_moderator_voting(self):
-            """Test moderator persona and combination instructions for voting"""
-            a2 = Agent(ideology='moderate', model=self.model)
-            a3 = Agent(ideology='liberal', model=self.model)
-            a4 = Agent(ideology='conservative', model=self.model)
-            mod = Moderator(persona='voting', combination_instructions='voting')
-            mixed = Ensemble([a2, a3, a4], task=self.task, moderator=mod)
-            mixed.process()
-            formatted_responses = mixed.responses[:-1]
+    def test_moderator_voting(self):
+        """Test moderator persona and combination instructions for voting"""
+        a2 = Agent(ideology='moderate', model=self.model)
+        a3 = Agent(ideology='liberal', model=self.model)
+        a4 = Agent(ideology='conservative', model=self.model)
+        mod = Moderator(persona='voting', combination_instructions='voting')
+        mixed = Ensemble([a2, a3, a4], task=self.task, moderator=mod)
+        mixed.process()
+        formatted_responses = mixed.responses[:-1]
 
-            expected_persona = SmartString(DEFAULTS['moderator']['persona']['voting']).format(task=self.task)
-            expected_combination_instructions = SmartString(
-                DEFAULTS['moderator']['combination_instructions']['voting']).format(
-                previous_responses=format_previous_responses(formatted_responses))
+        expected_persona = SmartString(DEFAULTS['moderator']['persona']['voting']).format(task=self.task)
+        expected_combination_instructions = SmartString(
+            DEFAULTS['moderator']['combination_instructions']['voting']).format(
+            previous_responses=format_previous_responses(formatted_responses))
 
-            # Assertions
-            self.maxDiff = None
-            self.assertIsNotNone(mixed.final_response)
-            self.assertEqual(expected_persona, mixed.moderator.persona)
-            self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
+        # Assertions
+        self.maxDiff = None
+        self.assertIsNotNone(mixed.final_response)
+        self.assertEqual(expected_persona, mixed.moderator.persona)
+        self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
 
 
 class TestSmartString(unittest.TestCase):
