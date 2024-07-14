@@ -332,7 +332,8 @@ task independently through async requests.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>persona</strong> (<em>str</em><em>, </em><em>optional</em>) – The persona of the moderator. Default is ‘default’.</p></li>
-<li><p><strong>system_instructions</strong> (<em>str</em><em>, </em><em>optional</em>) – The system instructions for the moderator. Default is None.</p></li>
+<li><p><strong>system_instructions</strong> (<em>str</em><em>, </em><em>optional</em>) – The system instructions for the moderator. Default is None. If you pass in
+‘auto’, an LLM will generate its own system instructions automatically based on the task.</p></li>
 <li><p><strong>combination_instructions</strong> (<em>str</em><em>, </em><em>optional</em>) – The instructions for combining responses. Default is ‘default’.</p></li>
 <li><p><strong>model</strong> (<em>str</em><em>, </em><em>optional</em>) – The model to use for the moderator. Default is ‘gpt-4o’.</p></li>
 <li><p><strong>task</strong> (<em>str</em><em>, </em><em>optional</em>) – The task description for the moderator. By default, moderators will inherit the task
