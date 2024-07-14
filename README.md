@@ -857,7 +857,3 @@ Moderator's history:
              'citizens.'}
 ```
 
-# Changelog
-## 0.2.6
-- Added support for AutoModerators
-- Improved template formatting
