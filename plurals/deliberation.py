@@ -20,13 +20,16 @@ class Moderator(Agent):
         system_instructions (str, optional): The system instructions for the moderator. Default is None.
         combination_instructions (str, optional): The instructions for combining responses. Default is 'default'.
         model (str, optional): The model to use for the moderator. Default is 'gpt-4o'.
+        task (str, optional): The task description for the moderator. By default, moderators will inherit the task
+            from the Structure so this can be left blank. It is only required if you wish to manually generate system
+            instructions outside of the Structure.
         kwargs (Optional[Dict]): Additional keyword arguments. These are from LiteLLM's completion function.
             (see here: https://litellm.vercel.app/docs/completion/input)
 
     Attributes:
         persona (str): The persona of the moderator.
-        system_instructions (str): For a Moderator, system instructions are just the persona.
         combination_instructions (str): The instructions for combining responses.
+        system_instructions (str): The full system instructions for the moderator.
     """
 
     def __init__(
@@ -41,15 +44,16 @@ class Moderator(Agent):
         if kwargs is None:
             kwargs = {}
 
+
         # Case 1: if both persona and system_instructions are provided, raise a ValueError
         if persona and system_instructions and system_instructions != 'auto':
             raise ValueError("Cannot provide both persona and system instructions")
 
         # Case 2: if system_instructions is 'auto', generate system instructions using an LLM
         if system_instructions == 'auto':
-            if not task:
-                raise ValueError("Task must be provided if system_instructions is set to 'auto'")
-            system_instructions = self.generate_system_instructions(task, model, kwargs)
+            self.model = model
+            self.kwargs = kwargs
+            system_instructions = self.generate_system_instructions(task)
 
         # Case 3: if only persona is provided, use persona with dummy persona template ${persona}
         if persona and not system_instructions:
@@ -70,7 +74,7 @@ class Moderator(Agent):
         self.combination_instructions = DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions,
                                                                                               combination_instructions)
 
-    def generate_system_instructions(self, task: str, model: str, kwargs: Optional[Dict], max_tries: int = 10) -> str:
+    def generate_system_instructions(self, task: str,max_tries: int = 10) -> str:
         """
         Generate system instructions using an LLM based on the task. We try 10 times to generate valid system
         instructions and then give up.
@@ -84,6 +88,8 @@ class Moderator(Agent):
         Returns:
             str: The generated system instructions.
         """
+
+
         for _ in range(max_tries):
             prompt = (f"INSTRUCTIONS\nA moderator LLM will see responses for the following task: {task}. Generate "
                       f"system instructions for the moderator to best aggregate these responses after all responses are "
@@ -91,16 +97,15 @@ class Moderator(Agent):
                       f"less and start with 'System Instructions':\n"
                       f"System Instructions:")
             try:
-                response = Agent(task=prompt, model=model, kwargs=kwargs).process()
-                # 1. check if the response starts with "System Instructions:" (case-insensitive and allows for spaces)
-                # 2. remove the "System Instructions:" part and any leading/trailing whitespace
-
+                response = Agent(task=prompt, model=self.model, kwargs=self.kwargs).process()
+                # Check if the response starts with "System Instructions:" (case-insensitive and allows for spaces)
+                # Remove the "System Instructions:" part and any leading/trailing whitespace
                 if re.match(r"^\s*system\s+instructions\s*:\s*", response, re.IGNORECASE):
                     system_instructions = re.sub(r"^\s*system\s+instructions\s*:\s*", "", response,
                                                  flags=re.IGNORECASE).strip()
                     return system_instructions
             except Exception as e:
-                pass
+                print(f"Attempt failed with error: {e}")
 
         raise ValueError("Failed to generate valid system instructions after max tries.")
 
@@ -201,10 +206,13 @@ class AbstractStructure(ABC):
         # If we have a moderator we assign a task description and then we
         # populate the templates
         if self.moderator:
+            if self.moderator.system_instructions == 'auto':
+                self.moderator.system_instructions = self.moderator.generate_system_instructions(
+                    self.task)
             self.moderator.task_description = self.task
             self.moderator.persona = SmartString(
                 self.moderator.persona).format(
-                task=self.task)
+                task=self.task) if self.moderator.persona else None
 
         if shuffle:
             self.agents = random.sample(self.agents, len(self.agents))
