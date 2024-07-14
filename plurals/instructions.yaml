@@ -89,18 +89,18 @@ moderator:
 
   combination_instructions:
     default: |
-      - Here are the previous responses: 
+      Here are the previous responses: 
       <start>
       ${previous_responses}
       <end>
       - Take the best parts of what was previously said.
     voting: |
-      - Incorporate the best parts of what others said to arrive at at a definite conclusion. Do so by aggregating previous responses: 
+      Incorporate the best parts of what others said to arrive at at a definite conclusion. Do so by aggregating previous responses: 
       <start>
       ${previous_responses}
       <end>
     rational: |
-      -Here are the previous responses: 
+      Here are the previous responses: 
       <start>
       ${previous_responses}
       <end>
@@ -109,7 +109,7 @@ moderator:
       -Give more weight to factual and rational arguments rather than emotional ones.
       -Aim to achieve the common good, mutual respect, and a rationally motivated consensus to which all could agree.
     empathetic: |
-      -Here are the previous responses: 
+      Here are the previous responses: 
       <start>
       ${previous_responses}
       <end>
