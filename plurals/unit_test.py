@@ -294,6 +294,24 @@ class TestModerator(unittest.TestCase):
             mod.generate_system_instructions(task, model=self.model, kwargs=self.kwargs)
         self.assertEqual(mock_process.call_count, 10)
 
+    @patch.object(Agent, 'process', return_value="System Instructions: Combine responses coherently.")
+    def test_moderator_generate_system_instructions_in_structure(self, mock_process):
+        """Test that the system instructions are generated properly in a structure"""
+        # Define agents
+        agent1 = Agent(ideology='moderate', model=self.model)
+        agent2 = Agent(ideology='liberal', model=self.model)
+
+        # Define moderator with system_instructions set to 'auto'
+        moderator = Moderator(system_instructions='auto', model=self.model, kwargs=self.kwargs)
+
+        # Define Chain structure with agents and moderator
+        chain = Chain(agents=[agent1, agent2], task=self.task, moderator=moderator)
+
+        # Assertions
+        self.assertEqual("Combine responses coherently.", chain.moderator.system_instructions)
+        self.assertIsNone(chain.moderator.persona)
+        self.assertIsNone(chain.moderator.persona_template)
+
     def test_moderator_kwargs(self):
         """Test setting kwargs for moderators results in valid response and are accurately passed to moderators"""
         kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
