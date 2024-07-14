@@ -17,7 +17,8 @@ class Moderator(Agent):
 
     Args:
         persona (str, optional): The persona of the moderator. Default is 'default'.
-        system_instructions (str, optional): The system instructions for the moderator. Default is None.
+        system_instructions (str, optional): The system instructions for the moderator. Default is None. If you pass in
+            'auto', an LLM will generate its own system instructions automatically based on the task.
         combination_instructions (str, optional): The instructions for combining responses. Default is 'default'.
         model (str, optional): The model to use for the moderator. Default is 'gpt-4o'.
         task (str, optional): The task description for the moderator. By default, moderators will inherit the task
