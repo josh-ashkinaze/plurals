@@ -1,4 +1,5 @@
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union, Tuple
+
 import random
 import warnings
 from plurals.agent import Agent
@@ -232,6 +233,15 @@ class AbstractStructure(ABC):
         }
         return result
 
+    @property
+    def final_response(self):
+        """Returns final response"""
+        if not self.responses:
+            warnings.warn(
+                "The structure has not been processed yet so there are no responses.")
+        else:
+            return self.responses[-1]
+
     @abstractmethod
     def process(self) -> None:
         """
@@ -401,5 +411,89 @@ class Debate(AbstractStructure):
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(
                 self.responses, original_task)
+            self.responses.append(moderated_response)
+        self.final_response = self.responses[-1]
+
+
+class Graph(AbstractStructure):
+    """
+    A graph structure for processing tasks through a group of agents. In a graph,
+    each agent initially produces an answer in isolation. Then, through the edges of the graph,
+    each agent can see the answers of other agents and produce further responses.
+
+    Args:
+        agents (List[Agent]): A list of agents to include in the structure.
+        edges (Union[List[Tuple[int, int]], List[List[Agent]]]): A list of directed edges defining the connections between agents.
+        task (Optional[str]): The task description for the agents to process.
+        cycles (int): The number of times to process the task.
+        combination_instructions (Optional[str]): The instructions for combining responses.
+        moderator (Optional[Moderator]): A moderator to moderate the responses.
+    """
+
+    def __init__(
+            self,
+            agents: List[Agent],
+            edges: Union[List[Tuple[int, int]], List[List[Agent]]],
+            task: Optional[str] = None,
+            cycles: int = 1,
+            combination_instructions: Optional[str] = "default",
+            moderator: Optional[Moderator] = None):
+        super().__init__(
+            agents,
+            task,
+            shuffle=False,
+            cycles=cycles,
+            last_n=1,
+            combination_instructions=combination_instructions,
+            moderator=moderator)
+        self.edges = edges
+        self.adjacency_list = self._build_adjacency_list(edges)
+
+    def _build_adjacency_list(self, edges: Union[List[Tuple[int, int]], List[List[Agent]]]) -> Dict[int, List[int]]:
+        """
+        Build an adjacency list from a list of directed edges.
+
+        Args:
+            edges (Union[List[Tuple[int, int]], List[List[Agent]]]): List of directed edges defining the connections between agents.
+
+        Returns:
+            Dict[int, List[int]]: Adjacency list representing the graph.
+        """
+        adjacency_list = {i: [] for i in range(len(self.agents))}
+        if all(isinstance(edge, tuple) for edge in edges):
+            for (src, dest) in edges:
+                adjacency_list[dest].append(src)  # Directed edge from src to dest
+        elif all(isinstance(edge, list) for edge in edges):
+            agent_to_index = {agent: idx for idx, agent in enumerate(self.agents)}
+            for edge in edges:
+                src, dest = agent_to_index[edge[0]], agent_to_index[edge[1]]
+                adjacency_list[dest].append(src)  # Directed edge from src to dest
+        else:
+            raise ValueError("Edges must be a list of tuples or a list of lists of agents.")
+        return adjacency_list
+
+    def process(self):
+        """
+        Process the task through a graph of agents. Initially, each agent produces an answer in isolation.
+        Then, each agent can see the answers of other agents based on the adjacency list.
+        """
+        initial_responses = [agent.process(previous_responses="") for agent in self.agents]
+
+        self.responses = initial_responses.copy()
+
+        for _ in range(self.cycles):
+            new_responses = initial_responses.copy()
+            for i, agent in enumerate(self.agents):
+                neighbors = self.adjacency_list[i]
+                previous_responses = [self.responses[j] for j in neighbors]
+                previous_responses_str = format_previous_responses(previous_responses)
+                response = agent.process(previous_responses=previous_responses_str)
+                new_responses[i] = response
+            self.responses.extend(new_responses)
+            initial_responses = new_responses
+
+        if self.moderated and self.moderator:
+            original_task = self.agents[0].original_task_description
+            moderated_response = self.moderator._moderate_responses(self.responses, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
