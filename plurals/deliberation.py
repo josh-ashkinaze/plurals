@@ -74,21 +74,21 @@ class Moderator(Agent):
         self.combination_instructions = DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions,
                                                                                               combination_instructions)
 
-    def generate_system_instructions(self, task: str,max_tries: int = 10) -> str:
+    def generate_system_instructions(self, task: str, max_tries: int = 10) -> str:
         """
-        Generate system instructions using an LLM based on the task. We try 10 times to generate valid system
+        Generate system instructions using an LLM based on the task. We try multiple times to generate valid system
         instructions and then give up.
 
         Args:
-            task (str): The task description.
-            model (str): The model to use for generating system instructions.
-            kwargs (Optional[Dict]): Additional keyword arguments for the LLM query.
-            max_tries (int): The maximum number of attempts to generate valid system instructions.
+            task (str): The task description for which system instructions need to be generated.
+            max_tries (int, optional): The maximum number of attempts to generate valid system instructions. Default is 10.
 
         Returns:
             str: The generated system instructions.
-        """
 
+        Raises:
+            ValueError: If valid system instructions are not generated after the maximum number of attempts.
+        """
 
         for _ in range(max_tries):
             prompt = (f"INSTRUCTIONS\nA moderator LLM will see responses for the following task: {task}. Generate "
@@ -109,6 +109,23 @@ class Moderator(Agent):
 
         raise ValueError("Failed to generate valid system instructions after max tries.")
 
+    def generate_and_set_system_instructions(self, task: str, max_tries: int = 10) -> None:
+        """
+        Generate and set system instructions.
+
+        Args:
+            task (str): The task description.
+            max_tries (int): The maximum number of attempts to generate valid system instructions.
+
+        Returns:
+            System instructions for the moderator.
+
+        Sets:
+            system_instructions (str): The system instructions for the moderator.
+        """
+        self.system_instructions = self.generate_system_instructions(task, max_tries)
+        return self.system_instructions
+
     def _moderate_responses(self, responses: List[str], original_task: str) -> str:
         """
         Combine responses using the moderator persona and instructions.
@@ -118,7 +135,7 @@ class Moderator(Agent):
             original_task (str): The original task description provided to the agents.
 
         Returns:
-            str: A combined response based on the moderator's instructions and persona.
+            str: A combined response based on the moderator's instructions
         """
         combined_responses_str = format_previous_responses(responses)
         self.combination_instructions = SmartString(self.combination_instructions).format(

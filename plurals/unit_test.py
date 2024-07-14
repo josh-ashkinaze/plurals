@@ -1,6 +1,4 @@
 import unittest
-from unittest.mock import MagicMock
-
 from plurals.agent import Agent
 from plurals.deliberation import Chain, Moderator, Ensemble, Debate
 from plurals.helpers import load_yaml, format_previous_responses, SmartString
@@ -230,10 +228,9 @@ class TestAgent(unittest.TestCase):
 class TestModerator(unittest.TestCase):
 
     def setUp(self):
-        self.task = "How should the US handle gun control? Answer in 100 words."
+        self.task = "How should the US handle gun control? Answer in 10 words."
         self.model = 'gpt-3.5-turbo'
         self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
-
 
     def test_init_with_persona_and_system_instructions(self):
         with self.assertRaises(ValueError):
@@ -262,12 +259,8 @@ class TestModerator(unittest.TestCase):
     @patch.object(Agent, 'process', return_value="System Instructions: Moderate the responses carefully.")
     def test_generate_system_instructions(self, mock_process):
         """Test system instructions generation when set to auto"""
-        mod = Moderator()
-        task = "Test task for auto generation"
-        model = "gpt-3.5-turbo"
-        kwargs = {"temperature": 0.7}
-
-        system_instructions = mod.generate_system_instructions(task, model, kwargs)
+        mod = Moderator(model=self.model, kwargs=self.kwargs)
+        system_instructions = mod.generate_system_instructions(self.task)
         self.assertEqual("Moderate the responses carefully.", system_instructions)
         mock_process.assert_called_once()
 
@@ -275,39 +268,44 @@ class TestModerator(unittest.TestCase):
                   side_effect=["Invalid response", "System Instructions: Review responses thoroughly."])
     def test_generate_system_instructions_multiple_tries(self, mock_process):
         """Test system instructions generation handles multiple tries"""
-        mod = Moderator()
-        task = "Test task for multiple tries"
-        model = "gpt-4o"
-        kwargs = {"temperature": 0.7}
-
-        system_instructions = mod.generate_system_instructions(task, model, kwargs)
+        mod = Moderator(system_instructions='auto', model=self.model, kwargs=self.kwargs)
+        system_instructions = mod.system_instructions
         self.assertEqual(system_instructions, "Review responses thoroughly.")
         self.assertEqual(mock_process.call_count, 2)
 
     @patch.object(Agent, 'process', side_effect=["Invalid response"] * 10)
     def test_generate_system_instructions_max_tries_exceeded(self, mock_process):
         """Test system instructions generation raises ValueError after max tries exceeded"""
-        mod = Moderator()
+        mod = Moderator(model=self.model, kwargs=self.kwargs)
+
         task = "Test task exceeding max tries"
 
         with self.assertRaises(ValueError):
-            mod.generate_system_instructions(task, model=self.model, kwargs=self.kwargs)
+            mod.generate_system_instructions(task)
         self.assertEqual(mock_process.call_count, 10)
+
+    @patch.object(Agent, 'process', return_value="System Instructions: Synthesize the responses effectively.")
+    def test_generate_and_set_system_instructions(self, mock_process):
+        """Test generate_and_set_system_instructions method"""
+        mod = Moderator(model=self.model, kwargs=self.kwargs)
+        mod.generate_and_set_system_instructions(self.task)
+        self.assertEqual("Synthesize the responses effectively.", mod.system_instructions)
+        mock_process.assert_called_once()
 
     @patch.object(Agent, 'process', return_value="System Instructions: Combine responses coherently.")
     def test_moderator_generate_system_instructions_in_structure(self, mock_process):
-        """Test that the system instructions are generated properly in a structure"""
-        # Define agents
+        """
+        Test that the system instructions are generated properly in a structure when AutoModerated.
+
+        The desired behavior is that the task from the Structure is passed to moderator.generate_system_instructions.
+        """
         agent1 = Agent(ideology='moderate', model=self.model)
         agent2 = Agent(ideology='liberal', model=self.model)
 
-        # Define moderator with system_instructions set to 'auto'
         moderator = Moderator(system_instructions='auto', model=self.model, kwargs=self.kwargs)
 
-        # Define Chain structure with agents and moderator
         chain = Chain(agents=[agent1, agent2], task=self.task, moderator=moderator)
 
-        # Assertions
         self.assertEqual("Combine responses coherently.", chain.moderator.system_instructions)
         self.assertIsNone(chain.moderator.persona)
         self.assertIsNone(chain.moderator.persona_template)
