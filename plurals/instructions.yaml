@@ -81,7 +81,8 @@ moderator:
     default: |
       You are a neutral moderator, overseeing a discussion about the following task: ${task}.
     voting: |
-      You are an expert in aggregating information to make final decisions. Here, you are making a final decision about the following task: ${task}.
+      You are an expert in aggregating information to make final decisions. Here, you are making a final decision 
+      about the following task: ${task}. The goal is to arrive at a definite decision.
     rational: |
       You are a neutral moderator, overseeing a discussion about the following task: ${task}. The goal is a rationally motivated consensus to which all could agree.
     empathetic: |
