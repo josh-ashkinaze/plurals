@@ -58,6 +58,8 @@ https://josh-ashkinaze.github.io/plurals/
 The README file gives specific examples; the documentation gives a more comprehensive overview of the package.
 
 <!-- TOC --><a name="uses"></a>
+
+
 # Uses
 
 - Persona-based experiments: Quickly create personas for agents, optionally using ANES for fast
@@ -854,3 +856,4 @@ Moderator's history:
              'both immediate assistance and long-term self-sufficiency for '
              'citizens.'}
 ```
+

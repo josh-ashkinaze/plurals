@@ -16,41 +16,122 @@ class Moderator(Agent):
     A moderator agent that combines responses from other agents at the end of structure processing.
 
     Args:
-        persona (str): The persona of the moderator. View `instructions.yaml` YAML file for templates.
-        combination_instructions (str): The instructions for combining responses. View `instructions.yaml` YAML file
-        for templates.
-        model (str): The model to use for the moderator.
-        kwargs (Optional[Dict]): Additional keyword arguments. These are from LiteLLM's completion function. (see here:
-        https://litellm.vercel.app/docs/completion/input)
+        persona (str, optional): The persona of the moderator. Default is 'default'.
+        system_instructions (str, optional): The system instructions for the moderator. Default is None. If you pass in
+            'auto', an LLM will generate its own system instructions automatically based on the task.
+        combination_instructions (str, optional): The instructions for combining responses. Default is 'default'.
+        model (str, optional): The model to use for the moderator. Default is 'gpt-4o'.
+        task (str, optional): The task description for the moderator. By default, moderators will inherit the task
+            from the Structure so this can be left blank. It is only required if you wish to manually generate system
+            instructions outside of the Structure.
+        kwargs (Optional[Dict]): Additional keyword arguments. These are from LiteLLM's completion function.
+            (see here: https://litellm.vercel.app/docs/completion/input)
 
     Attributes:
+        persona (str): The persona of the moderator.
         combination_instructions (str): The instructions for combining responses.
-        system_instructions (str): For a Moderator, system instructions are just the persona.
+        system_instructions (str): The full system instructions for the moderator.
     """
 
     def __init__(
             self,
-            persona: str = 'default',
+            persona: Optional[str] = None,
+            system_instructions: Optional[str] = None,
             combination_instructions: str = "default",
             model: str = "gpt-4o",
-            kwargs=None):
-        super().__init__(
-            task="",
-            model=model,
-            persona=DEFAULTS["moderator"]['persona'].get(
-                persona,
-                persona),
-            persona_template="${persona}",
-            kwargs=kwargs)
+            task: Optional[str] = None,
+            kwargs: Optional[Dict] = None):
 
-        self.combination_instructions = (
-            DEFAULTS["moderator"]['combination_instructions'].get(
-                combination_instructions, combination_instructions))
+        if kwargs is None:
+            kwargs = {}
 
-    def _moderate_responses(
-            self,
-            responses: List[str],
-            original_task: str) -> str:
+
+        # Case 1: if both persona and system_instructions are provided, raise a ValueError
+        if persona and system_instructions and system_instructions != 'auto':
+            raise ValueError("Cannot provide both persona and system instructions")
+
+        # Case 2: if system_instructions is 'auto', generate system instructions using an LLM
+        if system_instructions == 'auto':
+            self.model = model
+            self.kwargs = kwargs
+            system_instructions = self.generate_system_instructions(task)
+
+        # Case 3: if only persona is provided, use persona with dummy persona template ${persona}
+        if persona and not system_instructions:
+            persona_template = "${persona}"
+            persona_value = DEFAULTS["moderator"]['persona'].get(persona, persona)
+            super().__init__(persona=persona_value, persona_template=persona_template, model=model, kwargs=kwargs)
+
+        # Case 4: if only system_instructions is provided, set system_instructions and set persona and persona_template to None
+        elif system_instructions and not persona:
+            super().__init__(system_instructions=system_instructions, persona=None, persona_template=None, model=model,
+                             kwargs=kwargs)
+
+        # Case 5: if neither persona nor system_instructions are provided, use default persona
+        else:
+            default_persona = DEFAULTS["moderator"]['persona'].get('default', 'default_moderator_persona')
+            super().__init__(persona=default_persona, persona_template="${persona}", model=model, kwargs=kwargs)
+
+        self.combination_instructions = DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions,
+                                                                                              combination_instructions)
+
+    def generate_system_instructions(self, task: str, max_tries: int = 10) -> str:
+        """
+        Generate and instructions using an LLM and a task. This function will not automatically set the system
+        instructions, but it will return the generated system instructions (so you can inspect or re-generate them).
+        Then you can set system instructions using the `system_instructions` attribute.
+
+        See `generate_and_set_system_instructions` for a function that will generate and set the system instructions.
+
+        Args:
+            task (str): The task description for which system instructions need to be generated.
+            max_tries (int, optional): The maximum number of attempts to generate valid system instructions. Default is 10.
+
+        Returns:
+            str: The generated system instructions.
+
+        Raises:
+            ValueError: If valid system instructions are not generated after the maximum number of attempts.
+        """
+
+        for _ in range(max_tries):
+            prompt = (f"INSTRUCTIONS\nA moderator LLM will see responses for the following task: {task}. Generate "
+                      f"system instructions for the moderator to best aggregate these responses after all responses are "
+                      f"submitted. Return system instructions and nothing else. Instructions should be 50 words or "
+                      f"less and start with 'System Instructions':\n"
+                      f"System Instructions:")
+            try:
+                response = Agent(task=prompt, model=self.model, kwargs=self.kwargs).process()
+                # Check if the response starts with "System Instructions:" (case-insensitive and allows for spaces)
+                # Remove the "System Instructions:" part and any leading/trailing whitespace
+                if re.match(r"^\s*system\s+instructions\s*:\s*", response, re.IGNORECASE):
+                    system_instructions = re.sub(r"^\s*system\s+instructions\s*:\s*", "", response,
+                                                 flags=re.IGNORECASE).strip()
+                    return system_instructions
+            except Exception as e:
+                print(f"Attempt failed with error: {e}")
+
+        raise ValueError("Failed to generate valid system instructions after max tries.")
+
+    def generate_and_set_system_instructions(self, task: str, max_tries: int = 10) -> None:
+        """
+        Generate and set system instructions using an LLM and a task. This function will generate the system
+        instructions and also set it as the system instructions for the moderator.
+
+        Args:
+            task (str): The task description.
+            max_tries (int, optional): The maximum number of attempts to generate valid system instructions. Default is 10.
+
+        Returns:
+            System instructions for the moderator.
+
+        Sets:
+            system_instructions (str): The system instructions for the moderator.
+        """
+        self.system_instructions = self.generate_system_instructions(task, max_tries)
+        return self.system_instructions
+
+    def _moderate_responses(self, responses: List[str], original_task: str) -> str:
         """
         Combine responses using the moderator persona and instructions.
 
@@ -59,20 +140,21 @@ class Moderator(Agent):
             original_task (str): The original task description provided to the agents.
 
         Returns:
-            str: A combined response based on the moderator's instructions and persona.
+            str: A combined response based on the moderator's instructions
         """
         combined_responses_str = format_previous_responses(responses)
-        self.combination_instructions = SmartString(
-            self.combination_instructions).format(
+        self.combination_instructions = SmartString(self.combination_instructions).format(
             previous_responses=combined_responses_str,
             task=original_task,
-            avoid_double_period=True)
-        self.system_instructions = SmartString(
-            self.system_instructions).format(
+            avoid_double_period=True
+        )
+        self.system_instructions = SmartString(self.system_instructions).format(
             task=original_task,
             previous_responses=combined_responses_str,
-            persona=self.persona)
+            persona=self.persona
+        )
         return self.process(previous_responses=combined_responses_str)
+
 
 
 class AbstractStructure(ABC):
@@ -113,15 +195,31 @@ class AbstractStructure(ABC):
             last_n: int = 1,
             combination_instructions: Optional[str] = "default",
             moderator: Optional[Moderator] = None):
+
+
         self.defaults = DEFAULTS
         self.task = task
+
+        if not agents:
+            raise ValueError("Agent list cannot be empty.")
         self.agents = agents
+
         self.combination_instructions = combination_instructions
         self._set_combination_instructions()
         self._set_task_descriptions()
+
+        if not isinstance(shuffle, bool):
+            raise ValueError("Shuffle must be a boolean.")
         self.shuffle = shuffle
-        self.last_n = last_n
+
+        if not isinstance(cycles, int) or cycles < 1:
+            raise ValueError("Cycles must be a positive integer.")
         self.cycles = cycles
+
+        if not isinstance(last_n, int) or last_n < 1:
+            raise ValueError("Last_n must be a positive integer.")
+        self.last_n = last_n
+
         self.responses = []
         self.final_response = None
         self.moderator = moderator
@@ -130,10 +228,13 @@ class AbstractStructure(ABC):
         # If we have a moderator we assign a task description and then we
         # populate the templates
         if self.moderator:
+            if self.moderator.system_instructions == 'auto':
+                self.moderator.system_instructions = self.moderator.generate_system_instructions(
+                    self.task)
             self.moderator.task_description = self.task
             self.moderator.persona = SmartString(
                 self.moderator.persona).format(
-                task=self.task)
+                task=self.task) if self.moderator.persona else None
 
         if shuffle:
             self.agents = random.sample(self.agents, len(self.agents))
@@ -187,8 +288,8 @@ class AbstractStructure(ABC):
         Return information about the structure and its agents.
         """
         if not self.final_response:
-            raise ValueError(
-                "The structure has not been processed yet. Call the process method first.")
+            warnings.warn(
+                "The structure has not been processed yet so there are no responses.")
         result = {
             "structure_information": {
                 "final_response": self.final_response,
@@ -210,8 +311,13 @@ class AbstractStructure(ABC):
         """
         raise NotImplementedError(
             "This method must be implemented in a subclass")
+    def __repr__(self):
+        return str(self.info)
 
 
+# Concrete Structures
+#########################################################################
+#########################################################################
 class Chain(AbstractStructure):
     """
     A chain structure for processing tasks through a sequence of agents. In a chain,
@@ -334,7 +440,7 @@ class Debate(AbstractStructure):
         # the other agent's response.
         #
         # This structure (of storing seperate lists) is useful since we need to return an agent's history of what
-        # they saw, but there may be a more way to achieve this functionality.
+        # they saw, but there may be a more elegant way to do this.
 
         previous_responses_agent1 = []
         previous_responses_agent2 = []
