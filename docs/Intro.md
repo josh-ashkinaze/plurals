@@ -96,10 +96,9 @@ Banning assault rifles won't solve the problem. It's about enforcing existing
 laws and focusing on mental health. Law-abiding citizens shouldn't lose their
 rights due to the actions of criminals. Solutions should target the root causes
 of violence, not just the tools.
-
 ```
 
-We can get all the info for an agent by simply printing `print(conservative_agent.info)`. 
+We can get all the info for an agent by simply printing `print(conservative_agent.info)`. And we can get all the exact prompts and agent used within `conservative_agent.info['history']` or just calling `conservative_agent.history`. 
 
 
 
