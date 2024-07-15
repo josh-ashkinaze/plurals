@@ -12,50 +12,37 @@ def print_anes_mapping():
     Prints the values of ANES mapping in a human-readable format.
 
     The purpose of this function is that in some cases users will want to conduct their own query on the ANES
-    dataset, but it is difficult to know what the values are without consulting a codebook. We also recode certain
-    values. So here we print the values of the ANES mapping in a neat/clean/human-readable way for consumer.
+    dataset, but it is difficult to know what the values are without consulting a codebook.
 
-    Note: Whenever we print `recode values` this means that we have recoded the values from the original dataset to
-    use in persona strings. For example, for `child18`, the question was whether the participant has children under
-    18 living in their household. For persona processing, we changed `Yes` and `No` to `do have children under 18
-    living in your household` and `do not have children under 18 living in your household`---though to
-    search ANES you'd use the original values. of `Yes` and `No`.
+    Note that when generating personas we recode certain values but you should use original
+    values for filtering data, as they are printed here.
+
+    Here are the cases we recode values:
+
+    - `child18` asks participants if they have children under 18 living in their household. We recode `Yes` to `do have
+    children under 18 living in your household` and `No` to `do not have children under 18 living in your household`.
+
+    - Several questions have multiple choice options (A,B, C) and then an `Other` option. We recode `Other`
+    as `neither A nor B nor C` to be more explicit.
+
     """
     mapping = load_yaml('anes-mapping.yaml')
     df = pd.read_csv(pkg_resources.resource_filename(
         __name__, 'data/anes_pilot_2024_20240319.csv'))
     for key in mapping.keys():
         details = mapping[key]
-        clean_name = details.get('name', '')
-        var_name = details.get('clean_var', '')
 
         print(f"ANES Variable Name: {key}")
 
-        # Handle recode_vals
-        recode_vals = details.get('recode_vals', {})
-        recode_keys = set(recode_vals.keys())
-        if recode_vals:
-            print(f"{clean_name} (recode values):")
-            for val_key, val in recode_vals.items():
-                print(f"  {val_key}: {val}")
-
-        # Skip printing bad_vals
         bad_vals = details.get('bad_vals', set())
 
         # Print the main values from the DataFrame, excluding those that are
-        # recode values
-        print(f"Persona string: `{clean_name}`:")
+        # in bad_vals
         if key in df.columns:
             values = df[key].unique()
-
-            # If it's the case that all values are recoded don't double print
-            if df[key].nunique() <= len(recode_keys):
-                pass
-            else:
-                for val in values:
-                    if str(val) not in bad_vals and str(
-                            val) not in recode_keys:
-                        print(f"  {val}")
+            for val in values:
+                if str(val) not in bad_vals and str(val) != "nan":
+                    print(f"{val}")
         print()
 
 
