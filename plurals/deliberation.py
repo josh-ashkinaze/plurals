@@ -77,8 +77,11 @@ class Moderator(Agent):
 
     def generate_system_instructions(self, task: str, max_tries: int = 10) -> str:
         """
-        Generate system instructions using an LLM based on the task. We try multiple times to generate valid system
-        instructions and then give up.
+        Generate and instructions using an LLM and a task. This function will not automatically set the system
+        instructions, but it will return the generated system instructions (so you can inspect or re-generate them).
+        Then you can set system instructions using the `system_instructions` attribute.
+
+        See `generate_and_set_system_instructions` for a function that will generate and set the system instructions.
 
         Args:
             task (str): The task description for which system instructions need to be generated.
@@ -112,11 +115,12 @@ class Moderator(Agent):
 
     def generate_and_set_system_instructions(self, task: str, max_tries: int = 10) -> None:
         """
-        Generate and set system instructions.
+        Generate and set system instructions using an LLM and a task. This function will generate the system
+        instructions and also set it as the system instructions for the moderator.
 
         Args:
             task (str): The task description.
-            max_tries (int): The maximum number of attempts to generate valid system instructions.
+            max_tries (int, optional): The maximum number of attempts to generate valid system instructions. Default is 10.
 
         Returns:
             System instructions for the moderator.
