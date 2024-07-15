@@ -33,8 +33,8 @@ Plurals consists of three core abstractions (Figure 1):
         - Direction of information sharing (i.e: is it directed or undirected).
         - Amount of information-sharing.
         - Example: In an `Ensemble`, no information is shared and Agents process requests in parallel whereas in a `Chain`, agents each build upon each other's answers.
-        - Users can create in-between structures. Our system supports a `$last_n$` parameter that dictates how much information an agent sees from the current deliberation stack. Setting `$last_n$` to 1 would result in a Markov-esque chain.
-        - Users can also control `$cycles$` of a structure, which is how many times the sequence is run and whether to `$shuffle$` the ordering of agents on each cycle.
+        - Users can create in-between structures. Our system supports a `last_n` parameter that dictates how much information an agent sees from the current deliberation stack. Setting `last_n` to 1 would result in a Markov-esque chain.
+        - Users can also control `cycles` of a structure, which is how many times the sequence is run and whether to `shuffle` the ordering of agents on each cycle.
     - **Combination instructions:** 
         - How agents are instructed to combine information in the structure.
         - Interactions can be adversarial or amicable.
