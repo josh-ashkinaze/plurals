@@ -164,13 +164,18 @@ relative to this script’s location.</p>
 <span class="sig-prename descclassname"><span class="pre">plurals.helpers.</span></span><span class="sig-name descname"><span class="pre">print_anes_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/helpers.html#print_anes_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.helpers.print_anes_mapping" title="Link to this definition"></a></dt>
 <dd><p>Prints the values of ANES mapping in a human-readable format.</p>
 <p>The purpose of this function is that in some cases users will want to conduct their own query on the ANES
-dataset, but it is difficult to know what the values are without consulting a codebook. We also recode certain
-values. So here we print the values of the ANES mapping in a neat/clean/human-readable way for consumer.</p>
-<p>Note: Whenever we print <cite>recode values</cite> this means that we have recoded the values from the original dataset to
-use in persona strings. For example, for <cite>child18</cite>, the question was whether the participant has children under
-18 living in their household. For persona processing, we changed <cite>Yes</cite> and <cite>No</cite> to <cite>do have children under 18
-living in your household</cite> and <cite>do not have children under 18 living in your household</cite>—though to
-search ANES you’d use the original values. of <cite>Yes</cite> and <cite>No</cite>.</p>
+dataset, but it is difficult to know what the values are without consulting a codebook.</p>
+<p>Note that when generating personas we recode certain values but you should use original
+values for filtering data, as they are printed here.</p>
+<p>Here are the cases we recode values:</p>
+<ul class="simple">
+<li><p><cite>child18</cite> asks participants if they have children under 18 living in their household. We recode <cite>Yes</cite> to <a href="#id1"><span class="problematic" id="id2">`</span></a>do have</p></li>
+</ul>
+<p>children under 18 living in your household` and <cite>No</cite> to <cite>do not have children under 18 living in your household</cite>.</p>
+<ul class="simple">
+<li><p>Several questions have multiple choice options (A,B, C) and then an <cite>Other</cite> option. We recode <cite>Other</cite></p></li>
+</ul>
+<p>as <cite>neither A nor B nor C</cite> to be more explicit.</p>
 </dd></dl>
 
 </section>
