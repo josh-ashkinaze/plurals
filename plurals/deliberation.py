@@ -54,7 +54,8 @@ class Moderator(Agent):
         if system_instructions == 'auto':
             self.model = model
             self.kwargs = kwargs
-            system_instructions = self.generate_system_instructions(task)
+            self.system_instructions = self.generate_system_instructions(task=task)
+
 
         # Case 3: if only persona is provided, use persona with dummy persona template ${persona}
         if persona and not system_instructions:
