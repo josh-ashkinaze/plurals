@@ -17,7 +17,7 @@
 
 Plurals consists of three core abstractions (Figure 1):
 
-1. **Agents:**: Agents are LLM agents that complete tasks given a set of system instructions and instructions on how to integrate other agents' responses. 
+1. **Agents:** Agents are LLM agents that complete tasks given a set of system instructions and instructions on how to integrate other agents' responses. 
     - Users can initialize system instructions as null to get back model behavior.
     - Users can pass in direct system instructions.
     - Users can combine personas with persona templates, giving more instructions to the model on how to enact the persona.
