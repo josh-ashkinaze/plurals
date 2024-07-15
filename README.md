@@ -409,7 +409,7 @@ from plurals.helpers import print_anes_mapping
 
 print_anes_mapping()
 ```
-This will show a number of variables and their allowed values but just to give an exercpt:
+This will show a number of variables and their allowed values but just to give an excerpt:
 
 ```markdown
 ANES Variable Name: gender4
