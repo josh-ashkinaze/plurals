@@ -1,6 +1,6 @@
 {
   "birthyr": {
-    "clean_var": "Birth Year",
+    "clean_var": "Birth Year", #this gets repalced with age in persona by Birth Year - date_of_anes_survey
     "name": "Your age is",
   },
   "educ": {
