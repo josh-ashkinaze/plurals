@@ -210,16 +210,16 @@ It's important to know what exactly is going on under the hood so we have a few 
 
 
 
-By calling `agent.info` we get a dictionary with everything about the Agent---their plates, their full system 
+By calling `agent.info` we get a dictionary with everything about the Agent---their prompts, their full system 
 instructions and one of the keys is called `history`. That key is comprised of the prompts and responses of agents. 
 You can get this by calling `agent.history` if that's your main interest. You can also access the responses of agents more directly by simply getting `agent.responses` 
 ```python
 from plurals.agent import Agent
 a = Agent(ideology="very conservative", model='gpt-4o', task="A task here")
 a.process()
-print(agent.info)
-print(agent.history)
-print(agent.responses)
+print(a.info)
+print(a.history)
+print(a.responses)
 ```
 
 
@@ -228,7 +228,7 @@ Let's say you don't want to use persona templates. You can pass in system instru
 instructions to get back default behavior. 
 ```python
 from plurals.agent import Agent
-
+task = "A task"
 # Pass in system instructions directly 
 pirate_agent = Agent(system_instructions="You are a pirate.", model='gpt-4o', task=task)
 
@@ -633,9 +633,13 @@ from plurals.deliberation import Moderator, Ensemble, Chain
 from plurals.agent import Agent
 task = "Come up with creative ideas"
 
-# This will trigger the auto-mod module to generate its own system instructions. This is a straightforward way to
-# use auto-moderators. 
+a = Agent(model='gpt-4o')
+b = Agent(model='gpt-3.5-turbo')
+
+# This will trigger the auto-mod module to generate its own system instructions. 
+# This is a straightforward way to use auto-moderators. Then we can just put it in a Structure
 mod = Moderator(system_instructions='auto', model='gpt-4o', task=task)
+ensemble = Chain([a, b], moderator=mod, task=task)
 
 # Simply defining the moderator in the Structure will inherit the structure's task so this is also a simple way to have
 # the Moderator bootstrap its own instructions based on the task. 
@@ -654,9 +658,6 @@ print(mod.generate_system_instructions(task=task))
 
 # Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly.
 mod.system_instructions = "Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly."
-
-
-
 ```
 
 
@@ -680,7 +681,9 @@ agent1 = Agent(persona='a liberal woman from Missouri', model='gpt-4o')
 agent2 = Agent(persona='a 24 year old hispanic man from Florida', model='gpt-4o')
 agent3 = Agent(persona='an elderly woman with a PhD', model='gpt-4o')
 
-chain = Chain([agent1, agent2, agent3], task="How should we combat climate change?", combination_instructions="chain")
+chain = Chain([agent1, agent2, agent3], 
+              task="How should we combat climate change?", 
+              combination_instructions="chain")
 chain.process()
 print(chain.final_response)
 ```
@@ -964,10 +967,6 @@ Agent 2's history:
                      '- Respond in 100 words or less.\n'
                      '- Again, try to win the debate by convincing the other '
                      'party.\n'},
-```
-
-Moderator's history:
-```python
  'response': 'While I appreciate your compassion, excessive government '
              'involvement in welfare can foster dependency rather than '
              "self-sufficiency. It's important for people to have a safety "
@@ -979,6 +978,10 @@ Moderator's history:
              'creation and economic growth so people can support themselves. '
              'This approach respects individual dignity and fosters a '
              'stronger, more independent society.'}
+```
+
+Moderator's history:
+```python
 {'model': 'gpt-4o',
  'prompts': {'system': 'You are a neutral moderator, overseeing a discussion '
                        'about the following task: To what extent should the '
