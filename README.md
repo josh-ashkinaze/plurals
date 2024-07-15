@@ -572,8 +572,8 @@ from plurals.deliberation import Moderator
 
 a = Moderator(persona='voting', model='gpt-4o', combination_instructions="voting")
 ```
-These personas all exepect a placeholder for ${task} that will get replaced with the Structure's task. You can 
-define your own persona too. When passed into a structure, the ${task} placeholder will be replaced with the actual 
+These personas all exepect a placeholder for `${task}` that will get replaced with the Structure's task. You can 
+define your own persona too. When passed into a structure, the `${task}` placeholder will be replaced with the actual 
 task. 
 ```python
 from plurals.deliberation import Moderator
