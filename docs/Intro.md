@@ -17,7 +17,7 @@
 
 Plurals consists of three core abstractions (Figure 1):
 
-1. **Agents:**
+1. **Agents:**: Agents are LLM agents that complete tasks given a set of system instructions and instructions on how to integrate other agents' responses. 
     - Users can initialize system instructions as null to get back model behavior.
     - Users can pass in direct system instructions.
     - Users can combine personas with persona templates, giving more instructions to the model on how to enact the persona.
@@ -41,7 +41,7 @@ Plurals consists of three core abstractions (Figure 1):
         - We offer a list of templates which can be used via keywords.
         - Templates are inspired by research on derivative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
 
-3. **Moderators:** We support Moderators, who are special classes of Agents that oversee deliberation. Moderators are defined by their personas and combination instructions (how to combine information). As with combination instructions and persona templates, we support various pre-defined moderator instructions such as `information aggregators` or `synthesizers`.
+3. **Moderators and Auto-Moderators:** We support Moderators, who are special classes of Agents that oversee deliberation. Like Agents, Moderators are defined by their system instructions---which can be comprised of personas and combination instructions (how to combine information). Or users can just set system instructions directly. As with combination instructions and persona templates, we support various pre-defined moderator instructions. We also support Auto-Moderators which is when a Moderator will generate its own instructions on how to combine responses of prior Agents. 
 
 
 # Quick start 
