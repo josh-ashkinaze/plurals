@@ -7,7 +7,8 @@
 - [Uses](#uses)
 - [Agents](#agents)
    * [Quick Start](#quick-start)
-   * [Different ways to set up personas](#different-ways-to-set-up-personas)
+   * [Inspecting the exact prompts that an Agent is doing](#inspecting-the-exact-prompts-that-an-agent-is-doing)
+   * [Different ways to set up system prompt](#different-ways-to-set-up-system-prompt)
       + [No system prompt](#no-system-prompt)
       + [User-defined system prompt](#user-defined-system-prompt)
       + [Using templates](#using-templates)
@@ -16,13 +17,20 @@
          - [Option 2: Random sampling](#option-2-random-sampling)
          - [Option 3: Searching ANES using a pandas query string](#option-3-searching-anes-using-a-pandas-query-string)
 - [Structures](#structures)
+   * [Types of Structures](#types-of-structures)
    * [Ensemble](#ensemble)
-   * [Ensemble with a moderator](#ensemble-with-a-moderator)
+   * [Tracing what is going on in Structures ](#tracing-what-is-going-on-in-structures)
+   * [Ensemble with a moderator / Moderator intro](#ensemble-with-a-moderator-moderator-intro)
+      + [Setting a Moderator's System Instructions](#setting-a-moderators-system-instructions)
+         - [Personas ](#personas)
+         - [Moderator system instructions set directly](#moderator-system-instructions-set-directly)
+         - [Auto-Moderators](#auto-moderators)
    * [Chain](#chain)
    * [Chain with a moderator](#chain-with-a-moderator)
    * [Debate](#debate)
    * [Debate with a moderator](#debate-with-a-moderator)
--  [History](#history)
+   * [History](#history)
+
 <!-- TOC end -->
 
 
@@ -57,9 +65,9 @@ https://josh-ashkinaze.github.io/plurals/
 
 The README file gives specific examples; the documentation gives a more comprehensive overview of the package.
 
+
+
 <!-- TOC --><a name="uses"></a>
-
-
 # Uses
 
 - Persona-based experiments: Quickly create personas for agents, optionally using ANES for fast
@@ -115,6 +123,19 @@ task = "Should the United States ban assault rifles? Answer in 50 words."
 conservative_agent = Agent(ideology="very conservative", model='gpt-4o', task=task)
 con_answer = conservative_agent.process()  # call agent.process() to get the response. 
 ```
+
+Note that we can call Agents to process tasks in two ways:
+```python
+task = "Should the United States ban assault rifles? Answer in 50 words."
+
+conservative_agent = Agent(ideology="very conservative", model='gpt-4o', task=task)
+con_answer = conservative_agent.process()  # call agent.process() to get the response. 
+
+conservative_agent2 = Agent(ideology="very conservative", model='gpt-4o')
+con_answer2 = conservative_agent2.process(task)
+
+```
+
 
 ```python
 from plurals.agent import Agent
@@ -178,6 +199,26 @@ school, a concert, or a movie. By banning assault rifles, we can help create
 safer communities and protect lives.
 ```
 
+<!-- TOC --><a name="inspecting-the-exact-prompts-that-an-agent-is-doing"></a>
+## Inspecting the exact prompts that an Agent is doing
+It's important to know what exactly is going on under the hood so we have a few ways to do this!
+
+
+
+By calling `agent.info` we get a dictionary with everything about the Agent---their plates, their full system 
+instructions and one of the keys is called `history`. That key is comprised of the prompts and responses of agents. 
+You can get this by calling `agent.history` if that's your main interest. You can also access the responses of agents more directly by simply getting `agent.responses` 
+```python
+from plurals.agent import Agent
+a = Agent(ideology="very conservative", model='gpt-4o', task="A task here")
+a.process()
+print(agent.info)
+print(agent.history)
+print(agent.responses)
+```
+
+
+
 Let's say you don't want to use persona templates. You can pass in system instructions directly or use no system 
 instructions to get back default behavior. 
 ```python
@@ -191,8 +232,11 @@ default_agent = Agent(model='gpt-4o', task=task, kwargs={'temperature': 0.1, 'ma
 ```
 
 
-<!-- TOC --><a name="different-ways-to-set-up-personas"></a>
-## Different ways to set up personas
+<!-- TOC --><a name="different-ways-to-set-up-system-prompt"></a>
+## Different ways to set up system prompt
+Agent has many different ways to set system prompts. Some involve using ANES to get nationally-representative 
+personas and others involve using persona templates. But for simplicity, you can also not pass in any system prompt 
+or just pass in your own system prompt directly. 
 
 <!-- TOC --><a name="no-system-prompt"></a>
 ### No system prompt
@@ -412,8 +456,10 @@ your household. Your employment status is retired. Your geographic region is the
 south. You live in a rural area. You live in the state of west virginia
 ```
 
+<!-- TOC --><a name="structures"></a>
 # Structures
 
+<!-- TOC --><a name="types-of-structures"></a>
 ## Types of Structures
 
 We went over how to set up agents and now we are going to discuss how to set up structures---which are the
@@ -421,6 +467,7 @@ environments in which agents complete tasks. As of this writing, we have three s
 `debate`. Each of these structures can optionally be `moderated`, meaning that at the end of deliberation, a moderator 
 agent will summarize everything (e.g: make a final classification, take best ideas etc.)
 
+<!-- TOC --><a name="ensemble"></a>
 ## Ensemble
 
 The most basic structure is an Ensemble which is where agents process tasks in parallel. For example, let's say we
@@ -439,6 +486,22 @@ print(ensemble.responses)
 ```
 
 This will give 10 responses for each of our agents. Ensemble is the simplest structure yet can still be useful!
+
+<!-- TOC --><a name="tracing-what-is-going-on-in-structures"></a>
+## Tracing what is going on in Structures 
+To get a better sense of what is going on, we can access information of both the ensemble and the agents. 
+
+```python
+for agent in ensemble.agents:
+    print(agent.info) # Will get info about the agent
+    print(agent.history) # Will get the history of the agent's prompts so you can see their API calls
+
+# Will give a dictionary of information with one key for `structure` (i.e: information related 
+# to the Structure and one key called `agents` (i.e: `agent.info` for each of the agents in the Structure) 
+print(ensemble.info) 
+print(ensemble.responses) # Will give the responses of the ensemble
+
+```
 
 Ensemble also allows you to combine models without any persona, and so we can test if different models ensembled 
 together give different results relative to the same model ensembled together. Remember that when we don't pass in 
@@ -461,13 +524,15 @@ for key, ensemble in ensembles.items():
     print(key, ensemble.responses)
 ```
 
-## Ensemble with a moderator
+<!-- TOC --><a name="ensemble-with-a-moderator-moderator-intro"></a>
+## Ensemble with a moderator / Moderator intro
 
 Let's say we want some Agent to actually read over some of these ideas and maybe return one that is the best. We can do
-that by passing in  a `moderator` agent, which is a special kind of Agent. It only has two arguments: `persona` (the 
-moderator persona) and `combination_instructions` (how to combine the responses).
+that by passing in  a `moderator` agent, which is a special kind of Agent. It only has three arguments: `persona` (the 
+moderator persona), `system_instructions` (which if passed in will override a persona) and `combination_instructions` 
+(how to combine the responses).
 
-NOTE: This is the first time that we are seeing `combination_instructions` and it is a special kind of instruction that
+**NOTE**: This is the first time that we are seeing `combination_instructions` and it is a special kind of instruction that
 will only kick in when there are previous responses in an Agent's view. Of course, the moderator is at the end of this
 whole process so there are always going to be previous responses.
 
@@ -480,14 +545,120 @@ from plurals.agent import Agent
 from plurals.deliberation import Ensemble, Moderator
 
 task = "Brainstorm ideas to improve America."
+# Custom moderator combination instructions
 combination_instructions = "INSTRUCTIONS\nReturn a master response that takes the best part of previous responses.\nPREVIOUS RESPONSES: ${previous_responses}\nRETURN a json like {'response': 'the best response', 'rationale':Rationale for integrating responses} and nothing else"
-agents = [Agent(persona='random', model='gpt-4o') for i in range(10)]
-moderator = Moderator(persona='default', model='gpt-4o')
-ensemble = Ensemble(agents, moderator=moderator, task=task)
+agents = [Agent(persona='random', model='gpt-4o') for i in range(10)] # random ANES agents
+moderator = Moderator(persona='default', model='gpt-4o') # default moderator persona
+ensemble = Ensemble(agents, moderator=moderator, task=task, combination_instructions=combination_instructions)
 ensemble.process()
 print(ensemble.responses)
 ```
 
+<!-- TOC --><a name="setting-a-moderators-system-instructions"></a>
+### Setting a Moderator's System Instructions
+<!-- TOC --><a name="personas"></a>
+#### Personas 
+Like Agents, `personas` and `system_instructions` are different ways to set up the moderator's system instructions. 
+If you use `persona`, then you can use some of our default moderator personas available in the defaults file (https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml
+). For example, if you pass in `persona='voting'`, then we will use a moderator persona meant for voting.
+
+```python
+from plurals.deliberation import Moderator
+
+a = Moderator(persona='voting', model='gpt-4o', combination_instructions="voting")
+```
+These personas all exepect a placeholder for ${task} that will get replaced with the Structure's task. You can 
+define your own persona too. When passed into a structure, the ${task} placeholder will be replaced with the actual 
+task. 
+```python
+from plurals.deliberation import Moderator
+
+mod = Moderator(persona="You are a neutral moderator overseeing this task, ${task}", model='gpt-4o', 
+combination_instructions="voting")
+
+```
+
+<!-- TOC --><a name="moderator-system-instructions-set-directly"></a>
+#### Moderator system instructions set directly
+You can also set system instructions directly much like with Agents and this will have a similar effect to custom 
+personas. 
+
+```python
+from plurals.deliberation import Moderator
+
+mod = Moderator(system_instructions="You are a neutral moderator overseeing this task, ${task}", model='gpt-4o', 
+combination_instructions="voting")
+```
+The difference is that system_instructions is not linked with our templates so you cannot do things like 
+`system_instructions='default'` like you can with `persona='default'`.
+
+<!-- TOC --><a name="auto-moderators"></a>
+#### Auto-Moderators
+We have a special option where if the `system_instructions` of a moderator are set to `auto` then the moderator will,
+given a task, come up with its own system instructions. So here's how to do this!
+
+```python
+from plurals.deliberation import Moderator, Ensemble, Chain
+from plurals.agent import Agent
+
+task = ("Your goal is to come up with the most creative ideas possible for pants. We are maximizing creativity. Answer"
+        " in 20 words.")
+a = Agent(model='gpt-4o')
+b = Agent(model='gpt-3.5-turbo')
+# By putting the moderator in the Ensemble we are going to 
+# trigger the auto-mod generator 
+ensemble = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
+```
+
+So let's see what the moderator thinks it should be doing with this information. 
+
+``` python
+print(ensemble.moderator.system_instructions)
+```
+
+```
+Group similar ideas together, prioritize uniqueness and novelty. Highlight standout concepts and remove duplicates. Ensure the final list captures diverse and imaginative designs.
+```
+
+Here are ways to use auto-moderation. 
+
+
+```python
+from plurals.deliberation import Moderator, Ensemble, Chain
+from plurals.agent import Agent
+task = "Come up with creative ideas"
+
+# This will trigger the auto-mod module to generate its own system instructions. This is a straightforward way to
+# use auto-moderators. 
+mod = Moderator(system_instructions='auto', model='gpt-4o', task=task)
+
+# Simply defining the moderator in the Structure will inherit the structure's task so this is also a simple way to hae
+# the Moderator bootstrap its own instructions based on the task. 
+a = Agent(model='gpt-4o')
+b = Agent(model='gpt-3.5-turbo')
+ensemble = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
+
+
+# You can also turn a normal moderator into an auto-moderator. 
+mod = Moderator(system_instructions="some boring initial instructions",  model='gpt-4o')
+mod.generate_and_set_system_instructions(task=task)
+
+# Or, you can generate instructions and inspect them before setting them. You can generate multiple times of course. 
+mod = Moderator(system_instructions="some boring initial instructions",  model='gpt-4o')
+print(mod.generate_system_instructions(task=task))
+
+# Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly.
+mod.system_instructions = "Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly."
+
+
+
+```
+
+
+
+
+
+<!-- TOC --><a name="chain"></a>
 ## Chain
 
 Another structure is a Chain which is where agents process tasks in a sequence. A Chain consists of agents who
@@ -513,14 +684,16 @@ This will give a response that combines the best points from all of our agents. 
 deliberation and reaching a consensus among agents.
 
 NOTE: In the above example, we passed in `combination_instructions` to Chain. `combination_instructions` is a special 
-kind of instruction that will only kick in when there are previous responses in an Agent's view. 
+kind of instruction that will only kick in when there are previous responses in an Agent's view. If you pass 
+`combination_instructions` into a chain, all the agents will inherit it. 
 
-Note that like a persona_template, `combination_instructions` expects a `${previous_responses}` placeholder. This will
-get filled in with the previous responses. We have default `combination_instructions` in `instructions.yaml` and other 
-options like chain, debate, and voting. You can also pass in your own too. In the above example, we passed in "chain" 
-instructions, so the chain option of combination_instructions will be read from the `instructions.yaml` 
+Recall that `combination_instructions` expects a `${previous_responses}` placeholder if it is not one of the default 
+options that we offer.  This placeholder would get filled in with the previous responses. In the above example, we passed in "chain" 
+instructions, so the chain option of combination_instructions will be read from the `instructions.yaml`. See that 
+file for templates. 
 
 
+<!-- TOC --><a name="chain-with-a-moderator"></a>
 ## Chain with a moderator
 
 Let's say we want some Agent to actually read over the ideas presented, combine them, and incorporate the best points 
@@ -589,6 +762,7 @@ chain.process()
 print(chain.final_response)
 ```
 
+<!-- TOC --><a name="debate"></a>
 ## Debate
 
 Another structure is a Debate which is where agents process tasks as if they are in an argument. A Debate consists of 
@@ -613,6 +787,7 @@ print(debate.responses)
 This will give two responses from each of the respective agents in the following format: Debater 1's response and then 
 Debater 2's response. Debate is the best structure for argumentation and simulating debates.
 
+<!-- TOC --><a name="debate-with-a-moderator"></a>
 ## Debate with a moderator
 
 Let's say we want some Agent to actually read over the ideas presented and incorporate the best points 
@@ -639,6 +814,7 @@ print(debate.final_response)
 ```
 
 
+<!-- TOC --><a name="history"></a>
 ## History
 
 Below are some demonstrations of Agent's history function which demonstrates how persona, combination_instructions, and 
