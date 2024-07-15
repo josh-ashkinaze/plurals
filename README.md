@@ -48,7 +48,8 @@
 # Package Overview
 
 `Plurals` is based on two abstractions---`Agents` (who complete tasks) and `Structures` (which are the structures in
-which `agents` complete their tasks.)
+which `agents` complete their tasks.) Agents can be optionally overseen by `Moderators` who summarize the responses of 
+Agents in Structures. We support Auto-Moderators who bootstrap their own moderation instructions.  
 
 Regarding `agents`, the package allows for various kinds of persona initializations. Some of these leverage American
 National Election Studies (ANES), nationally-representative dataset. By using ANES, we can quickly draw up
@@ -57,6 +58,10 @@ nationally-representative deliberations.
 Regarding `structures`, the package allows for various kinds of ways agents can share information. For example,
 an `ensemble` consists of agents processing tasks in parallel whereas a `chain` consists of agents who each see the
 prior agent's response.
+
+Regarding `moderators`, we allow the user to easily aggregate, filter, or synthesize the results of multi-agent 
+deliberation by adding a `Moderator` to any structure. These moderators can optionally be auto-moderated, meaning 
+they come up with their own moderation instructions based on the task.
 
 <!-- TOC --><a name="read-full-documentation-here"></a>
 # Read full documentation here
@@ -632,7 +637,7 @@ task = "Come up with creative ideas"
 # use auto-moderators. 
 mod = Moderator(system_instructions='auto', model='gpt-4o', task=task)
 
-# Simply defining the moderator in the Structure will inherit the structure's task so this is also a simple way to hae
+# Simply defining the moderator in the Structure will inherit the structure's task so this is also a simple way to have
 # the Moderator bootstrap its own instructions based on the task. 
 a = Agent(model='gpt-4o')
 b = Agent(model='gpt-3.5-turbo')
