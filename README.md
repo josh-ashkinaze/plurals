@@ -231,7 +231,7 @@ default `persona_template`.
 ```python
 from plurals.agent import Agent
 
-agent = Agent(persona="a liberal", prefix_template="default", model='gpt-4o')
+agent = Agent(persona="a liberal", persona_template="default", model='gpt-4o')
 print(agent.system_instructions)
 
 # When answering questions or performing tasks, always adopt the following persona.
@@ -354,6 +354,26 @@ may not know the exact variables in ANES and so
 we have a helper function that will print out the demographic/political columns we are using so you know what value to
 pass in.
 
+
+```python
+from plurals.helpers import print_anes_mapping
+
+print_anes_mapping()
+```
+This will show a number of variables and their allowed values but just to give an exercpt:
+
+```markdown
+ANES Variable Name: gender4
+Man
+Woman
+Non-binary
+Other
+```
+
+So now we know that we can construct a query string that uses `gender4` and the values `Man`, `Woman`, `Non-binary`, and
+`Other`.
+
+
 Let's look at somebody who identifies (ideologically) as very conservative and is from West Virginia. 
 
 ```python
@@ -365,7 +385,8 @@ task = "Should the United States move away from coal as an energy source? Answer
 west_virginia = Agent(query_str="inputstate=='West Virginia'&ideo5=='Very conservative'", model='gpt-4o', task=task)
 west_virginia.process()
 ```
-```
+
+```markdown
 No.  Coal has been a backbone of our energy supply for generations and is
 particularly important in states like West Virginia. It provides reliable and
 affordable energy, which is crucial for keeping the lights on and the economy
@@ -383,7 +404,7 @@ used---since the persona will be based on more than just ideology and state.
 print(west_virginia.persona)
 ```
 
-```
+```markdown
 Your age is 72. Your education is post-grad. Your gender is woman. Your race is
 white. Politically, you identify as a(n) independent. Your ideology is very
 conservative. Regarding children, you do not have children under 18 living in
