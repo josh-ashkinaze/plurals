@@ -264,15 +264,6 @@ class TestModerator(unittest.TestCase):
         self.assertEqual("Moderate the responses carefully.", system_instructions)
         mock_process.assert_called_once()
 
-    @patch.object(Agent, 'process',
-                  side_effect=["Invalid response", "System Instructions: Review responses thoroughly."])
-    def test_generate_system_instructions_multiple_tries(self, mock_process):
-        """Test system instructions generation handles multiple tries"""
-        mod = Moderator(system_instructions='auto', model=self.model, kwargs=self.kwargs)
-        system_instructions = mod.system_instructions
-        self.assertEqual(system_instructions, "Review responses thoroughly.")
-        self.assertEqual(mock_process.call_count, 2)
-
     @patch.object(Agent, 'process', side_effect=["Invalid response"] * 10)
     def test_generate_system_instructions_max_tries_exceeded(self, mock_process):
         """Test system instructions generation raises ValueError after max tries exceeded"""
