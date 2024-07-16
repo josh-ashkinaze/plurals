@@ -59,6 +59,7 @@ For now, cite this package as:
 ```
 EF and NE are equal contributors. 
 
+
 # Package Overview
 
 `Plurals` is based on two abstractions---`Agents` (who complete tasks) and `Structures` (which are the structures in
@@ -77,7 +78,7 @@ Regarding `moderators`, we allow the user to easily aggregate, filter, or synthe
 deliberation by adding a `Moderator` to any structure. These moderators can optionally be auto-moderated, meaning 
 they come up with their own moderation instructions based on the task.
 
-# Read full documentation here
+# Read full documentation for modules and methods here.
 
 https://josh-ashkinaze.github.io/plurals/
 
@@ -1048,4 +1049,12 @@ Moderator's history:
              'both immediate assistance and long-term self-sufficiency for '
              'citizens.'}
 ```
+
+# Report an issue or a feature. 
+
+Plurals is run by a small and energetic team of academics doing the best they can [1]. To report bugs or feature requests, open a Gitub issue. We strongly encourage you to use our `Bug` or `Feature Request` issue templates; these make it easy for us to respond effectively to the issue.  If you have any questions or want to collaborate on this project, please email jashkina@umich.edu. 
+
+[1] Language adopted from (https://github.com/davidjurgens/potato). 
+
+
 
