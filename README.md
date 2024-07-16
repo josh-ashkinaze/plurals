@@ -48,11 +48,11 @@
 # Package Overview
 
 `Plurals` is based on two abstractions---`Agents` (who complete tasks) and `Structures` (which are the structures in
-which `agents` complete their tasks.) Agents can be optionally overseen by `Moderators` who summarize the responses of 
+which `agents` complete their tasks.) Agents can be optionally overseen by `Moderators`, a special class of Agents, who summarize the responses of 
 Agents in Structures. We support Auto-Moderators who bootstrap their own moderation instructions.  
 
 Regarding `agents`, the package allows for various kinds of persona initializations. Some of these leverage American
-National Election Studies (ANES), nationally-representative dataset. By using ANES, we can quickly draw up
+National Election Studies (ANES), a nationally representative dataset. By using ANES, we can quickly draw up
 nationally-representative deliberations.
 
 Regarding `structures`, the package allows for various kinds of ways agents can share information. For example,
