@@ -4,7 +4,8 @@
 - [Installation](#installation)
 - [Cite](#cite)
 - [Package Overview](#package-overview)
-- [Read full documentation here](#read-full-documentation-here)
+- [Read full documentation for modules and methods here.](#read-full-documentation-for-modules-and-methods-here)
+- [Report an issue or request a feature](#report-an-issue-or-request-a-feature)
 - [Uses](#uses)
 - [Agents](#agents)
    * [Quick Start](#quick-start)
@@ -84,6 +85,12 @@ https://josh-ashkinaze.github.io/plurals/
 
 The README file gives specific examples; the documentation gives a more comprehensive overview of the package.
 
+
+# Report an issue or request a feature
+
+Plurals is run by a small and energetic team of academics doing the best they can [1]. To report bugs or feature requests, open a Gitub issue. We strongly encourage you to use our `Bug` or `Feature Request` issue templates; these make it easy for us to respond effectively to the issue.  If you have any questions or want to collaborate on this project, please email jashkina@umich.edu. 
+
+[1] Language adopted from (https://github.com/davidjurgens/potato). 
 
 
 # Uses
@@ -1049,12 +1056,3 @@ Moderator's history:
              'both immediate assistance and long-term self-sufficiency for '
              'citizens.'}
 ```
-
-# Report an issue or a feature. 
-
-Plurals is run by a small and energetic team of academics doing the best they can [1]. To report bugs or feature requests, open a Gitub issue. We strongly encourage you to use our `Bug` or `Feature Request` issue templates; these make it easy for us to respond effectively to the issue.  If you have any questions or want to collaborate on this project, please email jashkina@umich.edu. 
-
-[1] Language adopted from (https://github.com/davidjurgens/potato). 
-
-
-
