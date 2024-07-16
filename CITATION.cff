@@ -1,9 +1,15 @@
+message: "If you use this software, please cite it as below."
 authors:
-- family-names: Joshua Ashkinaze
-- family-names: Emily Fry
-- family-names: Narendra Edra
-- family-names: Ceren Budak
-- family-names: Eric Gilbert
+- family-names: Ashkinaze
+  given-names: Joshua
+- family-names: Fry
+  given-names: Emily
+- family-names: Edra
+  given-names: Narendra
+- family-names: Budak
+  given-names: Ceren
+- family-names: Gilbert
+  given-names: Eric
 cff-version: 1.2.0
 date-released: '2024-07-16'
 doi: 10.5281/zenodo.12750674
