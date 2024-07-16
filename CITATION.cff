@@ -1,0 +1,13 @@
+authors:
+- family-names: Joshua Ashkinaze
+- family-names: Emily Fry
+- family-names: Narendra Edra
+cff-version: 1.2.0
+date-released: '2024-07-16'
+doi: 10.5281/zenodo.12750674
+license:
+- cc-by-4.0
+repository-code: https://github.com/josh-ashkinaze/plurals/tree/0.2.8
+title: 'josh-ashkinaze/plurals: 0.2.8'
+type: software
+version: 0.2.8
