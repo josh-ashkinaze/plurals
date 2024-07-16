@@ -30,6 +30,7 @@ def _load_global_anes_data():
             'anes_pilot_2024_20240319.csv'),
         low_memory=False)
     DATASET.dropna(subset=['weight'], inplace=True)
+    DATASET['age'] = 2024 - DATASET['birthyr']
 
 
 _load_global_anes_data()
@@ -279,8 +280,8 @@ class Agent:
         for var, details in persona_mapping.items():
             value = row.get(var)
 
-            if var == "birthyr" and value is not None:
-                value = 2024 - int(value)
+            if var == "age" and value is not None:
+                value = int(value)
 
             if value is None or pd.isna(value) or (details.get('bad_vals') and str(value) in details['bad_vals']):
                 continue

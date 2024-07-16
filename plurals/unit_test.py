@@ -149,6 +149,13 @@ class TestAgent(unittest.TestCase):
         self.assertIsNotNone(agent.system_instructions)
         self.assertIn("michigan", agent.system_instructions)
 
+    def test_agent_age_query(self):
+        """Test age parameter works correctly. This is a column we manually add to ANES from birthyr"""
+        for age in [42, 52, 55]:
+            agent = Agent(task="test task", query_str="age=={}".format(age))
+            self.assertIsNotNone(agent.system_instructions)
+            self.assertIn(str(age), agent.persona)
+
     def test_agent_with_nonexistent_ideology(self):
         """Test whether the agent raises an error or handles gracefully when no matching ideology is found"""
         with self.assertRaises(AssertionError):
