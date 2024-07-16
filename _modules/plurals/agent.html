@@ -105,6 +105,7 @@
             <span class="s1">&#39;anes_pilot_2024_20240319.csv&#39;</span><span class="p">),</span>
         <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">DATASET</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">DATASET</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2024</span> <span class="o">-</span> <span class="n">DATASET</span><span class="p">[</span><span class="s1">&#39;birthyr&#39;</span><span class="p">]</span>
 
 
 <span class="n">_load_global_anes_data</span><span class="p">()</span>
@@ -359,8 +360,8 @@
         <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">details</span> <span class="ow">in</span> <span class="n">persona_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;birthyr&quot;</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="mi">2024</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;age&quot;</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bad_vals&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;bad_vals&#39;</span><span class="p">]):</span>
                 <span class="k">continue</span>
