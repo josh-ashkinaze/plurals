@@ -15,6 +15,53 @@ class Moderator(Agent):
     """
     A moderator agent that combines responses from other agents at the end of structure processing.
 
+    **Examples:**
+
+        **Moderator Default**: This example demonstrates how to set a default moderator.
+
+        .. code-block:: python
+
+            from plurals.deliberation import Moderator
+
+            # Create a default moderator
+            moderator = Moderator(persona='default', model='gpt-4o')  # default moderator persona
+
+        **Setting a Moderator's System Instructions**: This shows how to set up a moderator with specific personas or system instructions.
+
+        .. code-block:: python
+
+            from plurals.deliberation import Moderator
+
+            # Using a persona
+            a = Moderator(persona='voting', model='gpt-4o', combination_instructions="voting")
+
+            # Using custom system instructions
+            mod = Moderator(
+                system_instructions="You are a neutral moderator overseeing this task, ${task}",
+                model='gpt-4o',
+                combination_instructions="voting"
+            )
+
+        **Auto-Moderators**: This feature allows the moderator to generate its own system instructions based on the task.
+
+        .. code-block:: python
+
+            from plurals.deliberation import Moderator, Ensemble, Chain
+            from plurals.agent import Agent
+
+            # Define the task
+            task = ("Your goal is to come up with the most creative ideas possible for pants. "
+                    "We are maximizing creativity. Answer in 20 words.")
+
+            # Create agents
+            a = Agent(model='gpt-4o')
+            b = Agent(model='gpt-3.5-turbo')
+
+            # By putting the moderator in the Chain we trigger the auto-mod generator
+            ensemble = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
+
+            # Print the generated system instructions
+            print(ensemble.moderator.system_instructions)
     Args:
         persona (str, optional): The persona of the moderator. Default is 'default'.
         system_instructions (str, optional): The system instructions for the moderator. Default is None. If you pass in
@@ -323,6 +370,40 @@ class Chain(AbstractStructure):
     """
     A chain structure for processing tasks through a sequence of agents. In a chain,
     each agent processes the task after seeing a prior agent's response.
+
+    **Examples:**
+        **Chain with no moderator**:
+
+        .. code-block:: python
+
+            from plurals.agent import Agent
+            from plurals.deliberation import Chain
+
+            task = "How should we combat climate change?"
+            agent1 = Agent(persona='a liberal woman from Missouri', model='gpt-4o')
+            agent2 = Agent(persona='a 24 year old hispanic man from Florida', model='gpt-4o')
+            agent3 = Agent(persona='an elderly woman with a PhD', model='gpt-4o')
+
+            chain = Chain([agent1, agent2, agent3], combination_instructions="chain", task=task)
+            chain.process()
+            print(chain.final_response)
+
+        **Chain with moderator**:
+
+        .. code-block:: python
+
+            from plurals.agent import Agent
+            from plurals.deliberation import Chain, Moderator
+
+            task = "How should we combat climate change?"
+            agent1 = Agent(persona='a liberal woman from Missouri', model='gpt-4o')
+            agent2 = Agent(persona='a 24 year old hispanic man from Florida', model='gpt-4o')
+            agent3 = Agent(persona='an elderly woman with a PhD', model='gpt-4o')
+            moderator = Moderator(persona='default', model='gpt-4o', combination_instructions="default")
+
+            chain = Chain([agent1, agent2, agent3], combination_instructions="chain", moderator=moderator, task=task)
+            chain.process()
+            print(chain.final_response)
     """
 
     def process(self):
@@ -330,6 +411,7 @@ class Chain(AbstractStructure):
         Process the task through a chain of agents, each building upon the last. Use parameters from
         `AbstractStructure` to control how the chain operates (e.g: last_n for how many previous responses to include
         in the `previous_responses` string)
+
         """
         previous_responses = []
         original_task = self.agents[0].original_task_description
@@ -355,11 +437,45 @@ class Ensemble(AbstractStructure):
     """
     An ensemble structure for processing tasks through a group of agents. In an ensemble, each agent processes the
     task independently through async requests.
-    """
+
+    **Examples:**
+
+        **Ensemble with no moderator**:
+
+        .. code-block:: python
+
+            from plurals.agent import Agent
+            from plurals.deliberation import Ensemble
+
+            task = "Brainstorm ideas to improve America."
+
+            # Create agents
+            agents = [Agent(persona='random', model='gpt-4o') for i in range(10)]
+
+            ensemble = Ensemble(agents, task=task)
+            ensemble.process()
+            print(ensemble.responses)
+
+        **Ensemble with moderator**:
+
+        .. code-block:: python
+
+            from plurals.agent import Agent
+            from plurals.deliberation import Ensemble, Moderator
+
+            task = "Brainstorm ideas to improve America."
+            agents = [Agent(persona='random', model='gpt-4o') for i in range(10)] # random ANES agents
+            moderator = Moderator(persona='default', model='gpt-4o') # default moderator persona
+            ensemble = Ensemble(agents, moderator=moderator, task=task)
+            ensemble.process()
+            print(ensemble.responses)
+        """
 
     def process(self):
         """
         Requests are sent to all agents simultaneously.
+
+
         """
         original_task = self.agents[0].original_task_description
         for _ in range(self.cycles):
@@ -390,6 +506,39 @@ class Debate(AbstractStructure):
        indicate the speaker.
     3. When moderated, the moderator will provide a final response based on the debate, and we will append
        `[Debater 1]` and `[Debater 2]` to the responses so that the moderator is aware of who said what.
+
+    **Examples:**
+
+        **Debate with no moderator**:
+
+        .. code-block:: python
+
+            from plurals.agent import Agent
+            from plurals.deliberation import Debate
+
+            task = 'To what extent should the government be involved in providing free welfare to citizens?'
+            agent1 = Agent(ideology='liberal', model='gpt-4o')
+            agent2 = Agent(ideology='conservative', model='gpt-4o')
+
+            debate = Debate([agent1, agent2], task=task, combination_instructions="debate")
+            debate.process()
+            print(debate.responses)
+
+        **Debate with moderator**:
+
+        .. code-block:: python
+
+            from plurals.agent import Agent
+            from plurals.deliberation import Debate, Moderator
+
+            task = 'To what extent should the government be involved in providing free welfare to citizens?'
+            agent1 = Agent(ideology='liberal', model='gpt-4o')
+            agent2 = Agent(ideology='conservative', model='gpt-4o')
+            moderator = Moderator(persona='default', model='gpt-4o', combination_instructions="default")
+
+            debate = Debate([agent1, agent2], task=task, combination_instructions="debate", moderator=moderator)
+            debate.process()
+            print(debate.final_response)
     """
 
     def __init__(
