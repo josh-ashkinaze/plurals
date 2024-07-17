@@ -477,15 +477,20 @@ south. You live in a rural area. You live in the state of west virginia
 1. **Structures:** Structures are the environments in which agents work together. Broadly, structures are defined by:
     - **Information-sharing:**
         - Direction of information sharing (i.e: is it directed or undirected).
-        - Amount of information-sharing.
-        - Example: In an `Ensemble`, no information is shared and Agents process requests in parallel whereas in a `Chain`, agents each build upon each other's answers.
+        - Amount of information-sharing. (e.g. in an `Ensemble`, no information is shared and Agents process requests in parallel whereas in a `Chain`, agents each build upon each other's answers.)
         - Users can create in-between structures. Our system supports a `last_n` parameter that dictates how much information an agent sees from the current deliberation stack. Setting `last_n` to 1 would result in a Markov-esque chain.
         - Users can also control `cycles` of a structure, which is how many times the sequence is run and whether to `shuffle` the ordering of agents on each cycle.
     - **Combination instructions:** 
         - How agents are instructed to combine information in the structure.
+        - It is a special kind of instruction that only kicks in when there are previous responses from an agent's view.
         - Interactions can be adversarial or amicable.
         - We offer a list of templates which can be used via keywords.
-        - Templates are inspired by research on derivative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
+        - Templates are inspired by research on deliberative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
+        - Note that, like persona_template, combination_instructions expects a ${previous_responses} placeholder. This will get filled in with the previous responses.
+        - We have default, chain, debate, and voting combination_instructions options in our template in instructions.yaml.
+        - You can also pass in your own combination_instructions too.
+
+
 
 ## Note on Moderators
 
