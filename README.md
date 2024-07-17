@@ -487,7 +487,7 @@ south. You live in a rural area. You live in the state of west virginia
         - We offer a list of templates which can be used via keywords.
         - Templates are inspired by research on derivative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
 
-### Note on Moderators
+## Note on Moderators
 
 **Moderators and Auto-Moderators:** We support Moderators, who are special classes of Agents that oversee deliberation. Like Agents, Moderators are defined by their system instructions---which can be comprised of personas and combination instructions (how to combine information). Or users can just set system instructions directly. As with combination instructions and persona templates, we support various pre-defined moderator instructions. We also support Auto-Moderators which is when a Moderator will generate its own instructions on how to combine responses of prior Agents. 
 
@@ -595,7 +595,7 @@ environments in which agents complete tasks. As of this writing, we have three s
 `debate`. Each of these structures can optionally be `moderated`, meaning that at the end of deliberation, a moderator 
 agent will summarize everything (e.g: make a final classification, take best ideas etc.)
 
-## Ensemble
+### Ensemble
 
 The most basic structure is an Ensemble which is where agents process tasks in parallel. For example, let's say we
 wanted to have a panel of 10 nationally-representative agents brainstorm ideas to improve America. We can define our
@@ -614,7 +614,7 @@ print(ensemble.responses)
 
 This will give 10 responses for each of our agents. Ensemble is the simplest structure yet can still be useful!
 
-## Tracing what is going on in Structures 
+### Tracing what is going on in Structures 
 To get a better sense of what is going on, we can access information of both the ensemble and the agents. 
 
 ```python
@@ -650,7 +650,7 @@ for key, ensemble in ensembles.items():
     print(key, ensemble.responses)
 ```
 
-## Ensemble with a moderator / Moderator intro
+### Ensemble with a moderator / Moderator intro
 
 Let's say we want some Agent to actually read over some of these ideas and maybe return one that is the best. We can do
 that by passing in  a `moderator` agent, which is a special kind of Agent. It only has three arguments: `persona` (the 
@@ -679,108 +679,8 @@ ensemble.process()
 print(ensemble.responses)
 ```
 
-### Setting a Moderator's System Instructions
-#### Personas 
-Like Agents, `personas` and `system_instructions` are different ways to set up the moderator's system instructions. 
-If you use `persona`, then you can use some of our default moderator personas available in the defaults file (https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml
-). For example, if you pass in `persona='voting'`, then we will use a moderator persona meant for voting.
 
-```python
-from plurals.deliberation import Moderator
-
-a = Moderator(persona='voting', model='gpt-4o', combination_instructions="voting")
-```
-These personas all exepect a placeholder for `${task}` that will get replaced with the Structure's task. You can 
-define your own persona too. When passed into a structure, the `${task}` placeholder will be replaced with the actual 
-task. 
-```python
-from plurals.deliberation import Moderator
-
-mod = Moderator(persona="You are a neutral moderator overseeing this task, ${task}", model='gpt-4o', 
-combination_instructions="voting")
-
-```
-
-#### Moderator system instructions set directly
-You can also set system instructions directly much like with Agents and this will have a similar effect to custom 
-personas. 
-
-```python
-from plurals.deliberation import Moderator
-
-mod = Moderator(system_instructions="You are a neutral moderator overseeing this task, ${task}", model='gpt-4o', 
-combination_instructions="voting")
-```
-The difference is that system_instructions is not linked with our templates so you cannot do things like 
-`system_instructions='default'` like you can with `persona='default'`.
-
-#### Auto-Moderators
-We have a special option where if the `system_instructions` of a moderator are set to `auto` then the moderator will,
-given a task, come up with its own system instructions. So here's how to do this!
-
-```python
-from plurals.deliberation import Moderator, Ensemble, Chain
-from plurals.agent import Agent
-
-task = ("Your goal is to come up with the most creative ideas possible for pants. We are maximizing creativity. Answer"
-        " in 20 words.")
-a = Agent(model='gpt-4o')
-b = Agent(model='gpt-3.5-turbo')
-# By putting the moderator in the Ensemble we are going to 
-# trigger the auto-mod generator 
-ensemble = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
-```
-
-So let's see what the moderator thinks it should be doing with this information. 
-
-``` python
-print(ensemble.moderator.system_instructions)
-```
-
-```
-Group similar ideas together, prioritize uniqueness and novelty. Highlight standout concepts and remove duplicates. Ensure the final list captures diverse and imaginative designs.
-```
-
-Here are ways to use auto-moderation. 
-
-
-```python
-from plurals.deliberation import Moderator, Ensemble, Chain
-from plurals.agent import Agent
-task = "Come up with creative ideas"
-
-a = Agent(model='gpt-4o')
-b = Agent(model='gpt-3.5-turbo')
-
-# This will trigger the auto-mod module to generate its own system instructions. 
-# This is a straightforward way to use auto-moderators. Then we can just put it in a Structure
-mod = Moderator(system_instructions='auto', model='gpt-4o', task=task)
-ensemble = Chain([a, b], moderator=mod, task=task)
-
-# Simply defining the moderator in the Structure will inherit the structure's task so this is also a simple way to have
-# the Moderator bootstrap its own instructions based on the task. 
-a = Agent(model='gpt-4o')
-b = Agent(model='gpt-3.5-turbo')
-ensemble = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
-
-
-# You can also turn a normal moderator into an auto-moderator. 
-mod = Moderator(system_instructions="some boring initial instructions",  model='gpt-4o')
-mod.generate_and_set_system_instructions(task=task)
-
-# Or, you can generate instructions and inspect them before setting them. You can generate multiple times of course. 
-mod = Moderator(system_instructions="some boring initial instructions",  model='gpt-4o')
-print(mod.generate_system_instructions(task=task))
-
-# Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly.
-mod.system_instructions = "Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly."
-```
-
-
-
-
-
-## Chain
+### Chain
 
 Another structure is a Chain which is where agents process tasks in a sequence. A Chain consists of agents who
 each see the prior agent's response. For example, let's say we wanted to have a panel of agents with diverse backgrounds 
@@ -816,7 +716,7 @@ instructions, so the chain option of combination_instructions will be read from 
 file for templates. 
 
 
-## Chain with a moderator
+### Chain with a moderator
 
 Let's say we want some Agent to actually read over the ideas presented, combine them, and incorporate the best points 
 to return a balanced answer. We can do that by passing in  a `moderator` agent, which is a special kind of Agent. 
@@ -884,7 +784,7 @@ chain.process()
 print(chain.final_response)
 ```
 
-## Debate
+### Debate
 
 Another structure is a Debate which is where agents process tasks as if they are in an argument. A Debate consists of 
 agents who refute the points made in a prior agent's response and try to convince the other party of their viewpoint. 
@@ -908,7 +808,7 @@ print(debate.responses)
 This will give two responses from each of the respective agents in the following format: Debater 1's response and then 
 Debater 2's response. Debate is the best structure for argumentation and simulating debates.
 
-## Debate with a moderator
+### Debate with a moderator
 
 Let's say we want some Agent to actually read over the ideas presented and incorporate the best points 
 to return a balanced answer. We can do that by passing in  a `moderator` agent, which is a special kind of Agent. 
