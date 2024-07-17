@@ -585,20 +585,6 @@ print(ensemble.responses)
 
 This will give 10 responses for each of our agents. Ensemble is the simplest structure, yet it can still be quite useful!
 
-### Tracing what is going on in Structures 
-To get a better sense of what is going on, we can access information of both the ensemble and the agents. 
-
-```python
-for agent in ensemble.agents:
-    print(agent.info) # Will get info about the agent
-    print(agent.history) # Will get the history of the agent's prompts so you can see their API calls
-
-# Will give a dictionary of information with one key for `structure` (i.e: information related 
-# to the Structure and one key called `agents` (i.e: `agent.info` for each of the agents in the Structure) 
-print(ensemble.info) 
-print(ensemble.responses) # Will give the responses of the ensemble
-
-```
 
 Ensemble also allows you to combine models without any persona, so we can test if different models ensembled together give different results relative to the same model ensembled together. Remember that this is just a normal API call when we do not pass in system instructions or a persona.
 
@@ -647,7 +633,20 @@ ensemble = Ensemble(agents, moderator=moderator, task=task, combination_instruct
 ensemble.process()
 print(ensemble.responses)
 ```
+### Tracing what is going on in Structures 
+To get a better sense of what is going on, we can access information of both the ensemble and the agents. 
 
+```python
+for agent in ensemble.agents:
+    print(agent.info) # Will get info about the agent
+    print(agent.history) # Will get the history of the agent's prompts so you can see their API calls
+
+# Will give a dictionary of information with one key for `structure` (i.e: information related 
+# to the Structure and one key called `agents` (i.e: `agent.info` for each of the agents in the Structure) 
+print(ensemble.info) 
+print(ensemble.responses) # Will give the responses of the ensemble
+
+```
 
 ### Chain
 
