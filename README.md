@@ -472,6 +472,122 @@ south. You live in a rural area. You live in the state of west virginia
 
 # Structures
 
+## Overview of Structures
+
+**Structures:** Structures are the environments in which agents work together. Broadly, structures are defined by:
+    - **Information-sharing:**
+        - Direction of information sharing (i.e: is it directed or undirected).
+        - Amount of information-sharing.
+        - Example: In an `Ensemble`, no information is shared and Agents process requests in parallel whereas in a `Chain`, agents each build upon each other's answers.
+        - Users can create in-between structures. Our system supports a `last_n` parameter that dictates how much information an agent sees from the current deliberation stack. Setting `last_n` to 1 would result in a Markov-esque chain.
+        - Users can also control `cycles` of a structure, which is how many times the sequence is run and whether to `shuffle` the ordering of agents on each cycle.
+    - **Combination instructions:** 
+        - How agents are instructed to combine information in the structure.
+        - Interactions can be adversarial or amicable.
+        - We offer a list of templates which can be used via keywords.
+        - Templates are inspired by research on derivative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
+
+## Moderators
+
+**Moderators and Auto-Moderators:** We support Moderators, who are special classes of Agents that oversee deliberation. Like Agents, Moderators are defined by their system instructions---which can be comprised of personas and combination instructions (how to combine information). Or users can just set system instructions directly. As with combination instructions and persona templates, we support various pre-defined moderator instructions. We also support Auto-Moderators which is when a Moderator will generate its own instructions on how to combine responses of prior Agents. 
+
+### Setting a Moderator's System Instructions
+#### Personas 
+Like Agents, `personas` and `system_instructions` are different ways to set up the moderator's system instructions. 
+If you use `persona`, then you can use some of our default moderator personas available in the defaults file (https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml
+). For example, if you pass in `persona='voting'`, then we will use a moderator persona meant for voting.
+
+```python
+from plurals.deliberation import Moderator
+
+a = Moderator(persona='voting', model='gpt-4o', combination_instructions="voting")
+```
+These personas all exepect a placeholder for `${task}` that will get replaced with the Structure's task. You can 
+define your own persona too. When passed into a structure, the `${task}` placeholder will be replaced with the actual 
+task. 
+```python
+from plurals.deliberation import Moderator
+
+mod = Moderator(persona="You are a neutral moderator overseeing this task, ${task}", model='gpt-4o', 
+combination_instructions="voting")
+
+```
+
+#### Moderator system instructions set directly
+You can also set system instructions directly much like with Agents and this will have a similar effect to custom 
+personas. 
+
+```python
+from plurals.deliberation import Moderator
+
+mod = Moderator(system_instructions="You are a neutral moderator overseeing this task, ${task}", model='gpt-4o', 
+combination_instructions="voting")
+```
+The difference is that system_instructions is not linked with our templates so you cannot do things like 
+`system_instructions='default'` like you can with `persona='default'`.
+
+#### Auto-Moderators
+We have a special option where if the `system_instructions` of a moderator are set to `auto` then the moderator will,
+given a task, come up with its own system instructions. So here's how to do this!
+
+```python
+from plurals.deliberation import Moderator, Ensemble, Chain
+from plurals.agent import Agent
+
+task = ("Your goal is to come up with the most creative ideas possible for pants. We are maximizing creativity. Answer"
+        " in 20 words.")
+a = Agent(model='gpt-4o')
+b = Agent(model='gpt-3.5-turbo')
+# By putting the moderator in the Ensemble we are going to 
+# trigger the auto-mod generator 
+ensemble = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
+```
+
+So let's see what the moderator thinks it should be doing with this information. 
+
+``` python
+print(ensemble.moderator.system_instructions)
+```
+
+```
+Group similar ideas together, prioritize uniqueness and novelty. Highlight standout concepts and remove duplicates. Ensure the final list captures diverse and imaginative designs.
+```
+
+Here are ways to use auto-moderation. 
+
+
+```python
+from plurals.deliberation import Moderator, Ensemble, Chain
+from plurals.agent import Agent
+task = "Come up with creative ideas"
+
+a = Agent(model='gpt-4o')
+b = Agent(model='gpt-3.5-turbo')
+
+# This will trigger the auto-mod module to generate its own system instructions. 
+# This is a straightforward way to use auto-moderators. Then we can just put it in a Structure
+mod = Moderator(system_instructions='auto', model='gpt-4o', task=task)
+ensemble = Chain([a, b], moderator=mod, task=task)
+
+# Simply defining the moderator in the Structure will inherit the structure's task so this is also a simple way to have
+# the Moderator bootstrap its own instructions based on the task. 
+a = Agent(model='gpt-4o')
+b = Agent(model='gpt-3.5-turbo')
+ensemble = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
+
+
+# You can also turn a normal moderator into an auto-moderator. 
+mod = Moderator(system_instructions="some boring initial instructions",  model='gpt-4o')
+mod.generate_and_set_system_instructions(task=task)
+
+# Or, you can generate instructions and inspect them before setting them. You can generate multiple times of course. 
+mod = Moderator(system_instructions="some boring initial instructions",  model='gpt-4o')
+print(mod.generate_system_instructions(task=task))
+
+# Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly.
+mod.system_instructions = "Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly."
+```
+
 ## Types of Structures
 
 We went over how to set up agents and now we are going to discuss how to set up structures---which are the
