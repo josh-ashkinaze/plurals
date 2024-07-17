@@ -484,13 +484,11 @@ south. You live in a rural area. You live in the state of west virginia
         - How agents are instructed to combine information in the structure.
         - It is a special kind of instruction that only kicks in when there are previous responses from an agent's view.
         - Interactions can be adversarial or amicable.
-        - We offer a list of templates which can be used via keywords.
+        - We offer a list of templates which can be used via keywords. As of this writing, we offer default, chain, debate, and voting combination_instructions options in our template in instructions.yaml.
         - Templates are inspired by research on deliberative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
-        - Note that, like persona_template, combination_instructions expects a ${previous_responses} placeholder. This will get filled in with the previous responses.
-        - We have default, chain, debate, and voting combination_instructions options in our template in instructions.yaml.
-        - You can also pass in your own combination_instructions too.
-
-
+        - Along with these templates, you can also pass in your own combination_instructions too.
+        - Note that, like persona_template, combination_instructions expects a ${previous_responses} placeholder. This will get filled in with the previous responses. 
+          
 
 ## Note on Moderators
 
