@@ -42,26 +42,44 @@ class Moderator(Agent):
                 combination_instructions="voting"
             )
 
-        **Auto-Moderators**: This feature allows the moderator to generate its own system instructions based on the task.
+        **Here are a bunch of ways to use auto-moderation**: This feature allows the moderator to generate its own system instructions based on the task.
 
         .. code-block:: python
 
             from plurals.deliberation import Moderator, Ensemble, Chain
             from plurals.agent import Agent
 
-            # Define the task
-            task = ("Your goal is to come up with the most creative ideas possible for pants. "
-                    "We are maximizing creativity. Answer in 20 words.")
+            task = "Come up with creative ideas"
 
-            # Create agents
             a = Agent(model='gpt-4o')
+
             b = Agent(model='gpt-3.5-turbo')
 
-            # By putting the moderator in the Chain we trigger the auto-mod generator
+            # This will trigger the auto-mod module to generate its own system instructions.
+
+            # This is a straightforward way to use auto-moderators. Then we can just put it in a Structure
+            mod = Moderator(system_instructions='auto', model='gpt-4o', task=task)
+            ensemble = Chain([a, b], moderator=mod, task=task)
+
+            # Simply defining the moderator in the Structure will inherit the structure's task so this is also a simple way to have
+            # the Moderator bootstrap its own instructions based on the task.
+            a = Agent(model='gpt-4o')
+            b = Agent(model='gpt-3.5-turbo')
             ensemble = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
 
-            # Print the generated system instructions
-            print(ensemble.moderator.system_instructions)
+            # You can also turn a normal moderator into an auto-moderator.
+            mod = Moderator(system_instructions="some boring initial instructions",  model='gpt-4o')
+            mod.generate_and_set_system_instructions(task=task)
+
+
+
+            # Or, you can generate instructions and inspect them before setting them. You can generate multiple times of course.
+            mod = Moderator(system_instructions="some boring initial instructions",  model='gpt-4o')
+            print(mod.generate_system_instructions(task=task))
+
+            # Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly.
+            mod.system_instructions = "Review all submitted responses and identify the top 5 ideas displaying the highest
+            level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly."
     Args:
         persona (str, optional): The persona of the moderator. Default is 'default'.
         system_instructions (str, optional): The system instructions for the moderator. Default is None. If you pass in
@@ -210,6 +228,21 @@ class AbstractStructure(ABC):
     AbstractStructure is an abstract class for processing tasks through a group of agents. As such, it is not meant
     to be instantiated directly but rather to be subclassed by concrete structures such as an Ensemble. However,
     all the concrete structures share the same attributes and methods, so this class provides a common interface.
+
+
+    **Tracing what is going on in structures:**
+
+    .. code-block:: python
+
+        for agent in ensemble.agents:
+        print(agent.info) # Will get info about the agent
+        print(agent.history) # Will get the history of the agent's prompts so you can see their API calls
+
+        # Will give a dictionary of information with one key for `structure` (i.e: information related
+        # to the Structure and one key called `agents` (i.e: `agent.info` for each of the agents in the Structure)
+        print(ensemble.info)
+        print(ensemble.responses) # Will give the responses of the ensemble
+
 
     Args:
         agents (List[Agent]): A list of agents to include in the structure.

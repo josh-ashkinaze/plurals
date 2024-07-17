@@ -43,6 +43,27 @@ class Agent:
 
     **Examples:**
 
+        **Using Agent without a structure**: This allows you to see an agents response without using a structure.
+
+        .. code-block:: python
+
+            a = agent(task=“hello”)
+            ans = a.process()
+
+            pirate_agent = Agent(system_instructions="You are a pirate.", model='gpt-4o', task=task)
+            response=pirate_agent.process()
+
+        **Here is how to inspect the exact prompts an Agent is doing**:
+
+        .. code-block:: python
+
+            from plurals.agent import Agent
+            a = Agent(ideology="very conservative", model='gpt-4o', task="A task here")
+            a.process()
+            print(a.info)
+            print(a.history)
+            print(a.responses)
+
         **Manual system instructions**: This allows you to set system instructions to whatever you would like.
 
         .. code-block:: python
