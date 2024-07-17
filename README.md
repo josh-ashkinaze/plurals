@@ -63,47 +63,34 @@ EF and NE are equal contributors.
 
 # Package Overview
 
-`Plurals` is based on two abstractions---`Agents` (who complete tasks) and `Structures` (which are the structures in
-which `agents` complete their tasks.) Agents can be optionally overseen by `Moderators`, a special class of Agents, who summarize the responses of 
-Agents in Structures. We support Auto-Moderators who bootstrap their own moderation instructions.  
+'Plurals' is based on two abstractions—`Agents` (who complete tasks) and `Structures` (which are the environments in which `agents` complete their tasks.) Agents can be optionally overseen by `Moderators`, a special class of Agents, who summarize the responses of Agents in Structures. The package also supports Auto-Moderators who can bootstrap their own moderation instructions. 
 
-Regarding `agents`, the package allows for various kinds of persona initializations. Some of these leverage American
-National Election Studies (ANES), a nationally representative dataset. By using ANES, we can quickly draw up
-nationally-representative deliberations.
+Regarding ‘agents’, the package allows for various kinds of persona initializations. Some of these leverage American National Election Studies (ANES), a nationally representative dataset. By using ANES, we can quickly draw up nationally representative deliberations.
 
-Regarding `structures`, the package allows for various kinds of ways agents can share information. For example,
-an `ensemble` consists of agents processing tasks in parallel whereas a `chain` consists of agents who each see the
-prior agent's response.
+Regarding ‘structures’, the package allows agents to share information in various ways. For example, an ‘ensemble’ consists of agents processing tasks in parallel, whereas a ‘chain’ consists of agents who each see the prior agent's response.
 
-Regarding `moderators`, we allow the user to easily aggregate, filter, or synthesize the results of multi-agent 
-deliberation by adding a `Moderator` to any structure. These moderators can optionally be auto-moderated, meaning 
-they come up with their own moderation instructions based on the task.
+Regarding ‘moderators’, we allow the user to easily aggregate, filter, or synthesize the results of multi-agent deliberation by adding a ‘Moderator’ to any structure. These moderators can optionally be auto-moderated, meaning they come up with their own moderation instructions based on the task.
 
 # Read full documentation for modules and methods here.
 
 https://josh-ashkinaze.github.io/plurals/
 
-The README file gives specific examples; the documentation gives a more comprehensive overview of the package.
+The README file provides specific examples, while the documentation offers a more comprehensive overview of the package.
 
 
 # Report an issue or request a feature
 
-Plurals is run by a small and energetic team of academics doing the best they can [1]. To report bugs or feature requests, open a Gitub issue. We strongly encourage you to use our `Bug` or `Feature Request` issue templates; these make it easy for us to respond effectively to the issue.  If you have any questions or want to collaborate on this project, please email jashkina@umich.edu. 
+Plurals is run by a small and energetic team of academics doing the best they can [1]. To report bugs or feature requests, open a GitHub issue. We strongly encourage you to use our Bug or Feature Request issue templates; these make it easy for us to respond effectively to the issue. If you have any questions or want to collaborate on this project, please email jashkina@umich.edu.
 
 [1] Language adopted from (https://github.com/davidjurgens/potato). 
 
 
 # Uses
 
-- Persona-based experiments: Quickly create personas for agents, optionally using ANES for fast
-  nationally-representative personas. For example, you can create a panel of 100 nationally-representative personas and
-  send parallel requests to process a prompt in just 2 lines of code
-- Deliberation structure experiments: In just a few lines of code, generate various multi-agent interactions: ensembles,
-  debates, or 'chains' of LLM deliberation
-- Deliberation instruction experiments: Experiment with providing LLMs with different kinds of instructions for how to
-  optimally combine information
-- Curation/Moderation: Use `Moderator` LLMs to moderate (e.g.) ensembles of LLMs to only select the best outputs to feed
-  forward
+- Persona-based experiments: Quickly create personas for agents, optionally using ANES for fast, nationally representative personas. For example, you can create a panel of 100 nationally representative personas and send parallel requests to process a prompt in just two lines of code
+- Deliberation structure experiments: Generate various multi-agent interactions like ensembles, debates, or 'chains' of LLM deliberation in just a few lines of code.
+- Deliberation instruction experiments: Experiment with providing LLMs with different kinds of instructions for how to optimally combine information
+- Curation/Moderation: Use Moderator LLMs to moderate (e.g.) ensembles of LLMs to only select the best outputs to feed forward
 - Persuasion: Use LLMs to collaboratively brainstorm persuasive messaging
 - Augmentation: Use LLMs to augment human decision-making by providing additional information/perspectives
 
@@ -223,13 +210,10 @@ safer communities and protect lives.
 ```
 
 ## Inspecting the exact prompts that an Agent is doing
-It's important to know what exactly is going on under the hood so we have a few ways to do this!
+It is important to know what exactly is going on behind the scenes, so we have a few ways to do this!
 
 
-
-By calling `agent.info` we get a dictionary with everything about the Agent---their prompts, their full system 
-instructions and one of the keys is called `history`. That key is comprised of the prompts and responses of agents. 
-You can get this by calling `agent.history` if that's your main interest. You can also access the responses of agents more directly by simply getting `agent.responses` 
+By calling `agent.info`, we can retrieve a dictionary containing comprehensive information about the Agent, including their prompts, full system instructions, and a key called `history`, which consists of the prompts and responses of agents. You can get this key by calling ‘agent.history’ if that is your main interest. You can also access the responses of agents more directly by simply calling ‘agent.responses’. 
 ```python
 from plurals.agent import Agent
 a = Agent(ideology="very conservative", model='gpt-4o', task="A task here")
@@ -255,9 +239,7 @@ default_agent = Agent(model='gpt-4o', task=task, kwargs={'temperature': 0.1, 'ma
 
 
 ## Different ways to set up system prompt
-Agent has many different ways to set system prompts. Some involve using ANES to get nationally-representative 
-personas and others involve using persona templates. But for simplicity, you can also not pass in any system prompt 
-or just pass in your own system prompt directly. 
+Agent has many different ways to set system prompts. Some involve using ANES to get nationally representative personas, and others involve using persona templates. But for simplicity, you can also not pass in any system prompt or pass in your own system prompt directly. 
 
 ### No system prompt
 
@@ -286,8 +268,7 @@ agent = Agent(system_instructions="You are a predictable independent",
 
 ### Using templates
 
-A main usage of this package is running experiments and so we have another way to create personas that uses string
-formatting. Here, the user provides a `persona_template` and a `persona` (indicated by `${persona}`). Or, the user can just use our
+A main usage of this package is running experiments, so we have another way to create personas that uses string formatting. Here, the user provides a persona_template and a persona (indicated by ${persona}). Or, the user can just use our
 default `persona_template`.
 
 ```python
@@ -328,11 +309,7 @@ print(agents[1].system_instructions)
 
 ### Using ANES for nationally representative personas
 
-We have several ways to leverage government datasets for creating simulated personas. The basic idea is that we search
-ANES for a row that satisfies some data criteria, and then condition the persona variable on the demographics in that
-row. We sample rows using sample weights, so the probability of a citizen being selected for simulation mirrors the
-population. For example, if one wanted to get a persona of a liberal, we would search ANES for liberal Americans, sample
-a citizen at random (using weights), and then use that citizen's other attributes in the persona as well.
+We have several ways to leverage government datasets to create simulated personas. The basic idea is that we search ANES for a row that satisfies some data criteria and then condition the persona variable on the demographics in that row. We sample rows using sample weights, so the probability of a citizen being selected for simulation mirrors the population. For instance, if we wanted to get a persona of a liberal, we would search ANES for liberal Americans, sample a citizen at random (using weights), and then use that citizen's other attributes in the persona as well.
 
 As of this writing:
 (1) We are using ANES Pilot Study data from March 2024.
@@ -407,10 +384,7 @@ agent = Agent(persona='random', model='gpt-4o', task=task)
 
 #### Option 3: Searching ANES using a pandas query string
 
-If you want to get more specific, you can pass in a query string that will be used to filter the ANES dataset. Now, you
-may not know the exact variables in ANES and so
-we have a helper function that will print out the demographic/political columns we are using so you know what value to
-pass in.
+If you want to get more specific, you can pass in a query string that will be used to filter the ANES dataset. Now, you may not know the exact variables in ANES, so we have a helper function that will print out the demographic/political columns we are using so you know what values to pass in.
 
 
 ```python
@@ -418,7 +392,7 @@ from plurals.helpers import print_anes_mapping
 
 print_anes_mapping()
 ```
-This will show a number of variables and their allowed values but just to give an excerpt:
+This will show a number of variables and their allowed values, but just to give an excerpt:
 
 ```markdown
 ANES Variable Name: gender4
@@ -428,11 +402,10 @@ Non-binary
 Other
 ```
 
-So now we know that we can construct a query string that uses `gender4` and the values `Man`, `Woman`, `Non-binary`, and
-`Other`.
+Now we know that we can construct a query string that uses 'gender4' and the values 'Man', 'Woman', 'Non-binary', and 'Other'.
 
 
-Let's look at somebody who identifies (ideologically) as very conservative and is from West Virginia. 
+Let's look at somebody who identifies (ideologically) as very conservative and is from West Virginia.
 
 ```python
 from plurals.agent import Agent
@@ -456,8 +429,7 @@ ensure we don't hurt communities that rely on coal and keep our energy supply
 stable.
 ```
 
-Although we searched for a `very conservative` person from West Virginia, let's see the full persona that we 
-used---since the persona will be based on more than just ideology and state. 
+Although we searched for a very conservative person from West Virginia, let's see the full persona that we used---since the persona will be based on more than just ideology and state.
 ```python
 print(west_virginia.persona)
 ```
@@ -490,6 +462,7 @@ Structures are the environments in which agents work together. Broadly, structur
     - Along with these templates, you can also pass in your own combination_instructions too.
     - Note that, like persona_template, combination_instructions expects a ${previous_responses} placeholder. This will get filled in with the previous responses. 
 
+Examples of the features described above will be demonstrated below in the “Types of Structures” module.
 
 ## Note on Moderators
 
@@ -594,17 +567,11 @@ mod.system_instructions = "Review all submitted responses and identify the top 5
 
 ## Types of Structures
 
-We went over how to set up agents and now we are going to discuss how to set up structures---which are the
-environments in which agents complete tasks. As of this writing, we have three structures: `ensemble`, `chain`, and 
-`debate`. Each of these structures can optionally be `moderated`, meaning that at the end of deliberation, a moderator 
-agent will summarize everything (e.g: make a final classification, take best ideas etc.)
+We went over how to set up agents, and now we are going to discuss how to set up structures---which are the environments in which agents complete tasks. As of this writing, we have three structures: ensemble, chain, and debate. Each of these structures can optionally be moderated, meaning that at the end of deliberation, a moderator agent will summarize everything (for example, make a final classification, take the best ideas, etc.)
 
 ### Ensemble
 
-The most basic structure is an Ensemble which is where agents process tasks in parallel. For example, let's say we
-wanted to have a panel of 10 nationally-representative agents brainstorm ideas to improve America. We can define our
-agents, put them in an ensemble, and then simply do `ensemble.process()`. You should pass in the task to the ensemble so
-all agents know what to do.
+The most basic structure is an Ensemble, in which agents process tasks in parallel. For example, let's say we wanted to have a panel of 10 nationally representative agents brainstorm ideas to improve America. We can define our agents, put them in an ensemble, and then simply do ensemble.process(). It is important to pass in the task to the ensemble so all agents know what to do.
 
 ```python
 from plurals.agent import Agent
@@ -616,7 +583,7 @@ ensemble.process()
 print(ensemble.responses)
 ```
 
-This will give 10 responses for each of our agents. Ensemble is the simplest structure yet can still be useful!
+This will give 10 responses for each of our agents. Ensemble is the simplest structure, yet it can still be quite useful!
 
 ### Tracing what is going on in Structures 
 To get a better sense of what is going on, we can access information of both the ensemble and the agents. 
@@ -633,9 +600,7 @@ print(ensemble.responses) # Will give the responses of the ensemble
 
 ```
 
-Ensemble also allows you to combine models without any persona, and so we can test if different models ensembled 
-together give different results relative to the same model ensembled together. Remember that when we don't pass in 
-system instructions or a persona, this is just a normal API call.
+Ensemble also allows you to combine models without any persona, so we can test if different models ensembled together give different results relative to the same model ensembled together. Remember that this is just a normal API call when we do not pass in system instructions or a persona.
 
 ```python
 from plurals.agent import Agent
