@@ -474,7 +474,7 @@ south. You live in a rural area. You live in the state of west virginia
 
 ## Overview of Structures
 
-    **Structures:** Structures are the environments in which agents work together. Broadly, structures are defined by:
+   **Structures:** Structures are the environments in which agents work together. Broadly, structures are defined by:
     - **Information-sharing:**
         - Direction of information sharing (i.e: is it directed or undirected).
         - Amount of information-sharing. (e.g. in an `Ensemble`, no information is shared and Agents process requests in parallel whereas in a `Chain`, agents each build upon each other's answers.)
