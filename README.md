@@ -474,7 +474,7 @@ south. You live in a rural area. You live in the state of west virginia
 
 ## Overview of Structures
 
-**Structures:** Structures are the environments in which agents work together. Broadly, structures are defined by:
+1. **Structures:** Structures are the environments in which agents work together. Broadly, structures are defined by:
     - **Information-sharing:**
         - Direction of information sharing (i.e: is it directed or undirected).
         - Amount of information-sharing.
@@ -487,7 +487,7 @@ south. You live in a rural area. You live in the state of west virginia
         - We offer a list of templates which can be used via keywords.
         - Templates are inspired by research on derivative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
 
-## Moderators
+### Note on Moderators
 
 **Moderators and Auto-Moderators:** We support Moderators, who are special classes of Agents that oversee deliberation. Like Agents, Moderators are defined by their system instructions---which can be comprised of personas and combination instructions (how to combine information). Or users can just set system instructions directly. As with combination instructions and persona templates, we support various pre-defined moderator instructions. We also support Auto-Moderators which is when a Moderator will generate its own instructions on how to combine responses of prior Agents. 
 
