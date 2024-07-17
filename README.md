@@ -462,7 +462,7 @@ Structures are the environments in which agents work together. Broadly, structur
     - Along with these templates, you can also pass in your own combination_instructions too.
     - Note that, like persona_template, combination_instructions expects a ${previous_responses} placeholder. This will get filled in with the previous responses. 
 
-Examples of the features described above will be demonstrated below in the “Types of Structures” module.
+Examples of the features described above will be demonstrated below in the “Types of Structures” module below.
 
 ## Note on Moderators
 
@@ -517,7 +517,7 @@ a = Agent(model='gpt-4o')
 b = Agent(model='gpt-3.5-turbo')
 # By putting the moderator in the Ensemble we are going to 
 # trigger the auto-mod generator 
-ensemble = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
+chain = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
 ```
 
 So let's see what the moderator thinks it should be doing with this information. 
@@ -607,7 +607,7 @@ for key, ensemble in ensembles.items():
     print(key, ensemble.responses)
 ```
 
-### Ensemble with a moderator / Moderator intro
+### Ensemble with a moderator
 
 Let's say we want some Agent to oversee this process by reviewing these ideas and returning the ones that are the best. We can achieve this by passing in a `moderator` agent, which is a special kind of Agent. It only has three arguments: `persona` (the moderator persona), `system_instructions` (which, if passed in, will override a persona), and `combination_instructions` (how to combine the responses).
 
@@ -624,6 +624,33 @@ ensemble = Ensemble(agents, moderator=moderator, task=task, combination_instruct
 ensemble.process()
 print(ensemble.responses)
 ```
+Let's say we wanted to have a panel of 5 agents representing a spectrum of ideological backgrounds, ranging from very conservative to very liberal share their thoughts on universal healthcare. We can define our agents, put them in an ensemble, and then simply do ensemble.process().
+
+```python
+n_words = 50
+ideologies = ["liberal", "moderate", "conservative", "very liberal", "very conservative"]
+
+task = (f"What is your stance on the government's role in providing universal healthcare? Answer from the point of view of your ideology. Answer in  less than {n_words} word.")
+
+agents =  [Agent(ideology=ideology, persona_template="default", model=model) for ideology in
+          ideologies]
+
+mod = Moderator(persona = "default", combination_instructions = "default")
+structure = Ensemble(agents, combination_instructions="default", task=task, moderator = mod)
+structure.process()
+print("\n\n")
+print("EXPERTS PANEL OPINIONS\n")
+print (f"TASK:  {task}\n")
+#print(structure.responses)
+
+for agent in agents:
+    print(f"Persona's ideology : {agent.ideology}, \nResponse : {agent.responses}\n")
+    #print("\n")
+    
+print("MODERATOR FINAL RESPONSE")
+print(structure.final_response)
+```
+
 ### Tracing what is going on in Structures 
 To get a better sense of what is going on, we can access information of both the ensemble and the agents. 
 
@@ -662,21 +689,15 @@ chain.process()
 print(chain.final_response)
 ```
 
-This will give a response that combines the best points from all of our agents. Chain is one of the best structures for 
+This will give a response combining the best points from all our agents. Chain is one of the best structures for 
 deliberation and reaching a consensus among agents.
 
-NOTE: In the above example, we passed in `combination_instructions` to Chain. If you pass 
-`combination_instructions` into a chain, all the agents will inherit it. Recall that `combination_instructions` expects a `${previous_responses}` placeholder if it is not one of the default 
-options that we offer.  This placeholder would get filled in with the previous responses. In the above example, we passed in "chain" 
-instructions, so the chain option of combination_instructions will be read from the `instructions.yaml`. See that 
-file for templates. 
-
+NOTE: If you pass `combination_instructions` into a chain, like in the above example, all the agents will inherit it (same with 'Ensemble' and 'Debate'). 
+In the above example, we set `combination_instructions` to chain, so the chain option of combination_instructions will be read from the `instructions.yaml` file. See the `instructions.yaml' file for templates. 
 
 ### Chain with a moderator
 
-Let's say we want some Agent to review the ideas presented, combine them, and incorporate the best points 
-to return a balanced answer. We can do that by passing in a `moderator` agent, which is a special kind of Agent. It only has three arguments: `persona` (the moderator persona), `system_instructions` (which, if passed in, will override a persona), and `combination_instructions` (how to combine the responses).
-
+Let's say we want some Agent to review the ideas presented, combine them, and incorporate the best points to provide a balanced answer. We can do this by passing in a `moderator` agent, which is a special kind of Agent with only three arguments: 'persona' (the moderator's persona), 'system_instructions' (which, if provided, will override a persona), and 'combination_instructions' (specifying how to combine the responses).
 
 ```python
 from plurals.agent import Agent
@@ -692,10 +713,23 @@ chain = Chain([agent1, agent2, agent3], combination_instructions="chain", modera
 chain.process()
 print(chain.final_response)
 ```
+NOTE: Suppose we want the agents and the moderator to repeat this process multiple times instead of just once. In that case, we can change the variable 'cycles' to a number greater than one. The value of the integer 'cycles' will determine how many times we will go through this process, whether it's ensemble, chain, or debate.
 
-NOTE: We can also change the number of previous responses the agents see by changing the variable 'last_n'. For example 
-if 'last_n' = 1, agents only see one last response. But if 'last_n' = 3, agents will be able to see the three last 
-responses.
+```python
+from plurals.agent import Agent
+from plurals.deliberation import Chain, Moderator
+
+task = "How should we combat climate change?"
+agent1 = Agent(persona='a conservative man from California', model='gpt-4o')
+agent2 = Agent(ideology='liberal', persona_template='empathetic', model='gpt-4o')
+agent3 = Agent(persona='random', model='gpt-4o')
+moderator = Moderator(persona='empathetic', model='gpt-4o', combination_instructions="empathetic")
+chain = Chain([agent1, agent2, agent3], combination_instructions="chain", moderator=moderator,task=task, cycles = 3)
+chain.process()
+print(chain.final_response)
+```
+
+NOTE: We also have the option to adjust the number of previous responses that the agents see by modifying the variable 'last_n'. For instance, if 'last_n' = 1, agents will only see one last response. However, if 'last_n' = 3, agents will be able to see the three last responses.
 
 ```python
 from plurals.agent import Agent
@@ -712,31 +746,51 @@ chain = Chain([agent1, agent2, agent3], combination_instructions="chain", modera
 chain.process()
 print(chain.final_response)
 ```
-
-NOTE: Let's say we want the agents and moderator to go through this process multiple times instead of only once. To do this, we can change the variable 'cycles' to a number greater than one. The value of the integer 'cycles' will dictate how many times we go through the process, whether that process be ensemble, chain, or debate.
+Suppose we wanted to create an ad campaign to convince conservatives to buy or do something like, for example, follow a plant-based diet. There a few different ways we can do this, but let's demonstrate what we know so far about moderators and chains. To start let's define our task and initialize our agents.
 
 ```python
 from plurals.agent import Agent
 from plurals.deliberation import Chain, Moderator
+task = "Come up with an ad campaign to convince conservatives to follow a plant-based diet. It should pivot on one core insight. Answer in 50 words."
+agent1 = Agent(ideology="conservative", model='gpt-4o')
+agent2 = Agent(ideology="conservative", model='gpt-4o')
+agent3 = Agent(ideology="very conservative", model='gpt-4o')
+```
+In the example below, we use a template for our moderator and set both moderator persona and combination_instructions to default. We also use a template for our agent combination_instructions, as demonstrated by combination_instructions= "chain".
 
-task = "How should we combat climate change?"
-agent1 = Agent(persona='a conservative man from California', model='gpt-4o')
-agent2 = Agent(ideology='liberal', persona_template='empathetic', model='gpt-4o')
-agent3 = Agent(persona='random', model='gpt-4o')
-moderator = Moderator(persona='empathetic', model='gpt-4o', combination_instructions="empathetic")
-
-chain = Chain([agent1, agent2, agent3], combination_instructions="chain", moderator=moderator,task=task, cycles = 3)
+```python
+#Persona Moderator
+moderator = Moderator(persona='default', model='gpt-4o', combination_instructions="default")
+chain = Chain([agent1, agent2, agent3], combination_instructions="chain", task=task, moderator = moderator)
 chain.process()
 print(chain.final_response)
 ```
 
+In the next example below, we set moderator system instructions directly, giving our own directions to the moderator without relying on a template. Recall that when users set their own system instructions, system instructions expects a `${task}` placeholder. This placeholder would get filled in with the task.
+Note that for the agent combination_instructions, we also create our own instructions. Recall that when users set their own `combination_instructions`,` combination_instructions'expects a `${previous_responses}` placeholder if it is not one of the default options that we offer. This placeholder would get filled in with the previous responses.
+
+```python
+#Setting system instructions moderator
+moderator = Moderator(system_instructions="You are an expert strategist for an advertisement agency. Combine the best ideas from others to return a brief pivoting on one sharp insight. Provide the brief. Answer in 50 words. ${task}", model='gpt-4o', combination_instructions="voting")
+chain = Chain([agent1, agent2, agent3], combination_instructions="Consider the earlier ads presented but come up with your own unique commercial.${previous_responses}", task=task, moderator=moderator)
+chain.process()
+print(chain.final_response)
+print("\n\n")
+```
+In the final example, we use a template to set our agent combination_instructions to chain. However, for our moderator, we use the auto option, which allows the moderator to come up with its own system instructions. 
+
+```python
+#Auto Moderator
+chain = Chain([agent1, agent2, agent3], combination_instructions="chain", moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
+chain.process()
+print("\n\n")
+print(chain.final_response)
+```
+
+
 ### Debate
 
-Another structure is a Debate which is where agents process tasks as if they are in an argument. A Debate consists of 
-agents who refute the points made in a prior agent's response and try to convince the other party of their viewpoint. 
-Only two agents are allowed in Debate. For example, let's say we wanted to have a debate between a liberal and a 
-conservative on the role of government in providing free welfare to citizens. We can define our agents, put them in a 
-debate, and then simply do `debate.process()`. You should pass in the task to the debate so all agents know what to do.
+Another type of structure is a Debate, which is where agents process tasks as if they are in an argument. A Debate involves agents who challenge the points made by a previous agent and attempt to persuade the other party of their viewpoint. Only two agents are allowed in Debate. For example, suppose we wanted to stage a debate between a liberal and a conservative on the topic of the government's role in providing free welfare to citizens. We can define our agents, place them in a debate, and then simply do`debate.process()`. Make sure to provide the task to the debate so that all agents know what to do.
 
 ```python
 from plurals.agent import Agent
@@ -751,19 +805,13 @@ debate.process()
 print(debate.responses)
 ```
 
-This will give two responses from each of the respective agents in the following format: Debater 1's response and then 
-Debater 2's response. Debate is the best structure for argumentation and simulating debates.
+This will give a response from each of the respective agents in the following format: Debater 1's response and then Debater 2's response. Debate is the best structure for argumentation and simulating debates.
 
 ### Debate with a moderator
 
-Let's say we want some Agent to actually read over the ideas presented and incorporate the best points 
-to return a balanced answer. We can do that by passing in  a `moderator` agent, which is a special kind of Agent. 
-It only has two arguments: `persona` (the moderator persona) and `combination_instructions`(how to combine the 
-responses).
+Let's say we want some Agent to read over the ideas presented and incorporate the best points to return a balanced answer. We can do this by passing in a `moderator` agent, which is a special kind of Agent with only three arguments: 'persona' (the moderator's persona), 'system_instructions' (which, if provided, will override a persona), and 'combination_instructions' (specifying how to combine the responses).
 
-Implementing a moderator will alter the output from being only the debaters' responses to being the response of a 
-moderator which combines the best points from both debaters to provide a balanced answer. 
-
+Implementing a moderator will change the output from solely the debaters' responses to a combined response from the moderator, incorporating the best points from both debaters to provide a balanced answer.
 
 ```python
 from plurals.agent import Agent
