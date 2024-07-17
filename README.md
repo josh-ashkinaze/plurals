@@ -457,7 +457,7 @@ Structures are the environments in which agents work together. Broadly, structur
     - How agents are instructed to combine information in the structure.
     - It is a special kind of instruction that only kicks in when there are previous responses from an agent's view.
     - Interactions can be adversarial or amicable.
-    - We offer a list of templates which can be used via keywords. As of this writing, we offer default, chain, debate, and voting combination_instructions options in our template in instructions.yaml.
+    - We offer a list of templates which can be used via keywords. As of this writing, we offer default, chain, debate, and voting combination_instructions for ordinary agents in our template in instructions.yaml. Then we offer default, voting, rational, and empathetic for our special Moderator agents in our template in instructions.yaml.
     - Templates are inspired by research on deliberative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
     - Along with these templates, you can also pass in your own combination_instructions too.
     - Note that, like persona_template, combination_instructions expects a ${previous_responses} placeholder. This will get filled in with the previous responses. 
@@ -586,7 +586,7 @@ print(ensemble.responses)
 This will give 10 responses for each of our agents. Ensemble is the simplest structure, yet it can still be quite useful!
 
 
-Ensemble also allows you to combine models without any persona, so we can test if different models ensembled together give different results relative to the same model ensembled together. Remember that this is just a normal API call when we do not pass in system instructions or a persona.
+Ensemble also allows you to combine models without any persona, so we can test if different models ensembled together give different results relative to the same model ensembled together. Remember that this is simply a standard API call when we do not pass in system instructions or a persona.
 
 ```python
 from plurals.agent import Agent
@@ -607,18 +607,7 @@ for key, ensemble in ensembles.items():
 
 ### Ensemble with a moderator / Moderator intro
 
-Let's say we want some Agent to actually read over some of these ideas and maybe return one that is the best. We can do
-that by passing in  a `moderator` agent, which is a special kind of Agent. It only has three arguments: `persona` (the 
-moderator persona), `system_instructions` (which if passed in will override a persona) and `combination_instructions` 
-(how to combine the responses).
-
-**NOTE**: This is the first time that we are seeing `combination_instructions` and it is a special kind of instruction that
-will only kick in when there are previous responses in an Agent's view. Of course, the moderator is at the end of this
-whole process so there are always going to be previous responses.
-
-Note that like a persona_template, `combination_instructions` expects a `${previous_responses}` placeholder. This will
-get filled in with the previous responses. We have default `combination_instructions` in `instructions.yaml` and other 
-options like chain, debate, and voting. You can also pass in your own, too---here is an example.
+Let's say we want some Agent to oversee this process by reviewing these ideas and returning the ones that are the best. We can achieve this by passing in a `moderator` agent, which is a special kind of Agent. It only has three arguments: `persona` (the moderator persona), `system_instructions` (which, if passed in, will override a persona), and `combination_instructions` (how to combine the responses).
 
 ```python
 from plurals.agent import Agent
@@ -650,9 +639,9 @@ print(ensemble.responses) # Will give the responses of the ensemble
 
 ### Chain
 
-Another structure is a Chain which is where agents process tasks in a sequence. A Chain consists of agents who
+Another structure is a Chain, which is where agents process tasks in a sequence. A Chain consists of agents who
 each see the prior agent's response. For example, let's say we wanted to have a panel of agents with diverse backgrounds 
-(e.g. diverse ideologies, genders, racial backgrounds, educational backgrounds, etc.) to discuss the topic of climate 
+(e.g., diverse ideologies, genders, racial backgrounds, educational backgrounds, etc.) to discuss the topic of climate 
 change. We can define our agents, put them in a chain, and then simply do `chain.process()`. You should pass in the 
 task to the chain, so all agents know what to do.
 
@@ -674,11 +663,8 @@ print(chain.final_response)
 This will give a response that combines the best points from all of our agents. Chain is one of the best structures for 
 deliberation and reaching a consensus among agents.
 
-NOTE: In the above example, we passed in `combination_instructions` to Chain. `combination_instructions` is a special 
-kind of instruction that will only kick in when there are previous responses in an Agent's view. If you pass 
-`combination_instructions` into a chain, all the agents will inherit it. 
-
-Recall that `combination_instructions` expects a `${previous_responses}` placeholder if it is not one of the default 
+NOTE: In the above example, we passed in `combination_instructions` to Chain. If you pass 
+`combination_instructions` into a chain, all the agents will inherit it. Recall that `combination_instructions` expects a `${previous_responses}` placeholder if it is not one of the default 
 options that we offer.  This placeholder would get filled in with the previous responses. In the above example, we passed in "chain" 
 instructions, so the chain option of combination_instructions will be read from the `instructions.yaml`. See that 
 file for templates. 
