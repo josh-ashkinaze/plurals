@@ -565,6 +565,8 @@ print(mod.generate_system_instructions(task=task))
 mod.system_instructions = "Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly."
 ```
 
+
+
 ## Types of Structures
 
 We went over how to set up agents, and now we are going to discuss how to set up structures---which are the environments in which agents complete tasks. As of this writing, we have three structures: ensemble, chain, and debate. Each of these structures can optionally be moderated, meaning that at the end of deliberation, a moderator agent will summarize everything (for example, make a final classification, take the best ideas, etc.)
@@ -672,16 +674,8 @@ file for templates.
 
 ### Chain with a moderator
 
-Let's say we want some Agent to actually read over the ideas presented, combine them, and incorporate the best points 
-to return a balanced answer. We can do that by passing in  a `moderator` agent, which is a special kind of Agent. 
-It only has two arguments: `persona` (the moderator persona) and `combination_instructions`(how to combine the 
-responses).
-
-NOTE: This is the first time that we are seeing `combination_instructions` for a moderator and, like for an agent, it 
-is a special kind of instruction that kicks in when there are previous responses in an Agent's view. Like a 
-persona_template, `combination_instructions`expects a `${previous_responses}` placeholder. This will get filled in with 
-the previous responses. We have default `combination_instructions`in `instructions.yaml` and other options like default, 
-voting, rational, and empathetic. You can also pass in your own too.
+Let's say we want some Agent to review the ideas presented, combine them, and incorporate the best points 
+to return a balanced answer. We can do that by passing in a `moderator` agent, which is a special kind of Agent. It only has three arguments: `persona` (the moderator persona), `system_instructions` (which, if passed in, will override a persona), and `combination_instructions` (how to combine the responses).
 
 
 ```python
@@ -695,25 +689,6 @@ agent3 = Agent(persona='an elderly woman with a PhD', model='gpt-4o')
 moderator = Moderator(persona='default', model='gpt-4o', combination_instructions="default")
 
 chain = Chain([agent1, agent2, agent3], combination_instructions="chain", moderator=moderator,task=task)
-chain.process()
-print(chain.final_response)
-```
-
-NOTE: Let's say we want the agents and moderator to go through this process multiple times instead of only once. To do 
-this we can change the variable 'cycles' to be a number greater than one. The value of the integer 'cycles' will dictate 
-how many times we go through the process whether that process be ensemble, chain, or debate.
-
-```python
-from plurals.agent import Agent
-from plurals.deliberation import Chain, Moderator
-
-task = "How should we combat climate change?"
-agent1 = Agent(persona='a conservative man from California', model='gpt-4o')
-agent2 = Agent(ideology='liberal', persona_template='empathetic', model='gpt-4o')
-agent3 = Agent(persona='random', model='gpt-4o')
-moderator = Moderator(persona='empathetic', model='gpt-4o', combination_instructions="empathetic")
-
-chain = Chain([agent1, agent2, agent3], combination_instructions="chain", moderator=moderator,task=task, cycles = 3)
 chain.process()
 print(chain.final_response)
 ```
@@ -734,6 +709,23 @@ moderator = Moderator(persona='empathetic', model='gpt-4o', combination_instruct
 
 chain = Chain([agent1, agent2, agent3], combination_instructions="chain", moderator=moderator,task=task,
               cycles = 3, last_n =3)
+chain.process()
+print(chain.final_response)
+```
+
+NOTE: Let's say we want the agents and moderator to go through this process multiple times instead of only once. To do this, we can change the variable 'cycles' to a number greater than one. The value of the integer 'cycles' will dictate how many times we go through the process, whether that process be ensemble, chain, or debate.
+
+```python
+from plurals.agent import Agent
+from plurals.deliberation import Chain, Moderator
+
+task = "How should we combat climate change?"
+agent1 = Agent(persona='a conservative man from California', model='gpt-4o')
+agent2 = Agent(ideology='liberal', persona_template='empathetic', model='gpt-4o')
+agent3 = Agent(persona='random', model='gpt-4o')
+moderator = Moderator(persona='empathetic', model='gpt-4o', combination_instructions="empathetic")
+
+chain = Chain([agent1, agent2, agent3], combination_instructions="chain", moderator=moderator,task=task, cycles = 3)
 chain.process()
 print(chain.final_response)
 ```
