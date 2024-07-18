@@ -621,6 +621,8 @@ print(ensemble.final_response)
 ```
 Note that in the above example, we printed ensemble.final_response instead of ensemble.responses (like we did without a Moderator) because, in this case, we only want to print the final response of the moderator and not all the 10 agent's responses.
 
+Note that in the above example we set our own combination_instructions. Recall that when users set their own combination_instructions,combination_instructions'expects a${previous_responses}` placeholder if it is not one of the default options that we offer. This placeholder would get filled in with the previous responses.
+
 Let's say we wanted to have a panel of 5 agents representing a spectrum of ideological backgrounds, ranging from very conservative to very liberal share their thoughts on universal healthcare. We can define our agents, put them in an ensemble, and then simply do ensemble.process().
 
 ```python
