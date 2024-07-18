@@ -183,15 +183,10 @@
 <span class="sd">    normal strings.</span>
 
 <span class="sd">    Longer explanation: The format method of the str class uses the curly braces syntax for string formatting. This</span>
-<span class="sd">    breaks when the string contains curly braces that are not meant to be replaced. For example:</span>
-
-<span class="sd">    s = &quot;Hello, {name} I am a json like {&#39;key&#39;:&#39;value&#39;}&quot;</span>
-<span class="sd">    new_s = s.format(name=&quot;John&quot;)</span>
-
-<span class="sd">    This will raise a KeyError because the format method will try to replace the curly braces in the json string as</span>
-<span class="sd">    well, but we only want to replace {name}. So as a solution one can turn `s` into a string Template and use the</span>
-<span class="sd">    safe_substitute method to replace the variables. This is what the SmartString class does: It is a subclass of str that overrides the format</span>
-<span class="sd">    method to use string.Template for string formatting.</span>
+<span class="sd">    breaks when the string `s` contains curly braces that are not meant to be replaced. So as a solution one can turn</span>
+<span class="sd">    `s` into a string Template and use the `safe_substitute` method to replace the variables. This is what the</span>
+<span class="sd">    SmartString class does: It is a subclass of str that overrides the format method to use `string.Template` for</span>
+<span class="sd">    string formatting.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SmartString.format">
@@ -207,12 +202,15 @@
 
 <span class="sd">        Double-period algorithm:</span>
 <span class="sd">        Foreach key, value in kwargs:</span>
+
 <span class="sd">        1. Construct a placeholder-plus-period like &quot;{task}.&quot; (assuming {task} is placeholder here)</span>
+
 <span class="sd">        2. Check if the placeholder-plus-period is in the string AND the replacement ends with a period.</span>
+
 <span class="sd">        3. If both conditions are met, replace the replacement-plus-period with just the replacement.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            avoid_double_period (bool): Whether to avoid double periods in the final string. (Default: False)</span>
+<span class="sd">            avoid_double_period (bool): Whether to avoid double periods in the final string. (Default: True)</span>
 <span class="sd">            **kwargs: Key-value pairs to replace in the string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">Template</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>

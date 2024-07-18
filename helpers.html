@@ -93,13 +93,10 @@
 <p>Problem it fixes: Oftentimes users will have some kind of json string in their task and this throws an error with
 normal strings.</p>
 <p>Longer explanation: The format method of the str class uses the curly braces syntax for string formatting. This
-breaks when the string contains curly braces that are not meant to be replaced. For example:</p>
-<p>s = “Hello, {name} I am a json like {‘key’:’value’}”
-new_s = s.format(name=”John”)</p>
-<p>This will raise a KeyError because the format method will try to replace the curly braces in the json string as
-well, but we only want to replace {name}. So as a solution one can turn <cite>s</cite> into a string Template and use the
-safe_substitute method to replace the variables. This is what the SmartString class does: It is a subclass of str that overrides the format
-method to use string.Template for string formatting.</p>
+breaks when the string <cite>s</cite> contains curly braces that are not meant to be replaced. So as a solution one can turn
+<cite>s</cite> into a string Template and use the <cite>safe_substitute</cite> method to replace the variables. This is what the
+SmartString class does: It is a subclass of str that overrides the format method to use <cite>string.Template</cite> for
+string formatting.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="plurals.helpers.SmartString.format">
 <span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">avoid_double_period</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/helpers.html#SmartString.format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.helpers.SmartString.format" title="Link to this definition"></a></dt>
@@ -109,14 +106,16 @@ is already present. This happens if the string is like <cite>Complete the {task}
 the thing</cite>. In this case, we want to remove the extra period. This is particularly useful for Moderator
 personas where in defaults they often end on the task.</p>
 <p>Double-period algorithm:
-Foreach key, value in kwargs:
-1. Construct a placeholder-plus-period like “{task}.” (assuming {task} is placeholder here)
-2. Check if the placeholder-plus-period is in the string AND the replacement ends with a period.
-3. If both conditions are met, replace the replacement-plus-period with just the replacement.</p>
+Foreach key, value in kwargs:</p>
+<ol class="arabic simple">
+<li><p>Construct a placeholder-plus-period like “{task}.” (assuming {task} is placeholder here)</p></li>
+<li><p>Check if the placeholder-plus-period is in the string AND the replacement ends with a period.</p></li>
+<li><p>If both conditions are met, replace the replacement-plus-period with just the replacement.</p></li>
+</ol>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>avoid_double_period</strong> (<em>bool</em>) – Whether to avoid double periods in the final string. (Default: False)</p></li>
+<li><p><strong>avoid_double_period</strong> (<em>bool</em>) – Whether to avoid double periods in the final string. (Default: True)</p></li>
 <li><p><strong>**kwargs</strong> – Key-value pairs to replace in the string.</p></li>
 </ul>
 </dd>
