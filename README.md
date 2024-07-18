@@ -19,14 +19,16 @@
          - [Option 2: Random sampling](#option-2-random-sampling)
          - [Option 3: Searching ANES using a pandas query string](#option-3-searching-anes-using-a-pandas-query-string)
 - [Structures](#structures)
-   * [Types of Structures](#types-of-structures)
-   * [Ensemble](#ensemble)
-   * [Tracing what is going on in Structures ](#tracing-what-is-going-on-in-structures)
-   * [Ensemble with a moderator / Moderator intro](#ensemble-with-a-moderator--moderator-intro)
+   * [Overview of Structures](#overview-of-structures)
+   * [Notes on Moderators](notes-on-moderators)
       + [Setting a Moderator's System Instructions](#setting-a-moderators-system-instructions)
          - [Personas ](#personas)
          - [Moderator system instructions set directly](#moderator-system-instructions-set-directly)
          - [Auto-Moderators](#auto-moderators)
+   * [Types of Structures](#types-of-structures)
+   * [Ensemble](#ensemble)
+   * [Ensemble with a moderator](#ensemble-with-a-moderator)
+   * [Tracing what is going on in Structures ](#tracing-what-is-going-on-in-structures)
    * [Chain](#chain)
    * [Chain with a moderator](#chain-with-a-moderator)
    * [Debate](#debate)
@@ -464,7 +466,7 @@ Structures are the environments in which agents work together. Broadly, structur
 
 Examples of the features described above will be demonstrated below in the “Types of Structures” module below.
 
-## Note on Moderators
+## Notes on Moderators
 
 **Moderators and Auto-Moderators:** We support Moderators, who are special classes of Agents that oversee deliberation. Like Agents, Moderators are defined by their system instructions---which can be comprised of personas and combination instructions (how to combine information). Or users can just set system instructions directly. As with combination instructions and persona templates, we support various pre-defined moderator instructions. We also support Auto-Moderators which is when a Moderator will generate its own instructions on how to combine responses of prior Agents. 
 
