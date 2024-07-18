@@ -133,7 +133,7 @@ task = "Should the United States ban assault rifles? Answer in 50 words."
 # other demographic variables as well. Use the default persona template from instructions.yaml 
 # (By default the persona_template is `default' from `instructions.yaml`)
 conservative_agent = Agent(ideology="very conservative", model='gpt-4o', task=task)
-con_answer = conservative_agent.process()  # call agent.process() to get the response. 
+con_answer = conservative_agent.process()  # call conservative_agent.process() to get the response. 
 ```
 
 Note that we can call Agents to process tasks in two ways:
@@ -141,13 +141,12 @@ Note that we can call Agents to process tasks in two ways:
 task = "Should the United States ban assault rifles? Answer in 50 words."
 
 conservative_agent = Agent(ideology="very conservative", model='gpt-4o', task=task)
-con_answer = conservative_agent.process()  # call agent.process() to get the response. 
+con_answer = conservative_agent.process()  # call conservative_agent.process() to get the response. 
 
 conservative_agent2 = Agent(ideology="very conservative", model='gpt-4o')
-con_answer2 = conservative_agent2.process(task)
+con_answer2 = conservative_agent2.process(task) # call conservative_agent2.process() to get the response. 
 
 ```
-
 
 ```python
 from plurals.agent import Agent
@@ -156,10 +155,9 @@ from plurals.agent import Agent
 # other demographic variables as well. Use the `empathetic` persona template from instructions.yaml which 
 # encourages storytelling above reason-giving. 
 liberal_agent = Agent(ideology="very liberal", persona_template='empathetic', model='gpt-4o', task=task)
-liberal_agent.process()
-lib_answer = liberal_agent.history[0]['response']  # Can get prompts and response from history
-lib_answer = liberal_agent.info['history'][0]['response']  # Can get history and more from info 
+lib_answer = liberal_agent.process()  # call  liberal_agent.process() to get the response. 
 ```
+
 ```python
 ############ Print the results ############
 print(conservative_agent.system_instructions)
@@ -214,8 +212,7 @@ safer communities and protect lives.
 ## Inspecting the exact prompts that an Agent is doing
 It is important to know what exactly is going on behind the scenes, so we have a few ways to do this!
 
-
-By calling `agent.info`, we can retrieve a dictionary containing comprehensive information about the Agent, including their prompts, full system instructions, and a key called `history`, which consists of the prompts and responses of agents. You can get this key by calling ‘agent.history’ if that is your main interest. You can also access the responses of agents more directly by simply calling ‘agent.responses’. 
+By calling `agent.info`, we can retrieve a dictionary containing comprehensive information about the Agent, including their prompts, full system instructions, and a key called `history`, which consists of the prompts and responses of agents. You can get this `history` key by calling ‘agent.history’ if that is your main interest. You can also access the responses of agents more directly by simply calling ‘agent.responses’. 
 ```python
 from plurals.agent import Agent
 a = Agent(ideology="very conservative", model='gpt-4o', task="A task here")
@@ -224,18 +221,33 @@ print(a.info)
 print(a.history)
 print(a.responses)
 ```
+If we wanted to, we could use history or info to get our agent's response.
+```python
+from plurals.agent import Agent
+task = "Should the United States ban assault rifles? Answer in 50 words."
+# Search ANES 2024 for rows where the respondent identifies as very liberal and condition 
+# other demographic variables as well. Use the `empathetic` persona template from instructions.yaml which 
+# encourages storytelling above reason-giving. 
+liberal_agent = Agent(ideology="very liberal", persona_template='empathetic', model='gpt-4o', task=task)
+lib_answer1 = liberal_agent.process()
+lib_answer2 = liberal_agent.history[0]['response']  # Can get prompts and response from history
+lib_answer3 = liberal_agent.info['history'][0]['response']  # Can get history and more from info
+# lib_answer1, lib_answer2, and lib_answer3 are all eqaul to the same thing.
+```
 
-
-
+##
 Let's say you don't want to use persona templates. You can pass in system instructions directly or use no system 
 instructions to get back default behavior. 
+Passing in system instructions directly:
 ```python
 from plurals.agent import Agent
 task = "A task"
-# Pass in system instructions directly 
 pirate_agent = Agent(system_instructions="You are a pirate.", model='gpt-4o', task=task)
-
-# No system instructions so we get back default behavior
+```
+Passing in no system instructions, so we get back default behavior
+```python
+from plurals.agent import Agent
+task = "A task"
 default_agent = Agent(model='gpt-4o', task=task, kwargs={'temperature': 0.1, 'max_tokens': 100})
 ```
 
