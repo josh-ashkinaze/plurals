@@ -495,7 +495,7 @@ chain = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt
 So let's see what the moderator thinks it should be doing with this information. 
 
 ``` python
-print(ensemble.moderator.system_instructions)
+print(chain.moderator.system_instructions)
 ```
 
 ```
@@ -532,7 +532,8 @@ mod.generate_and_set_system_instructions(task=task)
 # Or, you can generate instructions and inspect them before setting them. You can generate multiple times of course. 
 mod = Moderator(system_instructions="some boring initial instructions",  model='gpt-4o')
 print(mod.generate_system_instructions(task=task))
-
+```
+```python
 # Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly.
 mod.system_instructions = "Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly."
 ```
