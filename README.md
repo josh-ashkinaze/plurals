@@ -134,10 +134,6 @@ task = "Should the United States ban assault rifles? Answer in 50 words."
 # (By default the persona_template is `default' from `instructions.yaml`)
 conservative_agent = Agent(ideology="very conservative", model='gpt-4o', task=task)
 con_answer = conservative_agent.process()  # call conservative_agent.process() to get the response. 
-```
-##
-```python
-from plurals.agent import Agent
 
 # Search ANES 2024 for rows where the respondent identifies as very liberal and condition 
 # other demographic variables as well. Use the `empathetic` persona template from instructions.yaml which 
