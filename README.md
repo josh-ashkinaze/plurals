@@ -65,7 +65,7 @@ EF and NE are equal contributors.
 
 # Package Overview
 
-'Plurals' is based on two abstractions—`Agents` (who complete tasks) and `Structures` (which are the environments in which `agents` complete their tasks.) Agents can be optionally overseen by `Moderators`, a special class of Agents, who summarize the responses of Agents in Structures. The package also supports Auto-Moderators who can bootstrap their own moderation instructions. 
+'Plurals' is based on two abstractions—`Agents` (who complete tasks) and `Structures` (which are the environments in which `agents` complete their tasks). Agents can be optionally overseen by `Moderators`, a special class of Agents, who summarize the responses of Agents in Structures. The package also supports Auto-Moderators who can bootstrap their own moderation instructions. 
 
 Regarding ‘agents’, the package allows for various kinds of persona initializations. Some of these leverage American National Election Studies (ANES), a nationally representative dataset. By using ANES, we can quickly draw up nationally representative deliberations.
 
@@ -90,7 +90,7 @@ Plurals is run by a small and energetic team of academics doing the best they ca
 # Uses
 
 - Persona-based experiments: Quickly create personas for agents, optionally using ANES for fast, nationally representative personas. For example, you can create a panel of 100 nationally representative personas and send parallel requests to process a prompt in just two lines of code
-- Deliberation structure experiments: Generate various multi-agent interactions like ensembles, debates, or 'chains' of LLM deliberation in just a few lines of code.
+- Deliberation structure experiments: Generate various multi-agent interactions like ensembles, debates, or chains of LLM deliberation in just a few lines of code.
 - Deliberation instruction experiments: Experiment with providing LLMs with different kinds of instructions for how to optimally combine information
 - Curation/Moderation: Use Moderator LLMs to moderate (e.g.) ensembles of LLMs to only select the best outputs to feed forward
 - Persuasion: Use LLMs to collaboratively brainstorm persuasive messaging
