@@ -26,14 +26,14 @@
          - [Moderator system instructions set directly](#moderator-system-instructions-set-directly)
          - [Auto-Moderators](#auto-moderators)
    * [Types of Structures](#types-of-structures)
-   * [Ensemble](#ensemble)
-   * [Ensemble with a moderator](#ensemble-with-a-moderator)
-   * [Tracing what is going on in Structures ](#tracing-what-is-going-on-in-structures)
-   * [Chain](#chain)
-   * [Chain with a moderator](#chain-with-a-moderator)
-   * [Debate](#debate)
-   * [Debate with a moderator](#debate-with-a-moderator)
-   * [History](#history)
+      + [Ensemble](#ensemble)
+      + [Ensemble with a moderator](#ensemble-with-a-moderator)
+      + [Tracing what is going on in Structures ](#tracing-what-is-going-on-in-structures)
+      + [Chain](#chain)
+      + [Chain with a moderator](#chain-with-a-moderator)
+      + [Debate](#debate)
+      + [Debate with a moderator](#debate-with-a-moderator)
+      + [History](#history)
 
 <!-- TOC end -->
 
@@ -468,22 +468,20 @@ Examples of the features described above will be demonstrated below in the “Ty
 
 ## Notes on Moderators
 
-**Moderators and Auto-Moderators:** We support Moderators, who are special classes of Agents that oversee deliberation. Like Agents, Moderators are defined by their system instructions---which can be comprised of personas and combination instructions (how to combine information). Or users can just set system instructions directly. As with combination instructions and persona templates, we support various pre-defined moderator instructions. We also support Auto-Moderators which is when a Moderator will generate its own instructions on how to combine responses of prior Agents. 
+**Moderators and Auto-Moderators:** We support Moderators, who are special classes of Agents that oversee deliberation. Like Agents, Moderators are defined by their system instructions---which can be comprised of personas and combination instructions (how to combine information). Users can set their own system instructions directly or, as with combination instructions and persona templates, we support various pre-defined moderator instructions. We also support Auto-Moderators, which is when a Moderator generates its own instructions on how to combine responses of prior Agents. 
 
 ### Setting a Moderator's System Instructions
 #### Personas 
 Like Agents, `personas` and `system_instructions` are different ways to set up the moderator's system instructions. 
-If you use `persona`, then you can use some of our default moderator personas available in the defaults file (https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml
-). For example, if you pass in `persona='voting'`, then we will use a moderator persona meant for voting.
+If you use `persona`, then you can use some of our default moderator personas available in the defaults file (https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml). For example, if we pass in `persona='voting'`, then we will use a moderator persona meant for voting.
 
 ```python
 from plurals.deliberation import Moderator
 
 a = Moderator(persona='voting', model='gpt-4o', combination_instructions="voting")
 ```
-These personas all exepect a placeholder for `${task}` that will get replaced with the Structure's task. You can 
-define your own persona too. When passed into a structure, the `${task}` placeholder will be replaced with the actual 
-task. 
+These personas all expect a placeholder for `${task}` that will be replaced with the Structure's task. There is also an option to define your own persona. When passed into a structure, the `${task}` placeholder will be replaced with the actual task.
+
 ```python
 from plurals.deliberation import Moderator
 
@@ -493,8 +491,7 @@ combination_instructions="voting")
 ```
 
 #### Moderator system instructions set directly
-You can also set system instructions directly much like with Agents and this will have a similar effect to custom 
-personas. 
+You can also set system instructions directly, much like with Agents, and this will have a similar effect to custom personas.  
 
 ```python
 from plurals.deliberation import Moderator
@@ -502,12 +499,12 @@ from plurals.deliberation import Moderator
 mod = Moderator(system_instructions="You are a neutral moderator overseeing this task, ${task}", model='gpt-4o', 
 combination_instructions="voting")
 ```
-The difference is that system_instructions is not linked with our templates so you cannot do things like 
+The difference is that system_instructions is not linked with our templates, so you cannot do things like 
 `system_instructions='default'` like you can with `persona='default'`.
 
 #### Auto-Moderators
-We have a special option where if the `system_instructions` of a moderator are set to `auto` then the moderator will,
-given a task, come up with its own system instructions. So here's how to do this!
+We have a special option where, if the `system_instructions` of a moderator are set to `auto`, then the moderator will,
+given a task, come up with its own system instructions. Here is how to do this!
 
 ```python
 from plurals.deliberation import Moderator, Ensemble, Chain
