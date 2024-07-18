@@ -156,7 +156,9 @@ from plurals.agent import Agent
 # encourages storytelling above reason-giving. 
 liberal_agent = Agent(ideology="very liberal", persona_template='empathetic', model='gpt-4o')
 lib_answer = liberal_agent.process(task)  # call  liberal_agent.process() to get the response.
+```
 
+```python
 ############ Print the results ############
 print(conservative_agent.system_instructions)
 print("=" * 20)
