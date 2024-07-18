@@ -138,8 +138,8 @@ con_answer = conservative_agent.process()  # call conservative_agent.process() t
 # Search ANES 2024 for rows where the respondent identifies as very liberal and condition 
 # other demographic variables as well. Use the `empathetic` persona template from instructions.yaml which 
 # encourages storytelling above reason-giving. 
-liberal_agent = Agent(ideology="very liberal", persona_template='empathetic', model='gpt-4o')
-lib_answer = liberal_agent.process(task)  # call  liberal_agent.process() to get the response.
+liberal_agent = Agent(ideology="very liberal", persona_template='empathetic', model='gpt-4o', task=task)
+lib_answer = liberal_agent.process()  # call  liberal_agent.process() to get the response.
 ```
 
 ```python
@@ -205,7 +205,7 @@ print(a.info)
 print(a.history)
 print(a.responses)
 ```
-If we wanted to, we could use history or info to get our agent's response.
+If we wanted to, we could use `history` or `agent.info` to get our agent's response.
 ```python
 from plurals.agent import Agent
 task = "Should the United States ban assault rifles? Answer in 50 words."
@@ -234,22 +234,6 @@ conservative_agent2 = Agent(ideology="very conservative", model='gpt-4o')
 con_answer2 = conservative_agent2.process(task) # call conservative_agent2.process() to get the response. 
 
 ```
-
-Let's say you don't want to use persona templates. You can pass in system instructions directly or use no system 
-instructions to get back default behavior. 
-Passing in system instructions directly:
-```python
-from plurals.agent import Agent
-task = "A task"
-pirate_agent = Agent(system_instructions="You are a pirate.", model='gpt-4o', task=task)
-```
-Passing in no system instructions, so we get back default behavior
-```python
-from plurals.agent import Agent
-task = "A task"
-default_agent = Agent(model='gpt-4o', task=task, kwargs={'temperature': 0.1, 'max_tokens': 100})
-```
-
 
 ## Different ways to set up system prompt
 Agent has many different ways to set system prompts. Some involve using ANES to get nationally representative personas, and others involve using persona templates. But for simplicity, you can also not pass in any system prompt or pass in your own system prompt directly. 
