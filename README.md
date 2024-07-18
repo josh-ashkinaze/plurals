@@ -531,11 +531,10 @@ mod.generate_and_set_system_instructions(task=task)
 
 # Or, you can generate instructions and inspect them before setting them. You can generate multiple times of course. 
 mod = Moderator(system_instructions="some boring initial instructions",  model='gpt-4o')
-mod.generate_system_instructions(task=task)
-print(mod.system_instructions)
-```
-```python
-Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly.
+print(mod.generate_system_instructions(task=task))
+
+# Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly.
+mod.system_instructions = "Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly."
 ```
 
 
