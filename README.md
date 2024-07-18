@@ -455,10 +455,10 @@ Structures are the environments in which agents work together. Broadly, structur
     - It is a special kind of instruction that only kicks in when there are previous responses from an agent's view.
     - Interactions can be adversarial or amicable.
     - There are two ways to set combination_insturctions.
-      (1) **Using a template**
-      We offer a list of templates which can be used via keywords. As of this writing, we offer default, chain, debate, and voting combination_instructions templates for ordinary agents. We also offer default, voting, rational, and empathetic combination_instructions templates for our special Moderator agents. These templates can be found in instructions.yaml. (https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml). Templates are inspired by research on deliberative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
-      (2) **Setting your own**
-      You can also pass in your own combination_instructions. However, when passing your own instructions in, note that, like persona_template, combination_instructions expects a ${previous_responses} placeholder. This will get filled in with the previous responses. 
+      + (1) **Using a template**
+      + We offer a list of templates which can be used via keywords. As of this writing, we offer default, chain, debate, and voting combination_instructions templates for ordinary agents. We also offer default, voting, rational, and empathetic combination_instructions templates for our special Moderator agents. These templates can be found in instructions.yaml. (https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml). Templates are inspired by research on deliberative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
+      + (2) **Setting your own**
+      + You can also pass in your own combination_instructions. However, when passing your own instructions in, note that, like persona_template, combination_instructions expects a ${previous_responses} placeholder. This will get filled in with the previous responses. 
 
 Examples of the features described above will be demonstrated below in the “Types of Structures” module below.
 
