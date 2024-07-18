@@ -476,3 +476,5 @@ class Debate(AbstractStructure):
                 self.responses, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
+
+
