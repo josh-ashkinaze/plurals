@@ -135,7 +135,7 @@ task = "Should the United States ban assault rifles? Answer in 50 words."
 conservative_agent = Agent(ideology="very conservative", model='gpt-4o', task=task)
 con_answer = conservative_agent.process()  # call conservative_agent.process() to get the response. 
 ```
-
+###
 Note that we can call Agents to process tasks in two ways:
 ```python
 task = "Should the United States ban assault rifles? Answer in 50 words."
@@ -147,18 +147,16 @@ conservative_agent2 = Agent(ideology="very conservative", model='gpt-4o')
 con_answer2 = conservative_agent2.process(task) # call conservative_agent2.process() to get the response. 
 
 ```
-
+##
 ```python
 from plurals.agent import Agent
 
 # Search ANES 2024 for rows where the respondent identifies as very liberal and condition 
 # other demographic variables as well. Use the `empathetic` persona template from instructions.yaml which 
 # encourages storytelling above reason-giving. 
-liberal_agent = Agent(ideology="very liberal", persona_template='empathetic', model='gpt-4o', task=task)
-lib_answer = liberal_agent.process()  # call  liberal_agent.process() to get the response. 
-```
+liberal_agent = Agent(ideology="very liberal", persona_template='empathetic', model='gpt-4o')
+lib_answer = liberal_agent.process(task)  # call  liberal_agent.process() to get the response.
 
-```python
 ############ Print the results ############
 print(conservative_agent.system_instructions)
 print("=" * 20)
@@ -234,6 +232,8 @@ lib_answer2 = liberal_agent.history[0]['response']  # Can get prompts and respon
 lib_answer3 = liberal_agent.info['history'][0]['response']  # Can get history and more from info
 # lib_answer1, lib_answer2, and lib_answer3 are all eqaul to the same thing.
 ```
+In the example code above, lib_answer1, lib_answer2, and lib_answer3 are all give us the same liberal_agent's 
+response.
 
 ##
 Let's say you don't want to use persona templates. You can pass in system instructions directly or use no system 
