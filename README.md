@@ -617,8 +617,10 @@ agents = [Agent(persona='random', model='gpt-4o') for i in range(10)] # random A
 moderator = Moderator(persona='default', model='gpt-4o') # default moderator persona
 ensemble = Ensemble(agents, moderator=moderator, task=task, combination_instructions=combination_instructions)
 ensemble.process()
-print(ensemble.responses)
+print(ensemble.final_response)
 ```
+Note that in the above example, we printed ensemble.final_response instead of ensemble.responses (like we did without a Moderator) because, in this case, we only want to print the final response of the moderator and not all the 10 agent's responses.
+
 Let's say we wanted to have a panel of 5 agents representing a spectrum of ideological backgrounds, ranging from very conservative to very liberal share their thoughts on universal healthcare. We can define our agents, put them in an ensemble, and then simply do ensemble.process().
 
 ```python
@@ -627,24 +629,25 @@ ideologies = ["liberal", "moderate", "conservative", "very liberal", "very conse
 
 task = (f"What is your stance on the government's role in providing universal healthcare? Answer from the point of view of your ideology. Answer in  less than {n_words} word.")
 
-agents =  [Agent(ideology=ideology, persona_template="default", model=model) for ideology in
+agents = [Agent(ideology=ideology, persona_template="default", model=model) for ideology in
           ideologies]
 
 mod = Moderator(persona = "default", combination_instructions = "default")
-structure = Ensemble(agents, combination_instructions="default", task=task, moderator = mod)
-structure.process()
+ensemble = Ensemble(agents, combination_instructions="default", task=task, moderator = mod)
+ensemble.process()
 print("\n\n")
-print("EXPERTS PANEL OPINIONS\n")
 print (f"TASK:  {task}\n")
-#print(structure.responses)
+#print(ensemble.responses)
 
 for agent in agents:
     print(f"Persona's ideology : {agent.ideology}, \nResponse : {agent.responses}\n")
-    #print("\n")
+
     
 print("MODERATOR FINAL RESPONSE")
-print(structure.final_response)
+print(ensemble.final_response)
 ```
+NOTE: If you pass combination_instructions into an ensemble, like in the above example, all the agents will inherit it (same with 'Chain' and 'Debate'). In the above example, we set combination_instructions to default, so the default option of combination_instructions will be read from the instructions.yaml file. See the `instructions.yaml' file for templates.
+
 
 ### Tracing what is going on in Structures 
 To get a better sense of what is going on, we can access information of both the ensemble and the agents. 
