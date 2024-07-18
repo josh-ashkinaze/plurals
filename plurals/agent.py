@@ -115,7 +115,6 @@ class Agent:
         self._set_system_instructions()
         self.kwargs = kwargs if kwargs is not None else {}
 
-
     def _set_system_instructions(self):
         """
         Users can directly pass in system_instructions. Or, we can generate system instructions by combining a
@@ -189,9 +188,9 @@ class Agent:
             return self._row2persona(selected_row, self.persona_mapping)
 
     def process(
-        self,
-        task: Optional[str] = None,
-        previous_responses: str = "",
+            self,
+            task: Optional[str] = None,
+            previous_responses: str = "",
     ) -> Optional[str]:
         """
         Process the task, optionally building upon a previous response. If you pass in a task, it will replace the
@@ -255,8 +254,8 @@ class Agent:
                 **self.kwargs)
             content = response.choices[0].message.content
             prompts = {
-                'system': next((msg['content'] for msg in messages if msg['role'] == 'system'),None),
-                'user': next((msg['content'] for msg in messages if msg['role'] == 'user'),None)}
+                'system': next((msg['content'] for msg in messages if msg['role'] == 'system'), None),
+                'user': next((msg['content'] for msg in messages if msg['role'] == 'user'), None)}
             self._history.append(
                 {'prompts': prompts, 'response': content, 'model': self.model})
             return content
@@ -341,7 +340,6 @@ class Agent:
                  bool(self.system_instructions)]) > 1):
             raise AssertionError("You can only pass in one of ideology, query_str, system_instructions, or persona")
 
-
         if self.ideology:
             allowed_vals = [
                 'liberal',
@@ -361,7 +359,9 @@ class Agent:
             default_templates = list(self.defaults['persona_template'].keys())
 
             assert '${persona}' in self.persona_template or self.persona_template in default_templates, (
-                    "If you pass in a persona_template, it must contain a ${persona} placeholder or be one of the default templates:" + str(default_templates))
+                    "If you pass in a persona_template, it must contain a ${persona} placeholder or be one of the default templates:" + str(
+                default_templates))
+
     @property
     def history(self):
         if not self._history:
@@ -404,4 +404,3 @@ class Agent:
         """
         self.original_task_description = task
         self.current_task_description = task
-
