@@ -18,13 +18,13 @@
          - [Option 1: Syntax Sugar: Searching for ideologies](#option-1-syntax-sugar-searching-for-ideologies)
          - [Option 2: Random sampling](#option-2-random-sampling)
          - [Option 3: Searching ANES using a pandas query string](#option-3-searching-anes-using-a-pandas-query-string)
-- [Structures](#structures)
-   * [Overview of Structures](#overview-of-structures)
-   * [Notes on Moderators](notes-on-moderators)
+   * [Moderators: a special type of Agent](#moderators-a-special-type-of-agent)
       + [Setting a Moderator's System Instructions](#setting-a-moderators-system-instructions)
          - [Personas ](#personas)
          - [Moderator system instructions set directly](#moderator-system-instructions-set-directly)
-         - [Auto-Moderators](#auto-moderators)
+         - [Auto-Moderators](#auto-moderators)      
+- [Structures](#structures)
+   * [Overview of Structures](#overview-of-structures)
    * [Types of Structures](#types-of-structures)
       + [Ensemble](#ensemble)
       + [Ensemble with a moderator](#ensemble-with-a-moderator)
@@ -192,6 +192,18 @@ warfare, contribute to mass violence and tragedy. No family should fear going to
 school, a concert, or a movie. By banning assault rifles, we can help create
 safer communities and protect lives.
 ```
+###
+Note that we can call Agents to process tasks in two ways:
+```python
+task = "Should the United States ban assault rifles? Answer in 50 words."
+
+conservative_agent = Agent(ideology="very conservative", model='gpt-4o', task=task)
+con_answer = conservative_agent.process()  # call conservative_agent.process() to get the response. 
+
+conservative_agent2 = Agent(ideology="very conservative", model='gpt-4o')
+con_answer2 = conservative_agent2.process(task) # call conservative_agent2.process() to get the response. 
+
+```
 
 ## Inspecting the exact prompts that an Agent is doing
 It is important to know what exactly is going on behind the scenes, so we have a few ways to do this!
@@ -199,10 +211,14 @@ It is important to know what exactly is going on behind the scenes, so we have a
 By calling `agent.info`, we can retrieve a dictionary containing comprehensive information about the Agent, including their prompts, full system instructions, and a key called `history`, which consists of the prompts and responses of agents. You can get this `history` key by calling ‘agent.history’ if that is your main interest. You can also access the responses of agents more directly by simply calling ‘agent.responses’. 
 ```python
 from plurals.agent import Agent
-a = Agent(ideology="very conservative", model='gpt-4o', task="A task here")
-a.process()
+task = "Should the United States ban assault rifles? Answer in 50 words."
+a = Agent(ideology="very conservative", model='gpt-4o')
+a.process(task)
+print("\nINFO\n")
 print(a.info)
+print("\nHISTORY\n")
 print(a.history)
+print("\nRESPONSES\n")
 print(a.responses)
 ```
 If we wanted to, we could use `history` or `agent.info` to get our agent's response.
@@ -221,19 +237,6 @@ lib_answer3 = liberal_agent.info['history'][0]['response']  # Can get history an
 In the example code above, lib_answer1, lib_answer2, and lib_answer3 all give us the same liberal_agent's 
 response.
 
-##
-###
-Note that we can call Agents to process tasks in two ways:
-```python
-task = "Should the United States ban assault rifles? Answer in 50 words."
-
-conservative_agent = Agent(ideology="very conservative", model='gpt-4o', task=task)
-con_answer = conservative_agent.process()  # call conservative_agent.process() to get the response. 
-
-conservative_agent2 = Agent(ideology="very conservative", model='gpt-4o')
-con_answer2 = conservative_agent2.process(task) # call conservative_agent2.process() to get the response. 
-
-```
 
 ## Different ways to set up system prompt
 Agent has many different ways to set system prompts. Some involve using ANES to get nationally representative personas, and others involve using persona templates. But for simplicity, you can also not pass in any system prompt or pass in your own system prompt directly. 
@@ -306,7 +309,7 @@ print(agents[1].system_instructions)
 
 ### Using ANES for nationally representative personas
 
-We have several ways to leverage government datasets to create simulated personas. The basic idea is that we search ANES for a row that satisfies some data criteria and then condition the persona variable on the demographics in that row. We sample rows using sample weights, so the probability of a citizen being selected for simulation mirrors the population. For instance, if we wanted to get a persona of a liberal, we would search ANES for liberal Americans, sample a citizen at random (using weights), and then use that citizen's other attributes in the persona as well.
+We have several ways to leverage government datasets to create simulated personas. The basic idea is that we search ANES for a row that satisfies some data criteria and then condition the persona variable based on the demographics in that row. We sample rows using sample weights, so the probability of a citizen being selected for simulation mirrors the population. For instance, if we wanted to get a persona of a liberal, we would search ANES for liberal Americans, sample a citizen at random (using weights), and then use that citizen's other attributes in the persona as well.
 
 As of this writing:
 (1) We are using ANES Pilot Study data from March 2024.
@@ -472,8 +475,7 @@ from plurals.deliberation import Moderator
 mod = Moderator(system_instructions="You are a neutral moderator overseeing this task, ${task}", model='gpt-4o', 
 combination_instructions="voting")
 ```
-The difference is that system_instructions is not linked with our templates, so you cannot do things like 
-`system_instructions='default'` like you can with `persona='default'`.
+The difference is that system_instructions is not linked with our templates, so you cannot access any pre-defined moderator instructions when using system_instructions. `system_instructions='default'` will not access the default template like `persona='default'` would.
 
 #### Auto-Moderators
 We have a special option where, if the `system_instructions` of a moderator are set to `auto`, then the moderator will,
@@ -656,12 +658,16 @@ To get a better sense of what is going on, we can access information of both the
 
 ```python
 for agent in ensemble.agents:
+    print("\nAGENT INFO\n")
     print(agent.info) # Will get info about the agent
+    print("\nAGENT HISTORY\n")
     print(agent.history) # Will get the history of the agent's prompts so you can see their API calls
 
 # Will give a dictionary of information with one key for `structure` (i.e: information related 
 # to the Structure and one key called `agents` (i.e: `agent.info` for each of the agents in the Structure) 
+print("\nENSEMBLE INFO\n")
 print(ensemble.info) 
+print("\nENSEMBLE RESPONSES\n")
 print(ensemble.responses) # Will give the responses of the ensemble
 
 ```
