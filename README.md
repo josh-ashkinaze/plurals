@@ -439,32 +439,9 @@ your household. Your employment status is retired. Your geographic region is the
 south. You live in a rural area. You live in the state of west virginia
 ```
 
-# Structures
+## Moderators: a special type of Agent
 
-## Overview of Structures
-
-Structures are the environments in which agents work together. Broadly, structures are defined by:
-
-1. **Information-sharing:**
-    - Direction of information sharing (i.e: is it directed or undirected).
-    - Amount of information-sharing. (e.g. in an `Ensemble`, no information is shared and Agents process requests in parallel whereas in a `Chain`, agents each build upon each other's answers.)
-    - Users can create in-between structures. Our system supports a `last_n` parameter that dictates how much information an agent sees from the current deliberation stack. Setting `last_n` to 1 would result in a Markov-esque chain.
-    - Users can also control `cycles` of a structure, which is how many times the sequence is run and whether to `shuffle` the ordering of agents on each cycle.
-2. **Combination instructions:** 
-    - How agents are instructed to combine information in the structure.
-    - It is a special kind of instruction that only kicks in when there are previous responses from an agent's view.
-    - Interactions can be adversarial or amicable.
-    - There are two ways to set combination_insturctions.
-      + (1) **Using a template**
-        We offer a list of templates which can be used via keywords. As of this writing, we offer default, chain, debate, and voting combination_instructions templates for ordinary agents. We also offer default, voting, rational, and empathetic combination_instructions templates for our special Moderator agents. These templates can be found in instructions.yaml. (https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml). Templates are inspired by research on deliberative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
-      + (2) **Setting your own**
-        You can also pass in your own combination_instructions. However, when passing your own instructions in, note that, like persona_template, combination_instructions expects a ${previous_responses} placeholder. This will get filled in with the previous responses. 
-
-Examples of the features described above will be demonstrated below in the “Types of Structures” module below.
-
-## Notes on Moderators
-
-**Moderators and Auto-Moderators:** We support Moderators, who are special classes of Agents that oversee deliberation. Like Agents, Moderators are defined by their system instructions---which can be comprised of personas and combination instructions (how to combine information). Users can set their own system instructions directly or, as with combination instructions and persona templates, we support various pre-defined moderator instructions. We also support Auto-Moderators, which is when a Moderator generates its own instructions on how to combine responses of prior Agents. 
+**Moderators and Auto-Moderators:** We support Moderators, who are special classes of Agents that oversee deliberation. Like Agents, Moderators are defined by their system instructions---which can be comprised of personas and combination instructions (how to combine information). Users can set their own system instructions directly or, as with persona templates, we support various pre-defined moderator instructions. We also support Auto-Moderators, which is when a Moderator generates its own instructions on how to combine responses of prior Agents. 
 
 ### Setting a Moderator's System Instructions
 #### Personas 
@@ -476,7 +453,7 @@ from plurals.deliberation import Moderator
 
 a = Moderator(persona='voting', model='gpt-4o', combination_instructions="voting")
 ```
-These personas all expect a placeholder for `${task}` that will be replaced with the Structure's task. There is also an option to define your own persona. When passed into a structure, the `${task}` placeholder will be replaced with the actual task.
+There is also an option to define your own persona. However, when passing your own instructions in, note that, like persona_template, persona expects a ${task} placeholder. This will get filled in with the actual task.
 
 ```python
 from plurals.deliberation import Moderator
@@ -539,13 +516,13 @@ b = Agent(model='gpt-3.5-turbo')
 # This will trigger the auto-mod module to generate its own system instructions. 
 # This is a straightforward way to use auto-moderators. Then we can just put it in a Structure
 mod = Moderator(system_instructions='auto', model='gpt-4o', task=task)
-ensemble = Chain([a, b], moderator=mod, task=task)
+chain = Chain([a, b], moderator=mod, task=task)
 
 # Simply defining the moderator in the Structure will inherit the structure's task so this is also a simple way to have
 # the Moderator bootstrap its own instructions based on the task. 
 a = Agent(model='gpt-4o')
 b = Agent(model='gpt-3.5-turbo')
-ensemble = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
+chain = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
 
 
 # You can also turn a normal moderator into an auto-moderator. 
@@ -560,6 +537,29 @@ print(mod.generate_system_instructions(task=task))
 mod.system_instructions = "Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly."
 ```
 
+
+# Structures
+
+## Overview of Structures
+
+Structures are the environments in which agents work together. Broadly, structures are defined by:
+
+1. **Information-sharing:**
+    - Direction of information sharing (i.e: is it directed or undirected).
+    - Amount of information-sharing. (e.g. in an `Ensemble`, no information is shared and Agents process requests in parallel whereas in a `Chain`, agents each build upon each other's answers.)
+    - Users can create in-between structures. Our system supports a `last_n` parameter that dictates how much information an agent sees from the current deliberation stack. Setting `last_n` to 1 would result in a Markov-esque chain.
+    - Users can also control `cycles` of a structure, which is how many times the sequence is run and whether to `shuffle` the ordering of agents on each cycle.
+2. **Combination instructions:** 
+    - How agents are instructed to combine information in the structure.
+    - It is a special kind of instruction that only kicks in when there are previous responses from an agent's view.
+    - Interactions can be adversarial or amicable.
+    - There are two ways to set combination_insturctions.
+      + (1) **Using a template**:
+        we offer a list of templates which can be used via keywords. As of this writing, we offer default, chain, debate, and voting combination_instructions templates for ordinary agents. We also offer default, voting, rational, and empathetic combination_instructions templates for our special Moderator agents. These templates can be found in instructions.yaml. (https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml). Templates are inspired by research on deliberative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
+      + (2) **Setting your own**:
+        you can also pass in your own combination_instructions. However, when passing your own instructions in, note that, like persona_template, combination_instructions expects a ${previous_responses} placeholder. This will get filled in with the previous responses. 
+
+Examples of the features described above will be demonstrated below in the “Types of Structures” module.
 
 
 ## Types of Structures
