@@ -826,7 +826,39 @@ debate = Debate([agent1, agent2], task=task, combination_instructions="debate", 
 debate.process()
 print(debate.final_response)
 ```
+A special kind of template we have in instructions.yaml are empathetic and rational templates. The empathetic templates prioritize emotions and perspectives, while the rational templates prioritize logic and reason-giving. 
 
+Below is an example of using the emotional templates.
+Note: In the following examples, we will also be demonstrating setting up Agent personas by searching ANES using a pandas query string.
+```python
+from plurals.agent import Agent
+from plurals.deliberation import Debate
+task = "Should guns be banned?"
+agent1 = Agent(query_str="inputstate=='South Carolina'&ideo5=='Very conservative'", persona_template="empathetic", model='gpt-4o')
+agent2 = Agent(query_str="inputstate=='New York'&ideo5=='Very liberal'", persona_template="empathetic", model='gpt-4o')
+moderator = Moderator(persona = "empathetic", combination_instructions = "empathetic")
+debate = Debate([agent1, agent2], task=task, combination_instructions="debate", moderator= moderator)
+debate.process()
+print(debate.final_response)
+=
+Guns carry deep cultural significance for many, offering tradition and teaching responsibility, as shared in memories of hunting in South Carolina. Conversely, urban environments like New York City face heightened risks, making safety a top concern for parents. Balancing heritage with community safety is crucial. Consider the impact of the federal assault weapons ban in reducing mass shootings and the necessity for sensible regulations that respect both cultural values and communal safety. Enhanced background checks, mandatory safe storage laws, and better mental health support could create safer environments without infringing on responsible gun ownership. Let’s work together for a future where both traditions and safety coexist.
+```
+
+Now compare with an example of using the rational templates.
+```python
+from plurals.agent import Agent
+from plurals.deliberation import Debate
+task = "Should guns be banned?"
+agent1 = Agent(query_str="inputstate=='South Carolina'&ideo5=='Very conservative'", persona_template="rational", model='gpt-4o')
+agent2 = Agent(query_str="inputstate=='New York'&ideo5=='Very liberal'", persona_template="rational", model='gpt-4o')
+moderator = Moderator(persona = "rational", combination_instructions = "rational")
+debate = Debate([agent1, agent2], task=task, combination_instructions="debate", moderator= moderator)
+debate.process()
+print(debate.final_response)
+
+The consensus on whether guns should be banned can balance individual rights and public safety. The Second Amendment allows the right to bear arms, but sensible regulations can coexist with this right. Implementing strict background checks, mandatory safety training, and restrictions on high-capacity magazines and assault weapons could curb gun violence while permitting recreational use and self-defense. Countries with stringent gun laws generally have lower gun-related crime rates. By reducing firearm accessibility and promoting responsible ownership, we can aim for a safer society without infringing on constitutional rights. This balanced approach respects individual freedoms and prioritizes collective security.
+``` 
+Notice how the empathetic output incorporated more story-telling and emotion while the rational output incorporated more reason-giving and facts.
 
 ## History
 
