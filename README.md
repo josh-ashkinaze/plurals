@@ -721,7 +721,7 @@ print(chain.final_response)
 ```
 Suppose we want the agents and the moderator to repeat this process multiple times instead of just once. In that case, we can change the variable 'cycles' to a number greater than one. The value of the integer 'cycles' will determine how many times we will go through this process, whether it's ensemble, chain, or debate.
 
-Notice also that we can set up Agents using different methods and still put them in the same chain.
+Notice also that we can set up agents using different methods and still put them in the same chain.
 
 ```python
 from plurals.agent import Agent
