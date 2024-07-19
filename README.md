@@ -721,15 +721,17 @@ print(chain.final_response)
 ```
 Suppose we want the agents and the moderator to repeat this process multiple times instead of just once. In that case, we can change the variable 'cycles' to a number greater than one. The value of the integer 'cycles' will determine how many times we will go through this process, whether it's ensemble, chain, or debate.
 
+Notice also that we can set up Agents using different methods and still put them in the same chain.
+
 ```python
 from plurals.agent import Agent
 from plurals.deliberation import Chain, Moderator
 
 task = "How should we combat climate change?"
 agent1 = Agent(persona='a conservative man from California', model='gpt-4o')
-agent2 = Agent(ideology='liberal', persona_template='empathetic', model='gpt-4o')
+agent2 = Agent(system_instructions='you are a wealthy 30 year old woman', persona_template='empathetic', model='gpt-4o')
 agent3 = Agent(persona='random', model='gpt-4o')
-moderator = Moderator(persona='empathetic', model='gpt-4o', combination_instructions="empathetic")
+moderator = Moderator(persona='empathetic', model='gpt-4o', combination_instructions='empathetic')
 chain = Chain([agent1, agent2, agent3], combination_instructions="chain", moderator=moderator, task=task, cycles = 3)
 chain.process()
 print(chain.final_response)
@@ -743,7 +745,7 @@ from plurals.deliberation import Chain, Moderator
 
 task = "How should we combat climate change?"
 agent1 = Agent(persona='a conservative man from California', model='gpt-4o')
-agent2 = Agent(ideology='liberal', persona_template='empathetic', model='gpt-4o')
+agent2 = Agent(system_instructions='you are a wealthy 30 year old woman', persona_template='empathetic', model='gpt-4o')
 agent3 = Agent(persona='random', model='gpt-4o')
 moderator = Moderator(persona='voting', model='gpt-4o', combination_instructions="voting")
 
@@ -862,7 +864,7 @@ from plurals.deliberation import Debate, Moderator
 task = 'To what extent should the government be involved in providing free welfare to citizens?'
 agent1 = Agent(persona="a liberal", persona_template="default", model='gpt-4o')
 agent2 = Agent(persona="a conservative", persona_template="default", model='gpt-4o')
-moderator = Moderator(persona='default', model='gpt-4o', combination_instructions="default")
+moderator = Moderator(persona='You are a neutral moderator overseeing this task, ${task}', model='gpt-4o', combination_instructions="default")
 
 debate = Debate([agent1, agent2], task=task,  combination_instructions="debate", moderator=moderator,)
 debate.process()
