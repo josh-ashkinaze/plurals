@@ -19,11 +19,12 @@ def print_anes_mapping():
 
     Here are the cases we recode values:
 
-    - `child18` asks participants if they have children under 18 living in their household. We recode `Yes` to `do have
-    children under 18 living in your household` and `No` to `do not have children under 18 living in your household`.
+    - ``child18`` asks participants if they have children under 18 living in their household. We recode ``Yes`` to ``do have
+      children under 18 living in your household`` and ``No`` to ``do not have children under 18 living in your household``.
 
-    - Several questions have multiple choice options (A,B, C) and then an `Other` option. We recode `Other`
-    as `neither A nor B nor C` to be more explicit.
+    - Several questions have multiple choice options (A, B, C) and then an ``Other`` option. We recode ``Other``
+      as ``neither A nor B nor C`` to be more explicit.
+
 
     """
     mapping = load_yaml('anes-mapping.yaml')
