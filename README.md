@@ -106,7 +106,7 @@ to create `system_instructions`:
 - Using a persona template with a placeholder for the persona
 - Interfacing with American National Election Studies to draw up a persona to use with a persona template
 
-Users can make their own persona templates or use the defaults in `instructions.yaml`.
+Users can make their own persona templates or use the defaults in the instructions.yaml file.
 
 Let's see some examples!
 
@@ -153,7 +153,7 @@ print("=" * 20)
 printwrap(lib_answer)
 ```
 
-```
+```python
 INSTRUCTIONS
 When answering questions or performing tasks, always adopt the following persona.
 
@@ -208,7 +208,7 @@ con_answer2 = conservative_agent2.process(task) # call conservative_agent2.proce
 ## Inspecting the exact prompts that an Agent is doing
 It is important to know what exactly is going on behind the scenes, so we have a few ways to do this!
 
-By calling `agent.info`, we can retrieve a dictionary containing comprehensive information about the Agent, including their prompts, full system instructions, and a key called `history`, which consists of the prompts and responses of agents. You can get this `history` key by calling ‘agent.history’ if that is your main interest. You can also access the responses of agents more directly by simply calling ‘agent.responses’. 
+By calling `agent.info`, we can retrieve a dictionary containing comprehensive information about the Agent, including their prompts, full system instructions, and a key called `history`, which consists of the prompts and responses of agents. You can get this `history` key by calling `agent.history` if that is your main interest. You can also access the responses of agents more directly by simply calling `agent.responses`. 
 ```python
 from plurals.agent import Agent
 task = "Should the United States ban assault rifles? Answer in 50 words."
@@ -234,7 +234,7 @@ lib_answer2 = liberal_agent.history[0]['response']  # Can get prompts and respon
 lib_answer3 = liberal_agent.info['history'][0]['response']  # Can get history and more from info
 # lib_answer1, lib_answer2, and lib_answer3 are all eqaul to the same thing.
 ```
-In the example code above, lib_answer1, lib_answer2, and lib_answer3 all give us the same liberal_agent's 
+In the example code above, `lib_answer1`, `lib_answer2`, and `lib_answer3` all give us the same `liberal_agent`'s 
 response.
 
 
@@ -268,7 +268,7 @@ agent = Agent(system_instructions="You are a predictable independent",
 
 ### Using templates
 
-A main usage of this package is running experiments, so we have another way to create personas that uses string formatting. Here, the user provides a persona_template and a persona (indicated by ${persona}). Or, the user can just use our
+A main usage of this package is running experiments, so we have another way to create personas that uses string formatting. Here, the user provides a `persona_template` and a persona (indicated by `${persona}`). Or, the user can just use our
 default `persona_template`.
 
 ```python
@@ -276,7 +276,8 @@ from plurals.agent import Agent
 
 agent = Agent(persona="a liberal", persona_template="default", model='gpt-4o')
 print(agent.system_instructions)
-
+```
+```python
 # When answering questions or performing tasks, always adopt the following persona.
 # 
 # PERSONA:
@@ -343,7 +344,7 @@ print("\n" * 2)
 printwrap(agent.process())
 ```
 
-```
+```python
 INSTRUCTIONS
 When answering questions or performing tasks, always adopt the following persona.
 
@@ -402,8 +403,7 @@ Non-binary
 Other
 ```
 
-Now we know that we can construct a query string that uses 'gender4' and the values 'Man', 'Woman', 'Non-binary', and 'Other'.
-
+Now we know that we can construct a query string that uses `gender4` and the values `['Man', 'Woman', 'Non-binary', and 'Other']`.
 
 Let's look at somebody who identifies (ideologically) as very conservative and is from West Virginia.
 
@@ -444,7 +444,7 @@ south. You live in a rural area. You live in the state of west virginia
 
 ## Moderators: a special type of Agent
 
-**Moderators and Auto-Moderators:** We support Moderators, who are special classes of Agents that oversee deliberation. Like Agents, Moderators are defined by their system instructions---which can be comprised of personas and combination instructions (how to combine information). Users can set their own system instructions directly or, as with persona templates, we support various pre-defined moderator instructions. We also support Auto-Moderators, which is when a Moderator generates its own instructions on how to combine responses of prior Agents. 
+**Moderators and Auto-Moderators:** We support Moderators, who are special classes of Agents that oversee deliberation. Like Agents, Moderators are defined by their `system_instructions`---which can be comprised of `personas` and `combination_instructions` (how to combine information). Users can set their own `system_instructions` directly or, as with persona templates, we support various pre-defined moderator instructions. We also support Auto-Moderators, which is when a Moderator generates its own instructions on how to combine responses of prior Agents. 
 
 ### Setting a Moderator's System Instructions
 #### Personas 
@@ -456,7 +456,7 @@ from plurals.deliberation import Moderator
 
 a = Moderator(persona='voting', model='gpt-4o', combination_instructions="voting")
 ```
-There is also an option to define your own persona. However, when passing your own instructions in, note that, like persona_template, persona expects a ${task} placeholder. This will get filled in with the actual task.
+There is also an option to define your own persona. However, when passing your own instructions in, note that, like `persona_template`, persona expects a `${task}` placeholder. This will get filled in with the actual task.
 
 ```python
 from plurals.deliberation import Moderator
@@ -467,7 +467,7 @@ combination_instructions="voting")
 ```
 
 #### Moderator system instructions set directly
-You can also set system instructions directly, much like with Agents, and this will have a similar effect to custom personas.  
+You can also set `system_instructions` directly, much like with Agents, and this will have a similar effect to custom personas.  
 
 ```python
 from plurals.deliberation import Moderator
@@ -475,7 +475,7 @@ from plurals.deliberation import Moderator
 mod = Moderator(system_instructions="You are a neutral moderator overseeing this task, ${task}", model='gpt-4o', 
 combination_instructions="voting")
 ```
-The difference is that system_instructions is not linked with our templates, so you cannot access any pre-defined moderator instructions when using system_instructions. `system_instructions='default'` will not access the default template like `persona='default'` would.
+The difference is that `system_instructions` is not linked with our templates, so you cannot access any pre-defined moderator instructions when using `system_instructions`. `system_instructions='default'` will not access the default template like `persona='default'` would.
 
 #### Auto-Moderators
 We have a special option where, if the `system_instructions` of a moderator are set to `auto`, then the moderator will,
@@ -500,7 +500,7 @@ So let's see what the moderator thinks it should be doing with this information.
 print(chain.moderator.system_instructions)
 ```
 
-```
+```python
 Group similar ideas together, prioritize uniqueness and novelty. Highlight standout concepts and remove duplicates. Ensure the final list captures diverse and imaginative designs.
 ```
 
@@ -534,7 +534,8 @@ mod.generate_and_set_system_instructions(task=task)
 # Or, you can generate instructions and inspect them before setting them. You can generate multiple times of course. 
 mod = Moderator(system_instructions="some boring initial instructions",  model='gpt-4o')
 print(mod.generate_system_instructions(task=task))
-
+```
+```python
 # Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly.
 mod.system_instructions = "Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly."
 ```
@@ -555,11 +556,11 @@ Structures are the environments in which agents work together. Broadly, structur
     - How agents are instructed to combine information in the structure.
     - It is a special kind of instruction that only kicks in when there are previous responses from an agent's view.
     - Interactions can be adversarial or amicable.
-    - There are two ways to set combination_insturctions.
+    - There are two ways to set `combination_instructions`.
       + (1) **Using a template**:
-        we offer a list of templates which can be used via keywords. As of this writing, we offer default, chain, debate, and voting combination_instructions templates for ordinary agents. We also offer default, voting, rational, and empathetic combination_instructions templates for our special Moderator agents. These templates can be found in instructions.yaml. (https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml). Templates are inspired by research on deliberative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
+        we offer a list of templates which can be used via keywords. As of this writing, we offer default, chain, debate, and voting `combination_instructions` templates for ordinary agents. We also offer default, voting, rational, and empathetic `combination_instructions` templates for our special Moderator agents. These templates can be found in instructions.yaml. (https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml). Templates are inspired by research on deliberative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
       + (2) **Setting your own**:
-        you can also pass in your own combination_instructions. However, when passing your own instructions in, note that, like persona_template, combination_instructions expects a ${previous_responses} placeholder. This will get filled in with the previous responses. 
+        you can also pass in your own `combination_instructions`. However, when passing your own instructions in, note that, like `persona_template`, `combination_instructions` expects a `${previous_responses}` placeholder. This will get filled in with the previous responses. 
 
 Examples of the features described above will be demonstrated below in the “Types of Structures” module.
 
@@ -570,7 +571,7 @@ We went over how to set up agents, and now we are going to discuss how to set up
 
 ### Ensemble
 
-The most basic structure is an Ensemble, in which agents process tasks in parallel. For example, let's say we wanted to have a panel of 10 nationally representative agents brainstorm ideas to improve America. We can define our agents, put them in an ensemble, and then simply do ensemble.process(). It is important to pass in the task to the ensemble so all agents know what to do.
+The most basic structure is an Ensemble, in which agents process tasks in parallel. For example, let's say we wanted to have a panel of 10 nationally representative agents brainstorm ideas to improve America. We can define our agents, put them in an ensemble, and then simply do `ensemble.process()`. It is important to pass in the task to the ensemble so all agents know what to do.
 
 ```python
 from plurals.agent import Agent
@@ -585,7 +586,7 @@ print(ensemble.responses)
 This will give 10 responses for each of our agents. Ensemble is the simplest structure, yet it can still be quite useful!
 
 
-Ensemble also allows you to combine models without any persona, so we can test if different models ensembled together give different results relative to the same model ensembled together. Remember that this is simply a standard API call when we do not pass in system instructions or a persona.
+Ensemble also allows you to combine models without any persona, so we can test if different models ensembled together give different results relative to the same model ensembled together. Remember that this is simply a standard API call when we do not pass in `system_instructions` or a `persona`.
 
 ```python
 from plurals.agent import Agent
@@ -621,11 +622,11 @@ ensemble = Ensemble(agents, moderator=moderator, task=task, combination_instruct
 ensemble.process()
 print(ensemble.final_response)
 ```
-Note: In the above example, we printed ensemble.final_response instead of ensemble.responses (like we did without a Moderator) because, in this case, we only want to print the final response of the moderator and not all the 10 agent's responses.
+Note: In the above example, we printed `ensemble.final_response` instead of `ensemble.responses` (like we did without a Moderator) because, in this case, we only want to print the final response of the moderator and not all the 10 agent's responses.
 
-Note: In the above example we set our own combination_instructions. Recall that when users set their own combination_instructions, combination_instructions expects a '${previous_responses}` placeholder if it is not one of the default options that we offer. This placeholder would get filled in with the previous responses. If you pass combination_instructions into an ensemble, like in the above example, all the agents will inherit it (same with 'Chain' and 'Debate').
+Note: In the above example we set our own `combination_instructions`. Recall that when users set their own `combination_instructions`, `combination_instructions` expects a `${previous_responses}` placeholder if it is not one of the default options that we offer. This placeholder would get filled in with the previous responses. If you pass `combination_instructions` into an ensemble, like in the above example, all the agents will inherit it (same with `Chain` and `Debate`).
 
-Let's say we wanted to have a panel of 5 agents representing a spectrum of ideological backgrounds, ranging from very conservative to very liberal share their thoughts on universal healthcare. We can define our agents, put them in an ensemble, and then simply do ensemble.process().
+Let's say we wanted to have a panel of 5 agents representing a spectrum of ideological backgrounds, ranging from very conservative to very liberal share their thoughts on universal healthcare. We can define our agents, put them in an ensemble, and then simply do `ensemble.process()`.
 
 ```python
 n_words = 50
@@ -650,7 +651,7 @@ for agent in agents:
 print("MODERATOR FINAL RESPONSE")
 print(ensemble.final_response)
 ```
-NOTE: In the above example we set combination_instructions using a template. We set combination_instructions to default, so the default option of combination_instructions will be read from the instructions.yaml file. See the `instructions.yaml' file for templates.
+NOTE: In the above example we set `combination_instructions` using a template. We set `combination_instructions` to default, so the default option of `combination_instructions` will be read from the instructions.yaml file. See the instructions.yaml file for templates.
 
 
 ### Tracing what is going on in Structures 
@@ -698,12 +699,12 @@ print(chain.final_response)
 This will give a response combining the best points from all our agents. Chain is one of the best structures for 
 deliberation and reaching a consensus among agents.
 
-NOTE: If you pass `combination_instructions` into a chain, like in the above example, all the agents will inherit it (same with 'Ensemble' and 'Debate'). 
-In the above example, we set `combination_instructions` to chain, so the chain option of combination_instructions will be read from the `instructions.yaml` file. See the `instructions.yaml' file for templates. 
+NOTE: If you pass `combination_instructions` into a chain, like in the above example, all the agents will inherit it (same with `Ensemble` and `Debate`). 
+In the above example, we set `combination_instructions` to chain, so the chain option of `combination_instructions` will be read from the instructions.yaml file. See the instructions.yaml file for templates. 
 
 ### Chain with a moderator
 
-Let's say we want some Agent to review the ideas presented, combine them, and incorporate the best points to provide a balanced answer. We can do this by passing in a `moderator` agent, which is a special kind of Agent with only three arguments: 'persona' (the moderator's persona), 'system_instructions' (which, if provided, will override a persona), and 'combination_instructions' (specifying how to combine the responses).
+Let's say we want some Agent to review the ideas presented, combine them, and incorporate the best points to provide a balanced answer. We can do this by passing in a `moderator` agent, which is a special kind of Agent with only three arguments: `persona` (the moderator's persona), `system_instructions` (which, if provided, will override a persona), and `combination_instructions` (specifying how to combine the responses).
 
 ```python
 from plurals.agent import Agent
@@ -719,7 +720,7 @@ chain = Chain([agent1, agent2, agent3], combination_instructions="chain", modera
 chain.process()
 print(chain.final_response)
 ```
-Suppose we want the agents and the moderator to repeat this process multiple times instead of just once. In that case, we can change the variable 'cycles' to a number greater than one. The value of the integer 'cycles' will determine how many times we will go through this process, whether it's ensemble, chain, or debate.
+Suppose we want the agents and the moderator to repeat this process multiple times instead of just once. In that case, we can change the variable `cycles` to a number greater than one. The value of the integer `cycles` will determine how many times we will go through this process, whether it's ensemble, chain, or debate.
 
 Notice also that we can set up agents using different methods and still put them in the same chain.
 
@@ -737,7 +738,7 @@ chain.process()
 print(chain.final_response)
 ```
 
-We also have the option to adjust the number of previous responses that the agents see by modifying the variable 'last_n'. For instance, if 'last_n' = 1, agents will only see one last response. However, if 'last_n' = 3, agents will be able to see the three last responses.
+We also have the option to adjust the number of previous responses that the agents see by modifying the variable `last_n`. For instance, if `last_n` = 1, agents will only see one last response. However, if `last_n` = 3, agents will be able to see the three last responses.
 
 ```python
 from plurals.agent import Agent
@@ -764,7 +765,7 @@ agent1 = Agent(ideology="conservative", model='gpt-4o')
 agent2 = Agent(ideology="conservative", model='gpt-4o')
 agent3 = Agent(ideology="very conservative", model='gpt-4o')
 ```
-In the example below, we use a template for our moderator and set both moderator persona and combination_instructions to default. We also use a template for our agent combination_instructions, as demonstrated by combination_instructions= "chain".
+In the example below, we use a template for our moderator and set both moderator `persona` and `combination_instructions` to default. We also use a template for our agent `combination_instructions`, as demonstrated by `combination_instructions= "chain"`.
 
 ```python
 #Persona Moderator
@@ -776,9 +777,9 @@ print(chain.final_response)
 
 In the next example below, 
 
-1. We set moderator system_instructions directly, giving our own directions to the moderator without relying on a template. Recall that when users set their own system instructions, system instructions expects a `${task}` placeholder. This placeholder would get filled in with the task.
-2. We set moderator combination_instructions using the empathetic template.
-3. We set agent combination_instructions directly, giving our own directions to the moderator without relying on a template. Recall that when users set their own combination_instructions, combination_instructions expects a `${previous_responses}` placeholder if it is not one of the default options that we offer. This placeholder would get filled in with the previous responses.
+1. We set moderator `system_instructions` directly, giving our own directions to the moderator without relying on a template. Recall that when users set their own `system_instructions`, `system_instructions` expects a `${task}` placeholder. This placeholder would get filled in with the task.
+2. We set moderator `combination_instructions` using the empathetic template.
+3. We set agent `combination_instructions` directly, giving our own directions to the moderator without relying on a template. Recall that when users set their own `combination_instructions`, `combination_instructions` expects a `${previous_responses}` placeholder if it is not one of the default options that we offer. This placeholder would get filled in with the previous responses.
 
 ```python
 #Setting system instructions moderator
@@ -788,7 +789,7 @@ chain.process()
 print(chain.final_response)
 print("\n\n")
 ```
-In the final example below, we use a template to set our agent combination_instructions to chain. However, for our moderator, we use the auto option, which allows the moderator to come up with its own system instructions. 
+In the final example below, we use a template to set our agent `combination_instructions` to chain. However, for our moderator, we use the auto option, which allows the moderator to come up with its own `system_instructions`. 
 
 ```python
 #Auto Moderator
@@ -832,8 +833,9 @@ agent2 = Agent(query_str="inputstate=='New York'&ideo5=='Very liberal'", persona
 debate = Debate([agent1, agent2], task=task, combination_instructions="debate")
 debate.process()
 print(debate.responses)
-=
-["[Debater 1] I believe that banning guns is not the right solution. Where I live, in the South, owning a gun is a way of life for many families, including mine. My husband and I always emphasize the importance of responsible gun ownership and safety. \n\nFor us, guns represent not just protection but also tradition. We go hunting as a family and teach our kids how to handle firearms responsibly. There’s a sense of security knowing we can protect ourselves if we need to—especially living in a suburban area where police response times might not be immediate. Banning guns wouldn't stop criminals; it would just take away the means for law-abiding citizens to defend themselves and their loved ones.\n\nInstead of banning guns outright, I think we should focus more on education, background checks, and mental health support. That way, we can keep our communities safe without stripping away an important part of our rights and heritage.", "[Debater 2] I appreciate the passion and tradition you and your family have around responsible gun ownership. Your experiences highlight the cultural significance and the sense of security that guns can provide. However, living in a big city in the Northeast, my perspective on this issue is shaped by different challenges and realities.\n\nIn densely populated urban areas, the risks associated with widespread gun ownership often outweigh the benefits. I've seen firsthand the devastating impact of gun violence—lives lost, families torn apart, and communities living in fear. It's not just about protection but also about ensuring overall public safety. When guns are easily accessible, they often end up in the wrong hands, with tragic consequences.\n\nStatistics show that countries with stricter gun control laws tend to have lower rates of gun violence. For example, Australia's gun buyback program and stringent regulations dramatically reduced mass shootings and gun-related homicides. Success stories like these suggest that comprehensive gun control can work without entirely stripping citizens of their rights.\n\nI agree that education, background checks, and mental health support are crucial components. But they need to be part of a broader strategy that includes common-sense gun control measures such as limiting access to certain types of firearms, mandatory waiting periods, and red flag laws that can temporarily remove guns from individuals deemed a risk to themselves or others.\n\nAs a parent, I can't help but think about the safety of my children and others in their school. We've seen too many instances where firearms fall into the hands of individuals with malicious intent, leading to tragedies that could have been prevented with stricter controls.\n\nThis isn't about abolishing tradition or self-defense. It's about balancing those rights with the collective right to safety. I believe we can find a middle ground that respects responsible gun ownership while also taking meaningful steps to reduce gun violence. By working together, we can ensure that communities, whether urban or suburban, are safe places for our children to grow up in."]
+```
+```python
+['[Debater 1] I believe that banning guns is not the right solution. Where I live, in the South, owning a gun is a way of life for many families, including mine. My husband and I always emphasize the importance of responsible gun ownership and safety. \n\nFor us, guns represent not just protection but also tradition. We go hunting as a family and teach our kids how to handle firearms responsibly. There’s a sense of security knowing we can protect ourselves if we need to—especially living in a suburban area where police response times might not be immediate. Banning guns wouldn't stop criminals; it would just take away the means for law-abiding citizens to defend themselves and their loved ones.\n\nInstead of banning guns outright, I think we should focus more on education, background checks, and mental health support. That way, we can keep our communities safe without stripping away an important part of our rights and heritage.', "[Debater 2] I appreciate the passion and tradition you and your family have around responsible gun ownership. Your experiences highlight the cultural significance and the sense of security that guns can provide. However, living in a big city in the Northeast, my perspective on this issue is shaped by different challenges and realities.\n\nIn densely populated urban areas, the risks associated with widespread gun ownership often outweigh the benefits. I've seen firsthand the devastating impact of gun violence—lives lost, families torn apart, and communities living in fear. It's not just about protection but also about ensuring overall public safety. When guns are easily accessible, they often end up in the wrong hands, with tragic consequences.\n\nStatistics show that countries with stricter gun control laws tend to have lower rates of gun violence. For example, Australia's gun buyback program and stringent regulations dramatically reduced mass shootings and gun-related homicides. Success stories like these suggest that comprehensive gun control can work without entirely stripping citizens of their rights.\n\nI agree that education, background checks, and mental health support are crucial components. But they need to be part of a broader strategy that includes common-sense gun control measures such as limiting access to certain types of firearms, mandatory waiting periods, and red flag laws that can temporarily remove guns from individuals deemed a risk to themselves or others.\n\nAs a parent, I can't help but think about the safety of my children and others in their school. We've seen too many instances where firearms fall into the hands of individuals with malicious intent, leading to tragedies that could have been prevented with stricter controls.\n\nThis isn't about abolishing tradition or self-defense. It's about balancing those rights with the collective right to safety. I believe we can find a middle ground that respects responsible gun ownership while also taking meaningful steps to reduce gun violence. By working together, we can ensure that communities, whether urban or suburban, are safe places for our children to grow up in"]
 ```
 
 Now compare with an example of using the rational templates.
@@ -846,14 +848,15 @@ agent2 = Agent(query_str="inputstate=='New York'&ideo5=='Very liberal'", persona
 debate = Debate([agent1, agent2], task=task, combination_instructions="debate")
 debate.process()
 print(debate.responses)
-
-["[Debater 1] Banning guns isn't the right approach. The Second Amendment of the Constitution guarantees the right to bear arms, which is a crucial part of preserving individual freedom and self-defense. Instead of banning guns, it's more effective to focus on responsible gun ownership and strict enforcement of existing laws.\n\nEducation on gun safety, proper training, and common-sense regulations like background checks can help prevent misuse and ensure guns are in the hands of responsible individuals. Blanket bans often don't address the root causes of violence and can infringe upon the rights of law-abiding citizens who use guns for protection, hunting, and sport.\n\nIt's also important to consider the cultural and historical context in many parts of America, where firearms are a part of heritage and tradition. Effective solutions require a balance of respecting individual rights while also ensuring public safety through pragmatic and well-enforced policies.", '[Debater 2] The Second Amendment is indeed an integral part of American history and the legal framework. However, it is also important to consider the current context and the significant rise in gun violence that poses a critical public safety issue. While responsible gun ownership and strict enforcement of existing laws are important, they alone may not be sufficient to address this crisis effectively.\n\nSeveral studies have shown that countries with stricter gun control laws tend to have lower rates of gun violence. Australia\'s response to a mass shooting in 1996 by implementing comprehensive gun control measures resulted in a dramatic reduction in gun-related homicides and suicides. This presents a rational basis for considering stricter regulations without necessarily infringing on responsible gun ownership. It\'s essential to recognize that "reasonable" regulation doesn\'t equate to a blanket ban but rather thoughtful policies aimed at reducing harm.\n\nAdditionally, the notion of self-defense as a primary reason for widespread gun ownership needs to be weighed against statistics showing higher risks of gun accidents and domestic violence incidents in homes where guns are present. Research published in the "Annals of Internal Medicine" found that having a gun in the home increases the risk of homicide by 90% and suicide by more than 200%.\n\nAddressing the root causes of violence is indeed crucial, which includes not only better education and training but also addressing issues like poverty, mental health, and systemic inequality. However, sensible gun regulations, such as universal background checks, restrictions on high-capacity magazines, and closing loopholes in existing laws, can complement these efforts and provide a more comprehensive solution. \n\nFinally, while the cultural and historical context of firearms is important, public safety cannot be compromised. Just as society has adapted and introduced regulations in response to motor vehicle-related deaths with seat belts and speed limits, similar prudent measures must be considered for firearms. Thus, a balanced approach that combines respect for individual rights with rational, evidence-based policies can significantly mitigate gun violence and enhance overall public safety.']
+```
+```python
+['[Debater 1] Banning guns isn't the right approach. The Second Amendment of the Constitution guarantees the right to bear arms, which is a crucial part of preserving individual freedom and self-defense. Instead of banning guns, it's more effective to focus on responsible gun ownership and strict enforcement of existing laws.\n\nEducation on gun safety, proper training, and common-sense regulations like background checks can help prevent misuse and ensure guns are in the hands of responsible individuals. Blanket bans often don't address the root causes of violence and can infringe upon the rights of law-abiding citizens who use guns for protection, hunting, and sport.\n\nIt's also important to consider the cultural and historical context in many parts of America, where firearms are a part of heritage and tradition. Effective solutions require a balance of respecting individual rights while also ensuring public safety through pragmatic and well-enforced policies.', "[Debater 2] The Second Amendment is indeed an integral part of American history and the legal framework. However, it is also important to consider the current context and the significant rise in gun violence that poses a critical public safety issue. While responsible gun ownership and strict enforcement of existing laws are important, they alone may not be sufficient to address this crisis effectively.\n\nSeveral studies have shown that countries with stricter gun control laws tend to have lower rates of gun violence. Australia\'s response to a mass shooting in 1996 by implementing comprehensive gun control measures resulted in a dramatic reduction in gun-related homicides and suicides. This presents a rational basis for considering stricter regulations without necessarily infringing on responsible gun ownership. It\'s essential to recognize that "reasonable" regulation doesn\'t equate to a blanket ban but rather thoughtful policies aimed at reducing harm.\n\nAdditionally, the notion of self-defense as a primary reason for widespread gun ownership needs to be weighed against statistics showing higher risks of gun accidents and domestic violence incidents in homes where guns are present. Research published in the "Annals of Internal Medicine" found that having a gun in the home increases the risk of homicide by 90% and suicide by more than 200%.\n\nAddressing the root causes of violence is indeed crucial, which includes not only better education and training but also addressing issues like poverty, mental health, and systemic inequality. However, sensible gun regulations, such as universal background checks, restrictions on high-capacity magazines, and closing loopholes in existing laws, can complement these efforts and provide a more comprehensive solution. \n\nFinally, while the cultural and historical context of firearms is important, public safety cannot be compromised. Just as society has adapted and introduced regulations in response to motor vehicle-related deaths with seat belts and speed limits, similar prudent measures must be considered for firearms. Thus, a balanced approach that combines respect for individual rights with rational, evidence-based policies can significantly mitigate gun violence and enhance overall public safety."]
 ``` 
 Notice how the empathetic output incorporated more story-telling and emotion while the rational output incorporated more reason-giving and facts.
 
 ### Debate with a moderator
 
-Let's say we want some Agent to read over the ideas presented and incorporate the best points to return a balanced answer. We can do this by passing in a `moderator` agent, which is a special kind of Agent with only three arguments: 'persona' (the moderator's persona), 'system_instructions' (which, if provided, will override a persona), and 'combination_instructions' (specifying how to combine the responses).
+Let's say we want some Agent to read over the ideas presented and incorporate the best points to return a balanced answer. We can do this by passing in a `moderator` agent, which is a special kind of Agent with only three arguments: `persona` (the moderator's persona), `system_instructions` (which, if provided, will override a persona), and `combination_instructions` (specifying how to combine the responses).
 
 Implementing a moderator will change the output from solely the debaters' responses to a combined response from the moderator, incorporating the best points from both debaters to provide a balanced answer.
 
@@ -870,13 +873,12 @@ debate = Debate([agent1, agent2], task=task,  combination_instructions="debate",
 debate.process()
 print(debate.final_response)
 ```
-Note: In the above example, we printed debate.final_response instead of debate.responses (like we did without a Moderator) because, in this case, we only want to print the final response of the moderator and not all of the agent's responses.
+Note: In the above example, we printed `debate.final_response` instead of `debate.responses` (like we did without a Moderator) because, in this case, we only want to print the final response of the moderator and not all of the agent's responses.
 
 
 ## History
 
-Below are some demonstrations of Agent's history function which demonstrates how persona, combination_instructions, and 
-previous responses fit together.
+Below are some demonstrations of Agent's history function which demonstrates how `persona`, `combination_instructions`, and `previous_responses` fit together.
 
 
 ```python
