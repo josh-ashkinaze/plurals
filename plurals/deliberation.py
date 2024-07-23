@@ -33,12 +33,10 @@ class Moderator(Agent):
         system_instructions (str): The full system instructions for the moderator.
 
     **Examples:**
-        **Auto-Moderator**.
+        **Auto-Moderator**
 
-        .. code-block:: text
-
-            If the system_instructions of a moderator are set to auto,
-            then the moderator will, given a task, come up with its own system instructions.
+        If the system_instructions of a moderator are set to auto,
+        then the moderator will, given a task, come up with its own system instructions.
 
         .. code-block:: python
 
@@ -349,6 +347,7 @@ class Chain(AbstractStructure):
         **Using Chain to create a panel of agents that process tasks in a sequence:**
 
         .. code-block:: python
+
            agent1 = Agent(persona='a liberal woman from Missouri', model='gpt-4o')
            agent2 = Agent(persona='a 24 year old hispanic man from Florida', model='gpt-4o')
            agent3 = Agent(persona='an elderly woman with a PhD', model='gpt-4o')
