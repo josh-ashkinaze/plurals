@@ -224,6 +224,107 @@ instructions can be set directly or generated from a persona-based method.</p>
 </dl>
 </dd></dl>
 
+<p><strong>Examples:</strong></p>
+<blockquote>
+<div><p><strong>Using Agent without a structure</strong>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Say hello&quot;</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">agent</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">ans</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+
+<span class="n">pirate_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a pirate.&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">pirate_hello</span> <span class="o">=</span> <span class="n">pirate_agent</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="n">pirate_goodybe</span> <span class="o">=</span> <span class="n">pirate_agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;Now say a heartfelt goodybe.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Manual system instructions</strong>: This allows you to set system instructions to whatever you would like. Also note
+that you can pass in additional kwargs to the model.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a predictable independent&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
+              <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;max_tokens&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">})</span>
+</pre></div>
+</div>
+<p><strong>No system instructions</strong>: When no system instructions are inputted, agents will use default system instructions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;max_tokens&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">})</span>
+</pre></div>
+</div>
+<p><strong>Persona Template</strong>: When using a persona method, the full system instructions are a combination of the
+persona and the <cite>persona_template</cite>—where the latter is a template string that includes a ${persona}
+placeholder. This gives more instructions to the model of how to enact the persona.</p>
+<p>Here is an example of using the <cite>empathetic</cite> persona template with a persona of “a moderate voter from Michigan”.
+You can see how the full system instructions are a combination of the two.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">empathetic_michigan</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a moderate voter from Michigan&quot;</span><span class="p">,</span>
+    <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;empathetic&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">empathetic_michigan</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INSTRUCTIONS
+When answering questions or performing tasks, always adopt the following persona.
+
+PERSONA:
+a moderate voter from Michigan
+
+CONSTRAINTS
+- When answering, do not disclose your partisan or demographic identity in any way.
+- Think, talk, and write like your persona.
+- Use plain language.
+- Adopt the characteristics of your persona.
+- Be empathetic and compassionate
+- Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.
+</pre></div>
+</div>
+<p>Here is an example of using your own persona template with the appropriate ${persona} placeholder.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a moderate voter from Michigan&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;You are $</span><span class="si">{persona}</span><span class="s2">.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+<span class="c1"># You are a moderate voter from Michigan.</span>
+</pre></div>
+</div>
+<p>We support several automatic ways of generating personas from American National Election Studies (ANES).</p>
+<p><strong>Ideology Matching (ANES Persona Method):</strong> We support an ideology keyword that can be one of
+[‘very liberal’, ‘liberal’, ‘moderate’, ‘conservative’, ‘very conservative’] where the ‘veries’ are a
+subset of the normals. The below example will pick a random row from ANES where
+the citizen identifies as <cite>very conservative</cite> and use that as the <cite>persona</cite>. We always use appropriate sampling
+weights, so personas will be nationally representative.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">persona</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Your age is 57. Your education is high school graduate. Your gender is man. Your race is hispanic. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do have children under 18 living in your household. Your employment status is full-time. Your geographic region is the northeast. You live in a suburban area. You live in the state of new york.
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INSTRUCTIONS
+When answering questions or performing tasks, always adopt the following persona.
+
+PERSONA:
+Your age is 57. Your education is high school graduate. Your gender is man. Your race is hispanic. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do have children under 18 living in your household. Your employment status is full-time. Your geographic region is the northeast. You live in a suburban area. You live in the state of new york.
+
+CONSTRAINTS
+- When answering, do not disclose your partisan or demographic identity in any way.
+- Think, talk, and write like your persona.
+- Use plain language.
+- Adopt the characteristics of your persona.
+- Do not be overly polite or politically correct.
+</pre></div>
+</div>
+<p><strong>Random Nationally Representative Personas (ANES Persona Method)</strong>: If you make persona== ‘random’ then we will
+randomly sample a row
+from ANES and use that as the persona.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Pandas Query String (ANES Persona Method):</strong> If you want to get more specific, you can pass in a query string
+that will be used to filter the ANES dataset. Again, all ANES methods use sampling weights to ensure national representativeness.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">query_str</span><span class="o">=</span><span class="s2">&quot;inputstate==&#39;West Virginia&#39; &amp; ideo5==&#39;Very conservative&#39;&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Here is how to inspect exactly what is going on with Agents.</strong> You can view an Agent’s responses,
+the agent’s <cite>history</cite> (prompts + responses), and <cite>info</cite>—which is a dictionary of the agent’s attributes (such as system instructions).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">&quot;A task here&quot;</span><span class="p">)</span>
+<span class="n">a</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
 <dl class="py property">
 <dt class="sig sig-object py" id="id0">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">history</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>

@@ -108,6 +108,26 @@
 <span class="sd">        persona (str): The persona of the moderator.</span>
 <span class="sd">        combination_instructions (str): The instructions for combining responses.</span>
 <span class="sd">        system_instructions (str): The full system instructions for the moderator.</span>
+
+<span class="sd">    **Examples:**</span>
+<span class="sd">        **Auto-Moderator**</span>
+
+<span class="sd">        If the system_instructions of a moderator are set to &#39;auto&#39;,</span>
+<span class="sd">        then the moderator will, given a task, come up with its own system instructions.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            task = (&quot;Your goal is to come up with the most creative ideas possible for pants. We are maximizing creativity. Answer&quot;</span>
+<span class="sd">            &quot; in 20 words.&quot;)</span>
+<span class="sd">            a = Agent(model=&#39;gpt-4o&#39;)</span>
+<span class="sd">            b = Agent(model=&#39;gpt-3.5-turbo&#39;)</span>
+<span class="sd">            chain = Chain([a, b], moderator=Moderator(system_instructions=&#39;auto&#39;, model=&#39;gpt-4o&#39;), task=task)</span>
+<span class="sd">            print(chain.moderator.system_instructions)</span>
+
+<span class="sd">        .. code-block:: text</span>
+
+<span class="sd">            Group similar ideas together, prioritize uniqueness and novelty. Highlight standout concepts and remove</span>
+<span class="sd">            duplicates. Ensure the final list captures diverse and imaginative designs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -412,6 +432,21 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A chain structure for processing tasks through a sequence of agents. In a chain,</span>
 <span class="sd">    each agent processes the task after seeing a prior agent&#39;s response.</span>
+
+<span class="sd">    **Examples:**</span>
+<span class="sd">        **Using Chain to create a panel of agents that process tasks in a sequence:**</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">           agent1 = Agent(persona=&#39;a liberal woman from Missouri&#39;, model=&#39;gpt-4o&#39;)</span>
+<span class="sd">           agent2 = Agent(persona=&#39;a 24 year old hispanic man from Florida&#39;, model=&#39;gpt-4o&#39;)</span>
+<span class="sd">           agent3 = Agent(persona=&#39;an elderly woman with a PhD&#39;, model=&#39;gpt-4o&#39;)</span>
+
+<span class="sd">           chain = Chain([agent1, agent2, agent3],</span>
+<span class="sd">              task=&quot;How should we combat climate change?&quot;,</span>
+<span class="sd">              combination_instructions=&quot;chain&quot;)</span>
+<span class="sd">           chain.process()</span>
+<span class="sd">           print(chain.final_response)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Chain.process">
@@ -450,6 +485,18 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An ensemble structure for processing tasks through a group of agents. In an ensemble, each agent processes the</span>
 <span class="sd">    task independently through async requests.</span>
+
+<span class="sd">    **Examples:**</span>
+<span class="sd">        **Using Ensemble to brainstorm ideas:**</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            task = &quot;Brainstorm ideas to improve America.&quot;</span>
+<span class="sd">            agents = [Agent(persona=&#39;random&#39;, model=&#39;gpt-4o&#39;) for i in range(10)] # random ANES agents</span>
+<span class="sd">            moderator = Moderator(persona=&#39;default&#39;, model=&#39;gpt-4o&#39;) # default moderator persona</span>
+<span class="sd">            ensemble = Ensemble(agents, moderator=moderator, task=task)</span>
+<span class="sd">            ensemble.process()</span>
+<span class="sd">            print(ensemble.final_response)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ensemble.process">
@@ -491,6 +538,20 @@
 <span class="sd">       indicate the speaker.</span>
 <span class="sd">    3. When moderated, the moderator will provide a final response based on the debate, and we will append</span>
 <span class="sd">       `[Debater 1]` and `[Debater 2]` to the responses so that the moderator is aware of who said what.</span>
+
+<span class="sd">    **Examples:**</span>
+<span class="sd">        **Using Debate to observe a conservative vs. a liberal viewpoint:**</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            task = &#39;To what extent should the government be involved in providing free welfare to citizens?&#39;</span>
+<span class="sd">            agent1 = Agent(persona=&quot;a liberal&quot;, persona_template=&quot;default&quot;, model=&#39;gpt-4o&#39;)</span>
+<span class="sd">            agent2 = Agent(persona=&quot;a conservative&quot;, persona_template=&quot;default&quot;, model=&#39;gpt-4o&#39;)</span>
+<span class="sd">            moderator = Moderator(persona=&#39;You are a neutral moderator overseeing this task, ${task}&#39;, model=&#39;gpt-4o&#39;, combination_instructions=&quot;default&quot;)</span>
+
+<span class="sd">            debate = Debate([agent1, agent2], task=task,  combination_instructions=&quot;debate&quot;, moderator=moderator)</span>
+<span class="sd">            debate.process()</span>
+<span class="sd">            print(debate.final_response)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -539,6 +600,8 @@
 <span class="sd">        with [You] and [Other] to indicate the speaker. For moderators the responses are prefixed with [Debater 1] and</span>
 <span class="sd">        [Debater 2] to indicate the speaker.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+
         <span class="c1"># Initialize lists for storing responses from the perspective of each agent.</span>
         <span class="c1"># This is necessary for the debate structure because each agent needs to see which is there&#39;s and which is</span>
         <span class="c1"># the other agent&#39;s response.</span>
