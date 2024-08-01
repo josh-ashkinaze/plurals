@@ -7,7 +7,10 @@ from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from plurals.helpers import SmartString
 import re
-
+import threading
+import time
+from tenacity import retry,stop_after_attempt, wait_exponential, retry_if_exception_type,stop_after_delay,wait_fixed
+from litellm.exceptions import RateLimitError
 DEFAULTS = load_yaml("instructions.yaml")
 
 
@@ -275,11 +278,14 @@ class AbstractStructure(ABC):
             cycles: int = 1,
             last_n: int = 1,
             combination_instructions: Optional[str] = "default",
-            moderator: Optional[Moderator] = None):
+            moderator: Optional[Moderator] = None,
+            rate_limit: Optional[int] = None):
 
 
         self.defaults = DEFAULTS
         self.task = task
+        self.rate_limit=rate_limit
+
 
         if not agents:
             raise ValueError("Agent list cannot be empty.")
@@ -466,7 +472,7 @@ class Chain(AbstractStructure):
         self.final_response = self.responses[-1]
 
 
-class Ensemble(AbstractStructure):
+class Ensemble(AbstractStructure,):
     """
     An ensemble structure for processing tasks through a group of agents. In an ensemble, each agent processes the
     task independently through async requests.
@@ -506,11 +512,13 @@ class Ensemble(AbstractStructure):
 
     def process(self):
         """
-        Requests are sent to all agents simultaneously.
-
-
+        Process the task through an ensemble of agents, each handling the task independently with retries.
         """
         original_task = self.agents[0].original_task_description
+        request_counter = 0
+        request_limit = self.rate_limit
+        wait_time = 60  # seconds
+
         for _ in range(self.cycles):
             with ThreadPoolExecutor() as executor:
                 futures = []
@@ -518,13 +526,19 @@ class Ensemble(AbstractStructure):
                     previous_responses_str = ""
                     agent.combination_instructions = self.combination_instructions
                     futures.append(executor.submit(agent.process, previous_responses=previous_responses_str))
+                    request_counter += 1
+                    if request_limit is None:
+                        continue
+                    if request_counter % request_limit == 0:
+                        print(f"Reached {request_limit} requests, waiting for {wait_time} seconds...")
+                        time.sleep(wait_time)
+
                 for future in as_completed(futures):
                     response = future.result()
                     self.responses.append(response)
 
         if self.moderated and self.moderator:
-            moderated_response = self.moderator._moderate_responses(
-                self.responses, original_task)
+            moderated_response = self.moderator._moderate_responses(self.responses, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
 
