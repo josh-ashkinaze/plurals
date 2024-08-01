@@ -113,7 +113,6 @@ class Moderator(Agent):
         if kwargs is None:
             kwargs = {}
 
-
         # Case 1: if both persona and system_instructions are provided, raise a ValueError
         if persona and system_instructions and system_instructions != 'auto':
             raise ValueError("Cannot provide both persona and system instructions")
@@ -123,7 +122,6 @@ class Moderator(Agent):
             self.model = model
             self.kwargs = kwargs
             self.system_instructions = self.generate_system_instructions(task=task)
-
 
         # Case 3: if only persona is provided, use persona with dummy persona template ${persona}
         if persona and not system_instructions:
@@ -225,7 +223,6 @@ class Moderator(Agent):
         return self.process(previous_responses=combined_responses_str)
 
 
-
 class AbstractStructure(ABC):
     """
     AbstractStructure is an abstract class for processing tasks through a group of agents. As such, it is not meant
@@ -280,7 +277,6 @@ class AbstractStructure(ABC):
             combination_instructions: Optional[str] = "default",
             moderator: Optional[Moderator] = None,
             rate_limit: Optional[int] = None):
-
 
         self.defaults = DEFAULTS
         self.task = task
@@ -398,6 +394,7 @@ class AbstractStructure(ABC):
         """
         raise NotImplementedError(
             "This method must be implemented in a subclass")
+
     def __repr__(self):
         return str(self.info)
 

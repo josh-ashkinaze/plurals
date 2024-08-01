@@ -19,11 +19,12 @@ def print_anes_mapping():
 
     Here are the cases we recode values:
 
-    - `child18` asks participants if they have children under 18 living in their household. We recode `Yes` to `do have
-    children under 18 living in your household` and `No` to `do not have children under 18 living in your household`.
+    - ``child18`` asks participants if they have children under 18 living in their household. We recode ``Yes`` to ``do have
+      children under 18 living in your household`` and ``No`` to ``do not have children under 18 living in your household``.
 
-    - Several questions have multiple choice options (A,B, C) and then an `Other` option. We recode `Other`
-    as `neither A nor B nor C` to be more explicit.
+    - Several questions have multiple choice options (A, B, C) and then an ``Other`` option. We recode ``Other``
+      as ``neither A nor B nor C`` to be more explicit.
+
 
     """
     mapping = load_yaml('anes-mapping.yaml')
@@ -97,15 +98,10 @@ class SmartString(str):
     normal strings.
 
     Longer explanation: The format method of the str class uses the curly braces syntax for string formatting. This
-    breaks when the string contains curly braces that are not meant to be replaced. For example:
-
-    s = "Hello, {name} I am a json like {'key':'value'}"
-    new_s = s.format(name="John")
-
-    This will raise a KeyError because the format method will try to replace the curly braces in the json string as
-    well, but we only want to replace {name}. So as a solution one can turn `s` into a string Template and use the
-    safe_substitute method to replace the variables. This is what the SmartString class does: It is a subclass of str that overrides the format
-    method to use string.Template for string formatting.
+    breaks when the string `s` contains curly braces that are not meant to be replaced. So as a solution one can turn
+    `s` into a string Template and use the `safe_substitute` method to replace the variables. This is what the
+    SmartString class does: It is a subclass of str that overrides the format method to use `string.Template` for
+    string formatting.
     """
 
     def format(self, avoid_double_period=True, **kwargs):
@@ -119,12 +115,15 @@ class SmartString(str):
 
         Double-period algorithm:
         Foreach key, value in kwargs:
+
         1. Construct a placeholder-plus-period like "{task}." (assuming {task} is placeholder here)
+
         2. Check if the placeholder-plus-period is in the string AND the replacement ends with a period.
+
         3. If both conditions are met, replace the replacement-plus-period with just the replacement.
 
         Args:
-            avoid_double_period (bool): Whether to avoid double periods in the final string. (Default: False)
+            avoid_double_period (bool): Whether to avoid double periods in the final string. (Default: True)
             **kwargs: Key-value pairs to replace in the string.
         """
         template = string.Template(self)
