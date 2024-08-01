@@ -541,31 +541,42 @@ class Debate(AbstractStructure):
 
 
 class NetworkStructure(AbstractStructure):
+    """
+    Initializes a network where agents are processed according to a directed acyclic graph (DAG). This Structure
+    takes in Agents and a structure-specific property called `edges`, where each edge is a list of tuples in the form (
+    src_idx, dst_idx) indicating that the output of the agent at src_idx is an input to the agent at dst_idx.
+
+    ** Examples:**
+        Suppose we have three Agents. And we want to create a graph where the output of the liberal is fed to both the conservative and libertarian.
+        And then the output of the conservative is fed to the libertarian.
+
+        .. code-block:: python
+        Agents = [Agent(persona="a liberal"), Agent(persona="a conservative"), Agent(persona="a libertarian")]
+        edges = [(0, 1), (0, 2), (1, 2)]
+        # edges = (liberal -> conservative), (liberal -> libertarian), (conservative -> libertarian)
+
+
+    """
     def __init__(self,
                  agents: List[Agent],
                  edges: List[tuple],
                  task: Optional[str] = None,
-                 shuffle: bool = False,
-                 cycles: int = 1,
-                 last_n: int = 1000000,
+                 last_n: int = 1,
                  combination_instructions: Optional[str] = "debate",
                  moderator: Optional[Moderator] = None):
         """
-        Initializes a network structure where agents are processed according to a directed acyclic graph (DAG).
-
         Args:
             agents (List[Agent]): A list of agents to be included in the structure.
             edges (List[tuple]): A list of tuples representing directed edges between agents. Each tuple is
                                  (src_idx, dst_idx), indicating that the output of the agent at src_idx is an
                                  input to the agent at dst_idx.
-            task (str, optional): The task description for the agents. Defaults to None.
-            shuffle (bool, optional): If True, shuffles the agent order each cycle. Defaults to False.
-            cycles (int, optional): The number of times the network is processed. Defaults to 1.
+            task (Optional[str]): The task description for the agents to process.
             last_n (int, optional): The number of last responses to consider for processing tasks. Defaults to 1.
             combination_instructions (str, optional): The instructions for combining responses. Defaults to 'default'.
             moderator (Moderator, optional): A moderator to moderate responses. Defaults to None.
         """
-        super().__init__(agents, task, shuffle, cycles, last_n, combination_instructions, moderator)
+        super().__init__(agents=agents, task=task, last_n=last_n, combination_instructions=combination_instructions,
+                         moderator=moderator)
         self.edges = edges
         self.build_graph()
 
@@ -591,9 +602,11 @@ class NetworkStructure(AbstractStructure):
             str: The final response after all agents have been processed, and potentially moderated.
 
         Raises:
-            ValueError: If a cycle is detected in the DAG, as this would prevent valid topological sorting.
+            ValueError: If a cycle is detected in the DAG since this would prevent valid topological sorting.
         """
-        # Topological Sorting using Kahn's Algorithm
+        # topological Sorting using Kahn's Algorithm
+        # reference:
+        # https: // www.geeksforgeeks.org / topological - sorting - indegree - based - solution /
         zero_in_degree_queue = collections.deque([agent for agent in self.agents if self.in_degree[agent] == 0])
         topological_order = []
 
