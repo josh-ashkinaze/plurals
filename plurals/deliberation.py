@@ -536,3 +536,91 @@ class Debate(AbstractStructure):
                 self.responses, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
+
+
+import collections
+
+
+class NetworkStructure(AbstractStructure):
+    def __init__(self, agents, edges, task=None, shuffle=False, cycles=1, last_n=1, combination_instructions=None,
+                 moderator=None):
+        """
+        Initializes a network structure where agents are processed according to a directed acyclic graph (DAG).
+
+        Args:
+            agents (List[Agent]): A list of agents to be included in the structure.
+            edges (List[tuple]): A list of tuples representing directed edges between agents. Each tuple is
+                                 (src_idx, dst_idx), indicating that the output of the agent at src_idx is an
+                                 input to the agent at dst_idx.
+            task (str, optional): The task description for the agents. Defaults to None.
+            shuffle (bool, optional): If True, shuffles the agent order each cycle. Defaults to False.
+            cycles (int, optional): The number of times the network is processed. Defaults to 1.
+            last_n (int, optional): The number of last responses to consider for processing tasks. Defaults to 1.
+            combination_instructions (str, optional): Instructions for how agents should combine responses. Defaults to None.
+            moderator (Moderator, optional): A moderator to moderate responses. Defaults to None.
+        """
+        super().__init__(agents, task, shuffle, cycles, last_n, combination_instructions, moderator)
+        self.edges = edges  # List of tuples (src_idx, dst_idx) using indices in the agents list
+        self.build_graph()
+
+    def build_graph(self):
+        """
+        Builds the graph from the agents and edges. Edges are defined using indices to reference agents.
+        Initializes the graph and in-degree count for each agent.
+        """
+        self.graph = {agent: [] for agent in self.agents}
+        self.in_degree = {agent: 0 for agent in self.agents}
+        for src_idx, dst_idx in self.edges:
+            src_agent = self.agents[src_idx]
+            dst_agent = self.agents[dst_idx]
+            self.graph[src_agent].append(dst_agent)
+            self.in_degree[dst_agent] += 1
+
+    def process(self):
+        """
+        Processes the tasks within the network of agents, respecting the directed acyclic graph structure. Uses
+        Kahn's Algorithm for topological sorting to ensure the correct processing order.
+
+        Returns:
+            str: The final response after all agents have been processed, and potentially moderated.
+
+        Raises:
+            ValueError: If a cycle is detected in the DAG, as this would prevent valid topological sorting.
+        """
+        # Topological Sorting using Kahn's Algorithm
+        zero_in_degree_queue = collections.deque([agent for agent in self.agents if self.in_degree[agent] == 0])
+        topological_order = []
+
+        while zero_in_degree_queue:
+            current_agent = zero_in_degree_queue.popleft()
+            topological_order.append(current_agent)
+
+            for successor in self.graph[current_agent]:
+                self.in_degree[successor] -= 1
+                if self.in_degree[successor] == 0:
+                    zero_in_degree_queue.append(successor)
+
+        if len(topological_order) != len(self.agents):
+            raise ValueError("There is a cycle in the graph!!! This is not allowed in a DAG.")
+
+        # Process agents according to topological order
+        response_dict = {}
+        for agent in topological_order:
+            # Gather responses from all predecessors to form the input for the current agent
+            previous_responses = [response_dict[pred] for pred in self.agents if
+                                  pred in self.graph and agent in self.graph[pred]]
+            previous_responses_str = format_previous_responses(previous_responses)
+            print("prev", previous_responses_str)
+            print("task", agent.task_description)
+            print("cur", agent.current_task_description)
+            response = agent.process(previous_responses=previous_responses_str)
+            response_dict[agent] = response
+
+        # Handle the moderator if present
+        if self.moderated and self.moderator:
+            moderated_response = self.moderator._moderate_responses(list(response_dict.values()), self.task)
+            self.final_response = moderated_response
+        else:
+            self.final_response = list(response_dict.values())[-1]
+
+        return self.final_response

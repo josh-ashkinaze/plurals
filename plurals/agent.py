@@ -342,6 +342,8 @@ class Agent:
             else:
                 self.current_task_description = combined_responses
         else:
+            print("No previous stuff")
+            print(self.original_task_description)
             self.current_task_description = self.original_task_description
         return self._get_response(self.current_task_description)
 
