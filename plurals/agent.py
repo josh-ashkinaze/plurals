@@ -151,11 +151,11 @@ class Agent:
             print(agent.system_instructions)
             # You are a moderate voter from Michigan.
 
-        We support several automatic ways of generating personas from Ameratican National Election Studies (ANES).
+        We support several automatic ways of generating personas from American National Election Studies (ANES).
 
         **Ideology Matching (ANES Persona Method):** We support an ideology keyword that can be one of
         ['very liberal', 'liberal', 'moderate', 'conservative', 'very conservative'] where the 'veries' are a
-        subset of the normals. So for example `ideology='very conservative'` will pick a random row from ANES where
+        subset of the normals. The below example will pick a random row from ANES where
         the citizen identifies as `very conservative` and use that as the `persona`. We always use appropriate sampling
         weights, so personas will be nationally representative.
 
@@ -184,7 +184,7 @@ class Agent:
             - Adopt the characteristics of your persona.
             - Do not be overly polite or politically correct.
 
-        **Random Nationally Representative Personas (ANES Persona Method)**: If you make `persona=='random'` then we will
+        **Random Nationally Representative Personas (ANES Persona Method)**: If you make persona== 'random' then we will
         randomly sample a row
         from ANES and use that as the persona.
 
@@ -192,7 +192,7 @@ class Agent:
 
             agent = Agent(persona='random', model='gpt-4o', task=task)
 
-        **Pandas Query String (ANES Persona Method)** If you want to get more specific, you can pass in a query string
+        **Pandas Query String (ANES Persona Method):** If you want to get more specific, you can pass in a query string
         that will be used to filter the ANES dataset. Again, all ANES methods use sampling weights to ensure national representativeness.
 
         .. code-block:: python
@@ -201,7 +201,7 @@ class Agent:
 
 
         **Here is how to inspect exactly what is going on with Agents.** You can view an Agent's responses,
-        the agent's history (prompts + responses), and `info`---which is a dictionary of the agent's attributes (such as system instructions).
+        the agent's `history` (prompts + responses), and `info`---which is a dictionary of the agent's attributes (such as system instructions).
 
         .. code-block:: python
 

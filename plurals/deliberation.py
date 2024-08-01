@@ -451,7 +451,7 @@ class Debate(AbstractStructure):
             agent2 = Agent(persona="a conservative", persona_template="default", model='gpt-4o')
             moderator = Moderator(persona='You are a neutral moderator overseeing this task, ${task}', model='gpt-4o', combination_instructions="default")
 
-            debate = Debate([agent1, agent2], task=task,  combination_instructions="debate", moderator=moderator,)
+            debate = Debate([agent1, agent2], task=task,  combination_instructions="debate", moderator=moderator)
             debate.process()
             print(debate.final_response)
 
