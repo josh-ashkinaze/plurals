@@ -340,10 +340,9 @@ class Agent:
                 self.current_task_description = SmartString(
                     f"{self.current_task_description}\n{combined_responses}")
             else:
-                self.current_task_description = combined_responses
+                self.current_task_description = SmartString(
+                    f"{self.original_task_description}\n{combined_responses}")
         else:
-            print("No previous stuff")
-            print(self.original_task_description)
             self.current_task_description = self.original_task_description
         return self._get_response(self.current_task_description)
 

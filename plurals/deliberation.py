@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from plurals.helpers import SmartString
 import re
+import collections
 
 DEFAULTS = load_yaml("instructions.yaml")
 
@@ -538,12 +539,17 @@ class Debate(AbstractStructure):
         self.final_response = self.responses[-1]
 
 
-import collections
-
 
 class NetworkStructure(AbstractStructure):
-    def __init__(self, agents, edges, task=None, shuffle=False, cycles=1, last_n=1, combination_instructions=None,
-                 moderator=None):
+    def __init__(self,
+                 agents: List[Agent],
+                 edges: List[tuple],
+                 task: Optional[str] = None,
+                 shuffle: bool = False,
+                 cycles: int = 1,
+                 last_n: int = 1000000,
+                 combination_instructions: Optional[str] = "debate",
+                 moderator: Optional[Moderator] = None):
         """
         Initializes a network structure where agents are processed according to a directed acyclic graph (DAG).
 
@@ -556,11 +562,11 @@ class NetworkStructure(AbstractStructure):
             shuffle (bool, optional): If True, shuffles the agent order each cycle. Defaults to False.
             cycles (int, optional): The number of times the network is processed. Defaults to 1.
             last_n (int, optional): The number of last responses to consider for processing tasks. Defaults to 1.
-            combination_instructions (str, optional): Instructions for how agents should combine responses. Defaults to None.
+            combination_instructions (str, optional): The instructions for combining responses. Defaults to 'default'.
             moderator (Moderator, optional): A moderator to moderate responses. Defaults to None.
         """
         super().__init__(agents, task, shuffle, cycles, last_n, combination_instructions, moderator)
-        self.edges = edges  # List of tuples (src_idx, dst_idx) using indices in the agents list
+        self.edges = edges
         self.build_graph()
 
     def build_graph(self):
@@ -606,13 +612,11 @@ class NetworkStructure(AbstractStructure):
         # Process agents according to topological order
         response_dict = {}
         for agent in topological_order:
+            agent.combination_instructions = self.combination_instructions
             # Gather responses from all predecessors to form the input for the current agent
             previous_responses = [response_dict[pred] for pred in self.agents if
                                   pred in self.graph and agent in self.graph[pred]]
             previous_responses_str = format_previous_responses(previous_responses)
-            print("prev", previous_responses_str)
-            print("task", agent.task_description)
-            print("cur", agent.current_task_description)
             response = agent.process(previous_responses=previous_responses_str)
             response_dict[agent] = response
 
