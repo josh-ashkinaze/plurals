@@ -31,6 +31,26 @@ class Moderator(Agent):
         persona (str): The persona of the moderator.
         combination_instructions (str): The instructions for combining responses.
         system_instructions (str): The full system instructions for the moderator.
+
+    **Examples:**
+        **Auto-Moderator**
+
+        If the system_instructions of a moderator are set to 'auto',
+        then the moderator will, given a task, come up with its own system instructions.
+
+        .. code-block:: python
+
+            task = ("Your goal is to come up with the most creative ideas possible for pants. We are maximizing creativity. Answer"
+            " in 20 words.")
+            a = Agent(model='gpt-4o')
+            b = Agent(model='gpt-3.5-turbo')
+            chain = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
+            print(chain.moderator.system_instructions)
+
+        .. code-block:: text
+
+            Group similar ideas together, prioritize uniqueness and novelty. Highlight standout concepts and remove
+            duplicates. Ensure the final list captures diverse and imaginative designs.
     """
 
     def __init__(
@@ -320,6 +340,21 @@ class Chain(AbstractStructure):
     """
     A chain structure for processing tasks through a sequence of agents. In a chain,
     each agent processes the task after seeing a prior agent's response.
+
+    **Examples:**
+        **Using Chain to create a panel of agents that process tasks in a sequence:**
+
+        .. code-block:: python
+
+           agent1 = Agent(persona='a liberal woman from Missouri', model='gpt-4o')
+           agent2 = Agent(persona='a 24 year old hispanic man from Florida', model='gpt-4o')
+           agent3 = Agent(persona='an elderly woman with a PhD', model='gpt-4o')
+
+           chain = Chain([agent1, agent2, agent3],
+              task="How should we combat climate change?",
+              combination_instructions="chain")
+           chain.process()
+           print(chain.final_response)
     """
 
     def process(self):
@@ -352,6 +387,18 @@ class Ensemble(AbstractStructure):
     """
     An ensemble structure for processing tasks through a group of agents. In an ensemble, each agent processes the
     task independently through async requests.
+
+    **Examples:**
+        **Using Ensemble to brainstorm ideas:**
+
+        .. code-block:: python
+
+            task = "Brainstorm ideas to improve America."
+            agents = [Agent(persona='random', model='gpt-4o') for i in range(10)] # random ANES agents
+            moderator = Moderator(persona='default', model='gpt-4o') # default moderator persona
+            ensemble = Ensemble(agents, moderator=moderator, task=task)
+            ensemble.process()
+            print(ensemble.final_response)
     """
 
     def process(self):
@@ -387,6 +434,20 @@ class Debate(AbstractStructure):
        indicate the speaker.
     3. When moderated, the moderator will provide a final response based on the debate, and we will append
        `[Debater 1]` and `[Debater 2]` to the responses so that the moderator is aware of who said what.
+
+    **Examples:**
+        **Using Debate to observe a conservative vs. a liberal viewpoint:**
+
+        .. code-block:: python
+
+            task = 'To what extent should the government be involved in providing free welfare to citizens?'
+            agent1 = Agent(persona="a liberal", persona_template="default", model='gpt-4o')
+            agent2 = Agent(persona="a conservative", persona_template="default", model='gpt-4o')
+            moderator = Moderator(persona='You are a neutral moderator overseeing this task, ${task}', model='gpt-4o', combination_instructions="default")
+
+            debate = Debate([agent1, agent2], task=task,  combination_instructions="debate", moderator=moderator)
+            debate.process()
+            print(debate.final_response)
     """
 
     def __init__(
@@ -433,6 +494,8 @@ class Debate(AbstractStructure):
         with [You] and [Other] to indicate the speaker. For moderators the responses are prefixed with [Debater 1] and
         [Debater 2] to indicate the speaker.
         """
+
+
         # Initialize lists for storing responses from the perspective of each agent.
         # This is necessary for the debate structure because each agent needs to see which is there's and which is
         # the other agent's response.
