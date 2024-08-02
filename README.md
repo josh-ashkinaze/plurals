@@ -33,8 +33,10 @@
       + [Chain with a moderator](#chain-with-a-moderator)
       + [Debate](#debate)
       + [Debate with a moderator](#debate-with-a-moderator)
-   * [History](#history)
-      + [Graph ](#graph)
+   * [Graph ](#graph)
+      + [DAGs](#dags)
+      + [DAGs with Plurals](#dags-with-plurals)
+   * [Viewing history of Agents in a Structure](#viewing-history-of-agents-in-a-structure)
 
 <!-- TOC end -->
 
@@ -877,7 +879,105 @@ print(debate.final_response)
 Note: In the above example, we printed `debate.final_response` instead of `debate.responses` (like we did without a Moderator) because, in this case, we only want to print the final response of the moderator and not all of the agent's responses.
 
 
-## History
+## Graph 
+We also support a `Graph` structure. Specifically, we support deliberation on directed acyclic graphs (DAGs). Please see
+documentation for more details. Before going into how to use it, here's a brief explainer of DAGs and why we are 
+employing them. 
+
+### DAGs
+
+**What is a DAG?**
+
+A Directed Acyclic Graph (DAG) is a type of graph that has the following properties:
+
+- Directed: The edges in the graph have a direction, meaning they go from one node to another node, not both 
+ways. For example, Bob following Alice on Twitter is a directed edge whereas Bob and Alice being friends on Facebook 
+  is undirected. 
+
+- Acyclic: The graph has no cycles, which means that starting from any node, if you follow the direction of the edges,
+you cannot come back to the same node. This ensures that there is no circular dependencies.
+
+For example, if you have three tasks where Task A needs to be completed before Task B, and Task B needs to be 
+completed before Task C, you can represent this as a DAG with edges from Task A to Task B and from Task B to Task C. 
+Here's what that looks like:
+
+```markdown
+A → B → C
+```
+- A points to B, indicating that A must be completed before B.
+- B points to C, indicating that B must be completed before C.
+
+- This ensures that tasks are processed in the correct order, preventing circular dependencies and ensuring that each task's requirements are met before it is processed.
+
+**Why are we using DAGs?**
+
+In the context of processing tasks with agents, a DAG is very useful! If the 
+graph is not directed, it is not obvious which Agent should be processed first if there is a bi-directional edge. And if the graph is not acyclic, it is not 
+clear when the processing should stop. So that is the rationale for requiring graphs be directed and acyclic (i.e: 
+DAGs). 
+
+### DAGs with Plurals
+
+In the `Graph` structure, we take in a list of Agents (which are the nodes) and also an `edges` argument, which is 
+the list of vertices. The edges form a DAG or else an error is thrown. The syntax for edges is a list of tuples, 
+where each tuple is an edge from one agent to another specified like `(src_agent_indx, dest_agent_indx)`. Agents are 
+processed using Kahn's algorithm for topological sorting.
+
+For example, Suppose we have three agents, and we want to create a graph where the output of the liberal is fed to both 
+the conservative and libertarian. Then the output of the conservative is fed to the libertarian.
+
+
+```python
+from plurals.agent import Agent
+from plurals.deliberation import Graph
+
+# Initialize agents
+agents = [
+    Agent(system_instructions="you are a liberal"),
+    Agent(system_instructions="you are a conservative"),
+    Agent(system_instructions="you are a libertarian")
+]
+
+# Define edges
+edges = [(0, 1), (0, 2), (1, 2)]
+# edges = (liberal -> conservative), (liberal -> libertarian), (conservative -> libertarian)
+
+# Define task
+task = "What are your thoughts on the role of government in society? Answer in 20 words."
+
+# Initialize network structure
+graph = Graph(agents=agents, edges=edges, task=task)
+```
+
+```python
+from plurals.agent import Agent
+from plurals.deliberation import Graph
+
+# Define the agents with a dictionary for easier index lookup
+agents_dict = {
+    'liberal': Agent(system_instructions="you are a liberal"),
+    'conservative': Agent(system_instructions="you are a conservative"),
+    'libertarian': Agent(system_instructions="you are a libertarian")
+}
+
+# Convert the dictionary to a list to get a list of agents
+agents_list = list(agents_dict.values())
+
+# Define the edges using the dictionary keys
+edges = [
+    (agents_list.index(agents_dict['liberal']), agents_list.index(agents_dict['conservative'])),
+    (agents_list.index(agents_dict['liberal']), agents_list.index(agents_dict['libertarian'])),
+    (agents_list.index(agents_dict['conservative']), agents_list.index(agents_dict['libertarian']))
+]
+
+# Define task
+task = "What are your thoughts on the role of government in society?"
+
+# Initialize network structure
+graph = Graph(agents=agents_list, edges=edges, task=task)
+```
+
+## Viewing history of Agents in a Structure
 
 Below are some demonstrations of Agent's history function which demonstrates how `persona`, `combination_instructions`, and `previous_responses` fit together.
 
@@ -1113,94 +1213,4 @@ Moderator's history:
              'economic opportunities and community-based support, ensuring '
              'both immediate assistance and long-term self-sufficiency for '
              'citizens.'}
-```
-
-### Graph 
-We also support a `Graph` structure. Specifically, we support deliberation on directed acyclic graphs (DAGs). Please see
-documentation for more details. Before going into how to use it, here's a brief explainer of DAGs and why we are 
-employing them. 
-
-**What is a DAG?**
-A Directed Acyclic Graph (DAG) is a type of graph that has the following properties:
-
-- Directed: The edges in the graph have a direction, meaning they go from one node to another node, not both 
-ways. For example, Bob following Alice on Twitter is a directed edge whereas Bob and Alice being friends on Facebook 
-  is undirected. 
-
-- Acyclic: The graph has no cycles, which means that starting from any node, if you follow the direction of the edges,
-you cannot come back to the same node. This ensures that there is no circular dependencies.
-
-For example, if you have three tasks where Task A needs to be completed before Task B, and Task B needs to be completed before Task C, you can represent this as a DAG with edges from Task A to Task B and from Task B to Task C.
-```markdown
-A → B → C
-```
-- A points to B, indicating that A must be completed before B.
-- B points to C, indicating that B must be completed before C.
-This ensures that tasks are processed in the correct order, preventing circular dependencies and ensuring that each task's requirements are met before it is processed.
-
-**Why are we using DAGs?**
-
-In the context of processing tasks with agents, a DAG is very useful! If the 
-graph is not directed, it is not obvious which Agent should be processed first if there is a bi-directional edge. And if the graph is not acyclic, it is not 
-clear when the processing should stop. So that is the rationale for requiring graphs be directed and acyclic (i.e: 
-DAGs). 
-
-**How do you use DAGs with Plurals**
-
-In the `Graph` structure, we take in a list of Agents (which are the nodes) and also an `edges` argument, which is 
-the list of vertices. The edges must be DAGs or else an error is throw. The syntax for edges is a list of tuples, where 
-each tuple is an edge from one agent to another specified like `(src_agent_indx, dest_agent_indx)`. 
-
-For example, Suppose we have three agents, and we want to create a graph where the output of the liberal is fed to both 
-the conservative and libertarian. Then the output of the conservative is fed to the libertarian.
-
-
-```python
-from plurals.agent import Agent
-from plurals.deliberation import Graph
-
-# Initialize agents
-agents = [
-    Agent(system_instructions="you are a liberal"),
-    Agent(system_instructions="you are a conservative"),
-    Agent(system_instructions="you are a libertarian")
-]
-
-# Define edges
-edges = [(0, 1), (0, 2), (1, 2)]
-# edges = (liberal -> conservative), (liberal -> libertarian), (conservative -> libertarian)
-
-# Define task
-task = "What are your thoughts on the role of government in society? Answer in 20 words."
-
-# Initialize network structure
-graph = Graph(agents=agents, edges=edges, task=task)
-```
-
-```python
-from plurals.agent import Agent
-from plurals.deliberation import Graph
-
-# Define the agents with a dictionary for easier index lookup
-agents_dict = {
-    'liberal': Agent(system_instructions="you are a liberal"),
-    'conservative': Agent(system_instructions="you are a conservative"),
-    'libertarian': Agent(system_instructions="you are a libertarian")
-}
-
-# Convert the dictionary to a list to get a list of agents
-agents_list = list(agents_dict.values())
-
-# Define the edges using the dictionary keys
-edges = [
-    (agents_list.index(agents_dict['liberal']), agents_list.index(agents_dict['conservative'])),
-    (agents_list.index(agents_dict['liberal']), agents_list.index(agents_dict['libertarian'])),
-    (agents_list.index(agents_dict['conservative']), agents_list.index(agents_dict['libertarian']))
-]
-
-# Define task
-task = "What are your thoughts on the role of government in society?"
-
-# Initialize network structure
-graph = Graph(agents=agents_list, edges=edges, task=task)
 ```
