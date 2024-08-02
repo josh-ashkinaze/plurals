@@ -919,9 +919,10 @@ DAGs).
 #### DAGs with Plurals
 
 In the `Graph` structure, we take in a list of Agents (which are the nodes) and also an `edges` argument, which is 
-the list of vertices. The edges form a DAG or else an error is thrown. The syntax for edges is a list of tuples, 
-where each tuple is an edge from one agent to another specified like `(src_agent_indx, dest_agent_indx)`. Agents are 
-processed using Kahn's algorithm for topological sorting.
+the list of vertices. The edges must form a DAG or else an error is thrown. The syntax 
+for edges is a list of tuples, where each tuple is an edge from one agent to another specified like `(src_agent_indx,
+dest_agent_indx)`. The order of Agent processing using Kahn's algorithm for topological sorting. 
+
 
 For example, Suppose we have three agents, and we want to create a graph where the output of the liberal is fed to both 
 the conservative and libertarian. Then the output of the conservative is fed to the libertarian.
@@ -947,7 +948,10 @@ task = "What are your thoughts on the role of government in society? Answer in 2
 
 # Initialize network structure
 graph = Graph(agents=agents, edges=edges, task=task)
+graph.process()
 ```
+
+We can also use a dictinary for easier index lookups. 
 
 ```python
 from plurals.agent import Agent
@@ -971,10 +975,11 @@ edges = [
 ]
 
 # Define task
-task = "What are your thoughts on the role of government in society?"
+task = "What are your thoughts on the role of government in society? Answer in 10 words."
 
 # Initialize network structure
 graph = Graph(agents=agents_list, edges=edges, task=task)
+graph.process()
 ```
 
 ## Viewing history of Agents in a Structure
