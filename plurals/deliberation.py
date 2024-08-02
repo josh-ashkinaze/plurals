@@ -634,6 +634,7 @@ class Graph(AbstractStructure):
            a. Remove an agent from the queue and add this agent to the topological order.
 
            b. For each successor of this agent:
+
               i. Decrease the successor's in-degree by 1.
 
               ii. If the successor's in-degree becomes 0, add it to the queue.
