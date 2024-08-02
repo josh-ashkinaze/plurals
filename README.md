@@ -880,9 +880,8 @@ Note: In the above example, we printed `debate.final_response` instead of `debat
 
 
 ### Graph 
-We also support a `Graph` structure. Specifically, we support deliberation on directed acyclic graphs (DAGs). Please see
-documentation for more details. Before going into how to use it, here's a brief explainer of DAGs and why we are 
-employing them. 
+We also support a `Graph` structure. Specifically, we support deliberation on directed acyclic graphs (DAGs). Like other Structures, you can always add a Moderator. Please see
+documentation for more details. Before going into how to use the `Graph` structure, here's a brief explainer of DAGs and why we are employing them. 
 
 #### DAGs
 
