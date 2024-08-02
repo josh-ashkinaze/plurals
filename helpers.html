@@ -130,16 +130,21 @@ Foreach key, value in kwargs:</p>
 <dd><p>Format the previous responses for inclusion in the next task description.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>responses</strong> – A list of previous responses.</p>
+<dd class="field-odd"><p><strong>responses</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – A list of previous responses.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Response 0: response0
-Response 1: response1</p>
+<dd class="field-even"><p>A formatted string of the previous responses.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A formatted string of the previous responses. By default, strings are formatted like</p>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">responses</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;First response&quot;</span><span class="p">,</span> <span class="s2">&quot;Second response&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+<span class="go">&#39;Response 0: First response\nResponse 1: Second response&#39;</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
