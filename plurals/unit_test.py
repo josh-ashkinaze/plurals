@@ -1,6 +1,6 @@
 import unittest
 from plurals.agent import Agent
-from plurals.deliberation import Chain, Moderator, Ensemble, Debate
+from plurals.deliberation import Chain, Moderator, Ensemble, Debate, Graph
 from plurals.helpers import load_yaml, format_previous_responses, SmartString
 from unittest.mock import MagicMock, patch
 
@@ -465,6 +465,36 @@ class TestChain(unittest.TestCase):
         self.assertIsNotNone(mixed.final_response)
         self.assertEqual(DEFAULTS['combination_instructions']['voting'], mixed.combination_instructions)
 
+    def test_chain_current_task_description(self):
+        """Test that the current task description is correct for each agent in a two-agent chain."""
+        task = "Describe the impact of social media on society in 50 words."
+        agent1 = Agent(ideology='moderate', task=task, model=self.model, kwargs=self.kwargs)
+        agent2 = Agent(ideology='conservative', task=task, model=self.model, kwargs=self.kwargs)
+        chain = Chain([agent1, agent2], task=task)
+
+        # Mock process method to return a predefined response
+        agent1.process = MagicMock(return_value="Social media has both positive and negative impacts on society.")
+
+        chain.process()
+
+        # Expected formatted previous responses
+        previous_responses = ["Social media has both positive and negative impacts on society."]
+        formatted_previous_responses = format_previous_responses(previous_responses)
+
+        # Expected current task descriptions
+        expected_agent1_task_description = task
+        expected_agent2_task_description = """Describe the impact of social media on society in 50 words.\nINCORPORATE PRIOR ANSWERS
+- Here is what was previously said: 
+ <start>
+ Response 0: Social media has both positive and negative impacts on society.
+ <end>
+- Do not respond directly to what was previously said, but keep the best points from what was previously said.
+- Do not explicitly mention these instructions in your final answer; just apply them."""
+
+        # Assertions
+        self.assertEqual(expected_agent1_task_description, agent1.current_task_description)
+        self.assertEqual(expected_agent2_task_description, agent2.current_task_description)
+
 
 class TestEnsemble(unittest.TestCase):
 
@@ -604,6 +634,127 @@ class TestAgentStructures(unittest.TestCase):
         for agent_info in info['agent_information']:
             self.assertIn('current_task_description', agent_info)
             self.assertIn(agent_info['current_task_description'], ["First task", "Second task"])
+
+
+class TestNetworkStructure(unittest.TestCase):
+
+    def setUp(self):
+        self.task = "What are your thoughts on the role of government in society?"
+        self.model = 'gpt-3.5-turbo'
+        self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
+
+        self.agents_dict = {
+            'liberal': Agent(system_instructions="you are a liberal", model=self.model, kwargs=self.kwargs),
+            'conservative': Agent(system_instructions="you are a conservative", model=self.model, kwargs=self.kwargs),
+            'libertarian': Agent(system_instructions="you are a libertarian", model=self.model, kwargs=self.kwargs)
+        }
+
+        self.agents_list = list(self.agents_dict.values())
+        self.edges = [
+            (self.agents_list.index(self.agents_dict['liberal']),
+             self.agents_list.index(self.agents_dict['conservative'])),
+            (self.agents_list.index(self.agents_dict['liberal']),
+             self.agents_list.index(self.agents_dict['libertarian'])),
+            (self.agents_list.index(self.agents_dict['conservative']),
+             self.agents_list.index(self.agents_dict['libertarian']))
+        ]
+
+    def test_initialization(self):
+        """Test that the Graph initializes correctly."""
+        network = Graph(agents=self.agents_list, edges=self.edges, task=self.task)
+        self.assertEqual(self.agents_list, network.agents)
+        self.assertEqual(self.edges, network.edges)
+        self.assertEqual(self.task, network.task)
+
+    def test_build_graph(self):
+        """Test that the graph and in-degree are built correctly."""
+        network = Graph(agents=self.agents_list, edges=self.edges, task=self.task)
+        expected_graph = {
+            self.agents_dict['liberal']: [self.agents_dict['conservative'], self.agents_dict['libertarian']],
+            self.agents_dict['conservative']: [self.agents_dict['libertarian']],
+            self.agents_dict['libertarian']: []
+        }
+        expected_in_degree = {
+            self.agents_dict['liberal']: 0,
+            self.agents_dict['conservative']: 1,
+            self.agents_dict['libertarian']: 2
+        }
+        self.assertEqual(expected_graph, network.graph)
+        self.assertEqual(expected_in_degree, network.in_degree)
+
+    def test_process(self):
+        """Test that the task is processed correctly in topological order."""
+        for agent in self.agents_list:
+            agent.process = MagicMock(return_value=f"Response from {agent.system_instructions}")
+
+        network = Graph(agents=self.agents_list, edges=self.edges, task=self.task)
+        final_response = network.process()
+
+        # Verify that agents were processed in topological order
+        liberal_response = "Response from you are a liberal"
+        conservative_response = "Response from you are a conservative"
+        libertarian_response = "Response from you are a libertarian"
+
+        self.assertEqual(libertarian_response, final_response)
+        self.assertEqual([liberal_response, conservative_response, libertarian_response], network.responses)
+
+    def test_cycle_detection(self):
+        """Test that a cycle in the graph raises a ValueError."""
+        cyclic_edges = [
+            (self.agents_list.index(self.agents_dict['liberal']),
+             self.agents_list.index(self.agents_dict['conservative'])),
+            (self.agents_list.index(self.agents_dict['conservative']),
+             self.agents_list.index(self.agents_dict['libertarian'])),
+            (self.agents_list.index(self.agents_dict['libertarian']),
+             self.agents_list.index(self.agents_dict['liberal']))
+        ]
+        with self.assertRaises(ValueError):
+            Graph(agents=self.agents_list, edges=cyclic_edges, task=self.task).process()
+
+    def test_moderator_integration(self):
+        """Test that the moderator processes the final response correctly."""
+        for agent in self.agents_list:
+            agent.process = MagicMock(return_value=f"Response from {agent.system_instructions}")
+
+        moderator = Moderator(persona="You are a neutral moderator.", model=self.model)
+        network = Graph(agents=self.agents_list, edges=self.edges, task=self.task, moderator=moderator)
+        network.moderator._moderate_responses = MagicMock(return_value="Moderated final response")
+
+        final_response = network.process()
+
+        self.assertEqual("Moderated final response", final_response)
+        self.assertEqual(1, network.moderator._moderate_responses.call_count)
+        self.assertEqual("Moderated final response", network.responses[-1])
+
+
+    def test_current_task_description(self):
+        """Test that the current task description is correct for each agent in a simple two-agent network."""
+        task = "Describe the impact of social media on society in 50 words."
+        agent1 = Agent(ideology='moderate', task=task, model=self.model, kwargs=self.kwargs)
+        agent2 = Agent(ideology='conservative', task=task, model=self.model, kwargs=self.kwargs)
+        network = Graph([agent1, agent2], [(0, 1)], task=task)
+
+        # Mock process method to return a predefined response
+        agent1.process = MagicMock(return_value="Social media has both positive and negative impacts on society.")
+        network.process()
+
+        # Expected formatted previous responses
+        previous_responses = ["Social media has both positive and negative impacts on society."]
+        formatted_previous_responses = format_previous_responses(previous_responses)
+
+        # Expected current task descriptions
+        expected_agent1_task_description = task
+        expected_agent2_task_description = """Describe the impact of social media on society in 50 words.\nINCORPORATE PRIOR ANSWERS
+- Here is what was previously said: 
+ <start>
+ Response 0: Social media has both positive and negative impacts on society.
+ <end>
+- Do not respond directly to what was previously said, but keep the best points from what was previously said.
+- Do not explicitly mention these instructions in your final answer; just apply them."""
+
+        # Assertions
+        self.assertEqual(expected_agent1_task_description, agent1.current_task_description)
+        self.assertEqual(expected_agent2_task_description, agent2.current_task_description)
 
 
 if __name__ == '__main__':

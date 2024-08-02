@@ -64,7 +64,7 @@ class Agent:
         ideology (Optional[str]): Ideological perspective to influence persona creation, supported values are
                                   ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative'].
         query_str (Optional[str]): Custom query string for filtering the ANES dataset according to specific criteria.
-        model (Optional[str]): The language model version to use for generating responses. Default is gpt-4o.
+        model (str): The language model version to use for generating responses.
         system_instructions (Optional[str]): Overrides automated instructions with a custom set of directives for the
             model.
         persona_template (Optional[str]): Template string for constructing the persona. Must include a ${persona}
@@ -333,6 +333,7 @@ class Agent:
             self.set_task(task)
 
         if previous_responses:
+            # Update the task description with the previous responses
             combined_responses = SmartString(
                 self.combination_instructions).format(
                 previous_responses=previous_responses)
@@ -342,6 +343,7 @@ class Agent:
             else:
                 self.current_task_description = SmartString(
                     f"{self.original_task_description}\n{combined_responses}")
+            self.current_task_description = self.current_task_description.strip()
         else:
             self.current_task_description = self.original_task_description
         return self._get_response(self.current_task_description)
