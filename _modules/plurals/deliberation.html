@@ -715,11 +715,9 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="n">agents</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">last_n</span><span class="o">=</span><span class="n">last_n</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="n">combination_instructions</span><span class="p">,</span>
                          <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">edges</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">build_graph</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_graph</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Graph.build_graph">
-<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Graph.build_graph">[docs]</a>
-    <span class="k">def</span> <span class="nf">build_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_build_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Builds the graph from the agents and edges. Edges are defined using indices to reference agents.</span>
 <span class="sd">        Initializes the graph and in-degree count for each agent. This is the first part of the topological sorting.</span>
@@ -730,8 +728,7 @@
             <span class="n">src_agent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="n">src_idx</span><span class="p">]</span>
             <span class="n">dst_agent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="n">dst_idx</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">src_agent</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dst_agent</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">[</span><span class="n">dst_agent</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span></div>
-
+            <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">[</span><span class="n">dst_agent</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 
 <div class="viewcode-block" id="Graph.process">
 <a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Graph.process">[docs]</a>
