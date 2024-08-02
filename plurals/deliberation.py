@@ -605,9 +605,9 @@ class Graph(AbstractStructure):
         super().__init__(agents=agents, task=task, last_n=last_n, combination_instructions=combination_instructions,
                          moderator=moderator)
         self.edges = edges
-        self.build_graph()
+        self._build_graph()
 
-    def build_graph(self):
+    def _build_graph(self):
         """
         Builds the graph from the agents and edges. Edges are defined using indices to reference agents.
         Initializes the graph and in-degree count for each agent. This is the first part of the topological sorting.
