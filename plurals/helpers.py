@@ -73,21 +73,25 @@ def format_previous_responses(responses: List[str]) -> str:
     Format the previous responses for inclusion in the next task description.
 
     Args:
-        responses: A list of previous responses.
+        responses (List[str]): A list of previous responses.
 
     Returns:
-        A formatted string of the previous responses. By default, strings are formatted like:
-        Response 0: response0
-        Response 1: response1
+        str: A formatted string of the previous responses.
+
+    Example:
+        >>> responses = ["First response", "Second response"]
+        >>> format_previous_responses(responses)
+        'Response 0: First response\\nResponse 1: Second response'
     """
     if not responses:
         return ""
     else:
         resp_list = [
-            "Response {}: {}\n".format(
-                i, responses[i]) for i in range(
-                len(responses))]
+            "Response {}: {}\n".format(i, responses[i])
+            for i in range(len(responses))
+        ]
         return "".join(resp_list).strip()
+
 
 
 class SmartString(str):

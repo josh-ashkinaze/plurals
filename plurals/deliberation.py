@@ -542,7 +542,8 @@ class Graph(AbstractStructure):
     """
     Initializes a network where agents are processed according to a topologically-sorted directed acyclic graph (DAG).
     This Structure takes in Agents and a structure-specific property called `edges`, where each edge is a list of
-    tuples in the form (src_idx, dst_idx) indicating that the output of the agent at src_idx is an input to the agent at dst_idx.
+    tuples in the form (src_idx, dst_idx) indicating that the output of the agent at src_idx is an input to the agent at dst_idx. Note that the
+    graph must be a directed acyclic graph (DAG) or else an error will be raised.
 
     **Examples:**
         Suppose we have three Agents, and we want to create a graph where the output of the liberal is fed to both the conservative and libertarian.
