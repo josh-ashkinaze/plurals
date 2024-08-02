@@ -1,6 +1,6 @@
 import unittest
 from plurals.agent import Agent
-from plurals.deliberation import Chain, Moderator, Ensemble, Debate
+from plurals.deliberation import Chain, Moderator, Ensemble, Debate, NetworkStructure
 from plurals.helpers import load_yaml, format_previous_responses, SmartString
 from unittest.mock import MagicMock, patch
 
@@ -604,6 +604,97 @@ class TestAgentStructures(unittest.TestCase):
         for agent_info in info['agent_information']:
             self.assertIn('current_task_description', agent_info)
             self.assertIn(agent_info['current_task_description'], ["First task", "Second task"])
+
+
+class TestNetworkStructure(unittest.TestCase):
+
+    def setUp(self):
+        self.task = "What are your thoughts on the role of government in society?"
+        self.model = 'gpt-3.5-turbo'
+        self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
+
+        self.agents_dict = {
+            'liberal': Agent(system_instructions="you are a liberal", model=self.model, kwargs=self.kwargs),
+            'conservative': Agent(system_instructions="you are a conservative", model=self.model, kwargs=self.kwargs),
+            'libertarian': Agent(system_instructions="you are a libertarian", model=self.model, kwargs=self.kwargs)
+        }
+
+        self.agents_list = list(self.agents_dict.values())
+        self.edges = [
+            (self.agents_list.index(self.agents_dict['liberal']),
+             self.agents_list.index(self.agents_dict['conservative'])),
+            (self.agents_list.index(self.agents_dict['liberal']),
+             self.agents_list.index(self.agents_dict['libertarian'])),
+            (self.agents_list.index(self.agents_dict['conservative']),
+             self.agents_list.index(self.agents_dict['libertarian']))
+        ]
+
+    def test_initialization(self):
+        """Test that the NetworkStructure initializes correctly."""
+        network = NetworkStructure(agents=self.agents_list, edges=self.edges, task=self.task)
+        self.assertEqual(self.agents_list, network.agents)
+        self.assertEqual(self.edges, network.edges)
+        self.assertEqual(self.task, network.task)
+
+    def test_build_graph(self):
+        """Test that the graph and in-degree are built correctly."""
+        network = NetworkStructure(agents=self.agents_list, edges=self.edges, task=self.task)
+        expected_graph = {
+            self.agents_dict['liberal']: [self.agents_dict['conservative'], self.agents_dict['libertarian']],
+            self.agents_dict['conservative']: [self.agents_dict['libertarian']],
+            self.agents_dict['libertarian']: []
+        }
+        expected_in_degree = {
+            self.agents_dict['liberal']: 0,
+            self.agents_dict['conservative']: 1,
+            self.agents_dict['libertarian']: 2
+        }
+        self.assertEqual(expected_graph, network.graph)
+        self.assertEqual(expected_in_degree, network.in_degree)
+
+    def test_process(self):
+        """Test that the task is processed correctly in topological order."""
+        for agent in self.agents_list:
+            agent.process = MagicMock(return_value=f"Response from {agent.system_instructions}")
+
+        network = NetworkStructure(agents=self.agents_list, edges=self.edges, task=self.task)
+        final_response = network.process()
+
+        # Verify that agents were processed in topological order
+        liberal_response = "Response from you are a liberal"
+        conservative_response = "Response from you are a conservative"
+        libertarian_response = "Response from you are a libertarian"
+
+        self.assertEqual(libertarian_response, final_response)
+        self.assertEqual([liberal_response, conservative_response, libertarian_response], network.responses)
+
+    def test_cycle_detection(self):
+        """Test that a cycle in the graph raises a ValueError."""
+        cyclic_edges = [
+            (self.agents_list.index(self.agents_dict['liberal']),
+             self.agents_list.index(self.agents_dict['conservative'])),
+            (self.agents_list.index(self.agents_dict['conservative']),
+             self.agents_list.index(self.agents_dict['libertarian'])),
+            (self.agents_list.index(self.agents_dict['libertarian']),
+             self.agents_list.index(self.agents_dict['liberal']))
+        ]
+        with self.assertRaises(ValueError):
+            NetworkStructure(agents=self.agents_list, edges=cyclic_edges, task=self.task).process()
+
+    def test_moderator_integration(self):
+        """Test that the moderator processes the final response correctly."""
+        for agent in self.agents_list:
+            agent.process = MagicMock(return_value=f"Response from {agent.system_instructions}")
+
+        moderator = Moderator(persona="You are a neutral moderator.", model=self.model)
+        network = NetworkStructure(agents=self.agents_list, edges=self.edges, task=self.task, moderator=moderator)
+        network.moderator._moderate_responses = MagicMock(return_value="Moderated final response")
+
+        final_response = network.process()
+
+        self.assertEqual("Moderated final response", final_response)
+        self.assertEqual(1, network.moderator._moderate_responses.call_count)
+        self.assertEqual("Moderated final response", network.responses[-1])
 
 
 if __name__ == '__main__':

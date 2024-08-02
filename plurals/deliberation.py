@@ -496,7 +496,6 @@ class Debate(AbstractStructure):
         [Debater 2] to indicate the speaker.
         """
 
-
         # Initialize lists for storing responses from the perspective of each agent.
         # This is necessary for the debate structure because each agent needs to see which is there's and which is
         # the other agent's response.
@@ -539,24 +538,51 @@ class Debate(AbstractStructure):
         self.final_response = self.responses[-1]
 
 
-
 class NetworkStructure(AbstractStructure):
     """
-    Initializes a network where agents are processed according to a directed acyclic graph (DAG). This Structure
-    takes in Agents and a structure-specific property called `edges`, where each edge is a list of tuples in the form (
-    src_idx, dst_idx) indicating that the output of the agent at src_idx is an input to the agent at dst_idx.
+    Initializes a network where agents are processed according to a topologically-sorted directed acyclic graph (DAG).
+    This Structure takes in Agents and a structure-specific property called `edges`, where each edge is a list of
+    tuples in the form (src_idx, dst_idx) indicating that the output of the agent at src_idx is an input to the agent at dst_idx.
 
-    ** Examples:**
-        Suppose we have three Agents. And we want to create a graph where the output of the liberal is fed to both the conservative and libertarian.
-        And then the output of the conservative is fed to the libertarian.
+    **Examples:**
+        Suppose we have three Agents, and we want to create a graph where the output of the liberal is fed to both the conservative and libertarian.
+        Then the output of the conservative is fed to the libertarian.
 
         .. code-block:: python
-        Agents = [Agent(persona="a liberal"), Agent(persona="a conservative"), Agent(persona="a libertarian")]
-        edges = [(0, 1), (0, 2), (1, 2)]
-        # edges = (liberal -> conservative), (liberal -> libertarian), (conservative -> libertarian)
+
+            Agents = [
+                Agent(system_instructions="you are a liberal"),
+                Agent(system_instructions="you are a conservative"),
+                Agent(system_instructions="you are a libertarian")
+            ]
+            edges = [(0, 1), (0, 2), (1, 2)]
+            # edges = (liberal -> conservative), (liberal -> libertarian), (conservative -> libertarian)
+            task = "What are your thoughts on the role of government in society?"
+            network = NetworkStructure(agents=Agents, edges=edges, task=task)
 
 
+        You can also define the agents using a dictionary and convert it to a list for easier index lookup:
+
+        .. code-block:: python
+
+            # Define the agents with a dictionary for easier index lookup
+            agents_dict = {
+                'liberal': Agent(system_instructions="you are a liberal"),
+                'conservative': Agent(system_instructions="you are a conservative"),
+                'libertarian': Agent(system_instructions="you are a libertarian")
+            }
+
+            # Convert the dictionary to a list to get a list of Agents
+            agents_list = list(agents_dict.values())
+
+            # Define the edges using the dictionary keys
+            edges = [
+                (agents_list.index(agents_dict['liberal']), agents_list.index(agents_dict['conservative'])),
+                (agents_list.index(agents_dict['liberal']), agents_list.index(agents_dict['libertarian'])),
+                (agents_list.index(agents_dict['conservative']), agents_list.index(agents_dict['libertarian']))
+            ]
     """
+
     def __init__(self,
                  agents: List[Agent],
                  edges: List[tuple],
@@ -583,7 +609,7 @@ class NetworkStructure(AbstractStructure):
     def build_graph(self):
         """
         Builds the graph from the agents and edges. Edges are defined using indices to reference agents.
-        Initializes the graph and in-degree count for each agent.
+        Initializes the graph and in-degree count for each agent. This is the first part of the topological sorting.
         """
         self.graph = {agent: [] for agent in self.agents}
         self.in_degree = {agent: 0 for agent in self.agents}
@@ -595,25 +621,46 @@ class NetworkStructure(AbstractStructure):
 
     def process(self):
         """
-        Processes the tasks within the network of agents, respecting the directed acyclic graph structure. Uses
-        Kahn's Algorithm for topological sorting to ensure the correct processing order.
+        Processes the tasks within the network of agents, respecting the directed acyclic graph (DAG) structure. The order
+        of agent deliberation is determined using Kahn's algorithm for topological sorting.
+
+        Kahn's Algorithm:
+
+        1. Initialize a queue with agents that have an in-degree of 0 (no dependencies).
+
+        2. While the queue is not empty:
+
+           a. Remove an agent from the queue and add this agent to the topological order.
+
+           b. For each successor of this agent:
+              i. Decrease the successor's in-degree by 1.
+
+              ii. If the successor's in-degree becomes 0, add it to the queue.
+
+        This method ensures that agents are processed in an order where each agent's dependencies are processed before the agent itself.
 
         Returns:
             str: The final response after all agents have been processed, and potentially moderated.
 
         Raises:
-            ValueError: If a cycle is detected in the DAG since this would prevent valid topological sorting.
+            ValueError: If a cycle is detected in the DAG, as this prevents valid topological sorting.
         """
-        # topological Sorting using Kahn's Algorithm
-        # reference:
-        # https: // www.geeksforgeeks.org / topological - sorting - indegree - based - solution /
+
+        # Initialize the queue with agents that have in-degree 0
         zero_in_degree_queue = collections.deque([agent for agent in self.agents if self.in_degree[agent] == 0])
         topological_order = []
 
+        # Kahn's Algorithm
         while zero_in_degree_queue:
+
+            # Pop the agent with in-degree 0
             current_agent = zero_in_degree_queue.popleft()
+
+            # Add the agent to the topological order
             topological_order.append(current_agent)
 
+            # Decrease the in-degree of the popped Agent's successors
+            # If the in-degree of a successor becomes 0, add it to the queue
             for successor in self.graph[current_agent]:
                 self.in_degree[successor] -= 1
                 if self.in_degree[successor] == 0:
@@ -627,17 +674,16 @@ class NetworkStructure(AbstractStructure):
         for agent in topological_order:
             agent.combination_instructions = self.combination_instructions
             # Gather responses from all predecessors to form the input for the current agent
-            previous_responses = [response_dict[pred] for pred in self.agents if
-                                  pred in self.graph and agent in self.graph[pred]]
+            previous_responses = [response_dict[pred] for pred in self.agents if agent in self.graph[pred]]
             previous_responses_str = format_previous_responses(previous_responses)
             response = agent.process(previous_responses=previous_responses_str)
             response_dict[agent] = response
+            self.responses.append(response)
 
         # Handle the moderator if present
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(list(response_dict.values()), self.task)
+            self.responses.append(moderated_response)
             self.final_response = moderated_response
-        else:
-            self.final_response = list(response_dict.values())[-1]
-
+        self.final_response = self.responses[-1]
         return self.final_response
