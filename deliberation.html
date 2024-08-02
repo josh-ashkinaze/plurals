@@ -422,9 +422,9 @@ of agent deliberation is determined using Kahn’s algorithm for topological sor
 <li><p>While the queue is not empty:</p>
 <ol class="loweralpha simple">
 <li><p>Remove an agent from the queue and add this agent to the topological order.</p></li>
-<li><p>For each successor of this agent:
-i. Decrease the successor’s in-degree by 1.</p>
-<ol class="lowerroman simple" start="2">
+<li><p>For each successor of this agent:</p>
+<ol class="lowerroman simple">
+<li><p>Decrease the successor’s in-degree by 1.</p></li>
 <li><p>If the successor’s in-degree becomes 0, add it to the queue.</p></li>
 </ol>
 </li>
