@@ -64,7 +64,7 @@ class Agent:
         ideology (Optional[str]): Ideological perspective to influence persona creation, supported values are
                                   ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative'].
         query_str (Optional[str]): Custom query string for filtering the ANES dataset according to specific criteria.
-        model (Optional[str]): The language model version to use for generating responses. Default is gpt-4o-mini.
+        model (Optional[str]): The language model version to use for generating responses. Default is gpt-4o.
         system_instructions (Optional[str]): Overrides automated instructions with a custom set of directives for the
             model.
         persona_template (Optional[str]): Template string for constructing the persona. Must include a ${persona}
@@ -216,7 +216,7 @@ class Agent:
                  combination_instructions: Optional[str] = None,
                  ideology: Optional[str] = None,
                  query_str: Optional[str] = None,
-                 model: str = "gpt-4o-mini",
+                 model: str = "gpt-4o",
                  system_instructions: Optional[str] = None,
                  persona_template: Optional[str] = "default",
                  persona: Optional[str] = None,
