@@ -33,9 +33,9 @@
       + [Chain with a moderator](#chain-with-a-moderator)
       + [Debate](#debate)
       + [Debate with a moderator](#debate-with-a-moderator)
-   * [Graph ](#graph)
-      + [DAGs](#dags)
-      + [DAGs with Plurals](#dags-with-plurals)
+      + [Graph ](#graph)
+         - [DAGs](#dags)
+         - [DAGs with Plurals](#dags-with-plurals)
    * [Viewing history of Agents in a Structure](#viewing-history-of-agents-in-a-structure)
 
 <!-- TOC end -->
@@ -879,12 +879,12 @@ print(debate.final_response)
 Note: In the above example, we printed `debate.final_response` instead of `debate.responses` (like we did without a Moderator) because, in this case, we only want to print the final response of the moderator and not all of the agent's responses.
 
 
-## Graph 
+### Graph 
 We also support a `Graph` structure. Specifically, we support deliberation on directed acyclic graphs (DAGs). Please see
 documentation for more details. Before going into how to use it, here's a brief explainer of DAGs and why we are 
 employing them. 
 
-### DAGs
+#### DAGs
 
 **What is a DAG?**
 
@@ -916,7 +916,7 @@ graph is not directed, it is not obvious which Agent should be processed first i
 clear when the processing should stop. So that is the rationale for requiring graphs be directed and acyclic (i.e: 
 DAGs). 
 
-### DAGs with Plurals
+#### DAGs with Plurals
 
 In the `Graph` structure, we take in a list of Agents (which are the nodes) and also an `edges` argument, which is 
 the list of vertices. The edges form a DAG or else an error is thrown. The syntax for edges is a list of tuples, 
