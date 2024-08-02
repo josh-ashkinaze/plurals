@@ -333,6 +333,7 @@ class Agent:
             self.set_task(task)
 
         if previous_responses:
+            # Update the task description with the previous responses
             combined_responses = SmartString(
                 self.combination_instructions).format(
                 previous_responses=previous_responses)
@@ -342,6 +343,7 @@ class Agent:
             else:
                 self.current_task_description = SmartString(
                     f"{self.original_task_description}\n{combined_responses}")
+            self.current_task_description = self.current_task_description.strip()
         else:
             self.current_task_description = self.original_task_description
         return self._get_response(self.current_task_description)

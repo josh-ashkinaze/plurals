@@ -1,6 +1,6 @@
 import unittest
 from plurals.agent import Agent
-from plurals.deliberation import Chain, Moderator, Ensemble, Debate, NetworkStructure
+from plurals.deliberation import Chain, Moderator, Ensemble, Debate, Graph
 from plurals.helpers import load_yaml, format_previous_responses, SmartString
 from unittest.mock import MagicMock, patch
 
@@ -465,6 +465,36 @@ class TestChain(unittest.TestCase):
         self.assertIsNotNone(mixed.final_response)
         self.assertEqual(DEFAULTS['combination_instructions']['voting'], mixed.combination_instructions)
 
+    def test_chain_current_task_description(self):
+        """Test that the current task description is correct for each agent in a two-agent chain."""
+        task = "Describe the impact of social media on society in 50 words."
+        agent1 = Agent(ideology='moderate', task=task, model=self.model, kwargs=self.kwargs)
+        agent2 = Agent(ideology='conservative', task=task, model=self.model, kwargs=self.kwargs)
+        chain = Chain([agent1, agent2], task=task)
+
+        # Mock process method to return a predefined response
+        agent1.process = MagicMock(return_value="Social media has both positive and negative impacts on society.")
+
+        chain.process()
+
+        # Expected formatted previous responses
+        previous_responses = ["Social media has both positive and negative impacts on society."]
+        formatted_previous_responses = format_previous_responses(previous_responses)
+
+        # Expected current task descriptions
+        expected_agent1_task_description = task
+        expected_agent2_task_description = """Describe the impact of social media on society in 50 words.\nINCORPORATE PRIOR ANSWERS
+- Here is what was previously said: 
+ <start>
+ Response 0: Social media has both positive and negative impacts on society.
+ <end>
+- Do not respond directly to what was previously said, but keep the best points from what was previously said.
+- Do not explicitly mention these instructions in your final answer; just apply them."""
+
+        # Assertions
+        self.assertEqual(expected_agent1_task_description, agent1.current_task_description)
+        self.assertEqual(expected_agent2_task_description, agent2.current_task_description)
+
 
 class TestEnsemble(unittest.TestCase):
 
@@ -630,15 +660,15 @@ class TestNetworkStructure(unittest.TestCase):
         ]
 
     def test_initialization(self):
-        """Test that the NetworkStructure initializes correctly."""
-        network = NetworkStructure(agents=self.agents_list, edges=self.edges, task=self.task)
+        """Test that the Graph initializes correctly."""
+        network = Graph(agents=self.agents_list, edges=self.edges, task=self.task)
         self.assertEqual(self.agents_list, network.agents)
         self.assertEqual(self.edges, network.edges)
         self.assertEqual(self.task, network.task)
 
     def test_build_graph(self):
         """Test that the graph and in-degree are built correctly."""
-        network = NetworkStructure(agents=self.agents_list, edges=self.edges, task=self.task)
+        network = Graph(agents=self.agents_list, edges=self.edges, task=self.task)
         expected_graph = {
             self.agents_dict['liberal']: [self.agents_dict['conservative'], self.agents_dict['libertarian']],
             self.agents_dict['conservative']: [self.agents_dict['libertarian']],
@@ -657,7 +687,7 @@ class TestNetworkStructure(unittest.TestCase):
         for agent in self.agents_list:
             agent.process = MagicMock(return_value=f"Response from {agent.system_instructions}")
 
-        network = NetworkStructure(agents=self.agents_list, edges=self.edges, task=self.task)
+        network = Graph(agents=self.agents_list, edges=self.edges, task=self.task)
         final_response = network.process()
 
         # Verify that agents were processed in topological order
@@ -679,7 +709,7 @@ class TestNetworkStructure(unittest.TestCase):
              self.agents_list.index(self.agents_dict['liberal']))
         ]
         with self.assertRaises(ValueError):
-            NetworkStructure(agents=self.agents_list, edges=cyclic_edges, task=self.task).process()
+            Graph(agents=self.agents_list, edges=cyclic_edges, task=self.task).process()
 
     def test_moderator_integration(self):
         """Test that the moderator processes the final response correctly."""
@@ -687,7 +717,7 @@ class TestNetworkStructure(unittest.TestCase):
             agent.process = MagicMock(return_value=f"Response from {agent.system_instructions}")
 
         moderator = Moderator(persona="You are a neutral moderator.", model=self.model)
-        network = NetworkStructure(agents=self.agents_list, edges=self.edges, task=self.task, moderator=moderator)
+        network = Graph(agents=self.agents_list, edges=self.edges, task=self.task, moderator=moderator)
         network.moderator._moderate_responses = MagicMock(return_value="Moderated final response")
 
         final_response = network.process()
@@ -695,6 +725,36 @@ class TestNetworkStructure(unittest.TestCase):
         self.assertEqual("Moderated final response", final_response)
         self.assertEqual(1, network.moderator._moderate_responses.call_count)
         self.assertEqual("Moderated final response", network.responses[-1])
+
+
+    def test_current_task_description(self):
+        """Test that the current task description is correct for each agent in a simple two-agent network."""
+        task = "Describe the impact of social media on society in 50 words."
+        agent1 = Agent(ideology='moderate', task=task, model=self.model, kwargs=self.kwargs)
+        agent2 = Agent(ideology='conservative', task=task, model=self.model, kwargs=self.kwargs)
+        network = Graph([agent1, agent2], [(0, 1)], task=task)
+
+        # Mock process method to return a predefined response
+        agent1.process = MagicMock(return_value="Social media has both positive and negative impacts on society.")
+        network.process()
+
+        # Expected formatted previous responses
+        previous_responses = ["Social media has both positive and negative impacts on society."]
+        formatted_previous_responses = format_previous_responses(previous_responses)
+
+        # Expected current task descriptions
+        expected_agent1_task_description = task
+        expected_agent2_task_description = """Describe the impact of social media on society in 50 words.\nINCORPORATE PRIOR ANSWERS
+- Here is what was previously said: 
+ <start>
+ Response 0: Social media has both positive and negative impacts on society.
+ <end>
+- Do not respond directly to what was previously said, but keep the best points from what was previously said.
+- Do not explicitly mention these instructions in your final answer; just apply them."""
+
+        # Assertions
+        self.assertEqual(expected_agent1_task_description, agent1.current_task_description)
+        self.assertEqual(expected_agent2_task_description, agent2.current_task_description)
 
 
 if __name__ == '__main__':

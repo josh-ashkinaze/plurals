@@ -538,7 +538,7 @@ class Debate(AbstractStructure):
         self.final_response = self.responses[-1]
 
 
-class NetworkStructure(AbstractStructure):
+class Graph(AbstractStructure):
     """
     Initializes a network where agents are processed according to a topologically-sorted directed acyclic graph (DAG).
     This Structure takes in Agents and a structure-specific property called `edges`, where each edge is a list of
@@ -558,7 +558,7 @@ class NetworkStructure(AbstractStructure):
             edges = [(0, 1), (0, 2), (1, 2)]
             # edges = (liberal -> conservative), (liberal -> libertarian), (conservative -> libertarian)
             task = "What are your thoughts on the role of government in society?"
-            network = NetworkStructure(agents=Agents, edges=edges, task=task)
+            network = Graph(agents=Agents, edges=edges, task=task)
 
 
         You can also define the agents using a dictionary and convert it to a list for easier index lookup:
@@ -588,7 +588,7 @@ class NetworkStructure(AbstractStructure):
                  edges: List[tuple],
                  task: Optional[str] = None,
                  last_n: int = 1,
-                 combination_instructions: Optional[str] = "debate",
+                 combination_instructions: Optional[str] = "default",
                  moderator: Optional[Moderator] = None):
         """
         Args:
