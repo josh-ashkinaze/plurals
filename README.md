@@ -153,7 +153,7 @@ print("=" * 20)
 printwrap(lib_answer)
 ```
 
-```
+```markdown
 INSTRUCTIONS
 When answering questions or performing tasks, always adopt the following persona.
 
