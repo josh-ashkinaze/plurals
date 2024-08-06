@@ -63,7 +63,8 @@ For now, cite this package as:
   license = {cc-by-4.0}
 }
 ```
-EF and NE are equal contributors. We have a DOI on Zenodo (https://zenodo.org/records/12750674). 
+EF and NE are equal contributors. We have a DOI on Zenodo. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12750674.svg)](https://doi.org/10.5281/zenodo.12750674)
+
 
 
 # Package Overview
