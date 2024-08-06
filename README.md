@@ -62,6 +62,8 @@ For now, cite this package as:
   url     = {https://github.com/josh-ashkinaze/plurals/tree/0.2.8},
   license = {cc-by-4.0}
 }
+
+We have a DOI on Zenodo (https://zenodo.org/records/12750674). 
 ```
 EF and NE are equal contributors. 
 
