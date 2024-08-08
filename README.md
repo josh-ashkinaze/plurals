@@ -52,15 +52,14 @@
 # Cite
 For now, cite this package as:
 ```
-@software{Ashkinaze_josh-ashkinaze_plurals_0_2_8_2024,
-  author  = {Ashkinaze, Joshua and Fry, Emily and Edra, Narendra and Budak, Ceren and Gilbert, Eric},
-  title   = {{josh-ashkinaze/plurals: 0.2.8}},
-  year    = {2024},
-  month   = jul,
-  version = {0.2.8},
-  doi     = {10.5281/zenodo.12750674},
-  url     = {https://github.com/josh-ashkinaze/plurals/tree/0.2.8},
-  license = {cc-by-4.0}
+@software{Ashkinaze_Plurals_2024,
+  author = {Ashkinaze, Joshua and Fry, Emily and Edra, Narendra and Budak, Ceren and Gilbert, Eric},
+  doi = {10.5281/zenodo.12750674},
+  license = {cc-by-4.0},
+  month = jul,
+  title = {{Plurals}},
+  url = {https://github.com/josh-ashkinaze/plurals},
+  year = {2024}
 }
 ```
 EF and NE are equal contributors. We have a DOI on Zenodo. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12750674.svg)](https://doi.org/10.5281/zenodo.12750674)
