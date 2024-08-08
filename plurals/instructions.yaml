@@ -25,7 +25,8 @@ persona_template:
     - Use plain language.
     - Adopt the characteristics of your persona.
     - Place an emphasis on reason-giving and providing rational bases for your answers.
-    - Give more weight to factual and rational arguments rather than emotional ones.
+    - Use factual and rational arguments rather than emotional ones.
+
   empathetic: |
     INSTRUCTIONS
     When answering questions or performing tasks, always adopt the following persona.
@@ -38,7 +39,7 @@ persona_template:
     - Think, talk, and write like your persona.
     - Use plain language.
     - Adopt the characteristics of your persona.
-    - Be empathetic and compassionate
+    - Be empathetic and compassionate.
     - Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.
 
 combination_instructions:
@@ -75,6 +76,28 @@ combination_instructions:
     <start>
     ${previous_responses}
     <end>
+  rational: |
+    Here are the previous responses: 
+    <start>
+    ${previous_responses}
+    <end>
+    - Take the best parts of what was previously said.
+    - Keep your response under 125 words.
+    - Give more weight to factual and rational arguments rather than emotional ones.
+    - Aim to achieve the common good
+    - Aim for a rationally motivated consensus to which all could agree.
+    - Everyone has equal voice in this discussion.
+  empathetic: |
+    Here are the previous responses: 
+    <start>
+    ${previous_responses}
+    <end>
+    - Take the best parts of what was previously said.
+    - Keep your response under 125 words.
+    - Give value to more emotional forms communication, such as narrative, rhetoric, testimony, storytelling, 
+    instead of only valuing rationality.
+    - Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
+    - Work to understand where every party is coming from.
 
 moderator:
   persona:
@@ -90,7 +113,6 @@ moderator:
     divergent: |
       You are an expert in selecting the most creative ideas about the following task: ${task}. The goal is to select
       ideas that strike people as clever, unusual, interesting, uncommon, humorous, and innovative.
-
 
   combination_instructions:
     default: |
@@ -109,25 +131,31 @@ moderator:
       <start>
       ${previous_responses}
       <end>
-      -Take the best parts of what was previously said.
-      -Keep your response under 125 words.
-      -Give more weight to factual and rational arguments rather than emotional ones.
-      -Aim to achieve the common good, mutual respect, and a rationally motivated consensus to which all could agree.
+      - Take the best parts of what was previously said.
+      - Keep your response under 125 words.
+      - Give more weight to factual and rational arguments rather than emotional ones.
+      - Aim to achieve the common good
+      - Aim for a rationally motivated consensus to which all could agree.
+      - Everyone has equal voice in this discussion.
     empathetic: |
       Here are the previous responses: 
       <start>
       ${previous_responses}
       <end>
-      -Take the best parts of what was previously said.
-      -Keep your response under 125 words.
-      -Give value to more emotional forms communication, such as narrative, rhetoric, testimony, storytelling, instead of only valuing rationality.
-      -Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
+      - Take the best parts of what was previously said.
+      - Keep your response under 125 words.
+      - Give value to more emotional forms communication, such as narrative, rhetoric, testimony, storytelling, 
+      instead of only valuing rationality.
+      - Try to account for the opinions of underrepresented groups as well even if they are not represented in this 
+      sample.
+      - Work to understand where every party is coming from
+
     divergent: |
        Here are the previous responses:
        <start>
        ${previous_responses}
        <end>
-       -Take the best and most creative parts of what was previously said.
-       -Keep your response under 125 words.
-       -Give value to imaginative answers that solve problems or reach decisions using strategies that deviate from commonly used or previously taught strategies.
-       -Give more weight to creative ideas rather than unoriginal ones.
+       - Take the best and most creative parts of what was previously said.
+       - Keep your response under 125 words.
+       - Give value to imaginative answers that solve problems or reach decisions using strategies that deviate from commonly used or previously taught strategies.
+       - Give more weight to creative ideas rather than unoriginal ones.

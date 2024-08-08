@@ -121,7 +121,7 @@ class Agent:
         Here is an example of using the `empathetic` persona template with a persona of "a moderate voter from Michigan".
         You can see how the full system instructions are a combination of the two.
 
-        .. code-block:: python
+        .. code-block::
 
             empathetic_michigan = Agent(persona="a moderate voter from Michigan",
                 persona_template="empathetic")
@@ -145,7 +145,7 @@ class Agent:
 
         Here is an example of using your own persona template with the appropriate ${persona} placeholder.
 
-        .. code-block:: python
+        .. code-block::
 
             agent = Agent(persona="a moderate voter from Michigan", persona_template="You are ${persona}.")
             print(agent.system_instructions)
@@ -159,7 +159,7 @@ class Agent:
         the citizen identifies as `very conservative` and use that as the `persona`. We always use appropriate sampling
         weights, so personas will be nationally representative.
 
-        .. code-block:: python
+        .. code-block::
 
             agent = Agent(ideology="very conservative", model='gpt-4o', task=task)
             print(agent.persona)
@@ -183,6 +183,7 @@ class Agent:
             - Use plain language.
             - Adopt the characteristics of your persona.
             - Do not be overly polite or politically correct.
+
 
         **Random Nationally Representative Personas (ANES Persona Method)**: If you make persona== 'random' then we will
         randomly sample a row

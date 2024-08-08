@@ -348,7 +348,7 @@ print("\n" * 2)
 printwrap(agent.process())
 ```
 
-```python
+```markdown
 INSTRUCTIONS
 When answering questions or performing tasks, always adopt the following persona.
 
