@@ -52,7 +52,7 @@
 # Cite
 We plan on releasing a system paper soon. For now, cite this package as:
 
-Bibtex
+_Bibtex:_
 ```
 @software{Ashkinaze_Plurals_2024,
   author = {Ashkinaze, Joshua and Fry, Emily and Edra, Narendra and Budak, Ceren and Gilbert, Eric},
@@ -65,7 +65,7 @@ Bibtex
 }
 ```
 
-APA
+_APA:_
 ```
 Ashkinaze, J., Fry, E., Edra, N., Budak, C., & Gilbert, E. (2024). Plurals. Zenodo. https://doi.org/10.5281/zenodo.12750674
 ```
