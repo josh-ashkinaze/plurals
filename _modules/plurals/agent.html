@@ -198,7 +198,7 @@
 <span class="sd">        Here is an example of using the `empathetic` persona template with a persona of &quot;a moderate voter from Michigan&quot;.</span>
 <span class="sd">        You can see how the full system instructions are a combination of the two.</span>
 
-<span class="sd">        .. code-block:: python</span>
+<span class="sd">        .. code-block::</span>
 
 <span class="sd">            empathetic_michigan = Agent(persona=&quot;a moderate voter from Michigan&quot;,</span>
 <span class="sd">                persona_template=&quot;empathetic&quot;)</span>
@@ -222,7 +222,7 @@
 
 <span class="sd">        Here is an example of using your own persona template with the appropriate ${persona} placeholder.</span>
 
-<span class="sd">        .. code-block:: python</span>
+<span class="sd">        .. code-block::</span>
 
 <span class="sd">            agent = Agent(persona=&quot;a moderate voter from Michigan&quot;, persona_template=&quot;You are ${persona}.&quot;)</span>
 <span class="sd">            print(agent.system_instructions)</span>
@@ -236,7 +236,7 @@
 <span class="sd">        the citizen identifies as `very conservative` and use that as the `persona`. We always use appropriate sampling</span>
 <span class="sd">        weights, so personas will be nationally representative.</span>
 
-<span class="sd">        .. code-block:: python</span>
+<span class="sd">        .. code-block::</span>
 
 <span class="sd">            agent = Agent(ideology=&quot;very conservative&quot;, model=&#39;gpt-4o&#39;, task=task)</span>
 <span class="sd">            print(agent.persona)</span>
@@ -260,6 +260,7 @@
 <span class="sd">            - Use plain language.</span>
 <span class="sd">            - Adopt the characteristics of your persona.</span>
 <span class="sd">            - Do not be overly polite or politically correct.</span>
+
 
 <span class="sd">        **Random Nationally Representative Personas (ANES Persona Method)**: If you make persona== &#39;random&#39; then we will</span>
 <span class="sd">        randomly sample a row</span>

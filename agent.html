@@ -252,7 +252,7 @@ persona and the <cite>persona_template</cite>—where the latter is a template s
 placeholder. This gives more instructions to the model of how to enact the persona.</p>
 <p>Here is an example of using the <cite>empathetic</cite> persona template with a persona of “a moderate voter from Michigan”.
 You can see how the full system instructions are a combination of the two.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">empathetic_michigan</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a moderate voter from Michigan&quot;</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">empathetic_michigan</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a moderate voter from Michigan&quot;</span><span class="p">,</span>
     <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;empathetic&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">empathetic_michigan</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
 </pre></div>
@@ -273,7 +273,7 @@ CONSTRAINTS
 </pre></div>
 </div>
 <p>Here is an example of using your own persona template with the appropriate ${persona} placeholder.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a moderate voter from Michigan&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;You are $</span><span class="si">{persona}</span><span class="s2">.&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a moderate voter from Michigan&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;You are $</span><span class="si">{persona}</span><span class="s2">.&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
 <span class="c1"># You are a moderate voter from Michigan.</span>
 </pre></div>
@@ -284,7 +284,7 @@ CONSTRAINTS
 subset of the normals. The below example will pick a random row from ANES where
 the citizen identifies as <cite>very conservative</cite> and use that as the <cite>persona</cite>. We always use appropriate sampling
 weights, so personas will be nationally representative.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">persona</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
 </pre></div>
