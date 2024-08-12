@@ -10,9 +10,11 @@ import re
 import threading
 import time
 from tenacity import retry,stop_after_attempt, wait_exponential, retry_if_exception_type,stop_after_delay,wait_fixed
-from litellm.exceptions import RateLimitError
+from litellm.exceptions import RateLimitError as LiteLLMRateLimitError
+import litellm
 DEFAULTS = load_yaml("instructions.yaml")
-
+import json
+from litellm import APIConnectionError
 
 class Moderator(Agent):
     """
@@ -402,6 +404,20 @@ class AbstractStructure(ABC):
 # Concrete Structures
 #########################################################################
 #########################################################################
+
+
+class LLMException(Exception):
+    """Custom exception for handling rate limit errors."""
+    pass
+
+# def parse_llm_error(error_message):
+#     """Parse the LLM error message and raise a custom error if it's a rate limit issue."""
+#     if "rate limit" in str(error_message.lower()):
+#         raise LLMException("Rate limit error: Number of requests has exceeded your per-minute rate limit.")
+
+
+    # If the error is not rate limit related, raise a general LLM exception
+    # raise LLMException(f"Error fetching response from LLM: {error_message}")
 class Chain(AbstractStructure):
     """
     A chain structure for processing tasks through a sequence of agents. In a chain,
@@ -469,52 +485,11 @@ class Chain(AbstractStructure):
         self.final_response = self.responses[-1]
 
 
-class Ensemble(AbstractStructure,):
-    """
-    An ensemble structure for processing tasks through a group of agents. In an ensemble, each agent processes the
-    task independently through async requests.
-
-    **Examples:**
-
-        **Ensemble with no moderator**:
-
-        .. code-block:: python
-
-            from plurals.agent import Agent
-            from plurals.deliberation import Ensemble
-
-            task = "Brainstorm ideas to improve America."
-
-            # Create agents
-            agents = [Agent(persona='random', model='gpt-4o') for i in range(10)]
-
-            ensemble = Ensemble(agents, task=task)
-            ensemble.process()
-            print(ensemble.responses)
-
-        **Ensemble with moderator**:
-
-        .. code-block:: python
-
-            from plurals.agent import Agent
-            from plurals.deliberation import Ensemble, Moderator
-
-            task = "Brainstorm ideas to improve America."
-            agents = [Agent(persona='random', model='gpt-4o') for i in range(10)] # random ANES agents
-            moderator = Moderator(persona='default', model='gpt-4o') # default moderator persona
-            ensemble = Ensemble(agents, moderator=moderator, task=task)
-            ensemble.process()
-            print(ensemble.responses)
-        """
+class Ensemble(AbstractStructure):
 
     def process(self):
-        """
-        Process the task through an ensemble of agents, each handling the task independently with retries.
-        """
+        """Process the task through an ensemble of agents, each handling the task independently with retries."""
         original_task = self.agents[0].original_task_description
-        request_counter = 0
-        request_limit = self.rate_limit
-        wait_time = 60  # seconds
 
         for _ in range(self.cycles):
             with ThreadPoolExecutor() as executor:
@@ -522,23 +497,47 @@ class Ensemble(AbstractStructure,):
                 for agent in self.agents:
                     previous_responses_str = ""
                     agent.combination_instructions = self.combination_instructions
-                    futures.append(executor.submit(agent.process, previous_responses=previous_responses_str))
-                    request_counter += 1
-                    if request_limit is None:
-                        continue
-                    if request_counter % request_limit == 0:
-                        print(f"Reached {request_limit} requests, waiting for {wait_time} seconds...")
-                        time.sleep(wait_time)
-
+                    futures.append(executor.submit(self._process_with_retry, agent, previous_responses_str))
                 for future in as_completed(futures):
-                    response = future.result()
-                    self.responses.append(response)
+                    try:
+                        response = future.result()
+                        self.responses.append(response)
+                    except Exception as e:
+                        print("Rate limit error handled:", e)
 
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(self.responses, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
 
+    # @staticmethod
+    # @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10),
+    #        retry=retry_if_exception_type(LLMException))
+    @staticmethod
+    def _process_with_retry(agent, previous_responses_str):
+        """Process an agent's task with retries in case of rate limit errors or 'none' responses.
+
+        Args:
+            agent (Agent): The agent to process the task.
+            previous_responses_str (str): Previous responses to incorporate into the task.
+
+        Returns:
+            str: The response from the agent.
+        """
+        max_attempts = 3
+        attempt = 0
+        while attempt < max_attempts:
+            try:
+                response = agent.process(previous_responses=previous_responses_str)
+                if response is None:
+                    raise LLMException("Reached rate limit, waiting for one minute")
+                return response
+            except LLMException as e:
+                print(f"Attempt {attempt + 1} failed: {e}")
+                attempt += 1
+                if attempt < max_attempts:
+                    time.sleep(60)  # Delay before retrying
+        return None
 
 class Debate(AbstractStructure):
     """
