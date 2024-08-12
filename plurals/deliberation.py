@@ -406,9 +406,16 @@ class AbstractStructure(ABC):
 #########################################################################
 
 
-class LLMException(Exception):
+class RobustRateLimitError(Exception):
     """Custom exception for handling rate limit errors."""
     pass
+
+def check_for_rate_limit_error(error):
+    """Checks if the given error is a rate limit error and raises RobustRateLimitError if true."""
+    error_message = str(error)
+    if isinstance(error, LiteLLMRateLimitError) or ("rate limit" in error_message):
+        raise RobustRateLimitError("Rate limit error encountered.")
+    raise error
 
 # def parse_llm_error(error_message):
 #     """Parse the LLM error message and raise a custom error if it's a rate limit issue."""
@@ -491,53 +498,40 @@ class Ensemble(AbstractStructure):
         """Process the task through an ensemble of agents, each handling the task independently with retries."""
         original_task = self.agents[0].original_task_description
 
-        for _ in range(self.cycles):
-            with ThreadPoolExecutor() as executor:
-                futures = []
-                for agent in self.agents:
-                    previous_responses_str = ""
-                    agent.combination_instructions = self.combination_instructions
-                    futures.append(executor.submit(self._process_with_retry, agent, previous_responses_str))
+        with ThreadPoolExecutor(max_workers=len(self.agents)) as executor:
+            for _ in range(self.cycles):
+                futures = {executor.submit(self._process_with_retry, agent): agent for agent in self.agents}
                 for future in as_completed(futures):
+                    agent = futures[future]
                     try:
                         response = future.result()
                         self.responses.append(response)
-                    except Exception as e:
-                        print("Rate limit error handled:", e)
+                    except RobustRateLimitError as e:
+                        warnings.warn(f"Rate limit error handled for agent {agent.name}: {str(e)}")
 
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(self.responses, original_task)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
 
-    # @staticmethod
-    # @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10),
-    #        retry=retry_if_exception_type(LLMException))
+
     @staticmethod
-    def _process_with_retry(agent, previous_responses_str):
-        """Process an agent's task with retries in case of rate limit errors or 'none' responses.
+    @retry(wait=wait_exponential(multiplier=1, min=60, max=600),
+           stop=stop_after_attempt(3),
+           retry=retry_if_exception_type(RobustRateLimitError))
+    def _process_with_retry(agent):
+        """Process an agent's task with retries in case of rate limit errors.
 
         Args:
             agent (Agent): The agent to process the task.
-            previous_responses_str (str): Previous responses to incorporate into the task.
 
         Returns:
             str: The response from the agent.
         """
-        max_attempts = 3
-        attempt = 0
-        while attempt < max_attempts:
-            try:
-                response = agent.process(previous_responses=previous_responses_str)
-                if response is None:
-                    raise LLMException("Reached rate limit, waiting for one minute")
-                return response
-            except LLMException as e:
-                print(f"Attempt {attempt + 1} failed: {e}")
-                attempt += 1
-                if attempt < max_attempts:
-                    time.sleep(60)  # Delay before retrying
-        return None
+        try:
+            return agent.process()
+        except Exception as e:
+            check_for_rate_limit_error(e)
 
 class Debate(AbstractStructure):
     """

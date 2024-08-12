@@ -234,8 +234,7 @@ class Agent:
         return self._row2persona(selected_row, self.persona_mapping)
 
     def _get_response(self, task: str) -> Optional[str]:
-        """
-        Internal method to interact with the LLM API and get a response.
+        """Internal method to interact with the LLM API and get a response.
 
         Args:
             task (str): The task description to send to the LLM.
@@ -244,24 +243,29 @@ class Agent:
             Optional[str]: The response from the LLM.
         """
         if self.system_instructions:
-            messages = [{"role": "system", "content": self.system_instructions}, {"role": "user", "content": task}]
+            messages = [{"role": "system", "content": self.system_instructions},
+                        {"role": "user", "content": task}]
         else:
             messages = [{"role": "user", "content": task}]
-        try:
-            response = completion(
-                model=self.model,
-                messages=messages,
-                **self.kwargs)
-            content = response.choices[0].message.content
-            prompts = {
-                'system': next((msg['content'] for msg in messages if msg['role'] == 'system'), None),
-                'user': next((msg['content'] for msg in messages if msg['role'] == 'user'), None)}
-            self._history.append(
-                {'prompts': prompts, 'response': content, 'model': self.model})
-            return content
-        except Exception as e:
-            print(f"Error fetching response from LLM: {e}")
-            return None
+
+        response = completion(
+            model=self.model,
+            messages=messages,
+            **self.kwargs
+        )
+
+        content = response.choices[0].message.content
+        prompts = {
+            'system': next((msg['content'] for msg in messages if msg['role'] == 'system'), None),
+            'user': next((msg['content'] for msg in messages if msg['role'] == 'user'), None)
+        }
+        self._history.append({
+            'prompts': prompts,
+            'response': content,
+            'model': self.model
+        })
+
+        return content
 
     @staticmethod
     def _row2persona(row: pd.Series, persona_mapping: Dict[str, Any]) -> str:
