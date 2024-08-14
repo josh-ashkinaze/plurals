@@ -66,6 +66,11 @@ class Moderator(Agent):
         if kwargs is None:
             kwargs = {}
 
+        if system_instructions is not None:
+            if "${task}" not in system_instructions:
+                warnings.warn(
+                    "System instructions usually contain the placeholder ${task} so Moderators know what task it is. Consider adding 'Here is the task: ${task}' to your system instructions.")
+
         # Case 1: if both persona and system_instructions are provided, raise a ValueError
         if persona and system_instructions and system_instructions != 'auto':
             raise ValueError("Cannot provide both persona and system instructions")
@@ -684,7 +689,8 @@ class Graph(AbstractStructure):
 
         # Handle the moderator if present
         if self.moderated and self.moderator:
-            moderated_response = self.moderator._moderate_responses(list(response_dict.values()), self.task)
+            original_task = self.agents[0].original_task_description
+            moderated_response = self.moderator._moderate_responses(list(response_dict.values()), original_task)
             self.responses.append(moderated_response)
             self.final_response = moderated_response
         self.final_response = self.responses[-1]
