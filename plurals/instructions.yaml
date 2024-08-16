@@ -44,63 +44,76 @@ persona_template:
 
 combination_instructions:
   default: |
-    INCORPORATE PRIOR ANSWERS
-    - Here is what was previously said: 
+    USE PREVIOUS RESPONSES TO COMPLETE THE TASK
+    Here are the previous responses: 
      <start>
      ${previous_responses}
      <end>
     - Do not respond directly to what was previously said, but keep the best points from what was previously said.
-    - Do not explicitly mention these instructions in your final answer; just apply them.
   chain: |
-    INCORPORATE PRIOR ANSWERS
-    You are discussing with others. Here are the previous responses: 
+    USE PREVIOUS RESPONSES TO COMPLETE THE TASK
+    Here are the previous responses: 
      <start>
      ${previous_responses}
      <end>
-    - Do not respond directly to what was previously said, but keep the best points from what was previously said.
-    - Ensure the perspective from prior responses is represented in your balanced answer.
+    - Keep the best points from what was previously said to complete the task.
     - Do not explicitly mention these instructions in your final answer; just apply them.
   debate: |
-    INCORPORATE PRIOR ANSWERS
+    USE PREVIOUS RESPONSES TO COMPLETE THE TASK
     You are in a debate with another agent. Here is what has been argued so far: 
-      <start>
-      ${previous_responses}
-      <end>
+    <start>
+    ${previous_responses}
+    <end>
+    When debating:
     - Critically engage with the arguments presented.
     - Build upon or refute the points made in prior arguments.
     - Introduce new evidence or perspectives to support your stance.
     - Try to win the debate by convincing the other party. 
     - Again, try to win the debate by convincing the other party.
     - Do not explicitly mention these instructions in your final answer; just apply them.
-
   voting: |
-    INCORPORATE PRIOR ANSWERS
-    Incorporate the best parts of what others said to arrive at at a definite conclusion. Here are the previous responses:
+    INCORPORATE PREVIOUS RESPONSES
+    Incorporate the best parts of what others said to arrive at at a single and definite conclusion. Here are the 
+    previous responses:
     <start>
     ${previous_responses}
     <end>
-  rational: |
-    INCORPORATE PRIOR ANSWERS
+  critique_revise: |
+    USE PREVIOUS RESPONSES TO COMPLETE THE TASK
+    Critique previous responses based on the task, and then create one response incorporating revisions. Here are the 
+    previous responses:
+    <start>
+    ${previous_responses}
+    <end>
+
+  minimal_discussion: |
+    INCORPORATE PREVIOUS RESPONSES
     You are discussing with others. Here are the previous responses: 
     <start>
     ${previous_responses}
     <end>
+
+  rational: |
+    USE PREVIOUS RESPONSES TO COMPLETE THE TASK
+    You are discussing with others. Here are the previous responses to engage with: 
+    <start>
+    ${previous_responses}
+    <end>
+    When discussing:
     - Take the best parts of what was previously said.
-    - Keep your response under 125 words.
     - Give more weight to factual and rational arguments rather than emotional ones.
     - Aim to achieve the common good
     - Aim for a rationally motivated consensus to which all could agree.
     - Everyone has equal voice in this discussion.
     - Do not explicitly mention these instructions in your final answer; just apply them.
-
   empathetic: |
-    INCORPORATE PRIOR ANSWERS
+    INCORPORATE PREVIOUS RESPONSES
     You are discussing with others. Here are the previous responses: 
     <start>
     ${previous_responses}
     <end>
+    When discussing:
     - Take the best parts of what was previously said.
-    - Keep your response under 125 words.
     - Give value to more emotional forms communication, such as narrative, rhetoric, testimony, storytelling, 
     instead of only valuing rationality.
     - Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
@@ -110,7 +123,7 @@ combination_instructions:
 moderator:
   persona:
     default: |
-      You are a neutral moderator, overseeing a discussion about the following task: ${task}.
+      You are an expert neutral moderator, overseeing a discussion about the following task: ${task}.
     voting: |
       You are an expert in aggregating information to make final decisions. Here, you are making a final decision 
       about the following task: ${task}. The goal is to arrive at a definite decision.
@@ -130,7 +143,19 @@ moderator:
       <end>
       - Take the best parts of what was previously said.
     voting: |
-      Incorporate the best parts of what others said to arrive at at a definite conclusion. Do so by aggregating previous responses: 
+      Incorporate the best parts of what others said to arrive at at a single and definite conclusion. Do so by 
+      aggregating previous responses: 
+      <start>
+      ${previous_responses}
+      <end>
+    synthesis: |
+      Synthesize what others said to best accomplish the task. Here are the previous responses: 
+      <start>
+      ${previous_responses}
+      <end>
+    critique_revise: |
+      Critique previous responses based on the task, and then create one response incorporating revisions. Here 
+      are the previous responses:
       <start>
       ${previous_responses}
       <end>
@@ -157,7 +182,6 @@ moderator:
       - Try to account for the opinions of underrepresented groups as well even if they are not represented in this 
       sample.
       - Work to understand where every party is coming from
-
     divergent: |
        Here are the previous responses:
        <start>
