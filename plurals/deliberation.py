@@ -375,6 +375,7 @@ class Chain(AbstractStructure):
             if self.shuffle:
                 self.agents = random.sample(self.agents, len(self.agents))
             for agent in self.agents:
+                agent.current_task_description = None
                 previous_responses_slice = previous_responses[-self.last_n:]
                 previous_responses_str = format_previous_responses(previous_responses_slice)
                 agent.combination_instructions = self.combination_instructions
@@ -514,6 +515,7 @@ class Debate(AbstractStructure):
 
         for cycle in range(self.cycles):
             for i, agent in enumerate(self.agents):
+                agent.current_task_description = None
                 # Choose the appropriate response history based on the agent
                 # index
                 if i == 0:
@@ -524,8 +526,7 @@ class Debate(AbstractStructure):
                         previous_responses_agent2[-self.last_n:])
 
                 agent.combination_instructions = self.combination_instructions
-                response = agent.process(
-                    previous_responses=previous_responses_str)
+                response = agent.process(previous_responses=previous_responses_str)
                 self.responses.append("[Debater {}] ".format(i + 1) + response)
 
                 # Apply the correct prefix and update both lists
