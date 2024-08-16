@@ -430,6 +430,25 @@ class TestChain(unittest.TestCase):
         self.model = 'gpt-3.5-turbo'
         self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
 
+    def test_chain_multiple_cycles(self):
+        task = "Discuss the pros and cons of remote work."
+        agent1 = Agent(ideology='liberal', model='gpt-3.5-turbo')
+        agent2 = Agent(ideology='conservative', model='gpt-3.5-turbo')
+
+        chain = Chain([agent1, agent2], task=task, cycles=3)
+
+        with patch.object(Agent, '_get_response', side_effect=[
+            "Pros: flexibility, no commute. Cons: isolation.",
+            "Pros: reduced office costs. Cons: difficulty in team building.",
+            "Agree on flexibility, add increased productivity as pro.",
+            "Agree on team building issues, add potential for overwork.",
+            "Emphasize need for balance and hybrid models.",
+            "Suggest importance of clear communication and expectations."
+        ]):
+            chain.process()
+
+        self.assertEqual(len(chain.responses), 6)
+        self.assertEqual(chain.final_response, "Suggest importance of clear communication and expectations.")
     def test_chain_combination_instructions(self):
         """Test chain combination instructions"""
         a2 = Agent(ideology='moderate', model=self.model)
@@ -483,13 +502,12 @@ class TestChain(unittest.TestCase):
 
         # Expected current task descriptions
         expected_agent1_task_description = task
-        expected_agent2_task_description = """Describe the impact of social media on society in 50 words.\nINCORPORATE PRIOR ANSWERS
-- Here is what was previously said: 
+        expected_agent2_task_description = """Describe the impact of social media on society in 50 words.\nUSE PREVIOUS RESPONSES TO COMPLETE THE TASK
+Here are the previous responses: 
  <start>
  Response 0: Social media has both positive and negative impacts on society.
  <end>
-- Do not respond directly to what was previously said, but keep the best points from what was previously said.
-- Do not explicitly mention these instructions in your final answer; just apply them."""
+- Do not respond directly to what was previously said, but keep the best points from what was previously said."""
 
         # Assertions
         self.assertEqual(expected_agent1_task_description, agent1.current_task_description)
@@ -744,13 +762,12 @@ class TestNetworkStructure(unittest.TestCase):
 
         # Expected current task descriptions
         expected_agent1_task_description = task
-        expected_agent2_task_description = """Describe the impact of social media on society in 50 words.\nINCORPORATE PRIOR ANSWERS
-- Here is what was previously said: 
+        expected_agent2_task_description = """Describe the impact of social media on society in 50 words.\nUSE PREVIOUS RESPONSES TO COMPLETE THE TASK
+Here are the previous responses: 
  <start>
  Response 0: Social media has both positive and negative impacts on society.
  <end>
-- Do not respond directly to what was previously said, but keep the best points from what was previously said.
-- Do not explicitly mention these instructions in your final answer; just apply them."""
+- Do not respond directly to what was previously said, but keep the best points from what was previously said."""
 
         # Assertions
         self.assertEqual(expected_agent1_task_description, agent1.current_task_description)
