@@ -53,7 +53,7 @@ combination_instructions:
     - Do not explicitly mention these instructions in your final answer; just apply them.
   chain: |
     INCORPORATE PRIOR ANSWERS
-    - Here is what was previously said: 
+    You are discussing with others. Here are the previous responses: 
      <start>
      ${previous_responses}
      <end>
@@ -62,7 +62,7 @@ combination_instructions:
     - Do not explicitly mention these instructions in your final answer; just apply them.
   debate: |
     INCORPORATE PRIOR ANSWERS
-    - You are in a debate with another agent. Here is what has been argued so far: 
+    You are in a debate with another agent. Here is what has been argued so far: 
       <start>
       ${previous_responses}
       <end>
@@ -71,13 +71,17 @@ combination_instructions:
     - Introduce new evidence or perspectives to support your stance.
     - Try to win the debate by convincing the other party. 
     - Again, try to win the debate by convincing the other party.
+    - Do not explicitly mention these instructions in your final answer; just apply them.
+
   voting: |
-    Incorporate the best parts of what others said to arrive at at a definite conclusion. Here is what others said:
+    INCORPORATE PRIOR ANSWERS
+    Incorporate the best parts of what others said to arrive at at a definite conclusion. Here are the previous responses:
     <start>
     ${previous_responses}
     <end>
   rational: |
-    Here are the previous responses: 
+    INCORPORATE PRIOR ANSWERS
+    You are discussing with others. Here are the previous responses: 
     <start>
     ${previous_responses}
     <end>
@@ -87,8 +91,11 @@ combination_instructions:
     - Aim to achieve the common good
     - Aim for a rationally motivated consensus to which all could agree.
     - Everyone has equal voice in this discussion.
+    - Do not explicitly mention these instructions in your final answer; just apply them.
+
   empathetic: |
-    Here are the previous responses: 
+    INCORPORATE PRIOR ANSWERS
+    You are discussing with others. Here are the previous responses: 
     <start>
     ${previous_responses}
     <end>
@@ -98,6 +105,7 @@ combination_instructions:
     instead of only valuing rationality.
     - Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
     - Work to understand where every party is coming from.
+    - Do not explicitly mention these instructions in your final answer; just apply them.
 
 moderator:
   persona:
