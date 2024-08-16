@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>plurals.agent &mdash; Plurals 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Plurals
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../agent.html">Agent Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deliberation.html">Deliberation Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../helpers.html">Helpers Module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Plurals</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">plurals.agent</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for plurals.agent</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">litellm</span> <span class="kn">import</span> <span class="n">completion</span>
+
+<span class="kn">from</span> <span class="nn">plurals.helpers</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">DEFAULTS</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s2">&quot;instructions.yaml&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_load_global_anes_data</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load global ANES data for the agent. As per codebook page 2 section 1, the cases that don&#39;t have weights are</span>
+<span class="sd">    not meant for population inference.</span>
+
+<span class="sd">    Here is the codebook url:</span>
+<span class="sd">    https://electionstudies.org/wp-content/uploads/2024/03/anes_pilot_2024_userguidecodebook_20240319.pdf</span>
+
+<span class="sd">    Loads:</span>
+<span class="sd">    - PERSONA_MAPPING: Mapping for converting dataset rows to persona descriptions.</span>
+<span class="sd">    - DATASET: ANES dataset for persona and ideological queries</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">PERSONA_MAPPING</span><span class="p">,</span> <span class="n">DATASET</span>
+    <span class="n">PERSONA_MAPPING</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s2">&quot;anes-mapping.yaml&quot;</span><span class="p">)</span>
+    <span class="n">DATASET</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
+            <span class="s1">&#39;data&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;anes_pilot_2024_20240319.csv&#39;</span><span class="p">),</span>
+        <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">DATASET</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">DATASET</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2024</span> <span class="o">-</span> <span class="n">DATASET</span><span class="p">[</span><span class="s1">&#39;birthyr&#39;</span><span class="p">]</span>
+
+
+<span class="n">_load_global_anes_data</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Agent">
+<a class="viewcode-back" href="../../agent.html#plurals.agent.Agent">[docs]</a>
+<span class="k">class</span> <span class="nc">Agent</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Agents are LLMs with customizable personas, who complete tasks with other Agents working together in Structures.</span>
+<span class="sd">    Personas of Agents can be instantiated directly, null (i.e., default system prompt), or leverage external datasets</span>
+<span class="sd">    like ANES for nationally-representative personas.</span>
+
+<span class="sd">    The main attributes of the Agent class are:</span>
+
+<span class="sd">    1. `system_instructions`: Set either directly or through various persona methods.</span>
+
+<span class="sd">    2. `combination_instructions`: Dictates how Agents should combine previous responses with the current task.</span>
+
+<span class="sd">    3. `task`: The task (i.e., user prompt) that Agents respond to.</span>
+
+<span class="sd">    Agents can be used alone or in conjunction with Structures to create multi-agent simulations. When used with</span>
+<span class="sd">    Structures, the Structure-level attribute values will override the Agent-level attribute values. Eg: If you set a task</span>
+<span class="sd">    at an agent level and a Structure-level, the Structure-level task will be used.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        task (Optional[str]): Description of the task for the agent to process. If the agent is part of a structure,</span>
+<span class="sd">            and the task is provided to the structure, then the agent will inherit that task.</span>
+<span class="sd">        combination_instructions (Optional[str]): Instructions for combining previous responses with the current</span>
+<span class="sd">            task. If the agent is part of a structure and the combination_instructions are provided to the structure,</span>
+<span class="sd">            then the agent will inherit those combination instructions. Must include a ${previous_responses}</span>
+<span class="sd">            placeholder.</span>
+<span class="sd">        ideology (Optional[str]): Ideological perspective to influence persona creation, supported values are</span>
+<span class="sd">                                  [&#39;liberal&#39;, &#39;conservative&#39;, &#39;moderate&#39;, &#39;very liberal&#39;, &#39;very conservative&#39;].</span>
+<span class="sd">        query_str (Optional[str]): Custom query string for filtering the ANES dataset according to specific criteria.</span>
+<span class="sd">        model (str): The language model version to use for generating responses.</span>
+<span class="sd">        system_instructions (Optional[str]): Overrides automated instructions with a custom set of directives for the</span>
+<span class="sd">            model.</span>
+<span class="sd">        persona_template (Optional[str]): Template string for constructing the persona. Must include a ${persona}</span>
+<span class="sd">            placeholder.</span>
+<span class="sd">        persona (Optional[str]): Direct specification of a persona description.</span>
+<span class="sd">        kwargs (Optional[dict]): Additional keyword arguments for the model&#39;s completion function. These are provided by LiteLLM (</span>
+<span class="sd">            https://litellm.vercel.app/docs/completion/input#input-params-1). Enter `help(litellm.completion)` for</span>
+<span class="sd">            details.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        persona_mapping (Optional[Dict[str, Any]]): Dictionary to map dataset rows to persona descriptions.</span>
+<span class="sd">        data (pd.DataFrame): Loaded dataset for persona and ideological queries.</span>
+<span class="sd">        system_instructions (Optional[str]): Final system instructions for the agent to follow. The system</span>
+<span class="sd">            instructions can be set directly or generated from a persona-based method.</span>
+<span class="sd">        original_task_description (str): The original, unmodified task description.</span>
+<span class="sd">        current_task_description (str): Dynamically updated task description that may include prior responses.</span>
+<span class="sd">        history (list): Chronological record of prompts, responses, and models used during the agent&#39;s operation.</span>
+<span class="sd">        info (dict): Comprehensive attributes of the agent&#39;s current configuration and state.</span>
+<span class="sd">        responses (list): List of responses generated by the agent (the same information can be accessed by history)</span>
+
+<span class="sd">    **Examples:**</span>
+
+<span class="sd">        **Using Agent without a structure**.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            task = &quot;Say hello&quot;</span>
+
+<span class="sd">            a = agent(task=task)</span>
+<span class="sd">            ans = a.process()</span>
+
+<span class="sd">            pirate_agent = Agent(system_instructions=&quot;You are a pirate.&quot;, model=&#39;gpt-4o&#39;, task=task)</span>
+<span class="sd">            pirate_hello = pirate_agent.process()</span>
+<span class="sd">            pirate_goodybe = pirate_agent.process(task=&quot;Now say a heartfelt goodybe.&quot;)</span>
+
+<span class="sd">        **Manual system instructions**: This allows you to set system instructions to whatever you would like. Also note</span>
+<span class="sd">        that you can pass in additional kwargs to the model.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            agent = Agent(system_instructions=&quot;You are a predictable independent&quot;, model=&#39;gpt-4o&#39;,</span>
+<span class="sd">                          kwargs={&#39;temperature&#39;: 0.1, &#39;max_tokens&#39;: 200})</span>
+
+<span class="sd">        **No system instructions**: When no system instructions are inputted, agents will use default system instructions.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            agent = Agent(model=&#39;gpt-4o&#39;, kwargs={&#39;temperature&#39;: 1, &#39;max_tokens&#39;: 500})</span>
+
+<span class="sd">        **Persona Template**: When using a persona method, the full system instructions are a combination of the</span>
+<span class="sd">        persona and the `persona_template`---where the latter is a template string that includes a ${persona}</span>
+<span class="sd">        placeholder. This gives more instructions to the model of how to enact the persona.</span>
+
+<span class="sd">        Here is an example of using the `empathetic` persona template with a persona of &quot;a moderate voter from Michigan&quot;.</span>
+<span class="sd">        You can see how the full system instructions are a combination of the two.</span>
+
+<span class="sd">        .. code-block::</span>
+
+<span class="sd">            empathetic_michigan = Agent(persona=&quot;a moderate voter from Michigan&quot;,</span>
+<span class="sd">                persona_template=&quot;empathetic&quot;)</span>
+<span class="sd">            print(empathetic_michigan.system_instructions)</span>
+
+<span class="sd">        .. code-block:: text</span>
+
+<span class="sd">            INSTRUCTIONS</span>
+<span class="sd">            When answering questions or performing tasks, always adopt the following persona.</span>
+
+<span class="sd">            PERSONA:</span>
+<span class="sd">            a moderate voter from Michigan</span>
+
+<span class="sd">            CONSTRAINTS</span>
+<span class="sd">            - When answering, do not disclose your partisan or demographic identity in any way.</span>
+<span class="sd">            - Think, talk, and write like your persona.</span>
+<span class="sd">            - Use plain language.</span>
+<span class="sd">            - Adopt the characteristics of your persona.</span>
+<span class="sd">            - Be empathetic and compassionate</span>
+<span class="sd">            - Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.</span>
+
+<span class="sd">        Here is an example of using your own persona template with the appropriate ${persona} placeholder.</span>
+
+<span class="sd">        .. code-block::</span>
+
+<span class="sd">            agent = Agent(persona=&quot;a moderate voter from Michigan&quot;, persona_template=&quot;You are ${persona}.&quot;)</span>
+<span class="sd">            print(agent.system_instructions)</span>
+<span class="sd">            # You are a moderate voter from Michigan.</span>
+
+<span class="sd">        We support several automatic ways of generating personas from American National Election Studies (ANES).</span>
+
+<span class="sd">        **Ideology Matching (ANES Persona Method):** We support an ideology keyword that can be one of</span>
+<span class="sd">        [&#39;very liberal&#39;, &#39;liberal&#39;, &#39;moderate&#39;, &#39;conservative&#39;, &#39;very conservative&#39;] where the &#39;veries&#39; are a</span>
+<span class="sd">        subset of the normals. The below example will pick a random row from ANES where</span>
+<span class="sd">        the citizen identifies as `very conservative` and use that as the `persona`. We always use appropriate sampling</span>
+<span class="sd">        weights, so personas will be nationally representative.</span>
+
+<span class="sd">        .. code-block::</span>
+
+<span class="sd">            agent = Agent(ideology=&quot;very conservative&quot;, model=&#39;gpt-4o&#39;, task=task)</span>
+<span class="sd">            print(agent.persona)</span>
+<span class="sd">            print(agent.system_instructions)</span>
+
+<span class="sd">        .. code-block:: text</span>
+
+<span class="sd">            Your age is 57. Your education is high school graduate. Your gender is man. Your race is hispanic. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do have children under 18 living in your household. Your employment status is full-time. Your geographic region is the northeast. You live in a suburban area. You live in the state of new york.</span>
+
+<span class="sd">        .. code-block:: text</span>
+
+<span class="sd">            INSTRUCTIONS</span>
+<span class="sd">            When answering questions or performing tasks, always adopt the following persona.</span>
+
+<span class="sd">            PERSONA:</span>
+<span class="sd">            Your age is 57. Your education is high school graduate. Your gender is man. Your race is hispanic. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do have children under 18 living in your household. Your employment status is full-time. Your geographic region is the northeast. You live in a suburban area. You live in the state of new york.</span>
+
+<span class="sd">            CONSTRAINTS</span>
+<span class="sd">            - When answering, do not disclose your partisan or demographic identity in any way.</span>
+<span class="sd">            - Think, talk, and write like your persona.</span>
+<span class="sd">            - Use plain language.</span>
+<span class="sd">            - Adopt the characteristics of your persona.</span>
+<span class="sd">            - Do not be overly polite or politically correct.</span>
+
+
+<span class="sd">        **Random Nationally Representative Personas (ANES Persona Method)**: If you make persona== &#39;random&#39; then we will</span>
+<span class="sd">        randomly sample a row</span>
+<span class="sd">        from ANES and use that as the persona.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            agent = Agent(persona=&#39;random&#39;, model=&#39;gpt-4o&#39;, task=task)</span>
+
+<span class="sd">        **Pandas Query String (ANES Persona Method):** If you want to get more specific, you can pass in a query string</span>
+<span class="sd">        that will be used to filter the ANES dataset. Again, all ANES methods use sampling weights to ensure national representativeness.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            agent = Agent(query_str=&quot;inputstate==&#39;West Virginia&#39; &amp; ideo5==&#39;Very conservative&#39;&quot;, model=&#39;gpt-4o&#39;, task=task)</span>
+
+
+<span class="sd">        **Here is how to inspect exactly what is going on with Agents.** You can view an Agent&#39;s responses,</span>
+<span class="sd">        the agent&#39;s `history` (prompts + responses), and `info`---which is a dictionary of the agent&#39;s attributes (such as system instructions).</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from plurals.agent import Agent</span>
+<span class="sd">            a = Agent(ideology=&quot;very conservative&quot;, model=&#39;gpt-4o&#39;, task=&quot;A task here&quot;)</span>
+<span class="sd">            a.process()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">combination_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">ideology</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">query_str</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+                 <span class="n">system_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">persona_template</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+                 <span class="n">persona</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">system_instructions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">combination_instructions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span> <span class="o">=</span> <span class="n">PERSONA_MAPPING</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="n">task</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persona</span> <span class="o">=</span> <span class="n">persona</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span> <span class="o">=</span> <span class="n">ideology</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">DATASET</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span> <span class="o">=</span> <span class="n">query_str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span> <span class="o">=</span> <span class="n">task</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="n">task</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="n">DEFAULTS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="o">=</span> <span class="n">persona_template</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_templates</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_system_instructions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_system_instructions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span> <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">_set_system_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Users can directly pass in system_instructions. Or, we can generate system instructions by combining a</span>
+<span class="sd">        persona_template and a persona.</span>
+
+<span class="sd">        In these two cases, persona_template does not do anything since system_instructions is set directly or is None.</span>
+<span class="sd">        - If system_instructions is already provided, we don&#39;t need to do anything since system_instructions is</span>
+<span class="sd">        already set.</span>
+<span class="sd">        - If neither system_instructions, persona, ideology, nor query_str is provided (default) set</span>
+<span class="sd">        system_instructions to None.</span>
+
+<span class="sd">        Otherwise, we generate system instructions using a persona:</span>
+<span class="sd">        - If persona is directly provided, use this.</span>
+<span class="sd">        - If persona is &quot;random&quot; generate a random ANES persona</span>
+<span class="sd">        - If persona is not already provided, generate it. This can be generated from a `query_str` or from `ideology`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If system_instructions is already provided, we don&#39;t need to do</span>
+        <span class="c1"># anything</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># If system_instructions, persona, ideology, nor query_str is provided,</span>
+        <span class="c1"># set system_instructions to None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span>
+
+        <span class="c1"># If persona is already provided, use it.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">persona</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span>
+
+        <span class="c1"># If persona is &quot;random&quot; generate a random ANES persona</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span> <span class="o">==</span> <span class="s2">&quot;random&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">persona</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_persona</span><span class="p">()</span>
+
+        <span class="c1"># If persona is not already provided, generate it</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">persona</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_persona</span><span class="p">()</span>
+
+        <span class="c1"># Use the persona_template to create system_instructions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;persona_template&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">persona</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span>
+            <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task_description</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="c1"># noinspection PyTypeChecker</span>
+    <span class="k">def</span> <span class="nf">_generate_persona</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a persona based on the provided data, ideology, or query string.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Generated persona description.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span> <span class="o">==</span> <span class="s2">&quot;random&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_random_persona</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">:</span>
+            <span class="n">filtered_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_data_by_ideology</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">filtered_data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;No data found satisfying conditions&quot;</span><span class="p">)</span>
+            <span class="n">selected_row</span> <span class="o">=</span> <span class="n">filtered_data</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+                <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">filtered_data</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_row2persona</span><span class="p">(</span><span class="n">selected_row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">:</span>
+            <span class="n">filtered_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">filtered_data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;No data found satisfying conditions&quot;</span><span class="p">)</span>
+            <span class="n">selected_row</span> <span class="o">=</span> <span class="n">filtered_data</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+                <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">filtered_data</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_row2persona</span><span class="p">(</span><span class="n">selected_row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Agent.process">
+<a class="viewcode-back" href="../../agent.html#plurals.agent.Agent.process">[docs]</a>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">previous_responses</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process the task, optionally building upon a previous response. If you pass in a task, it will replace the</span>
+<span class="sd">        Agent&#39;s initialized task description. If you pass in a previous responses, it will be incorporated into the task</span>
+<span class="sd">        description if combination_instructions have not been set.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            previous_responses (str): The previous responses to incorporate.</span>
+<span class="sd">            task (Optional[str]): The task description to process. If not provided, the agent will use its current task.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Optional[str]: The response from the LLM.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">task</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">previous_responses</span><span class="p">:</span>
+            <span class="c1"># Update the task description with the previous responses</span>
+            <span class="n">combined_responses</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">combined_responses</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">combined_responses</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_random_persona</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a random persona description based on the dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (pd.DataFrame): The dataset to use for generating persona descriptions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Generated persona description.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selected_row</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_row2persona</span><span class="p">(</span><span class="n">selected_row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal method to interact with the LLM API and get a response.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            task (str): The task description to send to the LLM.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Optional[str]: The response from the LLM.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">:</span>
+            <span class="n">messages</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">task</span><span class="p">}]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">messages</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">task</span><span class="p">}]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">completion</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+                <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
+            <span class="n">prompts</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;system&#39;</span><span class="p">:</span> <span class="nb">next</span><span class="p">((</span><span class="n">msg</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">messages</span> <span class="k">if</span> <span class="n">msg</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;system&#39;</span><span class="p">),</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="nb">next</span><span class="p">((</span><span class="n">msg</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">messages</span> <span class="k">if</span> <span class="n">msg</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;user&#39;</span><span class="p">),</span> <span class="kc">None</span><span class="p">)}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="s1">&#39;prompts&#39;</span><span class="p">:</span> <span class="n">prompts</span><span class="p">,</span> <span class="s1">&#39;response&#39;</span><span class="p">:</span> <span class="n">content</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">})</span>
+            <span class="k">return</span> <span class="n">content</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching response from LLM: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_row2persona</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">persona_mapping</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts a dataset row into a persona description string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            row (pd.Series): The dataset row to convert.</span>
+<span class="sd">            persona_mapping (Dict[str, Any]): Mapping to convert dataset rows into persona descriptions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Generated persona description.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">persona</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">details</span> <span class="ow">in</span> <span class="n">persona_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;age&quot;</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bad_vals&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;bad_vals&#39;</span><span class="p">]):</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;recode_vals&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;recode_vals&#39;</span><span class="p">]:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;recode_vals&#39;</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span>
+
+            <span class="n">clean_name</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            <span class="n">persona</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clean_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">persona</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_filter_data_by_ideology</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ideology</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filters the dataset based on the ideology.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ideology (str): The ideology to filter by.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: The filtered dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;liberal&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s1">&#39;Liberal&#39;</span><span class="p">,</span> <span class="s1">&#39;Very liberal&#39;</span><span class="p">])]</span>
+            <span class="k">elif</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;conservative&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s1">&#39;Conservative&#39;</span><span class="p">,</span> <span class="s1">&#39;Very conservative&#39;</span><span class="p">])]</span>
+            <span class="k">elif</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;moderate&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Moderate&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;very liberal&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Very liberal&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">ideology</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;very conservative&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ideo5&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Very conservative&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error filtering data by ideology: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_system_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates the system instructions arguments.</span>
+
+<span class="sd">        Errors raised if:</span>
+<span class="sd">        - ideology or query_str is passed in without data and persona_mapping</span>
+<span class="sd">        - system_instructions is passed in with persona or persona_template</span>
+<span class="sd">        - ideology or query_str is passed in with persona</span>
+<span class="sd">        - ideology is passed in and it&#39;s not in  [&#39;liberal&#39;, &#39;conservative&#39;, &#39;moderate&#39;, &#39;very liberal&#39;,</span>
+<span class="sd">        &#39;very conservative&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_mapping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;If you use either `ideology` or &quot;</span>
+                                                                                <span class="s2">&quot;`query_str` you need to provide both &quot;</span>
+                                                                                <span class="s2">&quot;a dataframe and a persona mapping to &quot;</span>
+                                                                                <span class="s2">&quot;process rows of the dataframe.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">),</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">),</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">),</span>
+                 <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;You can only pass in one of ideology, query_str, system_instructions, or persona&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">:</span>
+            <span class="n">allowed_vals</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s1">&#39;liberal&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;conservative&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;moderate&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;very liberal&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;very conservative&#39;</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span> <span class="ow">in</span> <span class="n">allowed_vals</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Ideology has to be one of: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">allowed_vals</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_validate_templates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Errors raised if:</span>
+<span class="sd">        - a user passes in persona_template but it does not contain a persona placeholder (so there is no way to</span>
+<span class="sd">        format it)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span><span class="p">:</span>
+            <span class="n">default_templates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;persona_template&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+            <span class="k">assert</span> <span class="s1">&#39;$</span><span class="si">{persona}</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="ow">in</span> <span class="n">default_templates</span><span class="p">,</span> <span class="p">(</span>
+                    <span class="s2">&quot;If you pass in a persona_template, it must contain a $</span><span class="si">{persona}</span><span class="s2"> placeholder or be one of the default templates:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                <span class="n">default_templates</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No history found. Please process a task first!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;original_task&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span><span class="p">,</span>
+            <span class="s2">&quot;current_task_description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span><span class="p">,</span>
+            <span class="s2">&quot;system_instructions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">,</span>
+            <span class="s2">&quot;history&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">,</span>
+            <span class="s2">&quot;persona&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span>
+            <span class="s2">&quot;ideology&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">,</span>
+            <span class="s2">&quot;query_str&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_str</span><span class="p">,</span>
+            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+            <span class="s2">&quot;persona_template&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span><span class="p">,</span>
+            <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">responses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">history</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No history found. Please process a task first!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">history</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">history</span><span class="p">))]</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Agent.set_task">
+<a class="viewcode-back" href="../../agent.html#plurals.agent.Agent.set_task">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the task description for the agent to process.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            task (str): The new task description.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span> <span class="o">=</span> <span class="n">task</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="n">task</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

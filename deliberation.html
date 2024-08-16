@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deliberation Module &mdash; Plurals 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Helpers Module" href="helpers.html" />
+    <link rel="prev" title="Agent Module" href="agent.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Plurals
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="agent.html">Agent Module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Deliberation Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#plurals.deliberation.AbstractStructure"><code class="docutils literal notranslate"><span class="pre">AbstractStructure</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.AbstractStructure.defaults"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.defaults</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.AbstractStructure.task"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.task</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.AbstractStructure.agents"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.agents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.AbstractStructure.combination_instructions"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.combination_instructions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.AbstractStructure.shuffle"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.shuffle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.AbstractStructure.last_n"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.last_n</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.AbstractStructure.cycles"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.cycles</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.AbstractStructure.responses"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.responses</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.AbstractStructure.final_response"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.final_response</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.AbstractStructure.moderator"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.moderator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.AbstractStructure.moderated"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.moderated</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.AbstractStructure.info"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.AbstractStructure.process"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.process()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#plurals.deliberation.Chain"><code class="docutils literal notranslate"><span class="pre">Chain</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.Chain.process"><code class="docutils literal notranslate"><span class="pre">Chain.process()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#plurals.deliberation.Debate"><code class="docutils literal notranslate"><span class="pre">Debate</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.Debate.process"><code class="docutils literal notranslate"><span class="pre">Debate.process()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#plurals.deliberation.Ensemble"><code class="docutils literal notranslate"><span class="pre">Ensemble</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.Ensemble.process"><code class="docutils literal notranslate"><span class="pre">Ensemble.process()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#plurals.deliberation.Graph"><code class="docutils literal notranslate"><span class="pre">Graph</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.Graph.process"><code class="docutils literal notranslate"><span class="pre">Graph.process()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#plurals.deliberation.Moderator"><code class="docutils literal notranslate"><span class="pre">Moderator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.Moderator.persona"><code class="docutils literal notranslate"><span class="pre">Moderator.persona</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.Moderator.combination_instructions"><code class="docutils literal notranslate"><span class="pre">Moderator.combination_instructions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.Moderator.system_instructions"><code class="docutils literal notranslate"><span class="pre">Moderator.system_instructions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.Moderator.generate_and_set_system_instructions"><code class="docutils literal notranslate"><span class="pre">Moderator.generate_and_set_system_instructions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.deliberation.Moderator.generate_system_instructions"><code class="docutils literal notranslate"><span class="pre">Moderator.generate_system_instructions()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="helpers.html">Helpers Module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Plurals</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Deliberation Module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/deliberation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-plurals.deliberation">
+<span id="deliberation-module"></span><h1>Deliberation Module<a class="headerlink" href="#module-plurals.deliberation" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.deliberation.</span></span><span class="sig-name descname"><span class="pre">AbstractStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="agent.html#plurals.agent.Agent" title="plurals.agent.Agent"><span class="pre">Agent</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combination_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moderator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#plurals.deliberation.Moderator" title="plurals.deliberation.Moderator"><span class="pre">Moderator</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#AbstractStructure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.AbstractStructure" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>AbstractStructure is an abstract class for processing tasks through a group of agents. As such, it is not meant
+to be instantiated directly but rather to be subclassed by concrete structures such as an Ensemble. However,
+all the concrete structures share the same attributes and methods, so this class provides a common interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agents</strong> (<em>List</em><em>[</em><a class="reference internal" href="agent.html#plurals.agent.Agent" title="plurals.agent.Agent"><em>Agent</em></a><em>]</em>) – A list of agents to include in the structure.</p></li>
+<li><p><strong>task</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – The task description for the agents to process.</p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – Whether to shuffle the order of the agents.</p></li>
+<li><p><strong>cycles</strong> (<em>int</em>) – The number of times to process the task.</p></li>
+<li><p><strong>last_n</strong> (<em>int</em>) – The number of previous responses to include in the task description.</p></li>
+<li><p><strong>combination_instructions</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – The instructions for combining responses.</p></li>
+<li><p><strong>moderator</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#plurals.deliberation.Moderator" title="plurals.deliberation.Moderator"><em>Moderator</em></a><em>]</em>) – A moderator to moderate the responses.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.defaults">
+<span class="sig-name descname"><span class="pre">defaults</span></span><a class="headerlink" href="#plurals.deliberation.AbstractStructure.defaults" title="Link to this definition"></a></dt>
+<dd><p>Default instructions for the structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.task">
+<span class="sig-name descname"><span class="pre">task</span></span><a class="headerlink" href="#plurals.deliberation.AbstractStructure.task" title="Link to this definition"></a></dt>
+<dd><p>The task description for the agents to process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.agents">
+<span class="sig-name descname"><span class="pre">agents</span></span><a class="headerlink" href="#plurals.deliberation.AbstractStructure.agents" title="Link to this definition"></a></dt>
+<dd><p>A list of agents to include in the structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="agent.html#plurals.agent.Agent" title="plurals.agent.Agent">Agent</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.combination_instructions">
+<span class="sig-name descname"><span class="pre">combination_instructions</span></span><a class="headerlink" href="#plurals.deliberation.AbstractStructure.combination_instructions" title="Link to this definition"></a></dt>
+<dd><p>The instructions for combining responses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.shuffle">
+<span class="sig-name descname"><span class="pre">shuffle</span></span><a class="headerlink" href="#plurals.deliberation.AbstractStructure.shuffle" title="Link to this definition"></a></dt>
+<dd><p>Whether to shuffle the order of the agents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.last_n">
+<span class="sig-name descname"><span class="pre">last_n</span></span><a class="headerlink" href="#plurals.deliberation.AbstractStructure.last_n" title="Link to this definition"></a></dt>
+<dd><p>The number of previous responses to include in the task description.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.cycles">
+<span class="sig-name descname"><span class="pre">cycles</span></span><a class="headerlink" href="#plurals.deliberation.AbstractStructure.cycles" title="Link to this definition"></a></dt>
+<dd><p>The number of times to process the task.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.responses">
+<span class="sig-name descname"><span class="pre">responses</span></span><a class="headerlink" href="#plurals.deliberation.AbstractStructure.responses" title="Link to this definition"></a></dt>
+<dd><p>A list of responses from the agents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.final_response">
+<span class="sig-name descname"><span class="pre">final_response</span></span><a class="headerlink" href="#plurals.deliberation.AbstractStructure.final_response" title="Link to this definition"></a></dt>
+<dd><p>The final response from the agents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.moderator">
+<span class="sig-name descname"><span class="pre">moderator</span></span><a class="headerlink" href="#plurals.deliberation.AbstractStructure.moderator" title="Link to this definition"></a></dt>
+<dd><p>A moderator to moderate the responses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="#plurals.deliberation.Moderator" title="plurals.deliberation.Moderator">Moderator</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.moderated">
+<span class="sig-name descname"><span class="pre">moderated</span></span><a class="headerlink" href="#plurals.deliberation.AbstractStructure.moderated" title="Link to this definition"></a></dt>
+<dd><p>Whether the structure is moderated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.info">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#plurals.deliberation.AbstractStructure.info" title="Link to this definition"></a></dt>
+<dd><p>Return information about the structure and its agents.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.process">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/plurals/deliberation.html#AbstractStructure.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.AbstractStructure.process" title="Link to this definition"></a></dt>
+<dd><p>Abstract method for processing agents. Must be implemented in a subclass.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.deliberation.Chain">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.deliberation.</span></span><span class="sig-name descname"><span class="pre">Chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="agent.html#plurals.agent.Agent" title="plurals.agent.Agent"><span class="pre">Agent</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combination_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moderator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#plurals.deliberation.Moderator" title="plurals.deliberation.Moderator"><span class="pre">Moderator</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#Chain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Chain" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#plurals.deliberation.AbstractStructure" title="plurals.deliberation.AbstractStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractStructure</span></code></a></p>
+<p>A chain structure for processing tasks through a sequence of agents. In a chain,
+each agent processes the task after seeing a prior agent’s response.</p>
+<dl>
+<dt><strong>Examples:</strong></dt><dd><p><strong>Using Chain to create a panel of agents that process tasks in a sequence:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a liberal woman from Missouri&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a 24 year old hispanic man from Florida&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent3</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;an elderly woman with a PhD&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">,</span> <span class="n">agent3</span><span class="p">],</span>
+   <span class="n">task</span><span class="o">=</span><span class="s2">&quot;How should we combat climate change?&quot;</span><span class="p">,</span>
+   <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;chain&quot;</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.deliberation.Chain.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#Chain.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Chain.process" title="Link to this definition"></a></dt>
+<dd><p>Process the task through a chain of agents, each building upon the last. Use parameters from
+<cite>AbstractStructure</cite> to control how the chain operates (e.g: last_n for how many previous responses to include
+in the <cite>previous_responses</cite> string)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.deliberation.Debate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.deliberation.</span></span><span class="sig-name descname"><span class="pre">Debate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="agent.html#plurals.agent.Agent" title="plurals.agent.Agent"><span class="pre">Agent</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combination_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'debate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moderator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#plurals.deliberation.Moderator" title="plurals.deliberation.Moderator"><span class="pre">Moderator</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#Debate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Debate" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#plurals.deliberation.AbstractStructure" title="plurals.deliberation.AbstractStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractStructure</span></code></a></p>
+<p>In a debate, two agents take turns responding to a task, with each response building upon the previous one.
+Debate differs from other structures in a few key ways:</p>
+<ol class="arabic simple">
+<li><p>It requires exactly two agents.</p></li>
+<li><p>It alternates between agents for each response, and prefixes each response with <cite>[You]:</cite> or <cite>[Other]:</cite> to
+indicate the speaker.</p></li>
+<li><p>When moderated, the moderator will provide a final response based on the debate, and we will append
+<cite>[Debater 1]</cite> and <cite>[Debater 2]</cite> to the responses so that the moderator is aware of who said what.</p></li>
+</ol>
+<dl>
+<dt><strong>Examples:</strong></dt><dd><p><strong>Using Debate to observe a conservative vs. a liberal viewpoint:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">task</span> <span class="o">=</span> <span class="s1">&#39;To what extent should the government be involved in providing free welfare to citizens?&#39;</span>
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a liberal&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a conservative&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;You are a neutral moderator overseeing this task, $</span><span class="si">{task}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+
+<span class="n">debate</span> <span class="o">=</span> <span class="n">Debate</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">],</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>  <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;debate&quot;</span><span class="p">,</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">)</span>
+<span class="n">debate</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">debate</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.deliberation.Debate.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#Debate.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Debate.process" title="Link to this definition"></a></dt>
+<dd><p>Process the debate. In a debate, two agents take turns responding to a task. Prompts for agents are prefixed
+with [You] and [Other] to indicate the speaker. For moderators the responses are prefixed with [Debater 1] and
+[Debater 2] to indicate the speaker.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.deliberation.Ensemble">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.deliberation.</span></span><span class="sig-name descname"><span class="pre">Ensemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="agent.html#plurals.agent.Agent" title="plurals.agent.Agent"><span class="pre">Agent</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combination_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moderator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#plurals.deliberation.Moderator" title="plurals.deliberation.Moderator"><span class="pre">Moderator</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#Ensemble"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Ensemble" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#plurals.deliberation.AbstractStructure" title="plurals.deliberation.AbstractStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractStructure</span></code></a></p>
+<p>An ensemble structure for processing tasks through a group of agents. In an ensemble, each agent processes the
+task independently through async requests.</p>
+<dl>
+<dt><strong>Examples:</strong></dt><dd><p><strong>Using Ensemble to brainstorm ideas:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Brainstorm ideas to improve America.&quot;</span>
+<span class="n">agents</span> <span class="o">=</span> <span class="p">[</span><span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span> <span class="c1"># random ANES agents</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span> <span class="c1"># default moderator persona</span>
+<span class="n">ensemble</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">ensemble</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ensemble</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.deliberation.Ensemble.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#Ensemble.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Ensemble.process" title="Link to this definition"></a></dt>
+<dd><p>Requests are sent to all agents simultaneously.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.deliberation.Graph">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.deliberation.</span></span><span class="sig-name descname"><span class="pre">Graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="agent.html#plurals.agent.Agent" title="plurals.agent.Agent"><span class="pre">Agent</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combination_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moderator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#plurals.deliberation.Moderator" title="plurals.deliberation.Moderator"><span class="pre">Moderator</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#Graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Graph" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#plurals.deliberation.AbstractStructure" title="plurals.deliberation.AbstractStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractStructure</span></code></a></p>
+<p>Initializes a network where agents are processed according to a topologically-sorted directed acyclic graph (DAG).
+This Structure takes in Agents and a structure-specific property called <cite>edges</cite>, where each edge is a list of
+tuples in the form (src_idx, dst_idx) indicating that the output of the agent at src_idx is an input to the agent at dst_idx. Note that the
+graph must be a directed acyclic graph (DAG) or else an error will be raised.</p>
+<dl>
+<dt><strong>Examples:</strong></dt><dd><p>Suppose we have three Agents, and we want to create a graph where the output of the liberal is fed to both the conservative and libertarian.
+Then the output of the conservative is fed to the libertarian.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Agents</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a liberal&quot;</span><span class="p">),</span>
+    <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a conservative&quot;</span><span class="p">),</span>
+    <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a libertarian&quot;</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
+<span class="c1"># edges = (liberal -&gt; conservative), (liberal -&gt; libertarian), (conservative -&gt; libertarian)</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;What are your thoughts on the role of government in society?&quot;</span>
+<span class="n">network</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="n">Agents</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also define the agents using a dictionary and convert it to a list for easier index lookup:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define the agents with a dictionary for easier index lookup</span>
+<span class="n">agents_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;liberal&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a liberal&quot;</span><span class="p">),</span>
+    <span class="s1">&#39;conservative&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a conservative&quot;</span><span class="p">),</span>
+    <span class="s1">&#39;libertarian&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a libertarian&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># Convert the dictionary to a list to get a list of Agents</span>
+<span class="n">agents_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">agents_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+<span class="c1"># Define the edges using the dictionary keys</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">agents_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">agents_dict</span><span class="p">[</span><span class="s1">&#39;liberal&#39;</span><span class="p">]),</span> <span class="n">agents_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">agents_dict</span><span class="p">[</span><span class="s1">&#39;conservative&#39;</span><span class="p">])),</span>
+    <span class="p">(</span><span class="n">agents_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">agents_dict</span><span class="p">[</span><span class="s1">&#39;liberal&#39;</span><span class="p">]),</span> <span class="n">agents_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">agents_dict</span><span class="p">[</span><span class="s1">&#39;libertarian&#39;</span><span class="p">])),</span>
+    <span class="p">(</span><span class="n">agents_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">agents_dict</span><span class="p">[</span><span class="s1">&#39;conservative&#39;</span><span class="p">]),</span> <span class="n">agents_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">agents_dict</span><span class="p">[</span><span class="s1">&#39;libertarian&#39;</span><span class="p">]))</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.deliberation.Graph.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#Graph.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Graph.process" title="Link to this definition"></a></dt>
+<dd><p>Processes the tasks within the network of agents, respecting the directed acyclic graph (DAG) structure. The order
+of agent deliberation is determined using Kahn’s algorithm for topological sorting.</p>
+<p>Kahn’s Algorithm:</p>
+<ol class="arabic simple">
+<li><p>Initialize a queue with agents that have an in-degree of 0 (no dependencies).</p></li>
+<li><p>While the queue is not empty:</p>
+<ol class="loweralpha simple">
+<li><p>Remove an agent from the queue and add this agent to the topological order.</p></li>
+<li><p>For each successor of this agent:</p>
+<ol class="lowerroman simple">
+<li><p>Decrease the successor’s in-degree by 1.</p></li>
+<li><p>If the successor’s in-degree becomes 0, add it to the queue.</p></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>This method ensures that agents are processed in an order where each agent’s dependencies are processed before the agent itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The final response after all agents have been processed, and potentially moderated.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If a cycle is detected in the DAG, as this prevents valid topological sorting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.deliberation.Moderator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.deliberation.</span></span><span class="sig-name descname"><span class="pre">Moderator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">persona</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combination_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gpt-4o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#Moderator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Moderator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="agent.html#plurals.agent.Agent" title="plurals.agent.Agent"><code class="xref py py-class docutils literal notranslate"><span class="pre">Agent</span></code></a></p>
+<p>A moderator agent that combines responses from other agents at the end of structure processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>persona</strong> (<em>str</em><em>, </em><em>optional</em>) – The persona of the moderator. Default is ‘default’.</p></li>
+<li><p><strong>system_instructions</strong> (<em>str</em><em>, </em><em>optional</em>) – The system instructions for the moderator. Default is None. If you pass in
+‘auto’, an LLM will generate its own system instructions automatically based on the task.</p></li>
+<li><p><strong>combination_instructions</strong> (<em>str</em><em>, </em><em>optional</em>) – The instructions for combining responses. Default is ‘default’.</p></li>
+<li><p><strong>model</strong> (<em>str</em><em>, </em><em>optional</em>) – The model to use for the moderator. Default is ‘gpt-4o’.</p></li>
+<li><p><strong>task</strong> (<em>str</em><em>, </em><em>optional</em>) – The task description for the moderator. By default, moderators will inherit the task
+from the Structure so this can be left blank. It is only required if you wish to manually generate system
+instructions outside of the Structure.</p></li>
+<li><p><strong>kwargs</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>]</em>) – Additional keyword arguments. These are from LiteLLM’s completion function.
+(see here: <a class="reference external" href="https://litellm.vercel.app/docs/completion/input">https://litellm.vercel.app/docs/completion/input</a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.Moderator.persona">
+<span class="sig-name descname"><span class="pre">persona</span></span><a class="headerlink" href="#plurals.deliberation.Moderator.persona" title="Link to this definition"></a></dt>
+<dd><p>The persona of the moderator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.Moderator.combination_instructions">
+<span class="sig-name descname"><span class="pre">combination_instructions</span></span><a class="headerlink" href="#plurals.deliberation.Moderator.combination_instructions" title="Link to this definition"></a></dt>
+<dd><p>The instructions for combining responses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.deliberation.Moderator.system_instructions">
+<span class="sig-name descname"><span class="pre">system_instructions</span></span><a class="headerlink" href="#plurals.deliberation.Moderator.system_instructions" title="Link to this definition"></a></dt>
+<dd><p>The full system instructions for the moderator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl>
+<dt><strong>Examples:</strong></dt><dd><p><strong>Auto-Moderator</strong></p>
+<p>If the system_instructions of a moderator are set to ‘auto’,
+then the moderator will, given a task, come up with its own system instructions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">task</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Your goal is to come up with the most creative ideas possible for pants. We are maximizing creativity. Answer&quot;</span>
+<span class="s2">&quot; in 20 words.&quot;</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-3.5-turbo&#39;</span><span class="p">)</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">],</span> <span class="n">moderator</span><span class="o">=</span><span class="n">Moderator</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">),</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Group similar ideas together, prioritize uniqueness and novelty. Highlight standout concepts and remove
+duplicates. Ensure the final list captures diverse and imaginative designs.
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.deliberation.Moderator.generate_and_set_system_instructions">
+<span class="sig-name descname"><span class="pre">generate_and_set_system_instructions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_tries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/plurals/deliberation.html#Moderator.generate_and_set_system_instructions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Moderator.generate_and_set_system_instructions" title="Link to this definition"></a></dt>
+<dd><p>Generate and set system instructions using an LLM and a task. This function will generate the system
+instructions and also set it as the system instructions for the moderator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task</strong> (<em>str</em>) – The task description.</p></li>
+<li><p><strong>max_tries</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of attempts to generate valid system instructions. Default is 10.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>System instructions for the moderator.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Sets:</dt><dd><p>system_instructions (str): The system instructions for the moderator.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.deliberation.Moderator.generate_system_instructions">
+<span class="sig-name descname"><span class="pre">generate_system_instructions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_tries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/plurals/deliberation.html#Moderator.generate_system_instructions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Moderator.generate_system_instructions" title="Link to this definition"></a></dt>
+<dd><p>Generate and instructions using an LLM and a task. This function will not automatically set the system
+instructions, but it will return the generated system instructions (so you can inspect or re-generate them).
+Then you can set system instructions using the <cite>system_instructions</cite> attribute.</p>
+<p>See <cite>generate_and_set_system_instructions</cite> for a function that will generate and set the system instructions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task</strong> (<em>str</em>) – The task description for which system instructions need to be generated.</p></li>
+<li><p><strong>max_tries</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of attempts to generate valid system instructions. Default is 10.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The generated system instructions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If valid system instructions are not generated after the maximum number of attempts.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="agent.html" class="btn btn-neutral float-left" title="Agent Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="helpers.html" class="btn btn-neutral float-right" title="Helpers Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Module &mdash; Plurals 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Deliberation Module" href="deliberation.html" />
+    <link rel="prev" title="Welcome to Plurals’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Plurals
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Agent Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#plurals.agent.Agent"><code class="docutils literal notranslate"><span class="pre">Agent</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.persona_mapping"><code class="docutils literal notranslate"><span class="pre">Agent.persona_mapping</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.data"><code class="docutils literal notranslate"><span class="pre">Agent.data</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.system_instructions"><code class="docutils literal notranslate"><span class="pre">Agent.system_instructions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.original_task_description"><code class="docutils literal notranslate"><span class="pre">Agent.original_task_description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.current_task_description"><code class="docutils literal notranslate"><span class="pre">Agent.current_task_description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.history"><code class="docutils literal notranslate"><span class="pre">Agent.history</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.info"><code class="docutils literal notranslate"><span class="pre">Agent.info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.responses"><code class="docutils literal notranslate"><span class="pre">Agent.responses</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">Agent.history</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">Agent.info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.process"><code class="docutils literal notranslate"><span class="pre">Agent.process()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2"><code class="docutils literal notranslate"><span class="pre">Agent.responses</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plurals.agent.Agent.set_task"><code class="docutils literal notranslate"><span class="pre">Agent.set_task()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="deliberation.html">Deliberation Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helpers.html">Helpers Module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Plurals</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Agent Module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/agent.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-plurals.agent">
+<span id="agent-module"></span><h1>Agent Module<a class="headerlink" href="#module-plurals.agent" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.Agent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">Agent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combination_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ideology</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gpt-4o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persona_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persona</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#Agent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Agents are LLMs with customizable personas, who complete tasks with other Agents working together in Structures.
+Personas of Agents can be instantiated directly, null (i.e., default system prompt), or leverage external datasets
+like ANES for nationally-representative personas.</p>
+<p>The main attributes of the Agent class are:</p>
+<ol class="arabic simple">
+<li><p><cite>system_instructions</cite>: Set either directly or through various persona methods.</p></li>
+<li><p><cite>combination_instructions</cite>: Dictates how Agents should combine previous responses with the current task.</p></li>
+<li><p><cite>task</cite>: The task (i.e., user prompt) that Agents respond to.</p></li>
+</ol>
+<p>Agents can be used alone or in conjunction with Structures to create multi-agent simulations. When used with
+Structures, the Structure-level attribute values will override the Agent-level attribute values. Eg: If you set a task
+at an agent level and a Structure-level, the Structure-level task will be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Description of the task for the agent to process. If the agent is part of a structure,
+and the task is provided to the structure, then the agent will inherit that task.</p></li>
+<li><p><strong>combination_instructions</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Instructions for combining previous responses with the current
+task. If the agent is part of a structure and the combination_instructions are provided to the structure,
+then the agent will inherit those combination instructions. Must include a ${previous_responses}
+placeholder.</p></li>
+<li><p><strong>ideology</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Ideological perspective to influence persona creation, supported values are
+[‘liberal’, ‘conservative’, ‘moderate’, ‘very liberal’, ‘very conservative’].</p></li>
+<li><p><strong>query_str</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Custom query string for filtering the ANES dataset according to specific criteria.</p></li>
+<li><p><strong>model</strong> (<em>str</em>) – The language model version to use for generating responses.</p></li>
+<li><p><strong>system_instructions</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Overrides automated instructions with a custom set of directives for the
+model.</p></li>
+<li><p><strong>persona_template</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Template string for constructing the persona. Must include a ${persona}
+placeholder.</p></li>
+<li><p><strong>persona</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Direct specification of a persona description.</p></li>
+<li><p><strong>kwargs</strong> (<em>Optional</em><em>[</em><em>dict</em><em>]</em>) – Additional keyword arguments for the model’s completion function. These are provided by LiteLLM (
+<a class="reference external" href="https://litellm.vercel.app/docs/completion/input#input-params-1">https://litellm.vercel.app/docs/completion/input#input-params-1</a>). Enter <cite>help(litellm.completion)</cite> for
+details.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.persona_mapping">
+<span class="sig-name descname"><span class="pre">persona_mapping</span></span><a class="headerlink" href="#plurals.agent.Agent.persona_mapping" title="Link to this definition"></a></dt>
+<dd><p>Dictionary to map dataset rows to persona descriptions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.data">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#plurals.agent.Agent.data" title="Link to this definition"></a></dt>
+<dd><p>Loaded dataset for persona and ideological queries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.system_instructions">
+<span class="sig-name descname"><span class="pre">system_instructions</span></span><a class="headerlink" href="#plurals.agent.Agent.system_instructions" title="Link to this definition"></a></dt>
+<dd><p>Final system instructions for the agent to follow. The system
+instructions can be set directly or generated from a persona-based method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.original_task_description">
+<span class="sig-name descname"><span class="pre">original_task_description</span></span><a class="headerlink" href="#plurals.agent.Agent.original_task_description" title="Link to this definition"></a></dt>
+<dd><p>The original, unmodified task description.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.current_task_description">
+<span class="sig-name descname"><span class="pre">current_task_description</span></span><a class="headerlink" href="#plurals.agent.Agent.current_task_description" title="Link to this definition"></a></dt>
+<dd><p>Dynamically updated task description that may include prior responses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.history">
+<span class="sig-name descname"><span class="pre">history</span></span><a class="headerlink" href="#plurals.agent.Agent.history" title="Link to this definition"></a></dt>
+<dd><p>Chronological record of prompts, responses, and models used during the agent’s operation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.info">
+<span class="sig-name descname"><span class="pre">info</span></span><a class="headerlink" href="#plurals.agent.Agent.info" title="Link to this definition"></a></dt>
+<dd><p>Comprehensive attributes of the agent’s current configuration and state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="plurals.agent.Agent.responses">
+<span class="sig-name descname"><span class="pre">responses</span></span><a class="headerlink" href="#plurals.agent.Agent.responses" title="Link to this definition"></a></dt>
+<dd><p>List of responses generated by the agent (the same information can be accessed by history)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Examples:</strong></p>
+<blockquote>
+<div><p><strong>Using Agent without a structure</strong>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Say hello&quot;</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">agent</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">ans</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+
+<span class="n">pirate_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a pirate.&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">pirate_hello</span> <span class="o">=</span> <span class="n">pirate_agent</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="n">pirate_goodybe</span> <span class="o">=</span> <span class="n">pirate_agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;Now say a heartfelt goodybe.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Manual system instructions</strong>: This allows you to set system instructions to whatever you would like. Also note
+that you can pass in additional kwargs to the model.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a predictable independent&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
+              <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;max_tokens&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">})</span>
+</pre></div>
+</div>
+<p><strong>No system instructions</strong>: When no system instructions are inputted, agents will use default system instructions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;max_tokens&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">})</span>
+</pre></div>
+</div>
+<p><strong>Persona Template</strong>: When using a persona method, the full system instructions are a combination of the
+persona and the <cite>persona_template</cite>—where the latter is a template string that includes a ${persona}
+placeholder. This gives more instructions to the model of how to enact the persona.</p>
+<p>Here is an example of using the <cite>empathetic</cite> persona template with a persona of “a moderate voter from Michigan”.
+You can see how the full system instructions are a combination of the two.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">empathetic_michigan</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a moderate voter from Michigan&quot;</span><span class="p">,</span>
+    <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;empathetic&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">empathetic_michigan</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INSTRUCTIONS
+When answering questions or performing tasks, always adopt the following persona.
+
+PERSONA:
+a moderate voter from Michigan
+
+CONSTRAINTS
+- When answering, do not disclose your partisan or demographic identity in any way.
+- Think, talk, and write like your persona.
+- Use plain language.
+- Adopt the characteristics of your persona.
+- Be empathetic and compassionate
+- Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.
+</pre></div>
+</div>
+<p>Here is an example of using your own persona template with the appropriate ${persona} placeholder.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a moderate voter from Michigan&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;You are $</span><span class="si">{persona}</span><span class="s2">.&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+<span class="c1"># You are a moderate voter from Michigan.</span>
+</pre></div>
+</div>
+<p>We support several automatic ways of generating personas from American National Election Studies (ANES).</p>
+<p><strong>Ideology Matching (ANES Persona Method):</strong> We support an ideology keyword that can be one of
+[‘very liberal’, ‘liberal’, ‘moderate’, ‘conservative’, ‘very conservative’] where the ‘veries’ are a
+subset of the normals. The below example will pick a random row from ANES where
+the citizen identifies as <cite>very conservative</cite> and use that as the <cite>persona</cite>. We always use appropriate sampling
+weights, so personas will be nationally representative.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">persona</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Your age is 57. Your education is high school graduate. Your gender is man. Your race is hispanic. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do have children under 18 living in your household. Your employment status is full-time. Your geographic region is the northeast. You live in a suburban area. You live in the state of new york.
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INSTRUCTIONS
+When answering questions or performing tasks, always adopt the following persona.
+
+PERSONA:
+Your age is 57. Your education is high school graduate. Your gender is man. Your race is hispanic. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do have children under 18 living in your household. Your employment status is full-time. Your geographic region is the northeast. You live in a suburban area. You live in the state of new york.
+
+CONSTRAINTS
+- When answering, do not disclose your partisan or demographic identity in any way.
+- Think, talk, and write like your persona.
+- Use plain language.
+- Adopt the characteristics of your persona.
+- Do not be overly polite or politically correct.
+</pre></div>
+</div>
+<p><strong>Random Nationally Representative Personas (ANES Persona Method)</strong>: If you make persona== ‘random’ then we will
+randomly sample a row
+from ANES and use that as the persona.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Pandas Query String (ANES Persona Method):</strong> If you want to get more specific, you can pass in a query string
+that will be used to filter the ANES dataset. Again, all ANES methods use sampling weights to ensure national representativeness.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">query_str</span><span class="o">=</span><span class="s2">&quot;inputstate==&#39;West Virginia&#39; &amp; ideo5==&#39;Very conservative&#39;&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Here is how to inspect exactly what is going on with Agents.</strong> You can view an Agent’s responses,
+the agent’s <cite>history</cite> (prompts + responses), and <cite>info</cite>—which is a dictionary of the agent’s attributes (such as system instructions).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">&quot;A task here&quot;</span><span class="p">)</span>
+<span class="n">a</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
+<dl class="py property">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">history</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">info</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.Agent.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#Agent.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.process" title="Link to this definition"></a></dt>
+<dd><p>Process the task, optionally building upon a previous response. If you pass in a task, it will replace the
+Agent’s initialized task description. If you pass in a previous responses, it will be incorporated into the task
+description if combination_instructions have not been set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>previous_responses</strong> (<em>str</em>) – The previous responses to incorporate.</p></li>
+<li><p><strong>task</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – The task description to process. If not provided, the agent will use its current task.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The response from the LLM.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">responses</span></span><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.Agent.set_task">
+<span class="sig-name descname"><span class="pre">set_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#Agent.set_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.set_task" title="Link to this definition"></a></dt>
+<dd><p>Set the task description for the agent to process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>task</strong> (<em>str</em>) – The new task description.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to Plurals’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="deliberation.html" class="btn btn-neutral float-right" title="Deliberation Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

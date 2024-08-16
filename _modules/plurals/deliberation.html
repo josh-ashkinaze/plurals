@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>plurals.deliberation &mdash; Plurals 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Plurals
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../agent.html">Agent Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deliberation.html">Deliberation Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../helpers.html">Helpers Module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Plurals</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">plurals.deliberation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for plurals.deliberation</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.helpers</span> <span class="kn">import</span> <span class="n">load_yaml</span><span class="p">,</span> <span class="n">format_previous_responses</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ThreadPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
+<span class="kn">from</span> <span class="nn">plurals.helpers</span> <span class="kn">import</span> <span class="n">SmartString</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+
+<span class="n">DEFAULTS</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s2">&quot;instructions.yaml&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Moderator">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Moderator">[docs]</a>
+<span class="k">class</span> <span class="nc">Moderator</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A moderator agent that combines responses from other agents at the end of structure processing.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        persona (str, optional): The persona of the moderator. Default is &#39;default&#39;.</span>
+<span class="sd">        system_instructions (str, optional): The system instructions for the moderator. Default is None. If you pass in</span>
+<span class="sd">            &#39;auto&#39;, an LLM will generate its own system instructions automatically based on the task.</span>
+<span class="sd">        combination_instructions (str, optional): The instructions for combining responses. Default is &#39;default&#39;.</span>
+<span class="sd">        model (str, optional): The model to use for the moderator. Default is &#39;gpt-4o&#39;.</span>
+<span class="sd">        task (str, optional): The task description for the moderator. By default, moderators will inherit the task</span>
+<span class="sd">            from the Structure so this can be left blank. It is only required if you wish to manually generate system</span>
+<span class="sd">            instructions outside of the Structure.</span>
+<span class="sd">        kwargs (Optional[Dict]): Additional keyword arguments. These are from LiteLLM&#39;s completion function.</span>
+<span class="sd">            (see here: https://litellm.vercel.app/docs/completion/input)</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        persona (str): The persona of the moderator.</span>
+<span class="sd">        combination_instructions (str): The instructions for combining responses.</span>
+<span class="sd">        system_instructions (str): The full system instructions for the moderator.</span>
+
+<span class="sd">    **Examples:**</span>
+<span class="sd">        **Auto-Moderator**</span>
+
+<span class="sd">        If the system_instructions of a moderator are set to &#39;auto&#39;,</span>
+<span class="sd">        then the moderator will, given a task, come up with its own system instructions.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            task = (&quot;Your goal is to come up with the most creative ideas possible for pants. We are maximizing creativity. Answer&quot;</span>
+<span class="sd">            &quot; in 20 words.&quot;)</span>
+<span class="sd">            a = Agent(model=&#39;gpt-4o&#39;)</span>
+<span class="sd">            b = Agent(model=&#39;gpt-3.5-turbo&#39;)</span>
+<span class="sd">            chain = Chain([a, b], moderator=Moderator(system_instructions=&#39;auto&#39;, model=&#39;gpt-4o&#39;), task=task)</span>
+<span class="sd">            print(chain.moderator.system_instructions)</span>
+
+<span class="sd">        .. code-block:: text</span>
+
+<span class="sd">            Group similar ideas together, prioritize uniqueness and novelty. Highlight standout concepts and remove</span>
+<span class="sd">            duplicates. Ensure the final list captures diverse and imaginative designs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">persona</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">system_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">combination_instructions</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+            <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+            <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">system_instructions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;$</span><span class="si">{task}</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">system_instructions</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;System instructions usually contain the placeholder $</span><span class="si">{task}</span><span class="s2"> so Moderators know what task it is. Consider adding &#39;Here is the task: $</span><span class="si">{task}</span><span class="s2">&#39; to your system instructions.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Case 1: if both persona and system_instructions are provided, raise a ValueError</span>
+        <span class="k">if</span> <span class="n">persona</span> <span class="ow">and</span> <span class="n">system_instructions</span> <span class="ow">and</span> <span class="n">system_instructions</span> <span class="o">!=</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot provide both persona and system instructions&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Case 2: if system_instructions is &#39;auto&#39;, generate system instructions using an LLM</span>
+        <span class="k">if</span> <span class="n">system_instructions</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_system_instructions</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+
+        <span class="c1"># Case 3: if only persona is provided, use persona with dummy persona template ${persona}</span>
+        <span class="k">if</span> <span class="n">persona</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">system_instructions</span><span class="p">:</span>
+            <span class="n">persona_template</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">{persona}</span><span class="s2">&quot;</span>
+            <span class="n">persona_value</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span><span class="s1">&#39;persona&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">persona</span><span class="p">,</span> <span class="n">persona</span><span class="p">)</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="n">persona_value</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="n">persona_template</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Case 4: if only system_instructions is provided, set system_instructions and set persona and persona_template to None</span>
+        <span class="k">elif</span> <span class="n">system_instructions</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">persona</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="n">system_instructions</span><span class="p">,</span> <span class="n">persona</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                             <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Case 5: if neither persona nor system_instructions are provided, use default persona</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">default_persona</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span><span class="s1">&#39;persona&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;default_moderator_persona&#39;</span><span class="p">)</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="n">default_persona</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;$</span><span class="si">{persona}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span><span class="s1">&#39;combination_instructions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">combination_instructions</span><span class="p">,</span>
+                                                                                              <span class="n">combination_instructions</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Moderator.generate_system_instructions">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Moderator.generate_system_instructions">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_system_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_tries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate and instructions using an LLM and a task. This function will not automatically set the system</span>
+<span class="sd">        instructions, but it will return the generated system instructions (so you can inspect or re-generate them).</span>
+<span class="sd">        Then you can set system instructions using the `system_instructions` attribute.</span>
+
+<span class="sd">        See `generate_and_set_system_instructions` for a function that will generate and set the system instructions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            task (str): The task description for which system instructions need to be generated.</span>
+<span class="sd">            max_tries (int, optional): The maximum number of attempts to generate valid system instructions. Default is 10.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The generated system instructions.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If valid system instructions are not generated after the maximum number of attempts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_tries</span><span class="p">):</span>
+            <span class="n">prompt</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;INSTRUCTIONS</span><span class="se">\n</span><span class="s2">A moderator LLM will see responses for the following task: </span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s2">. Generate &quot;</span>
+                      <span class="sa">f</span><span class="s2">&quot;system instructions for the moderator to best aggregate these responses after all responses are &quot;</span>
+                      <span class="sa">f</span><span class="s2">&quot;submitted. Return system instructions and nothing else. Instructions should be 50 words or &quot;</span>
+                      <span class="sa">f</span><span class="s2">&quot;less and start with &#39;System Instructions&#39;:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                      <span class="sa">f</span><span class="s2">&quot;System Instructions:&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+                <span class="c1"># Check if the response starts with &quot;System Instructions:&quot; (case-insensitive and allows for spaces)</span>
+                <span class="c1"># Remove the &quot;System Instructions:&quot; part and any leading/trailing whitespace</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s*system\s+instructions\s*:\s*&quot;</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">):</span>
+                    <span class="n">system_instructions</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s*system\s+instructions\s*:\s*&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span>
+                                                 <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="n">system_instructions</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempt failed with error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Failed to generate valid system instructions after max tries.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Moderator.generate_and_set_system_instructions">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Moderator.generate_and_set_system_instructions">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_and_set_system_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_tries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate and set system instructions using an LLM and a task. This function will generate the system</span>
+<span class="sd">        instructions and also set it as the system instructions for the moderator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            task (str): The task description.</span>
+<span class="sd">            max_tries (int, optional): The maximum number of attempts to generate valid system instructions. Default is 10.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            System instructions for the moderator.</span>
+
+<span class="sd">        Sets:</span>
+<span class="sd">            system_instructions (str): The system instructions for the moderator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_system_instructions</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">max_tries</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">original_task</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Combine responses using the moderator persona and instructions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            responses (List[str]): List of responses from agents to combine.</span>
+<span class="sd">            original_task (str): The original task description provided to the agents.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A combined response based on the moderator&#39;s instructions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">combined_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">previous_responses</span><span class="o">=</span><span class="n">combined_responses_str</span><span class="p">,</span>
+            <span class="n">task</span><span class="o">=</span><span class="n">original_task</span><span class="p">,</span>
+            <span class="n">avoid_double_period</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">task</span><span class="o">=</span><span class="n">original_task</span><span class="p">,</span>
+            <span class="n">previous_responses</span><span class="o">=</span><span class="n">combined_responses_str</span><span class="p">,</span>
+            <span class="n">persona</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persona</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">combined_responses_str</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="AbstractStructure">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.AbstractStructure">[docs]</a>
+<span class="k">class</span> <span class="nc">AbstractStructure</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    AbstractStructure is an abstract class for processing tasks through a group of agents. As such, it is not meant</span>
+<span class="sd">    to be instantiated directly but rather to be subclassed by concrete structures such as an Ensemble. However,</span>
+<span class="sd">    all the concrete structures share the same attributes and methods, so this class provides a common interface.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        agents (List[Agent]): A list of agents to include in the structure.</span>
+<span class="sd">        task (Optional[str]): The task description for the agents to process.</span>
+<span class="sd">        shuffle (bool): Whether to shuffle the order of the agents.</span>
+<span class="sd">        cycles (int): The number of times to process the task.</span>
+<span class="sd">        last_n (int): The number of previous responses to include in the task description.</span>
+<span class="sd">        combination_instructions (Optional[str]): The instructions for combining responses.</span>
+<span class="sd">        moderator (Optional[Moderator]): A moderator to moderate the responses.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        defaults (Dict[str, Any]): Default instructions for the structure.</span>
+<span class="sd">        task (Optional[str]): The task description for the agents to process.</span>
+<span class="sd">        agents (List[Agent]): A list of agents to include in the structure.</span>
+<span class="sd">        combination_instructions (str): The instructions for combining responses.</span>
+<span class="sd">        shuffle (bool): Whether to shuffle the order of the agents.</span>
+<span class="sd">        last_n (int): The number of previous responses to include in the task description.</span>
+<span class="sd">        cycles (int): The number of times to process the task.</span>
+<span class="sd">        responses (List[str]): A list of responses from the agents.</span>
+<span class="sd">        final_response (Optional[str]): The final response from the agents.</span>
+<span class="sd">        moderator (Optional[Moderator]): A moderator to moderate the responses.</span>
+<span class="sd">        moderated (bool): Whether the structure is moderated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">agents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Agent</span><span class="p">],</span>
+            <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">cycles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">last_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">combination_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+            <span class="n">moderator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Moderator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="n">DEFAULTS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="n">task</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">agents</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Agent list cannot be empty.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">=</span> <span class="n">agents</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">combination_instructions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_combination_instructions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_task_descriptions</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shuffle</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Shuffle must be a boolean.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span> <span class="o">=</span> <span class="n">shuffle</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cycles</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cycles</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cycles must be a positive integer.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycles</span> <span class="o">=</span> <span class="n">cycles</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">last_n</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">last_n</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Last_n must be a positive integer.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_n</span> <span class="o">=</span> <span class="n">last_n</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">responses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span> <span class="o">=</span> <span class="n">moderator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">moderator</span> <span class="k">else</span> <span class="kc">False</span>
+
+        <span class="c1"># If we have a moderator we assign a task description and then we</span>
+        <span class="c1"># populate the templates</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">generate_system_instructions</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_set_combination_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the combination instructions for agents based on the provided value or the default.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;combination_instructions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Writing over agent&#39;s combination instructions with Chain&#39;s combination instructions&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
+
+    <span class="k">def</span> <span class="nf">_set_task_descriptions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the task description for agents based on the provided value or the default.</span>
+
+<span class="sd">        Logic:</span>
+<span class="sd">            - Case 1: Value provided to both chain and agents--overwrite agent&#39;s task description with chain&#39;s task</span>
+<span class="sd">            description and throw a warning to user.</span>
+<span class="sd">            - Case 2: Value provided to chain but not agents--set agent&#39;s task description to be agent&#39;s task</span>
+<span class="sd">            description.</span>
+<span class="sd">            - Case 3: Value provided to neither agents nor chain: Throw an error</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="ow">or</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Error: You did not specify a task for agents or chain&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="s2">&quot;Writing over agent&#39;s task with Chain&#39;s task&quot;</span><span class="p">)</span>
+                <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
+                <span class="n">agent</span><span class="o">.</span><span class="n">original_task_description</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span>
+                <span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
+                    <span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return information about the structure and its agents.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The structure has not been processed yet so there are no responses.&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;structure_information&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;final_response&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span><span class="p">,</span>
+                <span class="s2">&quot;responses&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span>
+                <span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">,</span>
+                <span class="s2">&quot;combination_instructions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">,</span>
+                <span class="s2">&quot;moderated&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span><span class="p">,</span>
+                <span class="s2">&quot;moderator_persona&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;moderator_instructions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;agent_information&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">agent</span><span class="o">.</span><span class="n">info</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+<div class="viewcode-block" id="AbstractStructure.process">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.AbstractStructure.process">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method for processing agents. Must be implemented in a subclass.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;This method must be implemented in a subclass&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Concrete Structures</span>
+<span class="c1">#########################################################################</span>
+<span class="c1">#########################################################################</span>
+<div class="viewcode-block" id="Chain">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Chain">[docs]</a>
+<span class="k">class</span> <span class="nc">Chain</span><span class="p">(</span><span class="n">AbstractStructure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A chain structure for processing tasks through a sequence of agents. In a chain,</span>
+<span class="sd">    each agent processes the task after seeing a prior agent&#39;s response.</span>
+
+<span class="sd">    **Examples:**</span>
+<span class="sd">        **Using Chain to create a panel of agents that process tasks in a sequence:**</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">           agent1 = Agent(persona=&#39;a liberal woman from Missouri&#39;, model=&#39;gpt-4o&#39;)</span>
+<span class="sd">           agent2 = Agent(persona=&#39;a 24 year old hispanic man from Florida&#39;, model=&#39;gpt-4o&#39;)</span>
+<span class="sd">           agent3 = Agent(persona=&#39;an elderly woman with a PhD&#39;, model=&#39;gpt-4o&#39;)</span>
+
+<span class="sd">           chain = Chain([agent1, agent2, agent3],</span>
+<span class="sd">              task=&quot;How should we combat climate change?&quot;,</span>
+<span class="sd">              combination_instructions=&quot;chain&quot;)</span>
+<span class="sd">           chain.process()</span>
+<span class="sd">           print(chain.final_response)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Chain.process">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Chain.process">[docs]</a>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process the task through a chain of agents, each building upon the last. Use parameters from</span>
+<span class="sd">        `AbstractStructure` to control how the chain operates (e.g: last_n for how many previous responses to include</span>
+<span class="sd">        in the `previous_responses` string)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">previous_responses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">original_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">original_task_description</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
+                <span class="n">agent</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">previous_responses_slice</span> <span class="o">=</span> <span class="n">previous_responses</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span><span class="p">:]</span>
+                <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span><span class="n">previous_responses_slice</span><span class="p">)</span>
+                <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+                    <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
+                <span class="n">previous_responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
+            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span> <span class="n">original_task</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Ensemble">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Ensemble">[docs]</a>
+<span class="k">class</span> <span class="nc">Ensemble</span><span class="p">(</span><span class="n">AbstractStructure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An ensemble structure for processing tasks through a group of agents. In an ensemble, each agent processes the</span>
+<span class="sd">    task independently through async requests.</span>
+
+<span class="sd">    **Examples:**</span>
+<span class="sd">        **Using Ensemble to brainstorm ideas:**</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            task = &quot;Brainstorm ideas to improve America.&quot;</span>
+<span class="sd">            agents = [Agent(persona=&#39;random&#39;, model=&#39;gpt-4o&#39;) for i in range(10)] # random ANES agents</span>
+<span class="sd">            moderator = Moderator(persona=&#39;default&#39;, model=&#39;gpt-4o&#39;) # default moderator persona</span>
+<span class="sd">            ensemble = Ensemble(agents, moderator=moderator, task=task)</span>
+<span class="sd">            ensemble.process()</span>
+<span class="sd">            print(ensemble.final_response)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Ensemble.process">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Ensemble.process">[docs]</a>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Requests are sent to all agents simultaneously.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">original_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">original_task_description</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">()</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+                <span class="n">futures</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
+                    <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
+                    <span class="n">futures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">):</span>
+                    <span class="n">response</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
+            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span> <span class="n">original_task</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Debate">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Debate">[docs]</a>
+<span class="k">class</span> <span class="nc">Debate</span><span class="p">(</span><span class="n">AbstractStructure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    In a debate, two agents take turns responding to a task, with each response building upon the previous one.</span>
+<span class="sd">    Debate differs from other structures in a few key ways:</span>
+
+<span class="sd">    1. It requires exactly two agents.</span>
+<span class="sd">    2. It alternates between agents for each response, and prefixes each response with `[You]:` or `[Other]:` to</span>
+<span class="sd">       indicate the speaker.</span>
+<span class="sd">    3. When moderated, the moderator will provide a final response based on the debate, and we will append</span>
+<span class="sd">       `[Debater 1]` and `[Debater 2]` to the responses so that the moderator is aware of who said what.</span>
+
+<span class="sd">    **Examples:**</span>
+<span class="sd">        **Using Debate to observe a conservative vs. a liberal viewpoint:**</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            task = &#39;To what extent should the government be involved in providing free welfare to citizens?&#39;</span>
+<span class="sd">            agent1 = Agent(persona=&quot;a liberal&quot;, persona_template=&quot;default&quot;, model=&#39;gpt-4o&#39;)</span>
+<span class="sd">            agent2 = Agent(persona=&quot;a conservative&quot;, persona_template=&quot;default&quot;, model=&#39;gpt-4o&#39;)</span>
+<span class="sd">            moderator = Moderator(persona=&#39;You are a neutral moderator overseeing this task, ${task}&#39;, model=&#39;gpt-4o&#39;, combination_instructions=&quot;default&quot;)</span>
+
+<span class="sd">            debate = Debate([agent1, agent2], task=task,  combination_instructions=&quot;debate&quot;, moderator=moderator)</span>
+<span class="sd">            debate.process()</span>
+<span class="sd">            print(debate.final_response)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">agents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Agent</span><span class="p">],</span>
+            <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">cycles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">last_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000000</span><span class="p">,</span>
+            <span class="n">combination_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;debate&quot;</span><span class="p">,</span>
+            <span class="n">moderator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Moderator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">agents</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Debate requires exactly two agents.&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">agents</span><span class="p">,</span>
+            <span class="n">task</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="p">,</span>
+            <span class="n">cycles</span><span class="p">,</span>
+            <span class="n">last_n</span><span class="p">,</span>
+            <span class="n">combination_instructions</span><span class="p">,</span>
+            <span class="n">moderator</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        We don&#39;t need to append [Response 0] and [Response 1] to the responses here because they will be prefixed</span>
+<span class="sd">        with [You] and [Other] in the process method already.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The formatted responses newline seperated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">responses</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">resp_list</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">responses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">))]</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resp_list</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Debate.process">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Debate.process">[docs]</a>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process the debate. In a debate, two agents take turns responding to a task. Prompts for agents are prefixed</span>
+<span class="sd">        with [You] and [Other] to indicate the speaker. For moderators the responses are prefixed with [Debater 1] and</span>
+<span class="sd">        [Debater 2] to indicate the speaker.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Initialize lists for storing responses from the perspective of each agent.</span>
+        <span class="c1"># This is necessary for the debate structure because each agent needs to see which is there&#39;s and which is</span>
+        <span class="c1"># the other agent&#39;s response.</span>
+        <span class="c1">#</span>
+        <span class="c1"># This structure (of storing seperate lists) is useful since we need to return an agent&#39;s history of what</span>
+        <span class="c1"># they saw, but there may be a more elegant way to do this.</span>
+
+        <span class="n">previous_responses_agent1</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">previous_responses_agent2</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">original_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">original_task_description</span>
+
+        <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">agent</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">):</span>
+                <span class="n">agent</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="c1"># Choose the appropriate response history based on the agent</span>
+                <span class="c1"># index</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_previous_responses</span><span class="p">(</span>
+                        <span class="n">previous_responses_agent1</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span><span class="p">:])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_previous_responses</span><span class="p">(</span>
+                        <span class="n">previous_responses_agent2</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span><span class="p">:])</span>
+
+                <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;[Debater </span><span class="si">{}</span><span class="s2">] &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">response</span><span class="p">)</span>
+
+                <span class="c1"># Apply the correct prefix and update both lists</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">previous_responses_agent1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[You]: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">previous_responses_agent2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Other]: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">previous_responses_agent2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[You]: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">previous_responses_agent1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Other]: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
+            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span> <span class="n">original_task</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Graph">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Graph">[docs]</a>
+<span class="k">class</span> <span class="nc">Graph</span><span class="p">(</span><span class="n">AbstractStructure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initializes a network where agents are processed according to a topologically-sorted directed acyclic graph (DAG).</span>
+<span class="sd">    This Structure takes in Agents and a structure-specific property called `edges`, where each edge is a list of</span>
+<span class="sd">    tuples in the form (src_idx, dst_idx) indicating that the output of the agent at src_idx is an input to the agent at dst_idx. Note that the</span>
+<span class="sd">    graph must be a directed acyclic graph (DAG) or else an error will be raised.</span>
+
+<span class="sd">    **Examples:**</span>
+<span class="sd">        Suppose we have three Agents, and we want to create a graph where the output of the liberal is fed to both the conservative and libertarian.</span>
+<span class="sd">        Then the output of the conservative is fed to the libertarian.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            Agents = [</span>
+<span class="sd">                Agent(system_instructions=&quot;you are a liberal&quot;),</span>
+<span class="sd">                Agent(system_instructions=&quot;you are a conservative&quot;),</span>
+<span class="sd">                Agent(system_instructions=&quot;you are a libertarian&quot;)</span>
+<span class="sd">            ]</span>
+<span class="sd">            edges = [(0, 1), (0, 2), (1, 2)]</span>
+<span class="sd">            # edges = (liberal -&gt; conservative), (liberal -&gt; libertarian), (conservative -&gt; libertarian)</span>
+<span class="sd">            task = &quot;What are your thoughts on the role of government in society?&quot;</span>
+<span class="sd">            network = Graph(agents=Agents, edges=edges, task=task)</span>
+
+
+<span class="sd">        You can also define the agents using a dictionary and convert it to a list for easier index lookup:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Define the agents with a dictionary for easier index lookup</span>
+<span class="sd">            agents_dict = {</span>
+<span class="sd">                &#39;liberal&#39;: Agent(system_instructions=&quot;you are a liberal&quot;),</span>
+<span class="sd">                &#39;conservative&#39;: Agent(system_instructions=&quot;you are a conservative&quot;),</span>
+<span class="sd">                &#39;libertarian&#39;: Agent(system_instructions=&quot;you are a libertarian&quot;)</span>
+<span class="sd">            }</span>
+
+<span class="sd">            # Convert the dictionary to a list to get a list of Agents</span>
+<span class="sd">            agents_list = list(agents_dict.values())</span>
+
+<span class="sd">            # Define the edges using the dictionary keys</span>
+<span class="sd">            edges = [</span>
+<span class="sd">                (agents_list.index(agents_dict[&#39;liberal&#39;]), agents_list.index(agents_dict[&#39;conservative&#39;])),</span>
+<span class="sd">                (agents_list.index(agents_dict[&#39;liberal&#39;]), agents_list.index(agents_dict[&#39;libertarian&#39;])),</span>
+<span class="sd">                (agents_list.index(agents_dict[&#39;conservative&#39;]), agents_list.index(agents_dict[&#39;libertarian&#39;]))</span>
+<span class="sd">            ]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">agents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Agent</span><span class="p">],</span>
+                 <span class="n">edges</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+                 <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">last_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                 <span class="n">combination_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+                 <span class="n">moderator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Moderator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            agents (List[Agent]): A list of agents to be included in the structure.</span>
+<span class="sd">            edges (List[tuple]): A list of tuples representing directed edges between agents. Each tuple is</span>
+<span class="sd">                                 (src_idx, dst_idx), indicating that the output of the agent at src_idx is an</span>
+<span class="sd">                                 input to the agent at dst_idx.</span>
+<span class="sd">            task (Optional[str]): The task description for the agents to process.</span>
+<span class="sd">            last_n (int, optional): The number of last responses to consider for processing tasks. Defaults to 1.</span>
+<span class="sd">            combination_instructions (str, optional): The instructions for combining responses. Defaults to &#39;default&#39;.</span>
+<span class="sd">            moderator (Moderator, optional): A moderator to moderate responses. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="n">agents</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">last_n</span><span class="o">=</span><span class="n">last_n</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="n">combination_instructions</span><span class="p">,</span>
+                         <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">edges</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_graph</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_build_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Builds the graph from the agents and edges. Edges are defined using indices to reference agents.</span>
+<span class="sd">        Initializes the graph and in-degree count for each agent. This is the first part of the topological sorting.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="p">{</span><span class="n">agent</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span> <span class="o">=</span> <span class="p">{</span><span class="n">agent</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">src_idx</span><span class="p">,</span> <span class="n">dst_idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+            <span class="n">src_agent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="n">src_idx</span><span class="p">]</span>
+            <span class="n">dst_agent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="n">dst_idx</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">src_agent</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dst_agent</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">[</span><span class="n">dst_agent</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="Graph.process">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Graph.process">[docs]</a>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Processes the tasks within the network of agents, respecting the directed acyclic graph (DAG) structure. The order</span>
+<span class="sd">        of agent deliberation is determined using Kahn&#39;s algorithm for topological sorting.</span>
+
+<span class="sd">        Kahn&#39;s Algorithm:</span>
+
+<span class="sd">        1. Initialize a queue with agents that have an in-degree of 0 (no dependencies).</span>
+
+<span class="sd">        2. While the queue is not empty:</span>
+
+<span class="sd">           a. Remove an agent from the queue and add this agent to the topological order.</span>
+
+<span class="sd">           b. For each successor of this agent:</span>
+
+<span class="sd">              i. Decrease the successor&#39;s in-degree by 1.</span>
+
+<span class="sd">              ii. If the successor&#39;s in-degree becomes 0, add it to the queue.</span>
+
+<span class="sd">        This method ensures that agents are processed in an order where each agent&#39;s dependencies are processed before the agent itself.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The final response after all agents have been processed, and potentially moderated.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If a cycle is detected in the DAG, as this prevents valid topological sorting.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Initialize the queue with agents that have in-degree 0</span>
+        <span class="n">zero_in_degree_queue</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">([</span><span class="n">agent</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">topological_order</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Kahn&#39;s Algorithm</span>
+        <span class="k">while</span> <span class="n">zero_in_degree_queue</span><span class="p">:</span>
+
+            <span class="c1"># Pop the agent with in-degree 0</span>
+            <span class="n">current_agent</span> <span class="o">=</span> <span class="n">zero_in_degree_queue</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+
+            <span class="c1"># Add the agent to the topological order</span>
+            <span class="n">topological_order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_agent</span><span class="p">)</span>
+
+            <span class="c1"># Decrease the in-degree of the popped Agent&#39;s successors</span>
+            <span class="c1"># If the in-degree of a successor becomes 0, add it to the queue</span>
+            <span class="k">for</span> <span class="n">successor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">current_agent</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">[</span><span class="n">successor</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">[</span><span class="n">successor</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">zero_in_degree_queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">successor</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">topological_order</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;There is a cycle in the graph!!! This is not allowed in a DAG.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Process agents according to topological order</span>
+        <span class="n">response_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">topological_order</span><span class="p">:</span>
+            <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
+            <span class="c1"># Gather responses from all predecessors to form the input for the current agent</span>
+            <span class="n">previous_responses</span> <span class="o">=</span> <span class="p">[</span><span class="n">response_dict</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="k">if</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">pred</span><span class="p">]]</span>
+            <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span><span class="n">previous_responses</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
+            <span class="n">response_dict</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="o">=</span> <span class="n">response</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="c1"># Handle the moderator if present</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
+            <span class="n">original_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">original_task_description</span>
+            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">response_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">original_task</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="n">moderated_response</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
