@@ -472,10 +472,10 @@ class TestChain(unittest.TestCase):
         agent2 = Agent(ideology='conservative', task=task, model=self.model, kwargs=self.kwargs)
         chain = Chain([agent1, agent2], task=task)
 
-        # Mock process method to return a predefined response
-        agent1.process = MagicMock(return_value="Social media has both positive and negative impacts on society.")
-
-        chain.process()
+        # Mock ONLY _get_response from `process()`.
+        with patch.object(Agent, '_get_response',
+                          return_value="Social media has both positive and negative impacts on society."):
+            chain.process()
 
         # Expected formatted previous responses
         previous_responses = ["Social media has both positive and negative impacts on society."]
