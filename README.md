@@ -129,8 +129,8 @@ import os
 import textwrap
 
 # Set your keys as an env variable
-os.environ["OPENAI_API_KEY'] = 'yourkey'
-os.environ["ANTHROPIC_API_KEY'] = 'yourkey'
+os.environ["OPENAI_API_KEY"] = 'yourkey'
+os.environ["ANTHROPIC_API_KEY"] = 'yourkey'
 
 
 # Function to wrap text for docs 
