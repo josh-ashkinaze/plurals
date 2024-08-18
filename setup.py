@@ -6,7 +6,7 @@ def read_requirements():
 
 setup(
     name="plurals",
-    version="0.2.16",
+    version="0.2.15",
     description="A package supporting pluralistic multi-agent deliberation.",
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
