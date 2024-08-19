@@ -8,7 +8,8 @@ DEFAULTS = load_yaml("instructions.yaml")
 
 
 class TestAgent(unittest.TestCase):
-
+    anes_template = DEFAULTS['persona_template'].get("anes").strip()
+    default_template = DEFAULTS['persona_template'].get("default").strip()
     def setUp(self):
         self.task = "How should the US handle gun control? Answer in 100 words."
         self.model = 'gpt-3.5-turbo'
@@ -140,12 +141,16 @@ class TestAgent(unittest.TestCase):
     def test_agent_random_persona(self):
         """Test if the agent is initialized with a random persona. We should always have age in persona."""
         agent = Agent(task="test task", persona="random")
+        persona_template = agent.persona_template
+        self.assertEqual(self.anes_template, persona_template)
         self.assertIsNotNone(agent.system_instructions)
         self.assertIn("age is", agent.system_instructions)
 
     def test_agent_query_string(self):
         """Searching ANES via query string and using persona"""
         agent = Agent(task="test task", query_str="inputstate=='Michigan'")
+        persona_template = agent.persona_template
+        self.assertEqual(self.anes_template, persona_template)
         self.assertIsNotNone(agent.system_instructions)
         self.assertIn("michigan", agent.system_instructions)
 
@@ -153,6 +158,8 @@ class TestAgent(unittest.TestCase):
         """Test age parameter works correctly. This is a column we manually add to ANES from birthyr"""
         for age in [42, 52, 55]:
             agent = Agent(task="test task", query_str="age=={}".format(age))
+            persona_template = agent.persona_template
+            self.assertEqual(self.anes_template, persona_template)
             self.assertIsNotNone(agent.system_instructions)
             self.assertIn(str(age), agent.persona)
 
@@ -177,12 +184,18 @@ class TestAgent(unittest.TestCase):
                    model=self.model)
         mixed = Chain([a2, a3, a4])
 
-        # Assertions
+        # Assertions for personas
         self.assertEqual('Very conservative White Man from the deep south who strongly believe in second amendment',
                          mixed.agents[0].persona)
         self.assertEqual('Liberal White women from the east coast who has far left takes', mixed.agents[1].persona)
         self.assertEqual('Young man from a neighbourhood who has had friends die to gun violence',
                          mixed.agents[2].persona)
+
+        # Assertions for persona templates
+        self.assertEqual(self.default_template, mixed.agents[0].persona_template)
+        self.assertEqual(self.default_template, mixed.agents[1].persona_template)
+        self.assertEqual(self.default_template, mixed.agents[2].persona_template)
+
 
     def test_agent_ideology(self):
         """Test ANES persona ideology method"""
@@ -191,9 +204,15 @@ class TestAgent(unittest.TestCase):
         a4 = Agent(task=self.task, ideology='conservative', model=self.model)
         mixed = Chain([a2, a3, a4])
 
+        # Persona assertions
         self.assertIn("moderate", mixed.agents[0].persona)
         self.assertIn("liberal", mixed.agents[1].persona)
         self.assertIn("conservative", mixed.agents[2].persona)
+
+        # Persona template assertions
+        self.assertEqual(self.anes_template, mixed.agents[0].persona_template)
+        self.assertEqual(self.anes_template, mixed.agents[1].persona_template)
+        self.assertEqual(self.anes_template, mixed.agents[2].persona_template)
 
     def test_no_task_in_agent(self):
         """Test whether Structures work with no task in the agent"""

@@ -67,12 +67,11 @@ class Agent:
         model (str): The language model version to use for generating responses.
         system_instructions (Optional[str]): Overrides automated instructions with a custom set of directives for the
             model.
-        persona_template (Optional[str]): Template string for constructing the persona. Must include a ${persona}
-            placeholder.
+        persona_template (Optional[str]): Template string for constructing the persona. If passing your own, you must include a ${persona}
+            placeholder. You can pass in the names of templates located in `instructions.yaml` [1]. If not supplied: When using an ANES-generated persona the `anes` template will be used.
+            Otherwise, the `default` template will be used. Current templates: https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml
         persona (Optional[str]): Direct specification of a persona description.
-        kwargs (Optional[dict]): Additional keyword arguments for the model's completion function. These are provided by LiteLLM (
-            https://litellm.vercel.app/docs/completion/input#input-params-1). Enter `help(litellm.completion)` for
-            details.
+        kwargs (Optional[dict]): Additional keyword arguments for the model's completion function. These are provided by LiteLLM. Enter `help(litellm.completion)` for details. LiteLLM completion function: https://litellm.vercel.app/docs/completion/input#input-params-1
 
     Attributes:
         persona_mapping (Optional[Dict[str, Any]]): Dictionary to map dataset rows to persona descriptions.
@@ -140,7 +139,7 @@ class Agent:
             - Think, talk, and write like your persona.
             - Use plain language.
             - Adopt the characteristics of your persona.
-            - Be empathetic and compassionate
+            - Be empathetic and compassionate.
             - Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.
 
         Here is an example of using your own persona template with the appropriate ${persona} placeholder.
@@ -295,7 +294,11 @@ class Agent:
 
         Returns:
             str: Generated persona description.
+
+        Sets:
+            self.persona_template: Uses `anes` persona
         """
+        self.persona_template = self.defaults['persona_template'].get("anes")
         if self.persona == "random":
             return self._get_random_persona(self.data)
         if self.ideology:

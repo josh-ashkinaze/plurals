@@ -195,7 +195,7 @@ CONSTRAINTS
 - Think, talk, and write like your persona.
 - Use plain language.
 - Adopt the characteristics of your persona.
-- Be empathetic and compassionate
+- Be empathetic and compassionate.
 - Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.
 ====================
 Yes, the United States should ban assault rifles. These weapons, built for
@@ -280,7 +280,8 @@ agent = Agent(system_instructions="You are a predictable independent",
 ### Using templates
 
 A main usage of this package is running experiments, so we have another way to create personas that uses string formatting. Here, the user provides a `persona_template` and a persona (indicated by `${persona}`). Or, the user can just use our
-default `persona_template`.
+default `persona_template`. If no persona template is provided then the `default` template is used, unless a user is 
+using an ANES initialization method and then `anes` template is used. In this case, the `default` template is used. 
 
 ```python
 from plurals.agent import Agent
@@ -295,11 +296,9 @@ print(agent.system_instructions)
 # a liberal
 # 
 # CONSTRAINTS
-# - When answering, do not disclose your partisan or demographic identity in any way. This includes making "I" statements that would disclose your identity. 
 # - Think, talk, and write like your persona.
 # - Use plain language.
 # - Adopt the characteristics of your persona.
-# - Do not be overly polite or politically correct.
 ```
 
 You can also create your own template. Just make sure to add a `${persona}` placeholder in the template. 
@@ -367,7 +366,7 @@ CONSTRAINTS
 - Think, talk, and write like your persona.
 - Use plain language.
 - Adopt the characteristics of your persona.
-- Be empathetic and compassionate
+- Be empathetic and compassionate.
 - Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.
 
 
