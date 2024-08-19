@@ -144,12 +144,11 @@
 <span class="sd">        model (str): The language model version to use for generating responses.</span>
 <span class="sd">        system_instructions (Optional[str]): Overrides automated instructions with a custom set of directives for the</span>
 <span class="sd">            model.</span>
-<span class="sd">        persona_template (Optional[str]): Template string for constructing the persona. Must include a ${persona}</span>
-<span class="sd">            placeholder.</span>
+<span class="sd">        persona_template (Optional[str]): Template string for constructing the persona. If passing your own, you must include a ${persona}</span>
+<span class="sd">            placeholder. You can pass in the names of templates located in `instructions.yaml` [1]. If not supplied: When using an ANES-generated persona the `anes` template will be used.</span>
+<span class="sd">            Otherwise, the `default` template will be used. Current templates: https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml</span>
 <span class="sd">        persona (Optional[str]): Direct specification of a persona description.</span>
-<span class="sd">        kwargs (Optional[dict]): Additional keyword arguments for the model&#39;s completion function. These are provided by LiteLLM (</span>
-<span class="sd">            https://litellm.vercel.app/docs/completion/input#input-params-1). Enter `help(litellm.completion)` for</span>
-<span class="sd">            details.</span>
+<span class="sd">        kwargs (Optional[dict]): Additional keyword arguments for the model&#39;s completion function. These are provided by LiteLLM. Enter `help(litellm.completion)` for details. LiteLLM completion function: https://litellm.vercel.app/docs/completion/input#input-params-1</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        persona_mapping (Optional[Dict[str, Any]]): Dictionary to map dataset rows to persona descriptions.</span>
@@ -217,7 +216,7 @@
 <span class="sd">            - Think, talk, and write like your persona.</span>
 <span class="sd">            - Use plain language.</span>
 <span class="sd">            - Adopt the characteristics of your persona.</span>
-<span class="sd">            - Be empathetic and compassionate</span>
+<span class="sd">            - Be empathetic and compassionate.</span>
 <span class="sd">            - Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.</span>
 
 <span class="sd">        Here is an example of using your own persona template with the appropriate ${persona} placeholder.</span>
@@ -372,7 +371,11 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: Generated persona description.</span>
+
+<span class="sd">        Sets:</span>
+<span class="sd">            self.persona_template: Uses `anes` persona</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;persona_template&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;anes&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona</span> <span class="o">==</span> <span class="s2">&quot;random&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_random_persona</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideology</span><span class="p">:</span>

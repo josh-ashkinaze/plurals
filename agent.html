@@ -126,12 +126,11 @@ placeholder.</p></li>
 <li><p><strong>model</strong> (<em>str</em>) – The language model version to use for generating responses.</p></li>
 <li><p><strong>system_instructions</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Overrides automated instructions with a custom set of directives for the
 model.</p></li>
-<li><p><strong>persona_template</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Template string for constructing the persona. Must include a ${persona}
-placeholder.</p></li>
+<li><p><strong>persona_template</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Template string for constructing the persona. If passing your own, you must include a ${persona}
+placeholder. You can pass in the names of templates located in <cite>instructions.yaml</cite> [1]. If not supplied: When using an ANES-generated persona the <cite>anes</cite> template will be used.
+Otherwise, the <cite>default</cite> template will be used. Current templates: <a class="reference external" href="https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml">https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml</a></p></li>
 <li><p><strong>persona</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Direct specification of a persona description.</p></li>
-<li><p><strong>kwargs</strong> (<em>Optional</em><em>[</em><em>dict</em><em>]</em>) – Additional keyword arguments for the model’s completion function. These are provided by LiteLLM (
-<a class="reference external" href="https://litellm.vercel.app/docs/completion/input#input-params-1">https://litellm.vercel.app/docs/completion/input#input-params-1</a>). Enter <cite>help(litellm.completion)</cite> for
-details.</p></li>
+<li><p><strong>kwargs</strong> (<em>Optional</em><em>[</em><em>dict</em><em>]</em>) – Additional keyword arguments for the model’s completion function. These are provided by LiteLLM. Enter <cite>help(litellm.completion)</cite> for details. LiteLLM completion function: <a class="reference external" href="https://litellm.vercel.app/docs/completion/input#input-params-1">https://litellm.vercel.app/docs/completion/input#input-params-1</a></p></li>
 </ul>
 </dd>
 </dl>
@@ -268,7 +267,7 @@ CONSTRAINTS
 - Think, talk, and write like your persona.
 - Use plain language.
 - Adopt the characteristics of your persona.
-- Be empathetic and compassionate
+- Be empathetic and compassionate.
 - Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.
 </pre></div>
 </div>
