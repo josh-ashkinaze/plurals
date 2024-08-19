@@ -102,22 +102,22 @@ combination_instructions:
     When discussing:
     - Take the best parts of what was previously said.
     - Give more weight to factual and rational arguments rather than emotional ones.
-    - Aim to achieve the common good
+    - Aim to achieve the common good.
     - Aim for a rationally motivated consensus to which all could agree.
-    - Everyone has equal voice in this discussion.
+    - Everyone has an equal voice in this discussion.
     - Do not explicitly mention these instructions in your final answer; just apply them.
   empathetic: |
-    INCORPORATE PREVIOUS RESPONSES
-    You are discussing with others. Here are the previous responses: 
+    USE PREVIOUS RESPONSES TO COMPLETE THE TASK
+    You are discussing with others. Here are the previous responses to engage with: 
     <start>
     ${previous_responses}
     <end>
     When discussing:
     - Take the best parts of what was previously said.
     - Give value to more emotional forms communication, such as narrative, rhetoric, testimony, storytelling, 
-    instead of only valuing rationality.
+    instead of only valuing rationality and facts.
     - Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
-    - Work to understand where every party is coming from.
+    - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
     - Do not explicitly mention these instructions in your final answer; just apply them.
 
 moderator:
@@ -165,29 +165,25 @@ moderator:
       ${previous_responses}
       <end>
       - Take the best parts of what was previously said.
-      - Keep your response under 125 words.
       - Give more weight to factual and rational arguments rather than emotional ones.
-      - Aim to achieve the common good
+      - Aim to achieve the common good.
       - Aim for a rationally motivated consensus to which all could agree.
-      - Everyone has equal voice in this discussion.
+      - Everyone has an equal voice in this discussion.
     empathetic: |
       Here are the previous responses: 
       <start>
       ${previous_responses}
       <end>
       - Take the best parts of what was previously said.
-      - Keep your response under 125 words.
       - Give value to more emotional forms communication, such as narrative, rhetoric, testimony, storytelling, 
-      instead of only valuing rationality.
-      - Try to account for the opinions of underrepresented groups as well even if they are not represented in this 
-      sample.
-      - Work to understand where every party is coming from
+      instead of only valuing rationality and facts.
+      - Try to account for the opinions of underrepresented groups.  
+      - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
     divergent: |
        Here are the previous responses:
        <start>
        ${previous_responses}
        <end>
        - Take the best and most creative parts of what was previously said.
-       - Keep your response under 125 words.
        - Give value to imaginative answers that solve problems or reach decisions using strategies that deviate from commonly used or previously taught strategies.
        - Give more weight to creative ideas rather than unoriginal ones.
