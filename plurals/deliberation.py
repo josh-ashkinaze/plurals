@@ -17,14 +17,15 @@ class Moderator(Agent):
     A moderator agent that combines responses from other agents at the end of structure processing.
 
     Args:
-        persona (str, optional): The persona of the moderator. Default is 'default'.
+        persona (str, optional): The persona of the moderator. Default is 'default'. The persona can take in a ${task} placeholder.
         system_instructions (str, optional): The system instructions for the moderator. Default is None. If you pass in
-            'auto', an LLM will generate its own system instructions automatically based on the task.
-        combination_instructions (str, optional): The instructions for combining responses. Default is 'default'.
+            'auto', an LLM will generate its own system instructions automatically based on the task. `system_instructions` can take in a ${task} placeholder. If you use `system_instructions`, you cannot use `persona` and `combination_instructions` since they are an
+            alternative way to set the system instructions.
+        combination_instructions (str, optional): The instructions for combining responses. Default is 'default'. The combination instructions can take in a ${previous_responses} placeholder.
         model (str, optional): The model to use for the moderator. Default is 'gpt-4o'.
         task (str, optional): The task description for the moderator. By default, moderators will inherit the task
-            from the Structure so this can be left blank. It is only required if you wish to manually generate system
-            instructions outside of the Structure.
+            from the Structure so this can be left blank. It is only required in a specific case: you wish to manually generate system
+            instructions outside of the Structure. Note that if you use auto-mods inside of the Structure, the task will be inherited from the Structure.
         kwargs (Optional[Dict]): Additional keyword arguments. These are from LiteLLM's completion function.
             (see here: https://litellm.vercel.app/docs/completion/input)
 
@@ -33,25 +34,80 @@ class Moderator(Agent):
         combination_instructions (str): The instructions for combining responses.
         system_instructions (str): The full system instructions for the moderator.
 
-    **Examples:**
-        **Auto-Moderator**
 
-        If the system_instructions of a moderator are set to 'auto',
-        then the moderator will, given a task, come up with its own system instructions.
+    **Examples**
+
+        **Standard Usage: Inherit task from Structure**
+
+        The standard usage is for the Moderator to inherit the task from the Structure. Here, the system instructions will replace the ${task} placeholder in the `default` Moderator template.
+
+        .. code-block:: python
+
+            # Example 1
+            task = "What are your thoughts on the role of government in society? Answer in 20 words."
+            # Uses templates for personas and combination instructions
+            moderator = Moderator(persona='default', model='gpt-4o', combination_instructions='default')
+            agent1 = Agent(model='gpt-3.5-turbo')
+            agent2 = Agent(model='gpt-3.5-turbo')
+            chain = Chain([agent1, agent2], moderator=moderator, task=task)
+            chain.process()
+
+            # Example 2
+            task = "What are your thoughts on the role of government in society? Answer in 10 words."
+            moderator = Moderator(
+                persona="You are an expert overseeing a discussion about ${task}",
+                model='gpt-4o',
+                combination_instructions="Come to a final conclusion based on previous responses: $previous_responses"
+            )
+            agent1 = Agent(model='gpt-3.5-turbo')
+            agent2 = Agent(model='gpt-3.5-turbo')
+            chain = Chain([agent1, agent2], moderator=moderator, task=task)
+            chain.process()
+
+        **Alternatively, you can set the system instructions directly.**
+
+        .. code-block:: python
+
+            moderator = Moderator(
+                system_instructions='Summarize previous responses as neutrally as possible.',
+                model='gpt-4o',
+                combination_instructions='empathetic'
+            )
+
+        **Auto-Moderator: Declared inside of Structure**
+
+        If the system_instructions of a moderator are set to 'auto', then the moderator will, given a task, come up with its own system instructions. Here the task is inherited from the Structure.
 
         .. code-block:: python
 
             task = ("Your goal is to come up with the most creative ideas possible for pants. We are maximizing creativity. Answer"
-            " in 20 words.")
+                    " in 20 words.")
             a = Agent(model='gpt-4o')
             b = Agent(model='gpt-3.5-turbo')
             chain = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
+            chain.process()
             print(chain.moderator.system_instructions)
+
+        Output:
 
         .. code-block:: text
 
             Group similar ideas together, prioritize uniqueness and novelty. Highlight standout concepts and remove
             duplicates. Ensure the final list captures diverse and imaginative designs.
+
+        **Auto-Moderator: Declared outside of Structure**
+
+        Here we use an auto-moderator again, but this time the auto-moderated system instructions come from a different
+        task than what Agents complete.
+
+        .. code-block:: python
+
+            moderator_task = "What is a creative use for pants?"
+            moderator = Moderator(system_instructions='auto', model='gpt-4o', task=task)
+            a1 = Agent(model='gpt-4o-mini')
+            a2 = Agent(model='gpt-4o-mini')
+            chain = Chain([a1, a2], moderator=moderator, task=task)
+            chain.process()
     """
 
     def __init__(
@@ -161,13 +217,12 @@ class Moderator(Agent):
         self.system_instructions = self.generate_system_instructions(task, max_tries)
         return self.system_instructions
 
-    def _moderate_responses(self, responses: List[str], original_task: str) -> str:
+    def _moderate_responses(self, responses: List[str]) -> str:
         """
         Combine responses using the moderator persona and instructions.
 
         Args:
             responses (List[str]): List of responses from agents to combine.
-            original_task (str): The original task description provided to the agents.
 
         Returns:
             str: A combined response based on the moderator's instructions
@@ -293,8 +348,7 @@ class AbstractStructure(ABC):
         Set the task description for agents based on the provided value or the default.
 
         Logic:
-            - Case 1: Task provided to both Structure and agents--overwrite agent's task description with chain's task
-            description and throw a warning to user.
+            - Case 1: Task provided to both Structure and agents--use agent's task description but throw a warning to user.
             - Case 2: Value provided to neither agents nor chain: Throw an error.
             - Case 3: Value provided to Structure but not agents--set agent's task description to be Structure's task
             description.
@@ -304,7 +358,7 @@ class AbstractStructure(ABC):
             if self.task:
                 if agent.task_description:
                     # Case 1: Task provided to both Structure and agents
-                    warnings.warn("Writing over agent's task with Chain's task")
+                    warnings.warn(f"You provided a task to both the Structure and agents. Using agent's task description:'''\n\n{agent.task_description}'''\n\nEnsure this is what you want to happen.")
                     agent.task_description = self.task
                 else:
                     # Case 3: Value provided to Structure but not agents
@@ -421,7 +475,6 @@ class Chain(AbstractStructure):
         in the `previous_responses` string)
         """
         previous_responses = []
-        original_task = self.agents[0].original_task_description
         for _ in range(self.cycles):
             if self.shuffle:
                 self.agents = random.sample(self.agents, len(self.agents))
@@ -430,13 +483,12 @@ class Chain(AbstractStructure):
                 previous_responses_slice = previous_responses[-self.last_n:]
                 previous_responses_str = format_previous_responses(previous_responses_slice)
                 agent.combination_instructions = self.combination_instructions
-                response = agent.process(
-                    previous_responses=previous_responses_str)
+                response = agent.process(previous_responses=previous_responses_str)
                 previous_responses.append(response)
                 self.responses.append(response)
 
         if self.moderated and self.moderator:
-            moderated_response = self.moderator._moderate_responses(self.responses, original_task)
+            moderated_response = self.moderator._moderate_responses(self.responses)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
 
@@ -463,7 +515,6 @@ class Ensemble(AbstractStructure):
         """
         Requests are sent to all agents simultaneously.
         """
-        original_task = self.agents[0].original_task_description
         for _ in range(self.cycles):
             with ThreadPoolExecutor() as executor:
                 futures = []
@@ -477,7 +528,7 @@ class Ensemble(AbstractStructure):
 
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(
-                self.responses, original_task)
+                self.responses)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
 
@@ -590,7 +641,7 @@ class Debate(AbstractStructure):
 
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(
-                self.responses, original_task)
+                self.responses)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
 
@@ -769,7 +820,7 @@ class Graph(AbstractStructure):
         # Handle the moderator if present
         if self.moderated and self.moderator:
             original_task = self.agents[0].original_task_description
-            moderated_response = self.moderator._moderate_responses(list(response_dict.values()), original_task)
+            moderated_response = self.moderator._moderate_responses(list(response_dict.values()))
             self.responses.append(moderated_response)
             self.final_response = moderated_response
         self.final_response = self.responses[-1]
