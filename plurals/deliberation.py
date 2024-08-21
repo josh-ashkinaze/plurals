@@ -5,12 +5,13 @@ from plurals.agent import Agent
 from plurals.helpers import load_yaml, format_previous_responses
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from plurals.helpers import SmartString
+from plurals.helpers import SmartString, strip_nested_dict
 import re
 import collections
 
-DEFAULTS = load_yaml("instructions.yaml")
 
+DEFAULTS = load_yaml("instructions.yaml")
+DEFAULTS = strip_nested_dict(DEFAULTS)
 
 class Moderator(Agent):
     """
@@ -123,7 +124,6 @@ class Moderator(Agent):
             kwargs = {}
 
         self.task = task
-        print(task)
 
         if system_instructions is not None and system_instructions != 'auto':
             if "${task}" not in system_instructions:

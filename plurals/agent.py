@@ -7,6 +7,7 @@ from litellm import completion
 from plurals.helpers import *
 
 DEFAULTS = load_yaml("instructions.yaml")
+DEFAULTS = strip_nested_dict(DEFAULTS)
 
 
 def _load_global_anes_data():
