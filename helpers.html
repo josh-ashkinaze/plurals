@@ -55,6 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#plurals.helpers.format_previous_responses"><code class="docutils literal notranslate"><span class="pre">format_previous_responses()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#plurals.helpers.load_yaml"><code class="docutils literal notranslate"><span class="pre">load_yaml()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#plurals.helpers.print_anes_mapping"><code class="docutils literal notranslate"><span class="pre">print_anes_mapping()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plurals.helpers.strip_nested_dict"><code class="docutils literal notranslate"><span class="pre">strip_nested_dict()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -184,6 +185,20 @@ values for filtering data, as they are printed here.</p>
 <li><p>Several questions have multiple choice options (A, B, C) and then an <code class="docutils literal notranslate"><span class="pre">Other</span></code> option. We recode <code class="docutils literal notranslate"><span class="pre">Other</span></code>
 as <code class="docutils literal notranslate"><span class="pre">neither</span> <span class="pre">A</span> <span class="pre">nor</span> <span class="pre">B</span> <span class="pre">nor</span> <span class="pre">C</span></code> to be more explicit.</p></li>
 </ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="plurals.helpers.strip_nested_dict">
+<span class="sig-prename descclassname"><span class="pre">plurals.helpers.</span></span><span class="sig-name descname"><span class="pre">strip_nested_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/plurals/helpers.html#strip_nested_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.helpers.strip_nested_dict" title="Link to this definition"></a></dt>
+<dd><p>Strip whitespace from all strings in a nested dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>d</strong> – The dictionary to strip whitespace from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The dictionary with all strings stripped of whitespace.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

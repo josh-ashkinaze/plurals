@@ -82,6 +82,7 @@
 <span class="kn">from</span> <span class="nn">plurals.helpers</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s2">&quot;instructions.yaml&quot;</span><span class="p">)</span>
+<span class="n">DEFAULTS</span> <span class="o">=</span> <span class="n">strip_nested_dict</span><span class="p">(</span><span class="n">DEFAULTS</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_load_global_anes_data</span><span class="p">():</span>

@@ -462,14 +462,15 @@ of agent deliberation is determined using Kahn’s algorithm for topological sor
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>persona</strong> (<em>str</em><em>, </em><em>optional</em>) – The persona of the moderator. Default is ‘default’.</p></li>
+<li><p><strong>persona</strong> (<em>str</em><em>, </em><em>optional</em>) – The persona of the moderator. Default is ‘default’. The persona can take in a ${task} placeholder.</p></li>
 <li><p><strong>system_instructions</strong> (<em>str</em><em>, </em><em>optional</em>) – The system instructions for the moderator. Default is None. If you pass in
-‘auto’, an LLM will generate its own system instructions automatically based on the task.</p></li>
-<li><p><strong>combination_instructions</strong> (<em>str</em><em>, </em><em>optional</em>) – The instructions for combining responses. Default is ‘default’.</p></li>
+‘auto’, an LLM will generate its own system instructions automatically based on the task. <cite>system_instructions</cite> can take in a ${task} placeholder. If you use <cite>system_instructions</cite>, you cannot use <cite>persona</cite> and <cite>combination_instructions</cite> since they are an
+alternative way to set the system instructions.</p></li>
+<li><p><strong>combination_instructions</strong> (<em>str</em><em>, </em><em>optional</em>) – The instructions for combining responses. Default is ‘default’. The combination instructions can take in a ${previous_responses} placeholder.</p></li>
 <li><p><strong>model</strong> (<em>str</em><em>, </em><em>optional</em>) – The model to use for the moderator. Default is ‘gpt-4o’.</p></li>
 <li><p><strong>task</strong> (<em>str</em><em>, </em><em>optional</em>) – The task description for the moderator. By default, moderators will inherit the task
-from the Structure so this can be left blank. It is only required if you wish to manually generate system
-instructions outside of the Structure.</p></li>
+from the Structure so this can be left blank. It is only required in a specific case: you wish to manually generate system
+instructions outside of the Structure. Note that if you use auto-mods inside of the Structure, the task will be inherited from the Structure.</p></li>
 <li><p><strong>kwargs</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>]</em>) – Additional keyword arguments. These are from LiteLLM’s completion function.
 (see here: <a class="reference external" href="https://litellm.vercel.app/docs/completion/input">https://litellm.vercel.app/docs/completion/input</a>)</p></li>
 </ul>
@@ -508,24 +509,68 @@ instructions outside of the Structure.</p></li>
 </dl>
 </dd></dl>
 
-<dl>
-<dt><strong>Examples:</strong></dt><dd><p><strong>Auto-Moderator</strong></p>
-<p>If the system_instructions of a moderator are set to ‘auto’,
-then the moderator will, given a task, come up with its own system instructions.</p>
+<p><strong>Examples</strong></p>
+<blockquote>
+<div><p><strong>Standard Usage: Inherit task from Structure</strong></p>
+<p>The standard usage is for the Moderator to inherit the task from the Structure. Here, the system instructions will replace the ${task} placeholder in the <cite>default</cite> Moderator template.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example 1</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;What are your thoughts on the role of government in society? Answer in 20 words.&quot;</span>
+<span class="c1"># Uses templates for personas and combination instructions</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-3.5-turbo&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-3.5-turbo&#39;</span><span class="p">)</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">],</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+
+<span class="c1"># Example 2</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;What are your thoughts on the role of government in society? Answer in 10 words.&quot;</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span>
+    <span class="n">persona</span><span class="o">=</span><span class="s2">&quot;You are an expert overseeing a discussion about $</span><span class="si">{task}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
+    <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;Come to a final conclusion based on previous responses: $previous_responses&quot;</span>
+<span class="p">)</span>
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-3.5-turbo&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-3.5-turbo&#39;</span><span class="p">)</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">],</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Alternatively, you can set the system instructions directly.</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span>
+    <span class="n">system_instructions</span><span class="o">=</span><span class="s1">&#39;Summarize previous responses as neutrally as possible.&#39;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
+    <span class="n">combination_instructions</span><span class="o">=</span><span class="s1">&#39;empathetic&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Auto-Moderator: Declared inside of Structure</strong></p>
+<p>If the system_instructions of a moderator are set to ‘auto’, then the moderator will, given a task, come up with its own system instructions. Here the task is inherited from the Structure.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">task</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Your goal is to come up with the most creative ideas possible for pants. We are maximizing creativity. Answer&quot;</span>
-<span class="s2">&quot; in 20 words.&quot;</span><span class="p">)</span>
+        <span class="s2">&quot; in 20 words.&quot;</span><span class="p">)</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
 <span class="n">b</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-3.5-turbo&#39;</span><span class="p">)</span>
 <span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">],</span> <span class="n">moderator</span><span class="o">=</span><span class="n">Moderator</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">),</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Output:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Group similar ideas together, prioritize uniqueness and novelty. Highlight standout concepts and remove
 duplicates. Ensure the final list captures diverse and imaginative designs.
 </pre></div>
 </div>
-</dd>
-</dl>
+<p><strong>Auto-Moderator: Declared outside of Structure</strong></p>
+<p>Here we use an auto-moderator again, but this time the auto-moderated system instructions come from a different
+task than what Agents complete.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">moderator_task</span> <span class="o">=</span> <span class="s2">&quot;What is a creative use for pants?&quot;</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">a1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o-mini&#39;</span><span class="p">)</span>
+<span class="n">a2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o-mini&#39;</span><span class="p">)</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">],</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="plurals.deliberation.Moderator.generate_and_set_system_instructions">
 <span class="sig-name descname"><span class="pre">generate_and_set_system_instructions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_tries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/plurals/deliberation.html#Moderator.generate_and_set_system_instructions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Moderator.generate_and_set_system_instructions" title="Link to this definition"></a></dt>

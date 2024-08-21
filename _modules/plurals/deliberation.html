@@ -80,12 +80,13 @@
 <span class="kn">from</span> <span class="nn">plurals.helpers</span> <span class="kn">import</span> <span class="n">load_yaml</span><span class="p">,</span> <span class="n">format_previous_responses</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ThreadPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
-<span class="kn">from</span> <span class="nn">plurals.helpers</span> <span class="kn">import</span> <span class="n">SmartString</span>
+<span class="kn">from</span> <span class="nn">plurals.helpers</span> <span class="kn">import</span> <span class="n">SmartString</span><span class="p">,</span> <span class="n">strip_nested_dict</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 
-<span class="n">DEFAULTS</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s2">&quot;instructions.yaml&quot;</span><span class="p">)</span>
 
+<span class="n">DEFAULTS</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s2">&quot;instructions.yaml&quot;</span><span class="p">)</span>
+<span class="n">DEFAULTS</span> <span class="o">=</span> <span class="n">strip_nested_dict</span><span class="p">(</span><span class="n">DEFAULTS</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Moderator">
 <a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Moderator">[docs]</a>
@@ -94,14 +95,15 @@
 <span class="sd">    A moderator agent that combines responses from other agents at the end of structure processing.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        persona (str, optional): The persona of the moderator. Default is &#39;default&#39;.</span>
+<span class="sd">        persona (str, optional): The persona of the moderator. Default is &#39;default&#39;. The persona can take in a ${task} placeholder.</span>
 <span class="sd">        system_instructions (str, optional): The system instructions for the moderator. Default is None. If you pass in</span>
-<span class="sd">            &#39;auto&#39;, an LLM will generate its own system instructions automatically based on the task.</span>
-<span class="sd">        combination_instructions (str, optional): The instructions for combining responses. Default is &#39;default&#39;.</span>
+<span class="sd">            &#39;auto&#39;, an LLM will generate its own system instructions automatically based on the task. `system_instructions` can take in a ${task} placeholder. If you use `system_instructions`, you cannot use `persona` and `combination_instructions` since they are an</span>
+<span class="sd">            alternative way to set the system instructions.</span>
+<span class="sd">        combination_instructions (str, optional): The instructions for combining responses. Default is &#39;default&#39;. The combination instructions can take in a ${previous_responses} placeholder.</span>
 <span class="sd">        model (str, optional): The model to use for the moderator. Default is &#39;gpt-4o&#39;.</span>
 <span class="sd">        task (str, optional): The task description for the moderator. By default, moderators will inherit the task</span>
-<span class="sd">            from the Structure so this can be left blank. It is only required if you wish to manually generate system</span>
-<span class="sd">            instructions outside of the Structure.</span>
+<span class="sd">            from the Structure so this can be left blank. It is only required in a specific case: you wish to manually generate system</span>
+<span class="sd">            instructions outside of the Structure. Note that if you use auto-mods inside of the Structure, the task will be inherited from the Structure.</span>
 <span class="sd">        kwargs (Optional[Dict]): Additional keyword arguments. These are from LiteLLM&#39;s completion function.</span>
 <span class="sd">            (see here: https://litellm.vercel.app/docs/completion/input)</span>
 
@@ -110,25 +112,80 @@
 <span class="sd">        combination_instructions (str): The instructions for combining responses.</span>
 <span class="sd">        system_instructions (str): The full system instructions for the moderator.</span>
 
-<span class="sd">    **Examples:**</span>
-<span class="sd">        **Auto-Moderator**</span>
 
-<span class="sd">        If the system_instructions of a moderator are set to &#39;auto&#39;,</span>
-<span class="sd">        then the moderator will, given a task, come up with its own system instructions.</span>
+<span class="sd">    **Examples**</span>
+
+<span class="sd">        **Standard Usage: Inherit task from Structure**</span>
+
+<span class="sd">        The standard usage is for the Moderator to inherit the task from the Structure. Here, the system instructions will replace the ${task} placeholder in the `default` Moderator template.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Example 1</span>
+<span class="sd">            task = &quot;What are your thoughts on the role of government in society? Answer in 20 words.&quot;</span>
+<span class="sd">            # Uses templates for personas and combination instructions</span>
+<span class="sd">            moderator = Moderator(persona=&#39;default&#39;, model=&#39;gpt-4o&#39;, combination_instructions=&#39;default&#39;)</span>
+<span class="sd">            agent1 = Agent(model=&#39;gpt-3.5-turbo&#39;)</span>
+<span class="sd">            agent2 = Agent(model=&#39;gpt-3.5-turbo&#39;)</span>
+<span class="sd">            chain = Chain([agent1, agent2], moderator=moderator, task=task)</span>
+<span class="sd">            chain.process()</span>
+
+<span class="sd">            # Example 2</span>
+<span class="sd">            task = &quot;What are your thoughts on the role of government in society? Answer in 10 words.&quot;</span>
+<span class="sd">            moderator = Moderator(</span>
+<span class="sd">                persona=&quot;You are an expert overseeing a discussion about ${task}&quot;,</span>
+<span class="sd">                model=&#39;gpt-4o&#39;,</span>
+<span class="sd">                combination_instructions=&quot;Come to a final conclusion based on previous responses: $previous_responses&quot;</span>
+<span class="sd">            )</span>
+<span class="sd">            agent1 = Agent(model=&#39;gpt-3.5-turbo&#39;)</span>
+<span class="sd">            agent2 = Agent(model=&#39;gpt-3.5-turbo&#39;)</span>
+<span class="sd">            chain = Chain([agent1, agent2], moderator=moderator, task=task)</span>
+<span class="sd">            chain.process()</span>
+
+<span class="sd">        **Alternatively, you can set the system instructions directly.**</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            moderator = Moderator(</span>
+<span class="sd">                system_instructions=&#39;Summarize previous responses as neutrally as possible.&#39;,</span>
+<span class="sd">                model=&#39;gpt-4o&#39;,</span>
+<span class="sd">                combination_instructions=&#39;empathetic&#39;</span>
+<span class="sd">            )</span>
+
+<span class="sd">        **Auto-Moderator: Declared inside of Structure**</span>
+
+<span class="sd">        If the system_instructions of a moderator are set to &#39;auto&#39;, then the moderator will, given a task, come up with its own system instructions. Here the task is inherited from the Structure.</span>
 
 <span class="sd">        .. code-block:: python</span>
 
 <span class="sd">            task = (&quot;Your goal is to come up with the most creative ideas possible for pants. We are maximizing creativity. Answer&quot;</span>
-<span class="sd">            &quot; in 20 words.&quot;)</span>
+<span class="sd">                    &quot; in 20 words.&quot;)</span>
 <span class="sd">            a = Agent(model=&#39;gpt-4o&#39;)</span>
 <span class="sd">            b = Agent(model=&#39;gpt-3.5-turbo&#39;)</span>
 <span class="sd">            chain = Chain([a, b], moderator=Moderator(system_instructions=&#39;auto&#39;, model=&#39;gpt-4o&#39;), task=task)</span>
+<span class="sd">            chain.process()</span>
 <span class="sd">            print(chain.moderator.system_instructions)</span>
+
+<span class="sd">        Output:</span>
 
 <span class="sd">        .. code-block:: text</span>
 
 <span class="sd">            Group similar ideas together, prioritize uniqueness and novelty. Highlight standout concepts and remove</span>
 <span class="sd">            duplicates. Ensure the final list captures diverse and imaginative designs.</span>
+
+<span class="sd">        **Auto-Moderator: Declared outside of Structure**</span>
+
+<span class="sd">        Here we use an auto-moderator again, but this time the auto-moderated system instructions come from a different</span>
+<span class="sd">        task than what Agents complete.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            moderator_task = &quot;What is a creative use for pants?&quot;</span>
+<span class="sd">            moderator = Moderator(system_instructions=&#39;auto&#39;, model=&#39;gpt-4o&#39;, task=task)</span>
+<span class="sd">            a1 = Agent(model=&#39;gpt-4o-mini&#39;)</span>
+<span class="sd">            a2 = Agent(model=&#39;gpt-4o-mini&#39;)</span>
+<span class="sd">            chain = Chain([a1, a2], moderator=moderator, task=task)</span>
+<span class="sd">            chain.process()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -142,6 +199,8 @@
 
         <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="n">task</span>
 
         <span class="k">if</span> <span class="n">system_instructions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">system_instructions</span> <span class="o">!=</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;$</span><span class="si">{task}</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">system_instructions</span><span class="p">:</span>
@@ -162,17 +221,19 @@
         <span class="k">if</span> <span class="n">persona</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">system_instructions</span><span class="p">:</span>
             <span class="n">persona_template</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">{persona}</span><span class="s2">&quot;</span>
             <span class="n">persona_value</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span><span class="s1">&#39;persona&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">persona</span><span class="p">,</span> <span class="n">persona</span><span class="p">)</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="n">persona_value</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="n">persona_template</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="n">persona_value</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="n">persona_template</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                             <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
 
         <span class="c1"># Case 4: if only system_instructions is provided, set system_instructions and set persona and persona_template to None</span>
         <span class="k">elif</span> <span class="n">system_instructions</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">persona</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="n">system_instructions</span><span class="p">,</span> <span class="n">persona</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
-                             <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+                             <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
 
         <span class="c1"># Case 5: if neither persona nor system_instructions are provided, use default persona</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">default_persona</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span><span class="s1">&#39;persona&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;default_moderator_persona&#39;</span><span class="p">)</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="n">default_persona</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;$</span><span class="si">{persona}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="n">default_persona</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;$</span><span class="si">{persona}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                             <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span><span class="s1">&#39;combination_instructions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">combination_instructions</span><span class="p">,</span>
                                                                                               <span class="n">combination_instructions</span><span class="p">)</span>
@@ -239,25 +300,25 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">original_task</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Combine responses using the moderator persona and instructions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            responses (List[str]): List of responses from agents to combine.</span>
-<span class="sd">            original_task (str): The original task description provided to the agents.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: A combined response based on the moderator&#39;s instructions</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;task&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
         <span class="n">combined_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">previous_responses</span><span class="o">=</span><span class="n">combined_responses_str</span><span class="p">,</span>
-            <span class="n">task</span><span class="o">=</span><span class="n">original_task</span><span class="p">,</span>
+            <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">,</span>
             <span class="n">avoid_double_period</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">task</span><span class="o">=</span><span class="n">original_task</span><span class="p">,</span>
+            <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">,</span>
             <span class="n">previous_responses</span><span class="o">=</span><span class="n">combined_responses_str</span><span class="p">,</span>
             <span class="n">persona</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persona</span>
         <span class="p">)</span>
@@ -317,7 +378,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">combination_instructions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_combination_instructions</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_task_descriptions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_agent_task_description</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shuffle</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Shuffle must be a boolean.&quot;</span><span class="p">)</span>
@@ -339,13 +400,14 @@
         <span class="c1"># If we have a moderator we assign a task description and then we</span>
         <span class="c1"># populate the templates</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_moderator_task_description</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">generate_system_instructions</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">))</span>
@@ -367,31 +429,71 @@
                 <span class="k">pass</span>
             <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
 
-    <span class="k">def</span> <span class="nf">_set_task_descriptions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_set_agent_task_description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the task description for agents based on the provided value or the default.</span>
 
 <span class="sd">        Logic:</span>
-<span class="sd">            - Case 1: Value provided to both chain and agents--overwrite agent&#39;s task description with chain&#39;s task</span>
-<span class="sd">            description and throw a warning to user.</span>
-<span class="sd">            - Case 2: Value provided to chain but not agents--set agent&#39;s task description to be agent&#39;s task</span>
+<span class="sd">            - Case 1: Task provided to both Structure and agents--use agent&#39;s task description but throw a warning to user.</span>
+<span class="sd">            - Case 2: Value provided to neither agents nor chain: Raise an error.</span>
+<span class="sd">            - Case 3: Value provided to Structure but not agents--set agent&#39;s task description to be Structure&#39;s task</span>
 <span class="sd">            description.</span>
-<span class="sd">            - Case 3: Value provided to neither agents nor chain: Throw an error</span>
+<span class="sd">            - Case 4: Value provided to agents but not Structure. Use Agent&#39;s task description.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="ow">or</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;Error: You did not specify a task for agents or chain&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="p">:</span>
-                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="s2">&quot;Writing over agent&#39;s task with Chain&#39;s task&quot;</span><span class="p">)</span>
-                <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
+                    <span class="c1"># Case 1: Task provided to both Structure and agents</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You provided a task to both the Structure and agents. Using agent&#39;s task description:&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="si">{</span><span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="si">}</span><span class="s2">&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="s2">Ensure this is what you want to happen.&quot;</span><span class="p">)</span>
+                    <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Case 3: Value provided to Structure but not agents</span>
+                    <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
+
+                <span class="c1"># Common operations for cases 1 and 3</span>
                 <span class="n">agent</span><span class="o">.</span><span class="n">original_task_description</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span>
                 <span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
-                    <span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
+                    <span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="ow">or</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="c1"># Case 2: Value provided to neither agents nor chain</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error: You did not specify a task for agents or chain&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Case 4: Value provided to agents but not Structure</span>
+                    <span class="k">pass</span>  <span class="c1"># Use Agent&#39;s existing task description</span>
+
+    <span class="k">def</span> <span class="nf">_set_moderator_task_description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the task description for Moderators.</span>
+
+<span class="sd">        Logic:</span>
+<span class="sd">            - Case 1: Task provided to both Structure and moderator--use moderator&#39;s task description but throw a warning to user.</span>
+<span class="sd">            - Case 2: Value provided to neither moderator nor structure: Raise an error.</span>
+<span class="sd">            - Case 3: Value provided to Structure but not moderator--set moderator&#39;s task description to be Structure&#39;s</span>
+<span class="sd">            task description.</span>
+<span class="sd">            - Case 4: Value provided to moderator but not Structure. Use Moderator&#39;s task description.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="p">:</span>
+                    <span class="c1"># Case 1: Task provided to both Structure and moderator</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You provided a task to both the Structure and a Moderator. Using the Moderator&#39;s task description:&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="s2">Ensure this is what you want to happen.&quot;</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Case 3: Value provided to Structure but not moderator</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
+
+                <span class="c1"># Common operations for cases 1 and 3</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="c1"># Case 2: Value provided to neither moderator nor structure</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error: You did not specify a task for Moderator or Structure&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Case 4: Value provided to moderator but not Structure</span>
+                    <span class="k">pass</span>  <span class="c1"># Use Moderator&#39;s existing task description</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -466,7 +568,6 @@
 <span class="sd">        in the `previous_responses` string)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">previous_responses</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">original_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">original_task_description</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">))</span>
@@ -475,13 +576,12 @@
                 <span class="n">previous_responses_slice</span> <span class="o">=</span> <span class="n">previous_responses</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span><span class="p">:]</span>
                 <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span><span class="n">previous_responses_slice</span><span class="p">)</span>
                 <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
-                <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
-                    <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
                 <span class="n">previous_responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
-            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span> <span class="n">original_task</span><span class="p">)</span>
+            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 </div>
@@ -514,7 +614,6 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Requests are sent to all agents simultaneously.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">original_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">original_task_description</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="p">):</span>
             <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">()</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
                 <span class="n">futures</span> <span class="o">=</span> <span class="p">[]</span>
@@ -528,7 +627,7 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
             <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span> <span class="n">original_task</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 </div>
@@ -647,7 +746,7 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
             <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span> <span class="n">original_task</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 </div>
@@ -832,7 +931,7 @@
         <span class="c1"># Handle the moderator if present</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
             <span class="n">original_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">original_task_description</span>
-            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">response_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">original_task</span><span class="p">)</span>
+            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">response_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="n">moderated_response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
