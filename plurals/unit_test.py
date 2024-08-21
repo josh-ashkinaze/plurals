@@ -1,108 +1,20 @@
 import unittest
+from unittest.mock import MagicMock, patch, Mock
+
 from plurals.agent import Agent
 from plurals.deliberation import Chain, Moderator, Ensemble, Debate, Graph, AbstractStructure
-from plurals.helpers import load_yaml, format_previous_responses, SmartString
-from unittest.mock import MagicMock, patch
+from plurals.helpers import load_yaml, format_previous_responses, SmartString, strip_nested_dict
 
 DEFAULTS = load_yaml("instructions.yaml")
+DEFAULTS = strip_nested_dict(DEFAULTS)
 
 
-import unittest
-from unittest.mock import Mock, patch
-import warnings
-from plurals.deliberation import Chain, Agent
-from plurals.agent import Agent
-
-import unittest
-from unittest.mock import Mock, patch
-import warnings
-from plurals.deliberation import Chain, Agent
-from plurals.agent import Agent
-
-import unittest
-from unittest.mock import Mock, patch
-import warnings
-from plurals.deliberation import AbstractStructure, Agent
-from plurals.agent import Agent
-from plurals.helpers import SmartString
-
-
+#############################################
+# CORE BEHAVIOR
+#############################################
 class TestStructure(AbstractStructure):
     def process(self):
         pass  # Implement the abstract method
-
-
-class TestStructureTaskDescription(unittest.TestCase):
-
-    def setUp(self):
-        self.model = 'gpt-3.5-turbo'
-
-    def test_set_agent_task_description_case1(self):
-        """Test Case 1: Task provided to both Structure and agents."""
-        structure_task = "Structure task"
-        agent_task = "Agent task"
-        agent = Agent(task=agent_task, model=self.model)
-        structure = TestStructure([agent], task=structure_task)
-
-        with self.assertWarns(UserWarning):
-            structure._set_agent_task_description()
-
-        self.assertEqual(structure_task, agent.task_description)
-        self.assertEqual(structure_task, agent.original_task_description)
-
-    def test_set_agent_task_description_case2(self):
-        """Test Case 2: No task provided to either Structure or agents."""
-        agent = Agent(model=self.model)
-        structure = TestStructure([agent])
-
-        with self.assertRaises(ValueError):
-            structure._set_agent_task_description()
-
-    def test_set_agent_task_description_case3(self):
-        """Test Case 3: Task provided to Structure but not agents."""
-        structure_task = "Structure task"
-        agent = Agent(model=self.model)
-        structure = TestStructure([agent], task=structure_task)
-
-        structure._set_agent_task_description()
-
-        self.assertEqual(structure_task, agent.task_description)
-        self.assertEqual(structure_task, agent.original_task_description)
-
-    def test_set_agent_task_description_case4(self):
-        """Test Case 4: Task provided to agents but not Structure."""
-        agent_task = "Agent task"
-        agent = Agent(task=agent_task, model=self.model)
-        structure = TestStructure([agent])
-
-        structure._set_agent_task_description()
-
-        self.assertEqual(agent_task, agent.task_description)
-        self.assertEqual(agent_task, agent.original_task_description)
-
-    def test_set_agent_task_description_system_instructions(self):
-        """Test that system_instructions are updated with the task."""
-        structure_task = "Structure task"
-        agent = Agent(model=self.model, system_instructions="Instructions: ${task}")
-        structure = TestStructure([agent], task=structure_task)
-
-        structure._set_agent_task_description()
-
-        self.assertEqual(f"Instructions: {structure_task}", agent.system_instructions)
-
-    @patch('plurals.deliberation.SmartString')
-    def test_set_agent_task_description_smartstring_called(self, mock_smartstring):
-        """Test that SmartString is called to format system_instructions."""
-        structure_task = "Structure task"
-        agent = Agent(model=self.model, system_instructions="Instructions: ${task}")
-        structure = TestStructure([agent], task=structure_task)
-
-        mock_smartstring.return_value.format.return_value = f"Instructions: {structure_task}"
-
-        structure._set_agent_task_description()
-
-        mock_smartstring.assert_called_once_with("Instructions: ${task}")
-        mock_smartstring.return_value.format.assert_called_once_with(task=structure_task)
 
 
 class TestAgent(unittest.TestCase):
@@ -504,42 +416,6 @@ class TestModerator(unittest.TestCase):
         self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
 
 
-class TestSmartString(unittest.TestCase):
-
-    def test_correctly_replaces_placeholders_no_brackets(self):
-        """Test that placeholders are correctly replaced when only thing in brackets is desired replacement."""
-        initial_s = "Complete the following task: ${task}."
-        formatted_string = SmartString(initial_s).format(task="Do the thing")
-        self.assertEqual("Complete the following task: Do the thing.", formatted_string)
-
-    def test_correctly_replaces_placeholders_with_brackets(self):
-        """Test that placeholders are correctly replaced when something else uses curly brackets not meant to be
-        replaced"""
-        initial_s = "Complete the following task: ${task} in json format like {'answer':answer}"
-        formatted_string = SmartString(initial_s).format(task="Do the thing")
-        self.assertEqual("Complete the following task: Do the thing in json format like {'answer':answer}",
-                         formatted_string)
-
-    def test_avoid_double_period(self):
-        """Test that double periods are correctly removed."""
-        initial_s = "Complete the following task: ${task}."
-        formatted_string = SmartString(initial_s).format(task="Do the thing.", avoid_double_period=True)
-        self.assertEqual("Complete the following task: Do the thing.", formatted_string)
-
-    def test_no_change_needed(self):
-        """Test that the string is not distorted if no change is needed."""
-        initial_s = "Complete the following task: ${task}."
-        formatted_string = SmartString(initial_s).format(task="Do the thing", avoid_double_period=True)
-        self.assertEqual("Complete the following task: Do the thing.", formatted_string)
-
-    def test_only_remove_double_period(self):
-        """Only remove redundant periods induced by the placeholder and not extra ones from user"""
-        initial_s = "Think about this task, ${task}."
-        task = "respond slowly..."
-        formatted_string = SmartString(initial_s).format(task=task, avoid_double_period=True)
-        self.assertEqual("Think about this task, respond slowly...", formatted_string, )
-
-
 class TestChain(unittest.TestCase):
 
     def setUp(self):
@@ -555,11 +431,11 @@ class TestChain(unittest.TestCase):
         chain = Chain([agent1, agent2], task=task, cycles=3)
 
         with patch.object(Agent, '_get_response', side_effect=["Pros: flexibility, no commute. Cons: isolation.",
-            "Pros: reduced office costs. Cons: difficulty in team building.",
-            "Agree on flexibility, add increased productivity as pro.",
-            "Agree on team building issues, add potential for overwork.",
-            "Emphasize need for balance and hybrid models.",
-            "Suggest importance of clear communication and expectations."]):
+                                                               "Pros: reduced office costs. Cons: difficulty in team building.",
+                                                               "Agree on flexibility, add increased productivity as pro.",
+                                                               "Agree on team building issues, add potential for overwork.",
+                                                               "Emphasize need for balance and hybrid models.",
+                                                               "Suggest importance of clear communication and expectations."]):
             chain.process()
 
         self.assertEqual(len(chain.responses), 6)
@@ -629,7 +505,6 @@ Here are the previous responses:
         self.assertEqual(expected_agent1_task_description, agent1.current_task_description)
         self.assertEqual(expected_agent2_task_description, agent2.current_task_description)
 
-
     def test_chain_with_different_agent_tasks(self):
         """Test Chain processes Agents with different tasks correctly."""
         task1 = "Discuss the pros of remote work."
@@ -642,11 +517,9 @@ Here are the previous responses:
 
         chain = Chain([agent1, agent2, agent3])
 
-        with patch.object(Agent, '_get_response', side_effect=[
-            "Pros: flexibility, no commute.",
+        with patch.object(Agent, '_get_response', side_effect=["Pros: flexibility, no commute.",
             "Cons: isolation, difficulty in team building.",
-            "Summary: Remote work offers flexibility but poses challenges in collaboration."
-        ]):
+            "Summary: Remote work offers flexibility but poses challenges in collaboration."]):
             chain.process()
 
         self.assertEqual(task1, chain.agents[0].original_task_description)
@@ -656,6 +529,7 @@ Here are the previous responses:
         self.assertIn("flexibility", chain.responses[0])
         self.assertIn("isolation", chain.responses[1])
         self.assertIn("Summary", chain.responses[2])
+
 
 class TestEnsemble(unittest.TestCase):
 
@@ -695,11 +569,9 @@ class TestEnsemble(unittest.TestCase):
 
         ensemble = Ensemble([a1, a2, a3])
 
-        expected_responses = [
-            "Economic impacts include increased costs for adaptation.",
+        expected_responses = ["Economic impacts include increased costs for adaptation.",
             "Social impacts include displacement of communities.",
-            "Environmental impacts include loss of biodiversity."
-        ]
+            "Environmental impacts include loss of biodiversity."]
 
         with patch.object(Agent, '_get_response', side_effect=expected_responses):
             ensemble.process()
@@ -758,11 +630,11 @@ class TestDebate(unittest.TestCase):
         self.assertIn("[Other]: " + debater_2_initial_response, user_prompt)
 
         correct_strings = ["Response 0: [Debater 1]", "Response 1: [Debater 2]", "Response 2: [Debater 1]",
-            "Response 3: [Debater 2]", ]
+                           "Response 3: [Debater 2]", ]
 
         # Incorrectly formatted response strings that should not appear in the moderator's task description
         incorrect_strings = ["Response 0: [Debater 2]", "Response 1: [Debater 1]", "Response 2: [Debater 2]",
-            "Response 3: Debater [1]"]
+                             "Response 3: Debater [1]"]
 
         # Check for correct strings in the current task description
         for correct_string in correct_strings:
@@ -784,12 +656,10 @@ class TestDebate(unittest.TestCase):
 
         debate = Debate([agent1, agent2], cycles=2)
 
-        with patch.object(Agent, '_get_response', side_effect=[
-            "Stricter laws will reduce gun violence.",
+        with patch.object(Agent, '_get_response', side_effect=["Stricter laws will reduce gun violence.",
             "Stricter laws infringe on Second Amendment rights.",
             "Gun control laws have been effective in other countries.",
-            "Law-abiding citizens need guns for self-defense."
-        ]):
+            "Law-abiding citizens need guns for self-defense."]):
             debate.process()
 
         self.assertEqual(task1, debate.agents[0].original_task_description)
@@ -859,10 +729,9 @@ class TestNetworkStructure(unittest.TestCase):
             'libertarian': Agent(system_instructions="you are a libertarian", model=self.model, kwargs=self.kwargs)}
 
         self.agents_list = list(self.agents_dict.values())
-        self.edges = [(
-        self.agents_list.index(self.agents_dict['liberal']), self.agents_list.index(self.agents_dict['conservative'])),
-            (self.agents_list.index(self.agents_dict['liberal']),
-             self.agents_list.index(self.agents_dict['libertarian'])), (
+        self.edges = [(self.agents_list.index(self.agents_dict['liberal']),
+                       self.agents_list.index(self.agents_dict['conservative'])), (
+        self.agents_list.index(self.agents_dict['liberal']), self.agents_list.index(self.agents_dict['libertarian'])), (
             self.agents_list.index(self.agents_dict['conservative']),
             self.agents_list.index(self.agents_dict['libertarian']))]
 
@@ -881,11 +750,9 @@ class TestNetworkStructure(unittest.TestCase):
 
         graph = Graph(agents=agents, edges=edges)
 
-        with patch.object(Agent, 'process', side_effect=[
-            "Economic policies should focus on growth.",
+        with patch.object(Agent, 'process', side_effect=["Economic policies should focus on growth.",
             "Social policies should address inequality.",
-            "Both economic growth and social equality are important policy goals."
-        ]):
+            "Both economic growth and social equality are important policy goals."]):
             final_response = graph.process()
 
         self.assertEqual(task1, graph.agents[0].original_task_description)
@@ -899,8 +766,10 @@ class TestNetworkStructure(unittest.TestCase):
     def test_dict_to_list_conversion(self):
         """Test that the dictionary method (Method 2) correctly converts to the list method (Method 1) internally."""
         agents_dict = {'liberal': Agent(system_instructions="you are a liberal", model=self.model, kwargs=self.kwargs),
-            'conservative': Agent(system_instructions="you are a conservative", model=self.model, kwargs=self.kwargs),
-            'libertarian': Agent(system_instructions="you are a libertarian", model=self.model, kwargs=self.kwargs)}
+                       'conservative': Agent(system_instructions="you are a conservative", model=self.model,
+                                             kwargs=self.kwargs),
+                       'libertarian': Agent(system_instructions="you are a libertarian", model=self.model,
+                                            kwargs=self.kwargs)}
         edges_dict = [('liberal', 'conservative'), ('liberal', 'libertarian'), ('conservative', 'libertarian')]
 
         network_dict = Graph(agents=agents_dict, edges=edges_dict, task=self.task)
@@ -913,13 +782,14 @@ class TestNetworkStructure(unittest.TestCase):
 
         # Check that edges are correctly converted to use indices
         expected_edges = [(list(agents_dict.keys()).index('liberal'), list(agents_dict.keys()).index('conservative')),
-            (list(agents_dict.keys()).index('liberal'), list(agents_dict.keys()).index('libertarian')),
-            (list(agents_dict.keys()).index('conservative'), list(agents_dict.keys()).index('libertarian'))]
+                          (list(agents_dict.keys()).index('liberal'), list(agents_dict.keys()).index('libertarian')), (
+                          list(agents_dict.keys()).index('conservative'),
+                          list(agents_dict.keys()).index('libertarian'))]
         self.assertEqual(expected_edges, network_dict.edges)
 
         # Check that the graph is built correctly
         expected_graph = {agents_dict['liberal']: [agents_dict['conservative'], agents_dict['libertarian']],
-            agents_dict['conservative']: [agents_dict['libertarian']], agents_dict['libertarian']: []}
+                          agents_dict['conservative']: [agents_dict['libertarian']], agents_dict['libertarian']: []}
         self.assertEqual(expected_graph, network_dict.graph)
 
         # Check that the in-degree is calculated correctly
@@ -948,7 +818,7 @@ class TestNetworkStructure(unittest.TestCase):
             self.agents_dict['liberal']: [self.agents_dict['conservative'], self.agents_dict['libertarian']],
             self.agents_dict['conservative']: [self.agents_dict['libertarian']], self.agents_dict['libertarian']: []}
         expected_in_degree = {self.agents_dict['liberal']: 0, self.agents_dict['conservative']: 1,
-            self.agents_dict['libertarian']: 2}
+                              self.agents_dict['libertarian']: 2}
         self.assertEqual(expected_graph, network.graph)
         self.assertEqual(expected_in_degree, network.in_degree)
 
@@ -970,10 +840,10 @@ class TestNetworkStructure(unittest.TestCase):
 
     def test_cycle_detection(self):
         """Test that a cycle in the graph raises a ValueError."""
-        cyclic_edges = [(
-        self.agents_list.index(self.agents_dict['liberal']), self.agents_list.index(self.agents_dict['conservative'])),
-            (self.agents_list.index(self.agents_dict['conservative']),
-             self.agents_list.index(self.agents_dict['libertarian'])), (
+        cyclic_edges = [(self.agents_list.index(self.agents_dict['liberal']),
+                         self.agents_list.index(self.agents_dict['conservative'])), (
+        self.agents_list.index(self.agents_dict['conservative']),
+        self.agents_list.index(self.agents_dict['libertarian'])), (
             self.agents_list.index(self.agents_dict['libertarian']),
             self.agents_list.index(self.agents_dict['liberal']))]
         with self.assertRaises(ValueError):
@@ -1065,7 +935,8 @@ class TestNetworkStructureValidation(TestNetworkStructure):
     def test_invalid_edge_names_in_dict(self):
         """Test edges with names not matching any keys in the agent dictionary."""
         agents_dict = {'liberal': Agent(system_instructions="you are a liberal", model=self.model, kwargs=self.kwargs),
-            'conservative': Agent(system_instructions="you are a conservative", model=self.model, kwargs=self.kwargs)}
+                       'conservative': Agent(system_instructions="you are a conservative", model=self.model,
+                                             kwargs=self.kwargs)}
         edges = [('liberal', 'conservative'), ('liberal', 'nonexistent')]  # 'nonexistent' is not a valid agent key
         with self.assertRaises(ValueError):
             Graph(agents=agents_dict, edges=edges)
@@ -1073,11 +944,213 @@ class TestNetworkStructureValidation(TestNetworkStructure):
     def test_mixed_type_agents_input(self):
         """Test mixed types in agents input."""
         mixed_agents = [Agent(system_instructions="you are a liberal", model=self.model, kwargs=self.kwargs),
-            "conservative"  # Not an Agent object
-        ]
+                        "conservative"  # Not an Agent object
+                        ]
         edges = [(0, 1)]
         with self.assertRaises(ValueError):
             Graph(agents=mixed_agents, edges=edges)
+
+
+class TestStructureTaskDescription(unittest.TestCase):
+    """
+    This tests the 4 cases of setting task descriptions for *agents* where the two factors are:
+
+    - Agent has a task: Y, N
+    - Structure has a task: Y, N
+    """
+
+    def setUp(self):
+        self.model = 'gpt-3.5-turbo'
+
+    def test_set_agent_task_description_case1(self):
+        """Test Case 1: Task provided to both Structure and agents."""
+        structure_task = "Structure task"
+        agent_task = "Agent task"
+        agent = Agent(task=agent_task, model=self.model)
+
+        with self.assertWarns(UserWarning):
+            structure = TestStructure([agent], task=structure_task)
+
+        self.assertEqual(structure_task, agent.task_description)
+        self.assertEqual(structure_task, agent.original_task_description)
+
+    def test_set_agent_task_description_case2(self):
+        """Test Case 2: No task provided to either Structure or agents."""
+        agent = Agent(model=self.model)
+
+        with self.assertRaises(ValueError) as context:
+            TestStructure([agent])
+
+        self.assertTrue("Error: You did not specify a task for agents or chain" in str(context.exception))
+
+    def test_set_agent_task_description_case3(self):
+        """Test Case 3: Task provided to Structure but not agents."""
+        structure_task = "Structure task"
+        agent = Agent(model=self.model)
+        structure = TestStructure([agent], task=structure_task)
+
+        self.assertEqual(structure_task, agent.task_description)
+        self.assertEqual(structure_task, agent.original_task_description)
+
+    def test_set_agent_task_description_case4(self):
+        """Test Case 4: Task provided to agents but not Structure."""
+        agent_task = "Agent task"
+        agent = Agent(task=agent_task, model=self.model)
+        structure = TestStructure([agent])
+
+        self.assertEqual(agent_task, agent.task_description)
+        self.assertEqual(agent_task, agent.original_task_description)
+
+    def test_set_agent_task_description_system_instructions(self):
+        """Test that system_instructions are updated with the task."""
+        structure_task = "Structure task"
+        agent = Agent(model=self.model, system_instructions="Instructions: ${task}")
+        structure = TestStructure([agent], task=structure_task)
+
+        self.assertEqual(f"Instructions: {structure_task}", agent.system_instructions)
+
+
+class TestModeratorTaskDescription(unittest.TestCase):
+    """
+    This tests the 4 cases of setting task descriptions for moderators where the two factors are:
+
+    - Moderator has a task: Y, N
+    - Structure has a task: Y, N
+    """
+
+    def setUp(self):
+        self.model = 'gpt-3.5-turbo'
+
+    def test_set_moderator_task_description_case1(self):
+        """Test Case 1: Task provided to both Structure and moderator."""
+        structure_task = "Structure task"
+        moderator_task = "Moderator task"
+        moderator = Moderator(task=moderator_task, model=self.model)
+
+        with self.assertWarns(UserWarning):
+            structure = TestStructure([Mock()], task=structure_task, moderator=moderator)
+
+        self.assertEqual(moderator_task, moderator.task)
+
+    def test_set_moderator_task_description_case2(self):
+        """Test Case 2: No task provided to either Structure or moderator."""
+        moderator = Moderator(model=self.model)
+
+        with self.assertRaises(ValueError) as context:
+            TestStructure([Mock()], moderator=moderator)
+
+        self.assertTrue("Error: You did not specify a task for Moderator or Structure" in str(context.exception))
+
+    def test_set_moderator_task_description_case3(self):
+        """Test Case 3: Task provided to Structure but not moderator."""
+        structure_task = "Structure task"
+        moderator = Moderator(model=self.model)
+        structure = TestStructure([Mock()], task=structure_task, moderator=moderator)
+
+        self.assertEqual(structure_task, moderator.task)
+
+    def test_set_moderator_task_description_case4(self):
+        """Test Case 4: Task provided to moderator but not Structure."""
+        moderator_task = "Moderator task"
+        moderator = Moderator(task=moderator_task, model=self.model)
+        structure = TestStructure([Mock()], moderator=moderator)
+
+        self.assertEqual(moderator_task, moderator.task)
+
+    def test_set_moderator_task_description_system_instructions(self):
+        """Test that system_instructions are updated with the task."""
+        structure_task = "Structure task"
+        moderator = Moderator(model=self.model, system_instructions="Instructions: ${task}")
+        structure = TestStructure([Mock()], task=structure_task, moderator=moderator)
+
+        self.assertEqual(f"Instructions: {structure_task}", moderator.system_instructions)
+
+
+#############################################
+# HELPERS
+#############################################
+
+class TestStripNestedDict(unittest.TestCase):
+    """
+    Makes sure the strip_nested_dict function works as expected for many cases.
+    """
+
+    def test_simple_dict(self):
+        """Test stripping a simple dictionary with string values."""
+        input_dict = {"a": " hello ", "b": "world "}
+        expected = {"a": "hello", "b": "world"}
+        self.assertEqual(expected, strip_nested_dict(input_dict))
+
+    def test_nested_dict(self):
+        """Test stripping a nested dictionary."""
+        input_dict = {"a": " outer ", "b": {"c": " inner ", "d": " nested "}}
+        expected = {"a": "outer", "b": {"c": "inner", "d": "nested"}}
+        self.assertEqual(expected, strip_nested_dict(input_dict))
+
+    def test_dict_with_list(self):
+        """Test stripping a dict with a list."""
+        input_dict = {"a": " first ", "b": [" second ", " third "]}
+        expected = {"a": "first", "b": ["second", "third"]}
+        self.assertEqual(expected, strip_nested_dict(input_dict))
+
+    def test_deeply_nested(self):
+        """Test stripping a deeply nested structure."""
+        input_dict = {"a": " level1 ", "b": {"c": " level2 ", "d": [" level3 ", {"e": " level4 "}]}}
+        expected = {"a": "level1", "b": {"c": "level2", "d": ["level3", {"e": "level4"}]}}
+        self.assertEqual(expected, strip_nested_dict(input_dict))
+
+    def test_non_string_values(self):
+        """Test that non-string values are left unchanged."""
+        input_dict = {"a": 42, "b": True, "c": None, "d": 3.14}
+        self.assertEqual(input_dict, strip_nested_dict(input_dict))
+
+    def test_empty_structures(self):
+        """Test that empty structures are handled correctly."""
+        input_dict = {"a": {}, "b": [], "c": ""}
+        expected = {"a": {}, "b": [], "c": ""}
+        self.assertEqual(expected, strip_nested_dict(input_dict))
+
+    def test_mixed_types(self):
+        """Test a dictionary with mixed types."""
+        input_dict = {"a": " string ", "b": 42, "c": [" list_item ", 3.14], "d": {"e": " nested_string ", "f": True}}
+        expected = {"a": "string", "b": 42, "c": ["list_item", 3.14], "d": {"e": "nested_string", "f": True}}
+        self.assertEqual(expected, strip_nested_dict(input_dict))
+
+
+class TestSmartString(unittest.TestCase):
+
+    def test_correctly_replaces_placeholders_no_brackets(self):
+        """Test that placeholders are correctly replaced when only thing in brackets is desired replacement."""
+        initial_s = "Complete the following task: ${task}."
+        formatted_string = SmartString(initial_s).format(task="Do the thing")
+        self.assertEqual("Complete the following task: Do the thing.", formatted_string)
+
+    def test_correctly_replaces_placeholders_with_brackets(self):
+        """Test that placeholders are correctly replaced when something else uses curly brackets not meant to be
+        replaced"""
+        initial_s = "Complete the following task: ${task} in json format like {'answer':answer}"
+        formatted_string = SmartString(initial_s).format(task="Do the thing")
+        self.assertEqual("Complete the following task: Do the thing in json format like {'answer':answer}",
+                         formatted_string)
+
+    def test_avoid_double_period(self):
+        """Test that double periods are correctly removed."""
+        initial_s = "Complete the following task: ${task}."
+        formatted_string = SmartString(initial_s).format(task="Do the thing.", avoid_double_period=True)
+        self.assertEqual("Complete the following task: Do the thing.", formatted_string)
+
+    def test_no_change_needed(self):
+        """Test that the string is not distorted if no change is needed."""
+        initial_s = "Complete the following task: ${task}."
+        formatted_string = SmartString(initial_s).format(task="Do the thing", avoid_double_period=True)
+        self.assertEqual("Complete the following task: Do the thing.", formatted_string)
+
+    def test_only_remove_double_period(self):
+        """Only remove redundant periods induced by the placeholder and not extra ones from user"""
+        initial_s = "Think about this task, ${task}."
+        task = "respond slowly..."
+        formatted_string = SmartString(initial_s).format(task=task, avoid_double_period=True)
+        self.assertEqual("Think about this task, respond slowly...", formatted_string, )
 
 
 if __name__ == '__main__':

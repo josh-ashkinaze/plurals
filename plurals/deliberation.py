@@ -349,7 +349,7 @@ class AbstractStructure(ABC):
 
         Logic:
             - Case 1: Task provided to both Structure and agents--use agent's task description but throw a warning to user.
-            - Case 2: Value provided to neither agents nor chain: Throw an error.
+            - Case 2: Value provided to neither agents nor chain: Raise an error.
             - Case 3: Value provided to Structure but not agents--set agent's task description to be Structure's task
             description.
             - Case 4: Value provided to agents but not Structure. Use Agent's task description.
@@ -381,9 +381,8 @@ class AbstractStructure(ABC):
         Set the task description for Moderators.
 
         Logic:
-            - Case 1: Task provided to both Structure and moderator--overwrite moderator's task description with
-            structure's task description and throw a warning to user.
-            - Case 2: Value provided to neither moderator nor structure: Throw an error.
+            - Case 1: Task provided to both Structure and moderator--use moderator's task description but throw a warning to user.
+            - Case 2: Value provided to neither moderator nor structure: Raise an error.
             - Case 3: Value provided to Structure but not moderator--set moderator's task description to be Structure's
             task description.
             - Case 4: Value provided to moderator but not Structure. Use Moderator's task description.
@@ -392,8 +391,8 @@ class AbstractStructure(ABC):
             if self.task:
                 if self.moderator.task:
                     # Case 1: Task provided to both Structure and moderator
-                    warnings.warn("Writing over Moderator's task with Structure's task")
-                    self.moderator.task = self.task
+                    warnings.warn(f"You provided a task to both the Structure and a Moderator. Using the Moderator's task description:'''\n\n{self.moderator.task}'''\n\nEnsure this is what you want to happen.")
+
                 else:
                     # Case 3: Value provided to Structure but not moderator
                     self.moderator.task = self.task

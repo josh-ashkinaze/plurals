@@ -47,6 +47,27 @@ def print_anes_mapping():
         print()
 
 
+def strip_nested_dict(d: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Strip whitespace from all strings in a nested dictionary.
+
+    Args:
+        d: The dictionary to strip whitespace from.
+
+    Returns:
+        The dictionary with all strings stripped of whitespace.
+    """
+    if isinstance(d, dict):
+        return {k: strip_nested_dict(v) for k, v in d.items()}
+    elif isinstance(d, list):
+        return [strip_nested_dict(v) for v in d]
+    elif isinstance(d, str):
+        return d.strip()
+    else:
+        return d
+
+
+
 def load_yaml(file_path: str) -> Dict[str, Any]:
     """
     Load a YAML file and return its content as a dictionary. We first get the directory of the current path
