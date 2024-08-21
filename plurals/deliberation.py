@@ -579,8 +579,9 @@ class Graph(AbstractStructure):
             ]
             edges = [(0, 1), (0, 2), (1, 2)]
             # edges = (liberal -> conservative), (liberal -> libertarian), (conservative -> libertarian)
-            task = "What are your thoughts on the role of government in society?"
-            network = Graph(agents=Agents, edges=edges, task=task)
+            task = "What are your thoughts on the role of government in society? Answer in 20 words."
+            graph = Graph(agents=Agents, edges=edges, task=task)
+            graph.process()
 
         **Method 2:**
 
@@ -593,7 +594,9 @@ class Graph(AbstractStructure):
             }
             edges = [('liberal', 'conservative'), ('liberal', 'libertarian'), ('conservative', 'libertarian')]
             task = "What are your thoughts on the role of government in society?"
-            network = Graph(agents=agents, edges=edges, task=task)
+            graph = Graph(agents=agents, edges=edges, task=task)
+            graph.process()
+
 
     """
 
