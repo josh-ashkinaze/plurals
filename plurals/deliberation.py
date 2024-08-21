@@ -66,6 +66,9 @@ class Moderator(Agent):
         if kwargs is None:
             kwargs = {}
 
+        self.task = task
+        print(task)
+
         if system_instructions is not None and system_instructions != 'auto':
             if "${task}" not in system_instructions:
                 warnings.warn(
@@ -85,17 +88,19 @@ class Moderator(Agent):
         if persona and not system_instructions:
             persona_template = "${persona}"
             persona_value = DEFAULTS["moderator"]['persona'].get(persona, persona)
-            super().__init__(persona=persona_value, persona_template=persona_template, model=model, kwargs=kwargs)
+            super().__init__(persona=persona_value, persona_template=persona_template, model=model, kwargs=kwargs,
+                             task=task)
 
         # Case 4: if only system_instructions is provided, set system_instructions and set persona and persona_template to None
         elif system_instructions and not persona:
             super().__init__(system_instructions=system_instructions, persona=None, persona_template=None, model=model,
-                             kwargs=kwargs)
+                             kwargs=kwargs, task=task)
 
         # Case 5: if neither persona nor system_instructions are provided, use default persona
         else:
             default_persona = DEFAULTS["moderator"]['persona'].get('default', 'default_moderator_persona')
-            super().__init__(persona=default_persona, persona_template="${persona}", model=model, kwargs=kwargs)
+            super().__init__(persona=default_persona, persona_template="${persona}", model=model, kwargs=kwargs,
+                             task=task)
 
         self.combination_instructions = DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions,
                                                                                               combination_instructions)
@@ -167,14 +172,15 @@ class Moderator(Agent):
         Returns:
             str: A combined response based on the moderator's instructions
         """
+        print("task", self.task)
         combined_responses_str = format_previous_responses(responses)
         self.combination_instructions = SmartString(self.combination_instructions).format(
             previous_responses=combined_responses_str,
-            task=original_task,
+            task=self.task,
             avoid_double_period=True
         )
         self.system_instructions = SmartString(self.system_instructions).format(
-            task=original_task,
+            task=self.task,
             previous_responses=combined_responses_str,
             persona=self.persona
         )
@@ -231,7 +237,7 @@ class AbstractStructure(ABC):
 
         self.combination_instructions = combination_instructions
         self._set_combination_instructions()
-        self._set_task_descriptions()
+        self._set_agent_task_description()
 
         if not isinstance(shuffle, bool):
             raise ValueError("Shuffle must be a boolean.")
@@ -253,13 +259,14 @@ class AbstractStructure(ABC):
         # If we have a moderator we assign a task description and then we
         # populate the templates
         if self.moderator:
+            self._set_moderator_task_description()
             if self.moderator.system_instructions == 'auto':
                 self.moderator.system_instructions = self.moderator.generate_system_instructions(
-                    self.task)
+                    self.moderator.task)
             self.moderator.task_description = self.task
             self.moderator.persona = SmartString(
                 self.moderator.persona).format(
-                task=self.task) if self.moderator.persona else None
+                task=self.moderator.task) if self.moderator.persona else None
 
         if shuffle:
             self.agents = random.sample(self.agents, len(self.agents))
@@ -281,31 +288,73 @@ class AbstractStructure(ABC):
                 pass
             agent.combination_instructions = self.combination_instructions
 
-    def _set_task_descriptions(self) -> None:
+    def _set_agent_task_description(self) -> None:
         """
         Set the task description for agents based on the provided value or the default.
 
         Logic:
-            - Case 1: Value provided to both chain and agents--overwrite agent's task description with chain's task
+            - Case 1: Task provided to both Structure and agents--overwrite agent's task description with chain's task
             description and throw a warning to user.
-            - Case 2: Value provided to chain but not agents--set agent's task description to be agent's task
+            - Case 2: Value provided to neither agents nor chain: Throw an error.
+            - Case 3: Value provided to Structure but not agents--set agent's task description to be Structure's task
             description.
-            - Case 3: Value provided to neither agents nor chain: Throw an error
+            - Case 4: Value provided to agents but not Structure. Use Agent's task description.
         """
         for agent in self.agents:
-            if not self.task:
-                if not agent.task_description or agent.task_description.strip() == '':
-                    raise ValueError(
-                        "Error: You did not specify a task for agents or chain")
-            else:
+            if self.task:
                 if agent.task_description:
-                    warnings.warn(
-                        "Writing over agent's task with Chain's task")
-                agent.task_description = self.task
+                    # Case 1: Task provided to both Structure and agents
+                    warnings.warn("Writing over agent's task with Chain's task")
+                    agent.task_description = self.task
+                else:
+                    # Case 3: Value provided to Structure but not agents
+                    agent.task_description = self.task
+
+                # Common operations for cases 1 and 3
                 agent.original_task_description = agent.task_description
                 agent.system_instructions = SmartString(
-                    agent.system_instructions).format(
-                    task=self.task)
+                    agent.system_instructions).format(task=self.task)
+            else:
+                if not agent.task_description or agent.task_description.strip() == '':
+                    # Case 2: Value provided to neither agents nor chain
+                    raise ValueError("Error: You did not specify a task for agents or chain")
+                else:
+                    # Case 4: Value provided to agents but not Structure
+                    pass  # Use Agent's existing task description
+
+    def _set_moderator_task_description(self) -> None:
+        """
+        Set the task description for Moderators.
+
+        Logic:
+            - Case 1: Task provided to both Structure and moderator--overwrite moderator's task description with
+            structure's task description and throw a warning to user.
+            - Case 2: Value provided to neither moderator nor structure: Throw an error.
+            - Case 3: Value provided to Structure but not moderator--set moderator's task description to be Structure's
+            task description.
+            - Case 4: Value provided to moderator but not Structure. Use Moderator's task description.
+        """
+        if self.moderator:
+            if self.task:
+                if self.moderator.task:
+                    # Case 1: Task provided to both Structure and moderator
+                    warnings.warn("Writing over Moderator's task with Structure's task")
+                    self.moderator.task = self.task
+                else:
+                    # Case 3: Value provided to Structure but not moderator
+                    self.moderator.task = self.task
+
+                # Common operations for cases 1 and 3
+                self.moderator.task_description = self.task
+                self.moderator.system_instructions = SmartString(
+                    self.moderator.system_instructions).format(task=self.task)
+            else:
+                if not self.moderator.task or self.moderator.task.strip() == '':
+                    # Case 2: Value provided to neither moderator nor structure
+                    raise ValueError("Error: You did not specify a task for Moderator or Structure")
+                else:
+                    # Case 4: Value provided to moderator but not Structure
+                    pass  # Use Moderator's existing task description
 
     @property
     def info(self) -> Dict[str, Any]:
