@@ -925,68 +925,54 @@ DAGs).
 #### DAGs with Plurals
 
 In the `Graph` structure, we take in a list of Agents (which are the nodes) and also an `edges` argument, which is 
-the list of vertices. The edges must form a DAG or else an error is thrown. The syntax 
-for edges is a list of tuples, where each tuple is an edge from one agent to another specified like `(src_agent_indx,
-dest_agent_indx)`. The order of Agent processing using Kahn's algorithm for topological sorting. 
+the list of vertices. The edges must form a DAG or else an error is thrown. There are two ways to make a DAG (with 
+examples right below):
+
+- Dictionary Method: `agents` is a dictionary where the keys are the names of the agents and the values are the 
+  Agents. Then `edges` is a list of tuples, where each tuple is a directed edge from one agent to another specified 
+  like `(src_agent_name, dest_agent_name)`. 
+
+- List Method: `agents` is a list of Agents. Then `edges` is a list of tuples, where each tuple is a directed edge from 
+  one agent to another specified like `(src_agent_idx, dest_agent_idx)`. 
 
 
 For example, Suppose we have three agents, and we want to create a graph where the output of the liberal is fed to both 
 the conservative and libertarian. Then the output of the conservative is fed to the libertarian.
 
 
+Here's the **dictionary** method.
 ```python
 from plurals.agent import Agent
 from plurals.deliberation import Graph
-
-# Initialize agents
-agents = [
-    Agent(system_instructions="you are a liberal"),
-    Agent(system_instructions="you are a conservative"),
-    Agent(system_instructions="you are a libertarian")
-]
-
-# Define edges
-edges = [(0, 1), (0, 2), (1, 2)]
-# edges = (liberal -> conservative), (liberal -> libertarian), (conservative -> libertarian)
-
-# Define task
+agents = {
+    'liberal': Agent(system_instructions="you are a liberal", model="gpt-3.5-turbo"),
+    'conservative': Agent(system_instructions="you are a conservative", model="gpt-3.5-turbo"),
+    'libertarian': Agent(system_instructions="you are a libertarian", model="gpt-3.5-turbo")
+}
+edges = [('liberal', 'conservative'), ('liberal', 'libertarian'), ('conservative', 'libertarian')]
 task = "What are your thoughts on the role of government in society? Answer in 20 words."
-
-# Initialize network structure
 graph = Graph(agents=agents, edges=edges, task=task)
 graph.process()
 ```
 
-We can also use a dictinary for easier index lookups. 
-
+Here's the **list** method. 
 ```python
 from plurals.agent import Agent
 from plurals.deliberation import Graph
 
-# Define the agents with a dictionary for easier index lookup
-agents_dict = {
-    'liberal': Agent(system_instructions="you are a liberal"),
-    'conservative': Agent(system_instructions="you are a conservative"),
-    'libertarian': Agent(system_instructions="you are a libertarian")
-}
-
-# Convert the dictionary to a list to get a list of agents
-agents_list = list(agents_dict.values())
-
-# Define the edges using the dictionary keys
-edges = [
-    (agents_list.index(agents_dict['liberal']), agents_list.index(agents_dict['conservative'])),
-    (agents_list.index(agents_dict['liberal']), agents_list.index(agents_dict['libertarian'])),
-    (agents_list.index(agents_dict['conservative']), agents_list.index(agents_dict['libertarian']))
+Agents = [
+    Agent(system_instructions="you are a liberal", model="gpt-3.5-turbo"),
+    Agent(system_instructions="you are a conservative", model="gpt-3.5-turbo"),
+    Agent(system_instructions="you are a libertarian", model="gpt-3.5-turbo")
 ]
-
-# Define task
-task = "What are your thoughts on the role of government in society? Answer in 10 words."
-
-# Initialize network structure
-graph = Graph(agents=agents_list, edges=edges, task=task)
+edges = [(0, 1), (0, 2), (1, 2)]
+# edges = (liberal -> conservative), (liberal -> libertarian), (conservative -> libertarian)
+task = "What are your thoughts on the role of government in society? Answer in 20 words."
+graph = Graph(agents=Agents, edges=edges, task=task)
 graph.process()
 ```
+
+
 
 ## Viewing history of Agents in a Structure
 
