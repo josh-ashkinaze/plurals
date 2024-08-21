@@ -689,8 +689,9 @@
 <span class="sd">            ]</span>
 <span class="sd">            edges = [(0, 1), (0, 2), (1, 2)]</span>
 <span class="sd">            # edges = (liberal -&gt; conservative), (liberal -&gt; libertarian), (conservative -&gt; libertarian)</span>
-<span class="sd">            task = &quot;What are your thoughts on the role of government in society?&quot;</span>
-<span class="sd">            network = Graph(agents=Agents, edges=edges, task=task)</span>
+<span class="sd">            task = &quot;What are your thoughts on the role of government in society? Answer in 20 words.&quot;</span>
+<span class="sd">            graph = Graph(agents=Agents, edges=edges, task=task)</span>
+<span class="sd">            graph.process()</span>
 
 <span class="sd">        **Method 2:**</span>
 
@@ -703,7 +704,9 @@
 <span class="sd">            }</span>
 <span class="sd">            edges = [(&#39;liberal&#39;, &#39;conservative&#39;), (&#39;liberal&#39;, &#39;libertarian&#39;), (&#39;conservative&#39;, &#39;libertarian&#39;)]</span>
 <span class="sd">            task = &quot;What are your thoughts on the role of government in society?&quot;</span>
-<span class="sd">            network = Graph(agents=agents, edges=edges, task=task)</span>
+<span class="sd">            graph = Graph(agents=agents, edges=edges, task=task)</span>
+<span class="sd">            graph.process()</span>
+
 
 <span class="sd">    &quot;&quot;&quot;</span>
 

@@ -400,8 +400,9 @@ Then the output of the conservative is fed to the libertarian.</p>
 <span class="p">]</span>
 <span class="n">edges</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
 <span class="c1"># edges = (liberal -&gt; conservative), (liberal -&gt; libertarian), (conservative -&gt; libertarian)</span>
-<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;What are your thoughts on the role of government in society?&quot;</span>
-<span class="n">network</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="n">Agents</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;What are your thoughts on the role of government in society? Answer in 20 words.&quot;</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="n">Agents</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
 </pre></div>
 </div>
 <p><strong>Method 2:</strong></p>
@@ -412,7 +413,8 @@ Then the output of the conservative is fed to the libertarian.</p>
 <span class="p">}</span>
 <span class="n">edges</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;liberal&#39;</span><span class="p">,</span> <span class="s1">&#39;conservative&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;liberal&#39;</span><span class="p">,</span> <span class="s1">&#39;libertarian&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;conservative&#39;</span><span class="p">,</span> <span class="s1">&#39;libertarian&#39;</span><span class="p">)]</span>
 <span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;What are your thoughts on the role of government in society?&quot;</span>
-<span class="n">network</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="n">agents</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="n">agents</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
 </pre></div>
 </div>
 </div></blockquote>
