@@ -66,7 +66,7 @@ class Moderator(Agent):
         if kwargs is None:
             kwargs = {}
 
-        if system_instructions is not None:
+        if system_instructions is not None and system_instructions != 'auto':
             if "${task}" not in system_instructions:
                 warnings.warn(
                     "System instructions usually contain the placeholder ${task} so Moderators know what task it is. Consider adding 'Here is the task: ${task}' to your system instructions.")
@@ -110,7 +110,7 @@ class Moderator(Agent):
 
         Args:
             task (str): The task description for which system instructions need to be generated.
-            max_tries (int, optional): The maximum number of attempts to generate valid system instructions. Default is 10.
+            max_tries (int): The maximum number of attempts to generate valid system instructions. Default is 10.
 
         Returns:
             str: The generated system instructions.
@@ -190,14 +190,16 @@ class AbstractStructure(ABC):
     Args:
         agents (List[Agent]): A list of agents to include in the structure.
         task (Optional[str]): The task description for the agents to process.
-        shuffle (bool): Whether to shuffle the order of the agents.
-        cycles (int): The number of times to process the task.
-        last_n (int): The number of previous responses to include in the task description.
-        combination_instructions (Optional[str]): The instructions for combining responses.
-        moderator (Optional[Moderator]): A moderator to moderate the responses.
+        shuffle (bool): Whether to shuffle the order of the agents. Default is False.
+        cycles (int): The number of times to process the task. Default is 1.
+        last_n (int): The maximum number of previous responses each Agent has access to. Default is 1000.
+        combination_instructions (Optional[str]): The instructions for combining responses. The default is the
+        `default`
+        template.
+        moderator (Optional[Moderator]): A moderator to moderate the responses. The default is None.
 
     Attributes:
-        defaults (Dict[str, Any]): Default instructions for the structure.
+        defaults (Dict[str, Any]): A dict corresponding the YAML file of templates.
         task (Optional[str]): The task description for the agents to process.
         agents (List[Agent]): A list of agents to include in the structure.
         combination_instructions (str): The instructions for combining responses.
@@ -216,7 +218,7 @@ class AbstractStructure(ABC):
             task: Optional[str] = None,
             shuffle: bool = False,
             cycles: int = 1,
-            last_n: int = 1,
+            last_n: int = 1000,
             combination_instructions: Optional[str] = "default",
             moderator: Optional[Moderator] = None):
 
@@ -463,7 +465,7 @@ class Debate(AbstractStructure):
             task: Optional[str] = None,
             shuffle: bool = False,
             cycles: int = 1,
-            last_n: int = 1000000,
+            last_n: int = 1000,
             combination_instructions: Optional[str] = "debate",
             moderator: Optional[Moderator] = None):
         if len(agents) != 2:
@@ -547,70 +549,94 @@ class Debate(AbstractStructure):
 class Graph(AbstractStructure):
     """
     Initializes a network where agents are processed according to a topologically-sorted directed acyclic graph (DAG).
-    This Structure takes in Agents and a structure-specific property called `edges`, where each edge is a list of
-    tuples in the form (src_idx, dst_idx) indicating that the output of the agent at src_idx is an input to the agent at dst_idx. Note that the
-    graph must be a directed acyclic graph (DAG) or else an error will be raised.
+    This Structure takes in Agents and a structure-specific property called `edges`. We offer two
+    ways to construct the graph, with examples of each method right below.
+
+     Method 1:
+    - `agents` is a list of Agent objects
+    - `edges` is a list of integer tuples (src_idx, dst_idx)
+
+    Method 2:
+    - `agents` is a dictionary of Agent objects with keys as agent names
+    - `edges` is a list of string tuples (src_agent_name, dst_agent_name)
+
+    Note that the graph must be a directed acyclic graph (DAG) or else an error will be raised.
+
 
     **Examples:**
+
+        **Method 1:**
+
         Suppose we have three Agents, and we want to create a graph where the output of the liberal is fed to both the conservative and libertarian.
         Then the output of the conservative is fed to the libertarian.
 
         .. code-block:: python
 
             Agents = [
-                Agent(system_instructions="you are a liberal"),
-                Agent(system_instructions="you are a conservative"),
-                Agent(system_instructions="you are a libertarian")
+                Agent(system_instructions="you are a liberal", model="gpt-3.5-turbo"),
+                Agent(system_instructions="you are a conservative", model="gpt-3.5-turbo"),
+                Agent(system_instructions="you are a libertarian", model="gpt-3.5-turbo")
             ]
             edges = [(0, 1), (0, 2), (1, 2)]
             # edges = (liberal -> conservative), (liberal -> libertarian), (conservative -> libertarian)
             task = "What are your thoughts on the role of government in society?"
             network = Graph(agents=Agents, edges=edges, task=task)
 
-
-        You can also define the agents using a dictionary and convert it to a list for easier index lookup:
+        **Method 2:**
 
         .. code-block:: python
 
-            # Define the agents with a dictionary for easier index lookup
-            agents_dict = {
-                'liberal': Agent(system_instructions="you are a liberal"),
-                'conservative': Agent(system_instructions="you are a conservative"),
-                'libertarian': Agent(system_instructions="you are a libertarian")
+            agents = {
+                'liberal': Agent(system_instructions="you are a liberal", model="gpt-3.5-turbo"),
+                'conservative': Agent(system_instructions="you are a conservative", model="gpt-3.5-turbo"),
+                'libertarian': Agent(system_instructions="you are a libertarian", model="gpt-3.5-turbo")
             }
+            edges = [('liberal', 'conservative'), ('liberal', 'libertarian'), ('conservative', 'libertarian')]
+            task = "What are your thoughts on the role of government in society?"
+            network = Graph(agents=agents, edges=edges, task=task)
 
-            # Convert the dictionary to a list to get a list of Agents
-            agents_list = list(agents_dict.values())
-
-            # Define the edges using the dictionary keys
-            edges = [
-                (agents_list.index(agents_dict['liberal']), agents_list.index(agents_dict['conservative'])),
-                (agents_list.index(agents_dict['liberal']), agents_list.index(agents_dict['libertarian'])),
-                (agents_list.index(agents_dict['conservative']), agents_list.index(agents_dict['libertarian']))
-            ]
     """
 
     def __init__(self,
                  agents: List[Agent],
                  edges: List[tuple],
                  task: Optional[str] = None,
-                 last_n: int = 1,
+                 last_n: int = 1000,
                  combination_instructions: Optional[str] = "default",
                  moderator: Optional[Moderator] = None):
         """
         Args:
-            agents (List[Agent]): A list of agents to be included in the structure.
-            edges (List[tuple]): A list of tuples representing directed edges between agents. Each tuple is
-                                 (src_idx, dst_idx), indicating that the output of the agent at src_idx is an
-                                 input to the agent at dst_idx.
+            agents (Union[List[Agent], Dict[str, Agent]]): A list or dictionary of agents to be included in the structure.
+            edges (List[Tuple[Union[int, str], Union[int, str]]]): A list of tuples representing directed edges between agents.
             task (Optional[str]): The task description for the agents to process.
-            last_n (int, optional): The number of last responses to consider for processing tasks. Defaults to 1.
+            last_n (int, optional): The number of last responses to consider for processing tasks. Defaults to 1000.
             combination_instructions (str, optional): The instructions for combining responses. Defaults to 'default'.
             moderator (Moderator, optional): A moderator to moderate responses. Defaults to None.
         """
-        super().__init__(agents=agents, task=task, last_n=last_n, combination_instructions=combination_instructions,
+
+        self.original_agents = agents
+        self.original_edges = edges
+
+        self._validate_input_format(agents, edges)
+
+        # Method 2: Convert the dictionary to a list of agents and a list of edges (src_idx, dest_idx) so it is
+        # consistent with Method 1
+        if isinstance(agents, dict):
+            self.agents = list(agents.values())
+            self.edges = []
+            name2idx = {name: idx for idx, name in enumerate(agents.keys())}
+            for src_agent_name, dst_agent_name in edges:
+                src_idx = name2idx[src_agent_name]
+                dst_idx = name2idx[dst_agent_name]
+                self.edges.append((src_idx, dst_idx))
+        # Method 1: Use the agents and edges as is.
+        else:
+            self.agents = agents
+            self.edges = edges
+
+        super().__init__(agents=self.agents, task=task, last_n=last_n,
+                         combination_instructions=combination_instructions,
                          moderator=moderator)
-        self.edges = edges
         self._build_graph()
 
     def _build_graph(self):
@@ -696,3 +722,35 @@ class Graph(AbstractStructure):
             self.final_response = moderated_response
         self.final_response = self.responses[-1]
         return self.final_response
+
+    @staticmethod
+    def _validate_input_format(agents, edges):
+
+        # Check #1: Check if agents and edges are in the correct format
+        if isinstance(agents, list) and all(isinstance(agent, Agent) for agent in agents) and all(
+                isinstance(edge, tuple) for edge in edges):
+            pass
+        elif isinstance(agents, dict) and all(isinstance(agent, Agent) for agent in agents.values()) and all(
+                isinstance(edge, tuple) for edge in edges):
+            pass
+        else:
+            raise ValueError("The agents and edges must be in the correct format. See the documentation for more "
+                             "information. Either (Method 1) `agents` is a list of Agents and `edges` is a list of "
+                             "tuples corresponding to the indices of agents, (src_idx, dest_idx). Or, (Method 2) "
+                             "`agents` is a dictionary of Agents and edges is a list of tuples corresponding to the "
+                             "names of agents (src_agent_name, dest_agent_name).")
+
+        # If Method 1: Check if edge indices are within the range of agents
+        if isinstance(agents, list):
+            for src_idx, dst_idx in edges:
+                if src_idx >= len(agents) or dst_idx >= len(agents):
+                    raise ValueError("Edge indices must be within the range of agents.")
+                if src_idx == dst_idx:
+                    raise ValueError("Self loops are not allowed in the graph.")
+
+        # If Method 2: Check if agent names in edges are keys in the agent dictionary
+        if isinstance(agents, dict):
+            agent_names = list(agents.keys())
+            for src_agent_name, dst_agent_name in edges:
+                if src_agent_name not in agent_names or dst_agent_name not in agent_names:
+                    raise ValueError("Agent names in edges must be keys in the agent dictionary.")

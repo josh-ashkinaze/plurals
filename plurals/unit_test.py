@@ -10,6 +10,7 @@ DEFAULTS = load_yaml("instructions.yaml")
 class TestAgent(unittest.TestCase):
     anes_template = DEFAULTS['persona_template'].get("anes").strip()
     default_template = DEFAULTS['persona_template'].get("default").strip()
+
     def setUp(self):
         self.task = "How should the US handle gun control? Answer in 100 words."
         self.model = 'gpt-3.5-turbo'
@@ -195,7 +196,6 @@ class TestAgent(unittest.TestCase):
         self.assertEqual(self.default_template, mixed.agents[0].persona_template)
         self.assertEqual(self.default_template, mixed.agents[1].persona_template)
         self.assertEqual(self.default_template, mixed.agents[2].persona_template)
-
 
     def test_agent_ideology(self):
         """Test ANES persona ideology method"""
@@ -456,18 +456,17 @@ class TestChain(unittest.TestCase):
 
         chain = Chain([agent1, agent2], task=task, cycles=3)
 
-        with patch.object(Agent, '_get_response', side_effect=[
-            "Pros: flexibility, no commute. Cons: isolation.",
+        with patch.object(Agent, '_get_response', side_effect=["Pros: flexibility, no commute. Cons: isolation.",
             "Pros: reduced office costs. Cons: difficulty in team building.",
             "Agree on flexibility, add increased productivity as pro.",
             "Agree on team building issues, add potential for overwork.",
             "Emphasize need for balance and hybrid models.",
-            "Suggest importance of clear communication and expectations."
-        ]):
+            "Suggest importance of clear communication and expectations."]):
             chain.process()
 
         self.assertEqual(len(chain.responses), 6)
         self.assertEqual(chain.final_response, "Suggest importance of clear communication and expectations.")
+
     def test_chain_combination_instructions(self):
         """Test chain combination instructions"""
         a2 = Agent(ideology='moderate', model=self.model)
@@ -604,20 +603,12 @@ class TestDebate(unittest.TestCase):
         self.assertIn("[You]: " + debater_1_initial_response, user_prompt)
         self.assertIn("[Other]: " + debater_2_initial_response, user_prompt)
 
-        correct_strings = [
-            "Response 0: [Debater 1]",
-            "Response 1: [Debater 2]",
-            "Response 2: [Debater 1]",
-            "Response 3: [Debater 2]",
-        ]
+        correct_strings = ["Response 0: [Debater 1]", "Response 1: [Debater 2]", "Response 2: [Debater 1]",
+            "Response 3: [Debater 2]", ]
 
         # Incorrectly formatted response strings that should not appear in the moderator's task description
-        incorrect_strings = [
-            "Response 0: [Debater 2]",
-            "Response 1: [Debater 1]",
-            "Response 2: [Debater 2]",
-            "Response 3: Debater [1]"
-        ]
+        incorrect_strings = ["Response 0: [Debater 2]", "Response 1: [Debater 1]", "Response 2: [Debater 2]",
+            "Response 3: Debater [1]"]
 
         # Check for correct strings in the current task description
         for correct_string in correct_strings:
@@ -674,8 +665,10 @@ class TestAgentStructures(unittest.TestCase):
 
 
 class TestNetworkStructure(unittest.TestCase):
+    """Note: We test that Method 2 initialization results in the same graph as Method 1. The rest of the tests are for Method 1."""
 
     def setUp(self):
+        super().setUp()
         self.task = "What are your thoughts on the role of government in society?"
         self.model = 'gpt-3.5-turbo'
         self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
@@ -683,18 +676,53 @@ class TestNetworkStructure(unittest.TestCase):
         self.agents_dict = {
             'liberal': Agent(system_instructions="you are a liberal", model=self.model, kwargs=self.kwargs),
             'conservative': Agent(system_instructions="you are a conservative", model=self.model, kwargs=self.kwargs),
-            'libertarian': Agent(system_instructions="you are a libertarian", model=self.model, kwargs=self.kwargs)
-        }
+            'libertarian': Agent(system_instructions="you are a libertarian", model=self.model, kwargs=self.kwargs)}
 
         self.agents_list = list(self.agents_dict.values())
-        self.edges = [
+        self.edges = [(
+        self.agents_list.index(self.agents_dict['liberal']), self.agents_list.index(self.agents_dict['conservative'])),
             (self.agents_list.index(self.agents_dict['liberal']),
-             self.agents_list.index(self.agents_dict['conservative'])),
-            (self.agents_list.index(self.agents_dict['liberal']),
-             self.agents_list.index(self.agents_dict['libertarian'])),
-            (self.agents_list.index(self.agents_dict['conservative']),
-             self.agents_list.index(self.agents_dict['libertarian']))
-        ]
+             self.agents_list.index(self.agents_dict['libertarian'])), (
+            self.agents_list.index(self.agents_dict['conservative']),
+            self.agents_list.index(self.agents_dict['libertarian']))]
+
+    def test_dict_to_list_conversion(self):
+        """Test that the dictionary method (Method 2) correctly converts to the list method (Method 1) internally."""
+        agents_dict = {'liberal': Agent(system_instructions="you are a liberal", model=self.model, kwargs=self.kwargs),
+            'conservative': Agent(system_instructions="you are a conservative", model=self.model, kwargs=self.kwargs),
+            'libertarian': Agent(system_instructions="you are a libertarian", model=self.model, kwargs=self.kwargs)}
+        edges_dict = [('liberal', 'conservative'), ('liberal', 'libertarian'), ('conservative', 'libertarian')]
+
+        network_dict = Graph(agents=agents_dict, edges=edges_dict, task=self.task)
+
+        # Check that agents are correctly stored as a list of Agent objects
+        self.assertIsInstance(network_dict.agents, list)
+        self.assertEqual(len(agents_dict), len(network_dict.agents))
+        for agent in agents_dict.values():
+            self.assertIn(agent, network_dict.agents)
+
+        # Check that edges are correctly converted to use indices
+        expected_edges = [(list(agents_dict.keys()).index('liberal'), list(agents_dict.keys()).index('conservative')),
+            (list(agents_dict.keys()).index('liberal'), list(agents_dict.keys()).index('libertarian')),
+            (list(agents_dict.keys()).index('conservative'), list(agents_dict.keys()).index('libertarian'))]
+        self.assertEqual(expected_edges, network_dict.edges)
+
+        # Check that the graph is built correctly
+        expected_graph = {agents_dict['liberal']: [agents_dict['conservative'], agents_dict['libertarian']],
+            agents_dict['conservative']: [agents_dict['libertarian']], agents_dict['libertarian']: []}
+        self.assertEqual(expected_graph, network_dict.graph)
+
+        # Check that the in-degree is calculated correctly
+        expected_in_degree = {agents_dict['liberal']: 0, agents_dict['conservative']: 1, agents_dict['libertarian']: 2}
+        self.assertEqual(expected_in_degree, network_dict.in_degree)
+
+        # Check that original agents and edges are stored correctly
+        self.assertEqual(agents_dict, network_dict.original_agents)
+        self.assertEqual(edges_dict, network_dict.original_edges)
+
+        # Check that combination instructions are set correctly for all agents
+        for agent in network_dict.agents:
+            self.assertEqual(agent.combination_instructions, network_dict.combination_instructions)
 
     def test_initialization(self):
         """Test that the Graph initializes correctly."""
@@ -708,14 +736,9 @@ class TestNetworkStructure(unittest.TestCase):
         network = Graph(agents=self.agents_list, edges=self.edges, task=self.task)
         expected_graph = {
             self.agents_dict['liberal']: [self.agents_dict['conservative'], self.agents_dict['libertarian']],
-            self.agents_dict['conservative']: [self.agents_dict['libertarian']],
-            self.agents_dict['libertarian']: []
-        }
-        expected_in_degree = {
-            self.agents_dict['liberal']: 0,
-            self.agents_dict['conservative']: 1,
-            self.agents_dict['libertarian']: 2
-        }
+            self.agents_dict['conservative']: [self.agents_dict['libertarian']], self.agents_dict['libertarian']: []}
+        expected_in_degree = {self.agents_dict['liberal']: 0, self.agents_dict['conservative']: 1,
+            self.agents_dict['libertarian']: 2}
         self.assertEqual(expected_graph, network.graph)
         self.assertEqual(expected_in_degree, network.in_degree)
 
@@ -737,14 +760,12 @@ class TestNetworkStructure(unittest.TestCase):
 
     def test_cycle_detection(self):
         """Test that a cycle in the graph raises a ValueError."""
-        cyclic_edges = [
-            (self.agents_list.index(self.agents_dict['liberal']),
-             self.agents_list.index(self.agents_dict['conservative'])),
+        cyclic_edges = [(
+        self.agents_list.index(self.agents_dict['liberal']), self.agents_list.index(self.agents_dict['conservative'])),
             (self.agents_list.index(self.agents_dict['conservative']),
-             self.agents_list.index(self.agents_dict['libertarian'])),
-            (self.agents_list.index(self.agents_dict['libertarian']),
-             self.agents_list.index(self.agents_dict['liberal']))
-        ]
+             self.agents_list.index(self.agents_dict['libertarian'])), (
+            self.agents_list.index(self.agents_dict['libertarian']),
+            self.agents_list.index(self.agents_dict['liberal']))]
         with self.assertRaises(ValueError):
             Graph(agents=self.agents_list, edges=cyclic_edges, task=self.task).process()
 
@@ -763,7 +784,6 @@ class TestNetworkStructure(unittest.TestCase):
         self.assertEqual(1, network.moderator._moderate_responses.call_count)
         self.assertEqual("Moderated final response", network.responses[-1])
 
-
     def test_current_task_description(self):
         """Test that the current task description is correct for each agent in a simple two-agent network."""
         task = "Describe the impact of social media on society in 50 words."
@@ -777,7 +797,6 @@ class TestNetworkStructure(unittest.TestCase):
 
         # Expected formatted previous responses
         previous_responses = ["Social media has both positive and negative impacts on society."]
-        formatted_previous_responses = format_previous_responses(previous_responses)
 
         # Expected current task descriptions
         expected_agent1_task_description = task
@@ -791,6 +810,64 @@ Here are the previous responses:
         # Assertions
         self.assertEqual(expected_agent1_task_description, agent1.current_task_description)
         self.assertEqual(expected_agent2_task_description, agent2.current_task_description)
+
+
+class TestNetworkStructureValidation(TestNetworkStructure):
+    """
+    Due to the complexity of the Graph class---and the high likelihood of users entering things in a wrong format---we make a subclass of tests dedicated to the
+    `validate` method.
+    """
+
+    def test_invalid_agents_list_input(self):
+        """Test passing non-Agent objects in the agents list."""
+        invalid_agents_list = ["liberal", "conservative", "libertarian"]
+        edges = [(0, 1), (1, 2)]
+        with self.assertRaises(ValueError):
+            Graph(agents=invalid_agents_list, edges=edges)
+
+    def test_invalid_edges_list_input(self):
+        """Test passing incorrectly formatted edges."""
+        edges = ["0-1", "1-2"]  # Invalid because they are not tuples
+        with self.assertRaises(ValueError):
+            Graph(agents=self.agents_list, edges=edges)
+
+    def test_edges_with_invalid_indices(self):
+        """Test edges with indices that are out of bounds for the agents list."""
+        edges = [(0, 1), (1, 3)]  # Index 3 is out of bounds
+        with self.assertRaises(ValueError):
+            Graph(agents=self.agents_list, edges=edges)
+
+    def test_self_loop_edges(self):
+        """Test edges that create self-loops, which are not allowed in a DAG."""
+        edges = [(0, 1), (1, 1)]  # Self-loop at index 1
+        with self.assertRaises(ValueError):
+            Graph(agents=self.agents_list, edges=edges)
+
+    def test_invalid_agents_dict_input(self):
+        """Test passing incorrectly formatted agent dictionary."""
+        invalid_agents_dict = {'liberal': "Agent(system_instructions='you are a liberal')",  # Not an Agent object
+                               'conservative': Agent(system_instructions="you are a conservative", model=self.model,
+                                                     kwargs=self.kwargs)}
+        edges = [('liberal', 'conservative')]
+        with self.assertRaises(ValueError):
+            Graph(agents=invalid_agents_dict, edges=edges)
+
+    def test_invalid_edge_names_in_dict(self):
+        """Test edges with names not matching any keys in the agent dictionary."""
+        agents_dict = {'liberal': Agent(system_instructions="you are a liberal", model=self.model, kwargs=self.kwargs),
+            'conservative': Agent(system_instructions="you are a conservative", model=self.model, kwargs=self.kwargs)}
+        edges = [('liberal', 'conservative'), ('liberal', 'nonexistent')]  # 'nonexistent' is not a valid agent key
+        with self.assertRaises(ValueError):
+            Graph(agents=agents_dict, edges=edges)
+
+    def test_mixed_type_agents_input(self):
+        """Test mixed types in agents input."""
+        mixed_agents = [Agent(system_instructions="you are a liberal", model=self.model, kwargs=self.kwargs),
+            "conservative"  # Not an Agent object
+        ]
+        edges = [(0, 1)]
+        with self.assertRaises(ValueError):
+            Graph(agents=mixed_agents, edges=edges)
 
 
 if __name__ == '__main__':

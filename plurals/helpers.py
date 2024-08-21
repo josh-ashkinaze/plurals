@@ -129,6 +129,8 @@ class SmartString(str):
         Args:
             avoid_double_period (bool): Whether to avoid double periods in the final string. (Default: True)
             **kwargs: Key-value pairs to replace in the string.
+        Returns:
+            str: The formatted string.
         """
         template = string.Template(self)
         formatted_string = template.safe_substitute(**kwargs)

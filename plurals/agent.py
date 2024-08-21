@@ -497,7 +497,7 @@ class Agent:
     @property
     def history(self):
         if not self._history:
-            warnings.warn("No history found. Please process a task first!")
+            warnings.warn("Be aware: No Agent history was found since tasks have not been processed yet.")
             return None
         else:
             return self._history
