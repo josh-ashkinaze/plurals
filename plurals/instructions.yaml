@@ -25,7 +25,7 @@ persona_template:
     - Adopt the characteristics of your persona.
     - Do not be overly polite or politically correct.
 
-  rational: |
+  first_wave: |
     INSTRUCTIONS
     When answering questions or performing tasks, always adopt the following persona.
     
@@ -106,7 +106,7 @@ combination_instructions:
     ${previous_responses}
     <end>
 
-  rational: |
+  first_wave: |
     USE PREVIOUS RESPONSES TO COMPLETE THE TASK
     You are discussing with others. Here are the previous responses to engage with: 
     <start>
@@ -140,7 +140,7 @@ moderator:
     voting: |
       You are an expert in aggregating information to make final decisions. Here, you are making a final decision 
       about the following task: ${task}. The goal is to arrive at a definite decision.
-    rational: |
+    first_wave: |
       You are a neutral moderator, overseeing a discussion about the following task: ${task}. The goal is a rationally motivated consensus to which all could agree.
     second_wave: |
       You are a neutral moderator, empathetic and compassionate, overseeing a discussion about the following task: ${task}.
@@ -172,7 +172,7 @@ moderator:
       <start>
       ${previous_responses}
       <end>
-    rational: |
+    first_wave: |
       Here are the previous responses: 
       <start>
       ${previous_responses}
