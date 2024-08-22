@@ -9,9 +9,9 @@ from plurals.helpers import SmartString, strip_nested_dict
 import re
 import collections
 
-
 DEFAULTS = load_yaml("instructions.yaml")
 DEFAULTS = strip_nested_dict(DEFAULTS)
+
 
 class Moderator(Agent):
     """
@@ -20,7 +20,9 @@ class Moderator(Agent):
     Args:
         persona (str, optional): The persona of the moderator. Default is 'default'. The persona can take in a ${task} placeholder.
         system_instructions (str, optional): The system instructions for the moderator. Default is None. If you pass in
-            'auto', an LLM will generate its own system instructions automatically based on the task. `system_instructions` can take in a ${task} placeholder. If you use `system_instructions`, you cannot use `persona` and `combination_instructions` since they are an
+            'auto', an LLM will generate its own system instructions automatically based on the task.
+            ``system_instructions`` can take in a ${task} placeholder. If you use ``system_instructions``,
+            you cannot use ``persona`` since that is an
             alternative way to set the system instructions.
         combination_instructions (str, optional): The instructions for combining responses. Default is 'default'. The combination instructions can take in a ${previous_responses} placeholder.
         model (str, optional): The model to use for the moderator. Default is 'gpt-4o'.
@@ -77,7 +79,7 @@ class Moderator(Agent):
 
         **Auto-Moderator: Declared inside of Structure**
 
-        If the system_instructions of a moderator are set to 'auto', then the moderator will, given a task, come up with its own system instructions. Here the task is inherited from the Structure.
+        If the ``system_instructions`` of a moderator are set to 'auto', then the moderator will, given a task, come up with its own system instructions. Here the task is inherited from the Structure.
 
         .. code-block:: python
 
@@ -165,9 +167,9 @@ class Moderator(Agent):
         """
         Generate and instructions using an LLM and a task. This function will not automatically set the system
         instructions, but it will return the generated system instructions (so you can inspect or re-generate them).
-        Then you can set system instructions using the `system_instructions` attribute.
+        Then you can set system instructions using the ``system_instructions`` attribute.
 
-        See `generate_and_set_system_instructions` for a function that will generate and set the system instructions.
+        See ``generate_and_set_system_instructions`` for a function that will generate and set the system instructions.
 
         Args:
             task (str): The task description for which system instructions need to be generated.
@@ -358,7 +360,8 @@ class AbstractStructure(ABC):
             if self.task:
                 if agent.task_description:
                     # Case 1: Task provided to both Structure and agents
-                    warnings.warn(f"You provided a task to both the Structure and agents. Using agent's task description:'''\n\n{agent.task_description}'''\n\nEnsure this is what you want to happen.")
+                    warnings.warn(
+                        f"You provided a task to both the Structure and agents. Using agent's task description:'''\n\n{agent.task_description}'''\n\nEnsure this is what you want to happen.")
                     agent.task_description = self.task
                 else:
                     # Case 3: Value provided to Structure but not agents
@@ -391,7 +394,8 @@ class AbstractStructure(ABC):
             if self.task:
                 if self.moderator.task:
                     # Case 1: Task provided to both Structure and moderator
-                    warnings.warn(f"You provided a task to both the Structure and a Moderator. Using the Moderator's task description:'''\n\n{self.moderator.task}'''\n\nEnsure this is what you want to happen.")
+                    warnings.warn(
+                        f"You provided a task to both the Structure and a Moderator. Using the Moderator's task description:'''\n\n{self.moderator.task}'''\n\nEnsure this is what you want to happen.")
 
                 else:
                     # Case 3: Value provided to Structure but not moderator
@@ -470,7 +474,7 @@ class Chain(AbstractStructure):
     def process(self):
         """
         Process the task through a chain of agents, each building upon the last. Use parameters from
-        `AbstractStructure` to control how the chain operates (e.g: last_n for how many previous responses to include
+        `AbstractStructure` to control how the chain operates (e.g: ``last_n`` for how many previous responses to include
         in the `previous_responses` string)
         """
         previous_responses = []
@@ -648,16 +652,18 @@ class Debate(AbstractStructure):
 class Graph(AbstractStructure):
     """
     Initializes a network where agents are processed according to a topologically-sorted directed acyclic graph (DAG).
-    This Structure takes in Agents and a structure-specific property called `edges`. We offer two
+    This Structure takes in ``agents`` and a structure-specific property called `edges`. We offer two
     ways to construct the graph, with examples of each method right below.
 
-     Method 1:
-    - `agents` is a list of Agent objects
-    - `edges` is a list of integer tuples (src_idx, dst_idx)
+    Method 1:
+
+    - ``agents`` is a list of Agent objects.
+    - ``edges`` is a list of integer tuples (``src_idx``, ``dst_idx``).
 
     Method 2:
-    - `agents` is a dictionary of Agent objects with keys as agent names
-    - `edges` is a list of string tuples (src_agent_name, dst_agent_name)
+
+    - ``agents`` is a dictionary of Agent objects with keys as agent names.
+    - ``edges`` is a list of string tuples (``src_agent_name``, ``dst_agent_name``).
 
     Note that the graph must be a directed acyclic graph (DAG) or else an error will be raised.
 
