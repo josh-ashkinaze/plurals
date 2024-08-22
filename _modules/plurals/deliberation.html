@@ -84,9 +84,9 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 
-
 <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s2">&quot;instructions.yaml&quot;</span><span class="p">)</span>
 <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="n">strip_nested_dict</span><span class="p">(</span><span class="n">DEFAULTS</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="Moderator">
 <a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Moderator">[docs]</a>
@@ -97,7 +97,9 @@
 <span class="sd">    Args:</span>
 <span class="sd">        persona (str, optional): The persona of the moderator. Default is &#39;default&#39;. The persona can take in a ${task} placeholder.</span>
 <span class="sd">        system_instructions (str, optional): The system instructions for the moderator. Default is None. If you pass in</span>
-<span class="sd">            &#39;auto&#39;, an LLM will generate its own system instructions automatically based on the task. `system_instructions` can take in a ${task} placeholder. If you use `system_instructions`, you cannot use `persona` and `combination_instructions` since they are an</span>
+<span class="sd">            &#39;auto&#39;, an LLM will generate its own system instructions automatically based on the task.</span>
+<span class="sd">            ``system_instructions`` can take in a ${task} placeholder. If you use ``system_instructions``,</span>
+<span class="sd">            you cannot use ``persona`` since that is an</span>
 <span class="sd">            alternative way to set the system instructions.</span>
 <span class="sd">        combination_instructions (str, optional): The instructions for combining responses. Default is &#39;default&#39;. The combination instructions can take in a ${previous_responses} placeholder.</span>
 <span class="sd">        model (str, optional): The model to use for the moderator. Default is &#39;gpt-4o&#39;.</span>
@@ -149,12 +151,12 @@
 <span class="sd">            moderator = Moderator(</span>
 <span class="sd">                system_instructions=&#39;Summarize previous responses as neutrally as possible.&#39;,</span>
 <span class="sd">                model=&#39;gpt-4o&#39;,</span>
-<span class="sd">                combination_instructions=&#39;empathetic&#39;</span>
+<span class="sd">                combination_instructions=&#39;second_wave&#39;</span>
 <span class="sd">            )</span>
 
 <span class="sd">        **Auto-Moderator: Declared inside of Structure**</span>
 
-<span class="sd">        If the system_instructions of a moderator are set to &#39;auto&#39;, then the moderator will, given a task, come up with its own system instructions. Here the task is inherited from the Structure.</span>
+<span class="sd">        If the ``system_instructions`` of a moderator are set to &#39;auto&#39;, then the moderator will, given a task, come up with its own system instructions. Here the task is inherited from the Structure.</span>
 
 <span class="sd">        .. code-block:: python</span>
 
@@ -244,9 +246,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate and instructions using an LLM and a task. This function will not automatically set the system</span>
 <span class="sd">        instructions, but it will return the generated system instructions (so you can inspect or re-generate them).</span>
-<span class="sd">        Then you can set system instructions using the `system_instructions` attribute.</span>
+<span class="sd">        Then you can set system instructions using the ``system_instructions`` attribute.</span>
 
-<span class="sd">        See `generate_and_set_system_instructions` for a function that will generate and set the system instructions.</span>
+<span class="sd">        See ``generate_and_set_system_instructions`` for a function that will generate and set the system instructions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            task (str): The task description for which system instructions need to be generated.</span>
@@ -444,7 +446,8 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="p">:</span>
                     <span class="c1"># Case 1: Task provided to both Structure and agents</span>
-                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You provided a task to both the Structure and agents. Using agent&#39;s task description:&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="si">{</span><span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="si">}</span><span class="s2">&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="s2">Ensure this is what you want to happen.&quot;</span><span class="p">)</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;You provided a task to both the Structure and agents. Using agent&#39;s task description:&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="si">{</span><span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="si">}</span><span class="s2">&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="s2">Ensure this is what you want to happen.&quot;</span><span class="p">)</span>
                     <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Case 3: Value provided to Structure but not agents</span>
@@ -477,7 +480,8 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="p">:</span>
                     <span class="c1"># Case 1: Task provided to both Structure and moderator</span>
-                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You provided a task to both the Structure and a Moderator. Using the Moderator&#39;s task description:&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="s2">Ensure this is what you want to happen.&quot;</span><span class="p">)</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;You provided a task to both the Structure and a Moderator. Using the Moderator&#39;s task description:&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="s2">Ensure this is what you want to happen.&quot;</span><span class="p">)</span>
 
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Case 3: Value provided to Structure but not moderator</span>
@@ -564,7 +568,7 @@
     <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process the task through a chain of agents, each building upon the last. Use parameters from</span>
-<span class="sd">        `AbstractStructure` to control how the chain operates (e.g: last_n for how many previous responses to include</span>
+<span class="sd">        `AbstractStructure` to control how the chain operates (e.g: ``last_n`` for how many previous responses to include</span>
 <span class="sd">        in the `previous_responses` string)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">previous_responses</span> <span class="o">=</span> <span class="p">[]</span>
@@ -758,16 +762,18 @@
 <span class="k">class</span> <span class="nc">Graph</span><span class="p">(</span><span class="n">AbstractStructure</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initializes a network where agents are processed according to a topologically-sorted directed acyclic graph (DAG).</span>
-<span class="sd">    This Structure takes in Agents and a structure-specific property called `edges`. We offer two</span>
+<span class="sd">    This Structure takes in ``agents`` and a structure-specific property called `edges`. We offer two</span>
 <span class="sd">    ways to construct the graph, with examples of each method right below.</span>
 
-<span class="sd">     Method 1:</span>
-<span class="sd">    - `agents` is a list of Agent objects</span>
-<span class="sd">    - `edges` is a list of integer tuples (src_idx, dst_idx)</span>
+<span class="sd">    Method 1:</span>
+
+<span class="sd">    - ``agents`` is a list of Agent objects.</span>
+<span class="sd">    - ``edges`` is a list of integer tuples (``src_idx``, ``dst_idx``).</span>
 
 <span class="sd">    Method 2:</span>
-<span class="sd">    - `agents` is a dictionary of Agent objects with keys as agent names</span>
-<span class="sd">    - `edges` is a list of string tuples (src_agent_name, dst_agent_name)</span>
+
+<span class="sd">    - ``agents`` is a dictionary of Agent objects with keys as agent names.</span>
+<span class="sd">    - ``edges`` is a list of string tuples (``src_agent_name``, ``dst_agent_name``).</span>
 
 <span class="sd">    Note that the graph must be a directed acyclic graph (DAG) or else an error will be raised.</span>
 

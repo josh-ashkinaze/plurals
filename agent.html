@@ -104,13 +104,11 @@ Personas of Agents can be instantiated directly, null (i.e., default system prom
 like ANES for nationally-representative personas.</p>
 <p>The main attributes of the Agent class are:</p>
 <ol class="arabic simple">
-<li><p><cite>system_instructions</cite>: Set either directly or through various persona methods.</p></li>
-<li><p><cite>combination_instructions</cite>: Dictates how Agents should combine previous responses with the current task.</p></li>
-<li><p><cite>task</cite>: The task (i.e., user prompt) that Agents respond to.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">system_instructions</span></code>: Set either directly or through various persona methods.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>: Dictates how Agents should combine previous responses with the current task.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">task</span></code>: The task (i.e., user prompt) that Agents respond to.</p></li>
 </ol>
-<p>Agents can be used alone or in conjunction with Structures to create multi-agent simulations. When used with
-Structures, the Structure-level attribute values will override the Agent-level attribute values. Eg: If you set a task
-at an agent level and a Structure-level, the Structure-level task will be used.</p>
+<p>Agents can be used alone or in conjunction with Structures to create multi-agent simulations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -223,6 +221,9 @@ instructions can be set directly or generated from a persona-based method.</p>
 </dl>
 </dd></dl>
 
+<p class="rubric">Notes</p>
+<p>Note that when used with Structures, the agent-level attribute values will override. Eg: If you set a task
+at an agent level and a Structure-level, the agent-level task will be used.</p>
 <p><strong>Examples:</strong></p>
 <blockquote>
 <div><p><strong>Using Agent without a structure</strong>.</p>
@@ -249,11 +250,11 @@ that you can pass in additional kwargs to the model.</p>
 <p><strong>Persona Template</strong>: When using a persona method, the full system instructions are a combination of the
 persona and the <cite>persona_template</cite>—where the latter is a template string that includes a ${persona}
 placeholder. This gives more instructions to the model of how to enact the persona.</p>
-<p>Here is an example of using the <cite>empathetic</cite> persona template with a persona of “a moderate voter from Michigan”.
+<p>Here is an example of using the <cite>second_wave</cite> persona template with a persona of “a moderate voter from Michigan”.
 You can see how the full system instructions are a combination of the two.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">empathetic_michigan</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a moderate voter from Michigan&quot;</span><span class="p">,</span>
-    <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;empathetic&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">empathetic_michigan</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">second_wave_michigan</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a moderate voter from Michigan&quot;</span><span class="p">,</span>
+    <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;second_wave&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">second_wave_michigan</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INSTRUCTIONS
@@ -339,7 +340,7 @@ the agent’s <cite>history</cite> (prompts + responses), and <cite>info</cite>�
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#Agent.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.process" title="Link to this definition"></a></dt>
 <dd><p>Process the task, optionally building upon a previous response. If you pass in a task, it will replace the
 Agent’s initialized task description. If you pass in a previous responses, it will be incorporated into the task
-description if combination_instructions have not been set.</p>
+description if <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> have not been set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
