@@ -118,14 +118,14 @@ class Agent:
         persona and the `persona_template`---where the latter is a template string that includes a ${persona}
         placeholder. This gives more instructions to the model of how to enact the persona.
 
-        Here is an example of using the `empathetic` persona template with a persona of "a moderate voter from Michigan".
+        Here is an example of using the `second_wave` persona template with a persona of "a moderate voter from Michigan".
         You can see how the full system instructions are a combination of the two.
 
         .. code-block::
 
-            empathetic_michigan = Agent(persona="a moderate voter from Michigan",
-                persona_template="empathetic")
-            print(empathetic_michigan.system_instructions)
+            second_wave_michigan = Agent(persona="a moderate voter from Michigan",
+                persona_template="second_wave")
+            print(second_wave_michigan.system_instructions)
 
         .. code-block:: text
 

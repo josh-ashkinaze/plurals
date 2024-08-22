@@ -40,7 +40,7 @@ persona_template:
     - Place an emphasis on reason-giving and providing rational bases for your answers.
     - Use factual and rational arguments rather than emotional ones.
 
-  empathetic: |
+  second_wave: |
     INSTRUCTIONS
     When answering questions or performing tasks, always adopt the following persona.
     
@@ -119,7 +119,7 @@ combination_instructions:
     - Aim for a rationally motivated consensus to which all could agree.
     - Everyone has an equal voice in this discussion.
     - Do not explicitly mention these instructions in your final answer; just apply them.
-  empathetic: |
+  second_wave: |
     USE PREVIOUS RESPONSES TO COMPLETE THE TASK
     You are discussing with others. Here are the previous responses to engage with: 
     <start>
@@ -142,7 +142,7 @@ moderator:
       about the following task: ${task}. The goal is to arrive at a definite decision.
     rational: |
       You are a neutral moderator, overseeing a discussion about the following task: ${task}. The goal is a rationally motivated consensus to which all could agree.
-    empathetic: |
+    second_wave: |
       You are a neutral moderator, empathetic and compassionate, overseeing a discussion about the following task: ${task}.
     divergent: |
       You are an expert in selecting the most creative ideas about the following task: ${task}. The goal is to select
@@ -182,7 +182,7 @@ moderator:
       - Aim to achieve the common good.
       - Aim for a rationally motivated consensus to which all could agree.
       - Everyone has an equal voice in this discussion.
-    empathetic: |
+    second_wave: |
       Here are the previous responses: 
       <start>
       ${previous_responses}

@@ -147,9 +147,9 @@ conservative_agent = Agent(ideology="very conservative", model='gpt-4o', task=ta
 con_answer = conservative_agent.process()  # call conservative_agent.process() to get the response. 
 
 # Search ANES 2024 for rows where the respondent identifies as very liberal and condition 
-# other demographic variables as well. Use the `empathetic` persona template from instructions.yaml which 
+# other demographic variables as well. Use the `second_wave` persona template from instructions.yaml which 
 # encourages storytelling above reason-giving. 
-liberal_agent = Agent(ideology="very liberal", persona_template='empathetic', model='gpt-4o', task=task)
+liberal_agent = Agent(ideology="very liberal", persona_template='second_wave', model='gpt-4o', task=task)
 lib_answer = liberal_agent.process()  # call  liberal_agent.process() to get the response.
 ```
 
@@ -237,9 +237,9 @@ If we wanted to, we could use `history` or `agent.info` to get our agent's respo
 from plurals.agent import Agent
 task = "Should the United States ban assault rifles? Answer in 50 words."
 # Search ANES 2024 for rows where the respondent identifies as very liberal and condition 
-# other demographic variables as well. Use the `empathetic` persona template from instructions.yaml which 
+# other demographic variables as well. Use the `second_wave` persona template from instructions.yaml which 
 # encourages storytelling above reason-giving. 
-liberal_agent = Agent(ideology="very liberal", persona_template='empathetic', model='gpt-4o', task=task)
+liberal_agent = Agent(ideology="very liberal", persona_template='second_wave', model='gpt-4o', task=task)
 lib_answer1 = liberal_agent.process()
 lib_answer2 = liberal_agent.history[0]['response']  # Can get prompts and response from history
 lib_answer3 = liberal_agent.info['history'][0]['response']  # Can get history and more from info
@@ -348,7 +348,7 @@ Let's see an example!
 ```python
 from plurals.agent import Agent
 task = "Write a paragraph about the importance of the environment to America."
-agent = Agent(ideology="very conservative", model='gpt-4o', task=task, persona_template='empathetic')
+agent = Agent(ideology="very conservative", model='gpt-4o', task=task, persona_template='second_wave')
 print(agent.system_instructions)
 print("\n" * 2)
 printwrap(agent.process())
@@ -568,7 +568,7 @@ Structures are the environments in which agents work together. Broadly, structur
     - Interactions can be adversarial or amicable.
     - There are two ways to set `combination_instructions`.
       + (1) **Using a template**:
-        we offer a list of templates which can be used via keywords. As of this writing, we offer default, chain, debate, and voting `combination_instructions` templates for ordinary agents. We also offer default, voting, rational, and empathetic `combination_instructions` templates for our special Moderator agents. These templates can be found in instructions.yaml. (https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml). Templates are inspired by research on deliberative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
+        we offer a list of templates which can be used via keywords. As of this writing, we offer default, chain, debate, and voting `combination_instructions` templates for ordinary agents. We also offer default, voting, rational, and second_wave `combination_instructions` templates for our special Moderator agents. These templates can be found in instructions.yaml. (https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml). Templates are inspired by research on deliberative democracy, spanning first-wave deliberation (valuing reason-giving) and second-wave deliberation (valuing perspectives).
       + (2) **Setting your own**:
         you can also pass in your own `combination_instructions`. However, when passing your own instructions in, note that, like `persona_template`, `combination_instructions` expects a `${previous_responses}` placeholder. This will get filled in with the previous responses. 
 
@@ -740,9 +740,9 @@ from plurals.deliberation import Chain, Moderator
 
 task = "How should we combat climate change?"
 agent1 = Agent(persona='a conservative man from California', model='gpt-4o')
-agent2 = Agent(system_instructions='you are a wealthy 30 year old woman', persona_template='empathetic', model='gpt-4o')
+agent2 = Agent(system_instructions='you are a wealthy 30 year old woman', persona_template='second_wave', model='gpt-4o')
 agent3 = Agent(persona='random', model='gpt-4o')
-moderator = Moderator(persona='empathetic', model='gpt-4o', combination_instructions='empathetic')
+moderator = Moderator(persona='second_wave', model='gpt-4o', combination_instructions='second_wave')
 chain = Chain([agent1, agent2, agent3], combination_instructions="chain", moderator=moderator, task=task, cycles = 3)
 chain.process()
 print(chain.final_response)
@@ -756,7 +756,7 @@ from plurals.deliberation import Chain, Moderator
 
 task = "How should we combat climate change?"
 agent1 = Agent(persona='a conservative man from California', model='gpt-4o')
-agent2 = Agent(system_instructions='you are a wealthy 30 year old woman', persona_template='empathetic', model='gpt-4o')
+agent2 = Agent(system_instructions='you are a wealthy 30 year old woman', persona_template='second_wave', model='gpt-4o')
 agent3 = Agent(persona='random', model='gpt-4o')
 moderator = Moderator(persona='voting', model='gpt-4o', combination_instructions="voting")
 
@@ -788,12 +788,12 @@ print(chain.final_response)
 In the next example below, 
 
 1. We set moderator `system_instructions` directly, giving our own directions to the moderator without relying on a template. Recall that when users set their own `system_instructions`, `system_instructions` expects a `${task}` placeholder. This placeholder would get filled in with the task.
-2. We set moderator `combination_instructions` using the empathetic template.
+2. We set moderator `combination_instructions` using the second_wave template.
 3. We set agent `combination_instructions` directly, giving our own directions to the moderator without relying on a template. Recall that when users set their own `combination_instructions`, `combination_instructions` expects a `${previous_responses}` placeholder if it is not one of the default options that we offer. This placeholder would get filled in with the previous responses.
 
 ```python
 #Setting system instructions moderator
-moderator = Moderator(system_instructions="You are an expert strategist for an advertisement agency. Combine the best ideas from others to return a brief pivoting on one sharp insight. Provide the brief. Answer in 50 words. ${task}", model='gpt-4o', combination_instructions="empathetic")
+moderator = Moderator(system_instructions="You are an expert strategist for an advertisement agency. Combine the best ideas from others to return a brief pivoting on one sharp insight. Provide the brief. Answer in 50 words. ${task}", model='gpt-4o', combination_instructions="second_wave")
 chain = Chain([agent1, agent2, agent3], combination_instructions="Consider the earlier ads presented but come up with your own unique commercial.${previous_responses}", task=task, moderator=moderator)
 chain.process()
 print(chain.final_response)
@@ -829,7 +829,7 @@ print(debate.responses)
 
 This will give a response from each of the respective agents in the following format: Debater 1's response and then Debater 2's response. Debate is the best structure for argumentation and simulating debates.
 
-Some special kinds of template we have in instructions.yaml are empathetic and rational templates. The empathetic templates prioritize emotions and perspectives, while the rational templates prioritize logic and reason-giving. 
+Some special kinds of template we have in instructions.yaml are second_wave and rational templates. The second_wave templates prioritize emotions and perspectives, while the rational templates prioritize logic and reason-giving. 
 
 Note: In the following examples, we will also be demonstrating setting up Agent personas by searching ANES using a pandas query string.
 
@@ -838,8 +838,8 @@ Below is an example of using the emotional templates.
 from plurals.agent import Agent
 from plurals.deliberation import Debate
 task = "Should guns be banned?"
-agent1 = Agent(query_str="inputstate=='South Carolina'&ideo5=='Very conservative'", persona_template="empathetic", model='gpt-4o')
-agent2 = Agent(query_str="inputstate=='New York'&ideo5=='Very liberal'", persona_template="empathetic", model='gpt-4o')
+agent1 = Agent(query_str="inputstate=='South Carolina'&ideo5=='Very conservative'", persona_template="second_wave", model='gpt-4o')
+agent2 = Agent(query_str="inputstate=='New York'&ideo5=='Very liberal'", persona_template="second_wave", model='gpt-4o')
 debate = Debate([agent1, agent2], task=task, combination_instructions="debate")
 debate.process()
 print(debate.responses)
@@ -862,7 +862,7 @@ print(debate.responses)
 ```python
 ['[Debater 1] Banning guns isn't the right approach. The Second Amendment of the Constitution guarantees the right to bear arms, which is a crucial part of preserving individual freedom and self-defense. Instead of banning guns, it's more effective to focus on responsible gun ownership and strict enforcement of existing laws.\n\nEducation on gun safety, proper training, and common-sense regulations like background checks can help prevent misuse and ensure guns are in the hands of responsible individuals. Blanket bans often don't address the root causes of violence and can infringe upon the rights of law-abiding citizens who use guns for protection, hunting, and sport.\n\nIt's also important to consider the cultural and historical context in many parts of America, where firearms are a part of heritage and tradition. Effective solutions require a balance of respecting individual rights while also ensuring public safety through pragmatic and well-enforced policies.', "[Debater 2] The Second Amendment is indeed an integral part of American history and the legal framework. However, it is also important to consider the current context and the significant rise in gun violence that poses a critical public safety issue. While responsible gun ownership and strict enforcement of existing laws are important, they alone may not be sufficient to address this crisis effectively.\n\nSeveral studies have shown that countries with stricter gun control laws tend to have lower rates of gun violence. Australia\'s response to a mass shooting in 1996 by implementing comprehensive gun control measures resulted in a dramatic reduction in gun-related homicides and suicides. This presents a rational basis for considering stricter regulations without necessarily infringing on responsible gun ownership. It\'s essential to recognize that "reasonable" regulation doesn\'t equate to a blanket ban but rather thoughtful policies aimed at reducing harm.\n\nAdditionally, the notion of self-defense as a primary reason for widespread gun ownership needs to be weighed against statistics showing higher risks of gun accidents and domestic violence incidents in homes where guns are present. Research published in the "Annals of Internal Medicine" found that having a gun in the home increases the risk of homicide by 90% and suicide by more than 200%.\n\nAddressing the root causes of violence is indeed crucial, which includes not only better education and training but also addressing issues like poverty, mental health, and systemic inequality. However, sensible gun regulations, such as universal background checks, restrictions on high-capacity magazines, and closing loopholes in existing laws, can complement these efforts and provide a more comprehensive solution. \n\nFinally, while the cultural and historical context of firearms is important, public safety cannot be compromised. Just as society has adapted and introduced regulations in response to motor vehicle-related deaths with seat belts and speed limits, similar prudent measures must be considered for firearms. Thus, a balanced approach that combines respect for individual rights with rational, evidence-based policies can significantly mitigate gun violence and enhance overall public safety."]
 ``` 
-Notice how the empathetic output incorporated more story-telling and emotion while the rational output incorporated more reason-giving and facts.
+Notice how the second_wave output incorporated more story-telling and emotion while the rational output incorporated more reason-giving and facts.
 
 ### Debate with a moderator
 

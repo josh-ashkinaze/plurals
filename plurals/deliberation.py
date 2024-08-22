@@ -72,7 +72,7 @@ class Moderator(Agent):
             moderator = Moderator(
                 system_instructions='Summarize previous responses as neutrally as possible.',
                 model='gpt-4o',
-                combination_instructions='empathetic'
+                combination_instructions='second_wave'
             )
 
         **Auto-Moderator: Declared inside of Structure**
