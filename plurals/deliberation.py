@@ -330,7 +330,9 @@ class AbstractStructure(ABC):
 
     def _set_combination_instructions(self) -> None:
         """
-        Set the combination instructions for agents based on the provided value or the default.
+        Set the combination instructions for agents based on the provided value or the default. If agents have their own
+        combination instructions, use those instead.
+
         """
         self.combination_instructions = SmartString(
             self.defaults['combination_instructions'].get(
@@ -339,11 +341,9 @@ class AbstractStructure(ABC):
 
         for agent in self.agents:
             if agent.combination_instructions:
-                warnings.warn(
-                    "Writing over agent's combination instructions with Chain's combination instructions")
-            else:
                 pass
-            agent.combination_instructions = self.combination_instructions
+            else:
+                agent.combination_instructions = self.combination_instructions
 
     def _set_agent_task_description(self) -> None:
         """
@@ -636,11 +636,11 @@ class Debate(AbstractStructure):
 
                 # Apply the correct prefix and update both lists
                 if i == 0:
-                    previous_responses_agent1.append(f"[You]: {response}")
-                    previous_responses_agent2.append(f"[Other]: {response}")
+                    previous_responses_agent1.append(f"[WHAT YOU SAID]: {response}")
+                    previous_responses_agent2.append(f"[WHAT OTHER PARTICIPANT SAID]: {response}")
                 else:
-                    previous_responses_agent2.append(f"[You]: {response}")
-                    previous_responses_agent1.append(f"[Other]: {response}")
+                    previous_responses_agent2.append(f"[WHAT YOU SAID]: {response}")
+                    previous_responses_agent1.append(f"[WHAT OTHER PARTICIPANT SAID]: {response}")
 
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(
