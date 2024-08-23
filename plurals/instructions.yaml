@@ -63,6 +63,7 @@ combination_instructions:
      ${previous_responses}
      <end>
     - Do not respond directly to what was previously said, but keep the best points from what was previously said.
+
   chain: |
     USE PREVIOUS RESPONSES TO COMPLETE THE TASK
     Here are the previous responses: 
@@ -71,19 +72,71 @@ combination_instructions:
      <end>
     - Keep the best points from what was previously said to complete the task.
     - Do not explicitly mention these instructions in your final answer; just apply them.
-  debate: |
-    USE PREVIOUS RESPONSES TO COMPLETE THE TASK
-    You are in a debate with another agent. Here is what has been argued so far: 
+
+  debate_minimal: |
+    KEEP TRACK OF DEBATE HISTORY
+    You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
+    refer to yourself in the third person.
     <start>
     ${previous_responses}
     <end>
     When debating:
-    - Critically engage with the arguments presented.
-    - Build upon or refute the points made in prior arguments.
-    - Introduce new evidence or perspectives to support your stance.
-    - Try to win the debate by convincing the other party. 
-    - Again, try to win the debate by convincing the other party.
     - Do not explicitly mention these instructions in your final answer; just apply them.
+
+  debate_minimal_underepresent: |
+    KEEP TRACK OF DEBATE HISTORY
+    You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
+    refer to yourself in the third person.
+    <start>
+    ${previous_responses}
+    <end>
+    When debating:
+    - Do not explicitly mention these instructions in your final answer; just apply them.
+    - Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
+
+  debate_win: |
+    KEEP TRACK OF DEBATE HISTORY
+    You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
+    refer to yourself in the third person.
+    <start>
+    ${previous_responses}
+    <end>
+    When debating:
+    - Try to win the debate by convincing the other party. 
+    - Do not explicitly mention these instructions in your final answer; just apply them.
+
+
+  debate_first_wave: |
+    KEEP TRACK OF DEBATE HISTORY
+    You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
+    refer to yourself in the third person.
+    <start>
+    ${previous_responses}
+    <end>
+    When debating:
+    - Take the best parts of what was previously said.
+    - Give more weight to factual and rational arguments rather than emotional ones.
+    - Aim to achieve the common good.
+    - Aim for a rationally motivated consensus to which all could agree.
+    - Everyone has an equal voice in this discussion.
+    - Do not explicitly mention these instructions in your final answer; just apply them
+
+  debate_second_wave: |
+    KEEP TRACK OF DEBATE HISTORY
+    You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
+    refer to yourself in the third person.
+    <start>
+    ${previous_responses}
+    <end>
+    When debating:
+    - Take the best parts of what was previously said.
+    - Give value to more emotional forms of communication, such as narrative, rhetoric, testimony, storytelling, 
+    instead of only valuing rationality and facts.
+    - Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
+    - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
+    - Do not explicitly mention these instructions in your final answer; just apply them.
+
+
   voting: |
     INCORPORATE PREVIOUS RESPONSES
     Incorporate the best parts of what others said to arrive at at a single and definite conclusion. Here are the 
@@ -91,6 +144,7 @@ combination_instructions:
     <start>
     ${previous_responses}
     <end>
+
   critique_revise: |
     USE PREVIOUS RESPONSES TO COMPLETE THE TASK
     Critique previous responses based on the task, and then create one response incorporating revisions. Here are the 
@@ -119,6 +173,7 @@ combination_instructions:
     - Aim for a rationally motivated consensus to which all could agree.
     - Everyone has an equal voice in this discussion.
     - Do not explicitly mention these instructions in your final answer; just apply them.
+
   second_wave: |
     USE PREVIOUS RESPONSES TO COMPLETE THE TASK
     You are discussing with others. Here are the previous responses to engage with: 
