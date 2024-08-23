@@ -208,13 +208,13 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A custom string class that overrides the format method to use string.Template&#39;s safe substitute.</span>
 
-<span class="sd">    Problem it fixes: Oftentimes users will have some kind of json string in their task and this throws an error with</span>
+<span class="sd">    Problem it fixes: Oftentimes users will have some kind of json type string in their task and this throws an error with</span>
 <span class="sd">    normal strings.</span>
 
-<span class="sd">    Longer explanation: The format method of the str class uses the curly braces syntax for string formatting. This</span>
+<span class="sd">    Longer explanation: The format method of Python&#39;s string class uses the curly braces syntax for string formatting. This</span>
 <span class="sd">    breaks when the string `s` contains curly braces that are not meant to be replaced. So as a solution one can turn</span>
-<span class="sd">    `s` into a string Template and use the `safe_substitute` method to replace the variables. This is what the</span>
-<span class="sd">    SmartString class does: It is a subclass of str that overrides the format method to use `string.Template` for</span>
+<span class="sd">    `s` into a string Template and use the ``safe_substitute`` method to replace the variables. This is what the</span>
+<span class="sd">    SmartString class does: It is a subclass of string that overrides the format method to use ``string.Template`` for</span>
 <span class="sd">    string formatting.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -224,12 +224,12 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Override the format method to use string.Template for string formatting.</span>
 
-<span class="sd">        Also, if avoid_double_period is True, then we will remove the trailing period from the formatted string if it</span>
-<span class="sd">        is already present. This happens if the string is like `Complete the {task}.` and the user passes `task=Do</span>
-<span class="sd">        the thing`. In this case, we want to remove the extra period. This is particularly useful for Moderator</span>
-<span class="sd">        personas where in defaults they often end on the task.</span>
+<span class="sd">        Also, if ``avoid_double_period`` is True, then we will remove the trailing period from the formatted string if it</span>
+<span class="sd">        is already present. This happens if the string is like `Complete the following task: {task}.` and the user passes `task=Do</span>
+<span class="sd">        the thing`. In this case, the default output would have an extra period: `Complete the following task: Do the thing..`</span>
 
 <span class="sd">        Double-period algorithm:</span>
+
 <span class="sd">        Foreach key, value in kwargs:</span>
 
 <span class="sd">        1. Construct a placeholder-plus-period like &quot;{task}.&quot; (assuming {task} is placeholder here)</span>
