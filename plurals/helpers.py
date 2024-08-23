@@ -119,13 +119,13 @@ class SmartString(str):
     """
     A custom string class that overrides the format method to use string.Template's safe substitute.
 
-    Problem it fixes: Oftentimes users will have some kind of json string in their task and this throws an error with
+    Problem it fixes: Oftentimes users will have some kind of json type string in their task and this throws an error with
     normal strings.
 
-    Longer explanation: The format method of the str class uses the curly braces syntax for string formatting. This
+    Longer explanation: The format method of Python's string class uses the curly braces syntax for string formatting. This
     breaks when the string `s` contains curly braces that are not meant to be replaced. So as a solution one can turn
-    `s` into a string Template and use the `safe_substitute` method to replace the variables. This is what the
-    SmartString class does: It is a subclass of str that overrides the format method to use `string.Template` for
+    `s` into a string Template and use the ``safe_substitute`` method to replace the variables. This is what the
+    SmartString class does: It is a subclass of string that overrides the format method to use ``string.Template`` for
     string formatting.
     """
 
@@ -133,12 +133,12 @@ class SmartString(str):
         """
         Override the format method to use string.Template for string formatting.
 
-        Also, if avoid_double_period is True, then we will remove the trailing period from the formatted string if it
-        is already present. This happens if the string is like `Complete the {task}.` and the user passes `task=Do
-        the thing`. In this case, we want to remove the extra period. This is particularly useful for Moderator
-        personas where in defaults they often end on the task.
+        Also, if ``avoid_double_period`` is True, then we will remove the trailing period from the formatted string if it
+        is already present. This happens if the string is like `Complete the following task: {task}.` and the user passes `task=Do
+        the thing`. In this case, the default output would have an extra period: `Complete the following task: Do the thing..`
 
         Double-period algorithm:
+
         Foreach key, value in kwargs:
 
         1. Construct a placeholder-plus-period like "{task}." (assuming {task} is placeholder here)
