@@ -603,8 +603,8 @@ class Debate(AbstractStructure):
     def process(self):
         """
         Process the debate. In a debate, two agents take turns responding to a task. Prompts for agents are prefixed
-        with [You] and [Other] to indicate the speaker. For moderators the responses are prefixed with [Debater 1] and
-        [Debater 2] to indicate the speaker.
+        with [WHAT YOU SAID] and [WHAT OTHER PARTICIPANT SAID] to indicate the speaker. For moderators the responses are
+        prefixed with [Debater 1] and [Debater 2] to indicate the speaker.
         """
 
         # Initialize lists for storing responses from the perspective of each agent.

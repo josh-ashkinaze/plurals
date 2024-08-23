@@ -80,41 +80,22 @@ class TestAgent(unittest.TestCase):
 
     def test_agent_combo_inst_overwrite(self):
         """Test whether combination instructions are properly set for agents. If they are provided to agents and
-        structures the desired behavior is that structures will overwrite agents combination instructions"""
-        a2 = Agent(ideology='moderate', model=self.model, combination_instructions='initial instructions',
+        structures the desired behavior is that agents will overwrite structure combination instructions"""
+        a2 = Agent(ideology='moderate', model=self.model, combination_instructions='agent 2 instructions',
                    kwargs=self.kwargs)
-        a3 = Agent(ideology='liberal', model=self.model, kwargs=self.kwargs)
-        a4 = Agent(ideology='conservative', model=self.model, combination_instructions='initial instructions',
+        a3 = Agent(ideology='liberal', model=self.model, kwargs=self.kwargs, combination_instructions='agent 3 instructions')
+        a4 = Agent(ideology='conservative', model=self.model, combination_instructions='agent 4 instructions',
                    kwargs=self.kwargs)
         mixed = Chain([a2, a3, a4], task=self.task, combination_instructions='voting')
 
         mixed._set_combination_instructions()
 
-        expected_instructions = SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task)
 
         # Assertions
-        self.assertEqual(expected_instructions, a2.combination_instructions)
-        self.assertEqual(expected_instructions, a3.combination_instructions)
-        self.assertEqual(expected_instructions, a4.combination_instructions)
+        self.assertEqual("agent 2 instructions", a2.combination_instructions)
+        self.assertEqual("agent 3 instructions", a3.combination_instructions)
+        self.assertEqual("agent 4 instructions", a4.combination_instructions)
 
-    def test_agent_combo_instr_overwrite_warning(self):
-        """Test whether a warning is raised when combination instructions are overwritten"""
-        a2 = Agent(ideology='moderate', model=self.model, combination_instructions='initial instructions',
-                   kwargs=self.kwargs)
-        a3 = Agent(ideology='liberal', model=self.model, kwargs=self.kwargs)
-        a4 = Agent(ideology='conservative', model=self.model, combination_instructions='initial instructions',
-                   kwargs=self.kwargs)
-        mixed = Chain([a2, a3, a4], task=self.task, combination_instructions='voting')
-
-        with self.assertWarns(UserWarning):
-            mixed._set_combination_instructions()
-
-        expected_instructions = SmartString(DEFAULTS['combination_instructions']['voting']).format(task=self.task)
-
-        # Assertions
-        self.assertEqual(expected_instructions, a2.combination_instructions)
-        self.assertEqual(expected_instructions, a3.combination_instructions)
-        self.assertEqual(expected_instructions, a4.combination_instructions)
 
     def test_agent_process_task_with_task_arg(self):
         """
@@ -607,27 +588,27 @@ class TestDebate(unittest.TestCase):
         self.assertTrue(debate_structure.responses[2].startswith("[Debater 1]"))
 
         # Check that for Debater 2 on the first turn it is the case that Debater 1's answer is in the user prompt
-        # and prefixed by "[Other]:"
+        # and prefixed by "[WHAT OTHER PARTICIPANT SAID]:"
         user_prompt = agents[1].info['history'][0]['prompts']['user']
-        self.assertIn("[Other]:", user_prompt)
-        prev_response = user_prompt.split("[Other]:")[1].split("<end>")[0].strip()
+        self.assertIn("[WHAT OTHER PARTICIPANT SAID]:", user_prompt)
+        prev_response = user_prompt.split("[WHAT OTHER PARTICIPANT SAID]:")[1].split("<end>")[0].strip()
         debater_1_initial_response = agents[0].info['history'][0]['response'].strip()
         self.assertEqual(debater_1_initial_response, prev_response)
 
         # Check that for Debater 1 on the second term it is the case that...
-        # Check 1: There is only a [You] and [Other] placeholder
+        # Check 1: There is only a single [WHAT YOU SAID] and [WHAT OTHER PARTICIPANT SAID] placeholder
         user_prompt = agents[0].info['history'][1]['prompts']['user']
-        you_counts = user_prompt.count("[You]:")
-        other_counts = user_prompt.count("[Other]:")
+        you_counts = user_prompt.count("[WHAT YOU SAID]:")
+        other_counts = user_prompt.count("[WHAT OTHER PARTICIPANT SAID]:")
         self.assertEqual(1, you_counts)
         self.assertEqual(1, other_counts)
 
         # Check 2: Debater 1's previous response is in the user prompt and
-        # prefixed by [You]
+        # prefixed by [WHAT YOU SAID]
         debater_1_initial_response = agents[0].info['history'][0]['response'].strip()
         debater_2_initial_response = agents[1].info['history'][0]['response'].strip()
-        self.assertIn("[You]: " + debater_1_initial_response, user_prompt)
-        self.assertIn("[Other]: " + debater_2_initial_response, user_prompt)
+        self.assertIn("[WHAT YOU SAID]: " + debater_1_initial_response, user_prompt)
+        self.assertIn("[WHAT OTHER PARTICIPANT SAID]: " + debater_2_initial_response, user_prompt)
 
         correct_strings = ["Response 0: [Debater 1]", "Response 1: [Debater 2]", "Response 2: [Debater 1]",
                            "Response 3: [Debater 2]", ]
