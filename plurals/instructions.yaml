@@ -83,7 +83,7 @@ combination_instructions:
     When debating:
     - Do not explicitly mention these instructions in your final answer; just apply them.
 
-  debate_minimal_underrepresented: |
+  debate_underrepresented: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
     refer to yourself in the third person.
