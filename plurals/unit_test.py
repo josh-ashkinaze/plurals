@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch, Mock
 from plurals.agent import Agent
 from plurals.deliberation import Chain, Moderator, Ensemble, Debate, Graph, AbstractStructure
 from plurals.helpers import load_yaml, format_previous_responses, SmartString, strip_nested_dict
+import json
 
 DEFAULTS = load_yaml("instructions.yaml")
 DEFAULTS = strip_nested_dict(DEFAULTS)
@@ -396,7 +397,6 @@ class TestModerator(unittest.TestCase):
         self.assertEqual(expected_persona, mixed.moderator.persona)
         self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
 
-
 class TestChain(unittest.TestCase):
 
     def setUp(self):
@@ -619,7 +619,7 @@ class TestDebate(unittest.TestCase):
 
         # Check for correct strings in the current task description
         for correct_string in correct_strings:
-            self.assertIn(correct_string, debate_structure.moderator.info['current_task_description'],
+            self.assertIn(correct_string, debate_structure.moderator._info['current_task_description'],
                           f"{correct_string} should be in the moderator's current task description.")
 
         # Check for incorrect strings not in the current task description
