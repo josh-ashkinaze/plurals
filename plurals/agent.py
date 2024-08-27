@@ -225,7 +225,7 @@ class Agent:
                  query_str: Optional[str] = None,
                  model: str = "gpt-4o",
                  system_instructions: Optional[str] = None,
-                 persona_template: Optional[str] = "default",
+                 persona_template: Optional[str] = None,
                  persona: Optional[str] = None,
                  kwargs: Optional[Dict[str, Any]] = None):
         self.model = model
@@ -305,7 +305,6 @@ class Agent:
         Sets:
             self.persona_template: Uses `anes` persona
         """
-        self.persona_template = self.defaults['persona_template'].get("anes")
         if self.persona == "random":
             return self._get_random_persona(self.data)
         if self.ideology:
