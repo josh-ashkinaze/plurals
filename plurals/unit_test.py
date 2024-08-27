@@ -265,8 +265,8 @@ class TestModerator(unittest.TestCase):
         sys_inst = "These should be moderator's system instructions"
         mod = Moderator(system_instructions=sys_inst)
         self.assertEqual(sys_inst, mod.system_instructions)
-        self.assertIsNone(mod.persona)
-        self.assertIsNone(mod.persona_template)
+        self.assertIsNone(mod.info['persona'])
+        self.assertIsNone(mod.info['persona_template'])
 
     def test_init_with_default(self):
         default_persona = DEFAULTS["moderator"]['persona'].get('default', 'default_moderator_persona')
@@ -316,8 +316,8 @@ class TestModerator(unittest.TestCase):
         chain = Chain(agents=[agent1, agent2], task=self.task, moderator=moderator)
 
         self.assertEqual("Combine responses coherently.", chain.moderator.system_instructions)
-        self.assertIsNone(chain.moderator.persona)
-        self.assertIsNone(chain.moderator.persona_template)
+        self.assertIsNone(chain.moderator.info['persona'])
+        self.assertIsNone(chain.moderator.info['persona_template'])
 
     def test_moderator_kwargs(self):
         """Test setting kwargs for moderators results in valid response and are accurately passed to moderators"""
