@@ -575,13 +575,7 @@ class Debate(AbstractStructure):
         if len(agents) != 2:
             raise ValueError("Debate requires exactly two agents.")
         super().__init__(
-            agents,
-            task,
-            shuffle,
-            cycles,
-            last_n,
-            combination_instructions,
-            moderator)
+            agents,task,shuffle,cycles,last_n,combination_instructions,moderator)
 
     @staticmethod
     def _format_previous_responses(responses: List[str]) -> str:
@@ -600,6 +594,14 @@ class Debate(AbstractStructure):
                     responses[i]) for i in range(
                     len(responses))]
             return "".join(resp_list).strip()
+
+    @staticmethod
+    def _strip_placeholders(response: str) -> str:
+        """
+        Strip placeholders from the response. These placeholders are used to indicate the speaker in the debate, but
+        sometimes LLMs add them to the response. This function removes them.
+        """
+        return response.replace("[WHAT YOU SAID]: ", "").replace("[WHAT OTHER PARTICIPANT SAID]: ", "")
 
     def process(self):
         """
@@ -633,6 +635,7 @@ class Debate(AbstractStructure):
 
                 agent.combination_instructions = self.combination_instructions
                 response = agent.process(previous_responses=previous_responses_str)
+                response = self._strip_placeholders(response)
                 self.responses.append("[Debater {}] ".format(i + 1) + response)
 
                 # Apply the correct prefix and update both lists
