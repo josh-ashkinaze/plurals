@@ -241,7 +241,7 @@ class Agent:
         self.original_task_description = task
         self.current_task_description = task
         self.defaults = DEFAULTS
-        self.persona_template = persona_template
+        self.persona_template = self.handle_default_persona_template() if not persona_template else persona_template
         self._validate_templates()
         self._validate_system_instructions()
         self._set_system_instructions()
@@ -592,3 +592,22 @@ class Agent:
         """
         self.original_task_description = task
         self.current_task_description = task
+
+    def is_anes_persona(self) -> bool:
+        """
+        Returns:
+            bool: Whether the persona is an ANES-generated persona.
+        """
+        if self.ideology or self.query_str:
+            return True
+        if self.persona == "random":
+            return True
+        else:
+            return False
+
+    def handle_default_persona_template(self):
+        """The default persona template should be `default' if not ANES persona else 'anes'"""
+        if self.is_anes_persona():
+            return "anes"
+        else:
+            return "default"
