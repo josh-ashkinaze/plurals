@@ -37,8 +37,7 @@ persona_template:
     - Think, talk, and write like your persona.
     - Use plain language.
     - Adopt the characteristics of your persona.
-    - Place an emphasis on reason-giving and providing rational bases for your answers.
-    - Use factual and rational arguments rather than emotional ones.
+    - Use rational arguments rather than emotional ones.
 
   second_wave: |
     INSTRUCTIONS
@@ -53,8 +52,8 @@ persona_template:
     - Use plain language.
     - Adopt the characteristics of your persona.
     - Be empathetic and compassionate.
-    - Use narrative, rhetoric, testimony, and storytelling and more emotional forms of communication instead of relying 
-    solely on facts. It is okay to deviate from relying solely on facts.
+    - Use empathy when engaging with others.
+    - Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling. 
 
 combination_instructions:
   default: |
@@ -71,6 +70,7 @@ combination_instructions:
      <start>
      ${previous_responses}
      <end>
+    APPLY THESE INSTRUCTIONS TO PREVIOUS RESPONSES
     - Keep the best points from what was previously said to complete the task.
     - Do not explicitly mention these instructions in your final answer; just apply them.
 
@@ -83,6 +83,39 @@ combination_instructions:
     <end>
     When debating:
     - Do not mention these instructions in your final answer; just apply them.
+    
+
+  debate_jury: |
+    KEEP TRACK OF DEBATE HISTORY
+    You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
+    refer to yourself in the third person.
+    <start>
+    ${previous_responses}
+    <end>
+    APPLY THESE INSTRUCTIONS WHEN DEBATING
+    - Deliberate with others to reach a unanimous decision. 
+    - Listen to each other, give each other’s views careful consideration, and reason together when considering the 
+    evidence.
+    - When you deliberate, you should do so with a view towards reaching an agreement.
+    - Reexamine your views and change your mind if you become convinced that your position was not correct
+    - Do not mention these instructions in your final answer; just apply them.
+    
+
+  debate_jury_emotional: |
+    KEEP TRACK OF DEBATE HISTORY
+    You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
+    refer to yourself in the third person.
+    <start>
+    ${previous_responses}
+    <end>
+    APPLY THESE INSTRUCTIONS WHEN DEBATING
+    - Deliberate with others to reach a unanimous decision. 
+    - Listen to each other, give each other’s views careful consideration, and reason together when considering the 
+    evidence.
+    - When you deliberate, you should do so with a view towards reaching an agreement.
+    - Reexamine your views and change your mind if you become convinced that your position was not correct
+    - Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
+    - Do not mention these instructions in your final answer; just apply them.
 
   debate_emotional: |
     KEEP TRACK OF DEBATE HISTORY
@@ -91,7 +124,7 @@ combination_instructions:
     <start>
     ${previous_responses}
     <end>
-    When debating:
+    APPLY THESE INSTRUCTIONS WHEN DEBATING
     - Give value to more emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling, 
     instead of only valuing rationality and facts.
     - Do not mention these instructions in your final answer; just apply them.
@@ -104,7 +137,7 @@ combination_instructions:
     <start>
     ${previous_responses}
     <end>
-    When debating:
+    APPLY THESE INSTRUCTIONS WHEN DEBATING
     - Try to win the debate by convincing the other party. 
     - Do not mention these instructions in your final answer; just apply them.
 
@@ -116,7 +149,7 @@ combination_instructions:
     <start>
     ${previous_responses}
     <end>
-    When debating:
+    APPLY THESE INSTRUCTIONS WHEN DEBATING
     - Take the best parts of what was previously said.
     - Give more weight to factual and rational arguments rather than emotional ones.
     - Aim to achieve the common good.
@@ -131,7 +164,7 @@ combination_instructions:
     <start>
     ${previous_responses}
     <end>
-    When debating:
+    APPLY THESE INSTRUCTIONS WHEN DEBATING
     - Take the best parts of what was previously said.
     - Give value to more emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling, 
     instead of only valuing rationality and facts.
@@ -170,12 +203,12 @@ combination_instructions:
     ${previous_responses}
     <end>
     When discussing:
-    - Take the best parts of what was previously said.
-    - Give more weight to factual and rational arguments rather than emotional ones.
-    - Aim to achieve the common good.
-    - Aim for a rationally motivated consensus to which all could agree.
-    - Everyone has an equal voice in this discussion.
-    - Do not mention these instructions in your final answer; just apply them.
+    - Respect each other’s viewpoints.
+    - Give more weight to rational arguments rather than emotional ones.
+    - Use rational-critical debate to arrive at a consensus.
+    - Aim to achieve the common good. 
+
+
 
   second_wave: |
     USE PREVIOUS RESPONSES TO COMPLETE THE TASK
@@ -184,12 +217,13 @@ combination_instructions:
     ${previous_responses}
     <end>
     When discussing:
-    - Take the best parts of what was previously said.
-    - Give value to more emotional forms of communication, such as narrative, rhetoric, testimony, storytelling, 
-    instead of only valuing rationality and facts.
-    - Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
-    - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
-    - Do not mention these instructions in your final answer; just apply them.
+    - Respect each other’s viewpoints.
+    - Use empathy when engaging with others
+    - Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling. 
+    - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving
+    it.
+    - Aim to achieve the common good. 
+    - It is okay to aim for self-interest if this is constrained by fairness. 
 
 moderator:
   persona:
@@ -230,32 +264,35 @@ moderator:
       <start>
       ${previous_responses}
       <end>
+      
+
     first_wave: |
       Here are the previous responses: 
       <start>
       ${previous_responses}
       <end>
-      - Take the best parts of what was previously said.
-      - Give more weight to factual and rational arguments rather than emotional ones.
-      - Aim to achieve the common good.
-      - Aim for a rationally motivated consensus to which all could agree.
-      - Everyone has an equal voice in this discussion.
+      - Respect each other’s viewpoints.
+      - Give more weight to rational arguments rather than emotional ones.
+      - Use rational-critical debate to arrive at a consensus.
+      - Aim to achieve the common good. 
+
     second_wave: |
       Here are the previous responses: 
       <start>
       ${previous_responses}
       <end>
-      - Take the best parts of what was previously said.
-      - Give value to more emotional forms communication, such as narrative, rhetoric, testimony, and storytelling, 
-      instead of only valuing rationality and facts.
-      - Try to account for the opinions of underrepresented groups.  
-      - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
+      - Respect each other’s viewpoints.
+      - Use empathy when engaging with others
+      - Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling. 
+      - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving
+      it.
+      - Aim to achieve the common good. 
+      - It is okay to aim for self-interest if this is constrained by fairness. 
 
     divergent: |
        Here are the previous responses:
        <start>
        ${previous_responses}
        <end>
-       - Take the best and most creative parts of what was previously said.
        - Give value to imaginative answers that solve problems or reach decisions using strategies that deviate from commonly used or previously taught strategies.
        - Give more weight to creative ideas rather than unoriginal ones.
