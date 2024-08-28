@@ -229,7 +229,6 @@ class Moderator(Agent):
         Returns:
             str: A combined response based on the moderator's instructions
         """
-        print("task", self.task)
         combined_responses_str = format_previous_responses(responses)
         self.combination_instructions = SmartString(self.combination_instructions).format(
             previous_responses=combined_responses_str,
