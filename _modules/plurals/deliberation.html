@@ -232,10 +232,9 @@
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="n">system_instructions</span><span class="p">,</span> <span class="n">persona</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
                              <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
 
-        <span class="c1"># Case 5: if neither persona nor system_instructions are provided, use default persona</span>
+        <span class="c1"># Case 5: if neither persona nor system_instructions are provided, set no system instructions.</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">default_persona</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span><span class="s1">&#39;persona&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;default_moderator_persona&#39;</span><span class="p">)</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="n">default_persona</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;$</span><span class="si">{persona}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
                              <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span><span class="s1">&#39;combination_instructions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">combination_instructions</span><span class="p">,</span>
@@ -320,11 +319,15 @@
             <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">,</span>
             <span class="n">avoid_double_period</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">,</span>
-            <span class="n">previous_responses</span><span class="o">=</span><span class="n">combined_responses_str</span><span class="p">,</span>
-            <span class="n">persona</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persona</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">,</span>
+                <span class="n">previous_responses</span><span class="o">=</span><span class="n">combined_responses_str</span><span class="p">,</span>
+                <span class="n">persona</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persona</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">combined_responses_str</span><span class="p">)</span></div>
 
 
@@ -491,7 +494,7 @@
                 <span class="c1"># Common operations for cases 1 and 3</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
                     <span class="c1"># Case 2: Value provided to neither moderator nor structure</span>

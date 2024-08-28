@@ -244,6 +244,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            str: The formatted string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">Template</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">formatted_string</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">safe_substitute</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">avoid_double_period</span><span class="p">:</span>
