@@ -153,6 +153,8 @@ class SmartString(str):
         Returns:
             str: The formatted string.
         """
+        if not self:
+            return None
         template = string.Template(self)
         formatted_string = template.safe_substitute(**kwargs)
         if avoid_double_period:

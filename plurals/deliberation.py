@@ -155,10 +155,9 @@ class Moderator(Agent):
             super().__init__(system_instructions=system_instructions, persona=None, persona_template=None, model=model,
                              kwargs=kwargs, task=task)
 
-        # Case 5: if neither persona nor system_instructions are provided, use default persona
+        # Case 5: if neither persona nor system_instructions are provided, set no system instructions.
         else:
-            default_persona = DEFAULTS["moderator"]['persona'].get('default', 'default_moderator_persona')
-            super().__init__(persona=default_persona, persona_template="${persona}", model=model, kwargs=kwargs,
+            super().__init__(system_instructions=None, model=model, kwargs=kwargs,
                              task=task)
 
         self.combination_instructions = DEFAULTS["moderator"]['combination_instructions'].get(combination_instructions,
@@ -237,11 +236,15 @@ class Moderator(Agent):
             task=self.task,
             avoid_double_period=True
         )
-        self.system_instructions = SmartString(self.system_instructions).format(
-            task=self.task,
-            previous_responses=combined_responses_str,
-            persona=self.persona
-        )
+        if self.system_instructions:
+            self.system_instructions = SmartString(self.system_instructions).format(
+                task=self.task,
+                previous_responses=combined_responses_str,
+                persona=self.persona
+            )
+        else:
+            pass
+
         return self.process(previous_responses=combined_responses_str)
 
 
@@ -405,7 +408,7 @@ class AbstractStructure(ABC):
                 # Common operations for cases 1 and 3
                 self.moderator.task_description = self.task
                 self.moderator.system_instructions = SmartString(
-                    self.moderator.system_instructions).format(task=self.task)
+                    self.moderator.system_instructions).format(task=self.task) if self.moderator.system_instructions else None
             else:
                 if not self.moderator.task or self.moderator.task.strip() == '':
                     # Case 2: Value provided to neither moderator nor structure

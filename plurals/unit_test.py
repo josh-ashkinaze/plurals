@@ -270,7 +270,7 @@ class TestModerator(unittest.TestCase):
 
     def test_init_with_default(self):
         default_persona = DEFAULTS["moderator"]['persona'].get('default', 'default_moderator_persona')
-        mod = Moderator(model=self.model)
+        mod = Moderator(model=self.model, persona='default')
         self.assertEqual(default_persona, mod.persona)
         self.assertEqual("${persona}", mod.persona_template)
 
@@ -330,7 +330,7 @@ class TestModerator(unittest.TestCase):
         a2 = Agent(ideology='moderate', model=self.model)
         a3 = Agent(ideology='liberal', model=self.model)
         a4 = Agent(ideology='conservative', model=self.model)
-        mod = Moderator()
+        mod = Moderator(persona='default')
         mixed = Chain([a2, a3, a4], task=self.task, moderator=mod)
         mixed.process()
         formatted_responses = mixed.responses[:-1]
@@ -344,6 +344,26 @@ class TestModerator(unittest.TestCase):
         self.assertIsNotNone(mixed.final_response)
         self.assertEqual(expected_persona, mixed.moderator.persona)
         self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
+
+    def test_moderator_no_instructions(self):
+        """Test whether the moderator is properly initialized with default instructions"""
+        a2 = Agent(ideology='moderate', model=self.model)
+        a3 = Agent(ideology='liberal', model=self.model)
+        a4 = Agent(ideology='conservative', model=self.model)
+        mod = Moderator()
+        mixed = Chain([a2, a3, a4], task=self.task, moderator=mod)
+        mixed.process()
+        formatted_responses = mixed.responses[:-1]
+
+        expected_combination_instructions = SmartString(
+            DEFAULTS['moderator']['combination_instructions']['default']).format(
+            previous_responses=format_previous_responses(formatted_responses))
+
+        # Assertions
+        self.assertIsNotNone(mixed.final_response)
+        self.assertEqual(None, mixed.moderator.persona)
+        self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
+        self.assertEqual(None, mixed.moderator.system_instructions)
 
     def test_moderator_manual(self):
         """Test manual moderator persona and combination instructions"""
