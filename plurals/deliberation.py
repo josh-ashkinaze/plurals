@@ -676,10 +676,10 @@ class Graph(AbstractStructure):
 
     **Examples:**
 
-        **Method 1:**
-
         Suppose we have three Agents, and we want to create a graph where the output of the liberal is fed to both the conservative and libertarian.
         Then the output of the conservative is fed to the libertarian.
+
+        **Method 1:**
 
         .. code-block:: python
 
