@@ -390,9 +390,9 @@ ways to construct the graph, with examples of each method right below.</p>
 <p>Note that the graph must be a directed acyclic graph (DAG) or else an error will be raised.</p>
 <p><strong>Examples:</strong></p>
 <blockquote>
-<div><p><strong>Method 1:</strong></p>
-<p>Suppose we have three Agents, and we want to create a graph where the output of the liberal is fed to both the conservative and libertarian.
+<div><p>Suppose we have three Agents, and we want to create a graph where the output of the liberal is fed to both the conservative and libertarian.
 Then the output of the conservative is fed to the libertarian.</p>
+<p><strong>Method 1:</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Agents</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a liberal&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">),</span>
     <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">),</span>
