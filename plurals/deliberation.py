@@ -9,6 +9,9 @@ from plurals.helpers import SmartString, strip_nested_dict
 import re
 import collections
 from pprint import pprint
+import networkx
+import matplotlib.pyplot as plt
+import networkx as nx
 
 DEFAULTS = load_yaml("instructions.yaml")
 DEFAULTS = strip_nested_dict(DEFAULTS)
@@ -726,6 +729,11 @@ class Graph(AbstractStructure):
             last_n (int, optional): The number of last responses to consider for processing tasks. Defaults to 1000.
             combination_instructions (str, optional): The instructions for combining responses. Defaults to 'default'.
             moderator (Moderator, optional): A moderator to moderate responses. Defaults to None.
+
+        Properties:
+            graph (Dict[Agent, List[Agent]]): A dictionary where the key is an agent and the value is a list of agents
+            that the key agent is connected to.
+            nx_graph (networkx directed graph_: A networkx graph
         """
 
         self.original_agents = agents
@@ -765,6 +773,32 @@ class Graph(AbstractStructure):
             dst_agent = self.agents[dst_idx]
             self.graph[src_agent].append(dst_agent)
             self.in_degree[dst_agent] += 1
+
+
+     @property
+    def nx_graph(self):
+        """
+        Returns the networkx directed graph representation of the graph.
+        """
+        import networkx as nx
+        G = nx.DiGraph()
+        for src_agent, dst_agents in self.graph.items():
+            for dst_agent in dst_agents:
+                G.add_edge(src_agent, dst_agent)
+        return
+
+
+    def draw_graph(self):
+        """
+        Draws the graph using networkx and matplotlib.
+        """
+
+        G = self.nx_graph
+        pos = nx.spring_layout(G)
+        nx.draw(G, pos, with_labels=True, node_size=3000, node_color="skyblue", font_size=10, font_weight="bold",
+                font_color="black", edge_color="black", linewidths=1, width=1, alpha=0.7, arrowsize=20)
+        plt.title("Directed Acyclic Graph (DAG) of Agents")
+        plt.show()
 
     def process(self):
         """
@@ -830,7 +864,6 @@ class Graph(AbstractStructure):
 
         # Handle the moderator if present
         if self.moderated and self.moderator:
-            original_task = self.agents[0].original_task_description
             moderated_response = self.moderator._moderate_responses(list(response_dict.values()))
             self.responses.append(moderated_response)
             self.final_response = moderated_response
