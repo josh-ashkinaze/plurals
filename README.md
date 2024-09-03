@@ -42,7 +42,7 @@
 
 
 # System Diagram 
-<img src="https://github.com/josh-ashkinaze/plurals/raw/main/system_diagram.jpeg" alt="System Diagram" width="100%">
+<img src="https://github.com/josh-ashkinaze/plurals/raw/main/system_diagram.png" alt="System Diagram" width="100%">
 
 
 # Installation
