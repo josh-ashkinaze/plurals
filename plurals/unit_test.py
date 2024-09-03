@@ -499,8 +499,7 @@ class TestChain(unittest.TestCase):
 Here are the previous responses: 
  <start>
  Response 0: Social media has both positive and negative impacts on society.
- <end>
-- Do not respond directly to what was previously said, but keep the best points from what was previously said."""
+ <end>"""
 
         # Assertions
         self.assertEqual(expected_agent1_task_description, agent1.current_task_description)
@@ -885,8 +884,7 @@ class TestNetworkStructure(unittest.TestCase):
 Here are the previous responses: 
  <start>
  Response 0: Social media has both positive and negative impacts on society.
- <end>
-- Do not respond directly to what was previously said, but keep the best points from what was previously said."""
+ <end>"""
 
         # Assertions
         self.assertEqual(expected_agent1_task_description, agent1.current_task_description)
