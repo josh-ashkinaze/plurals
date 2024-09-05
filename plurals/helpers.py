@@ -46,7 +46,6 @@ def print_anes_mapping():
                     print(f"{val}")
         print()
 
-
 def strip_nested_dict(d: Dict[str, Any]) -> Dict[str, Any]:
     """
     Strip whitespace from all strings in a nested dictionary.

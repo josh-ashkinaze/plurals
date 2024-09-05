@@ -1152,5 +1152,57 @@ class TestSmartString(unittest.TestCase):
         self.assertEqual("Think about this task, respond slowly...", formatted_string, )
 
 
+class TestAgentRepr(unittest.TestCase):
+    def setUp(self):
+        self.agent = Agent(task="Test task", model="gpt-3.5-turbo")
+
+    def test_agent_repr(self):
+        """Test that the Agent's __repr__ method produces a string"""
+        repr_string = repr(self.agent)
+        print(repr_string)
+        self.assertIsInstance(repr_string, str)
+        self.assertIn("Test task", repr_string)
+        self.assertIn("gpt-3.5-turbo", repr_string)
+
+    def test_agent_repr_with_none_values(self):
+        """Test that the Agent's __repr__ handles None values correctly"""
+        repr_string = repr(self.agent)
+        print(repr_string)
+        self.assertIn("'persona': None", repr_string)
+        self.assertIn("'system_instructions': None", repr_string)
+
+    def test_agent_repr_with_empty_collections(self):
+        """Test that the Agent's __repr__ handles empty collections correctly"""
+        repr_string = repr(self.agent)
+        self.assertIn("'history': None", repr_string)
+        self.assertIn("'kwargs': {}", repr_string)
+
+class TestStructureRepr(unittest.TestCase):
+    def setUp(self):
+        self.agent1 = Agent(task="Task 1", model="gpt-3.5-turbo")
+        self.agent2 = Agent(task="Task 2", model="gpt-3.5-turbo")
+        self.chain = Chain([self.agent1, self.agent2], task="Chain task")
+
+    def test_structure_repr(self):
+        """Test that the Structure's __repr__ method produces a string"""
+        repr_string = repr(self.chain)
+        self.assertIsInstance(repr_string, str)
+        self.assertIn("Chain task", repr_string)
+        self.assertIn("gpt-3.5-turbo", repr_string)
+
+    def test_structure_repr_with_none_values(self):
+        """Test that the Structure's __repr__ handles None values correctly"""
+        self.chain.final_response = None
+        repr_string = repr(self.chain)
+        self.assertIn("'final_response': None", repr_string)
+
+    def test_structure_repr_with_empty_collections(self):
+        """Test that the Structure's __repr__ handles empty collections correctly"""
+        self.chain.responses = []
+        repr_string = repr(self.chain)
+        print(repr_string)
+        self.assertIn("'responses': []", repr_string)
+
+
 if __name__ == '__main__':
     unittest.main()

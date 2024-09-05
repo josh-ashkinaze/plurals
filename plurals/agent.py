@@ -6,7 +6,7 @@ from litellm import completion
 
 from plurals.helpers import *
 
-from pprint import pprint
+from pprint import pformat
 
 DEFAULTS = load_yaml("instructions.yaml")
 DEFAULTS = strip_nested_dict(DEFAULTS)
@@ -573,7 +573,7 @@ class Agent:
         return [history[i]['prompts'] for i in range(len(history))]
 
     def __repr__(self):
-        return pprint(self.info)
+        return pformat(self.info, indent=2)
 
     def set_task(self, task: str):
         """

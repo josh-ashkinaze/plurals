@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from plurals.helpers import SmartString, strip_nested_dict
 import re
 import collections
-from pprint import pprint
+from pprint import pformat
 
 DEFAULTS = load_yaml("instructions.yaml")
 DEFAULTS = strip_nested_dict(DEFAULTS)
@@ -447,7 +447,7 @@ class AbstractStructure(ABC):
             "This method must be implemented in a subclass")
 
     def __repr__(self):
-        return pprint(self.info)
+        return pformat(self.info, indent=2)
 
 
 # Concrete Structures
