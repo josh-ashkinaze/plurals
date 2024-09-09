@@ -116,17 +116,63 @@ def format_previous_responses(responses: List[str]) -> str:
 
 class SmartString(str):
     """
-    A custom string class that overrides the format method to use string.Template's safe substitute.
+    A custom string class with several nice features for this package.
 
-    Problem it fixes: Oftentimes users will have some kind of json type string in their task and this throws an error with
-    normal strings.
+    Features
+    --------
 
-    Longer explanation: The format method of Python's string class uses the curly braces syntax for string formatting. This
-    breaks when the string `s` contains curly braces that are not meant to be replaced. So as a solution one can turn
-    `s` into a string Template and use the ``safe_substitute`` method to replace the variables. This is what the
-    SmartString class does: It is a subclass of string that overrides the format method to use ``string.Template`` for
-    string formatting.
+
+    1. Safe String Formatting
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+    Overrides the format method to use ``safe_substitute`` from ``string.Template``.
+
+    Problem it fixes:
+        Users often have JSON-like strings in their tasks, which can cause errors with normal string formatting.
+
+    Explanation:
+        Python's standard string formatting uses curly braces, which can break when the string contains curly braces NOT meant for replacement.
+        SmartString uses ``string.Template.safe_substitute()`` to safely replace variables, avoiding these problems.
+
+    2. Avoid Double Periods
+    ~~~~~~~~~~~~~~~~~~~~~~~
+    Prevents double periods at the end of formatted strings.
+
+    Problem it fixes:
+        When a replacement value ends with a period and the original string also ends with a period, it results in an undesired double period.
+
+    Example:
+        >>> task = SmartString("Complete the following task: {task}.")
+        >>> task.format(task="Do the thing.")
+        'Complete the following task: Do the thing.'
+
+        **Without** this feature, the output would be:
+        'Complete the following task: Do the thing..'
+
+    3. None Replacement
+    ~~~~~~~~~~~~~~~~~~~
+    Replaces 'None' with an empty string during string creation.
+
+    Problem it fixes:
+        ``str(None)`` returns the string 'None', but for the ``Agent.process`` function, it's preferable to replace 'None' with an empty string.
+
+    Example:
+        >>> SmartString(None)
+        ''
+        >>> str(None)
+        'None'
+
+    Notes
+    -----
+    - The `format` method uses `string.Template.safe_substitute()` internally.
+    - Double periods are automatically avoided unless specified otherwise.
+    - 'None' is replaced with an empty string during string creation.
     """
+
+    def __new__(cls, content):
+        # Replace 'None' with an empty string during string creation
+        if isinstance(content, str):
+            content = content.replace('None', '')
+        return super().__new__(cls, content)
 
     def format(self, avoid_double_period=True, **kwargs):
         """
@@ -151,9 +197,19 @@ class SmartString(str):
             **kwargs: Key-value pairs to replace in the string.
         Returns:
             str: The formatted string.
+
+        Notes:
+            - In edge case where the value for a key is None, we replace it with an empty string. Example of this:
+            >>> task = SmartString("Complete the following task: {task}.")
+            >>> task.format(task=None)
+            'Complete the following task: .'
+
         """
         if not self:
             return None
+
+        kwargs = {k: ('' if v is None else v) for k, v in kwargs.items()}
+
         template = string.Template(self)
         formatted_string = template.safe_substitute(**kwargs)
         if avoid_double_period:
