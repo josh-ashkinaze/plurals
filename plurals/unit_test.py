@@ -1151,6 +1151,34 @@ class TestSmartString(unittest.TestCase):
         formatted_string = SmartString(initial_s).format(task=task, avoid_double_period=True)
         self.assertEqual("Think about this task, respond slowly...", formatted_string, )
 
+    def test_none_replacement_in_creation(self):
+        """Test that 'None' is replaced with an empty string during string creation."""
+        s = SmartString("This is None and this is ${var}")
+        self.assertEqual("This is  and this is ${var}", s)
+
+    def test_none_replacement_in_format(self):
+        """Test that None values are replaced with empty strings during formatting."""
+        s = SmartString("This is ${var1} and this is ${var2}")
+        formatted = s.format(var1=None, var2="something")
+        self.assertEqual("This is  and this is something", formatted)
+
+    def test_none_replacement_in_both(self):
+        """Test None replacement both in creation and formatting."""
+        s = SmartString("This is None and this is ${var}")
+        formatted = s.format(var=None)
+        self.assertEqual("This is  and this is ", formatted)
+
+    def test_none_replacement_with_newline(self):
+        """Test None replacement with newline characters."""
+        s = SmartString("${var1}\n${var2}")
+        formatted = s.format(var1=None, var2="hello")
+        self.assertEqual("\nhello", formatted)
+
+    def test_none_replacement_empty_string(self):
+        """Test that an empty string is returned when all content is None."""
+        s = SmartString("${var1}${var2}")
+        formatted = s.format(var1=None, var2=None)
+        self.assertEqual("", formatted)
 
 class TestAgentRepr(unittest.TestCase):
     def setUp(self):

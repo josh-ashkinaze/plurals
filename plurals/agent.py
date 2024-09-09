@@ -355,7 +355,7 @@ class Agent:
                     f"{self.original_task_description}\n{combined_responses}")
             self.current_task_description = self.current_task_description.strip()
         else:
-            self.current_task_description = self.original_task_description
+            self.current_task_description = self.original_task_description.strip()
         return self._get_response(self.current_task_description)
 
     def _get_random_persona(self, data: pd.DataFrame) -> str:
