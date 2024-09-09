@@ -205,17 +205,63 @@
 <a class="viewcode-back" href="../../helpers.html#plurals.helpers.SmartString">[docs]</a>
 <span class="k">class</span> <span class="nc">SmartString</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A custom string class that overrides the format method to use string.Template&#39;s safe substitute.</span>
+<span class="sd">    A custom string class with several nice features for this package.</span>
 
-<span class="sd">    Problem it fixes: Oftentimes users will have some kind of json type string in their task and this throws an error with</span>
-<span class="sd">    normal strings.</span>
+<span class="sd">    Features</span>
+<span class="sd">    --------</span>
 
-<span class="sd">    Longer explanation: The format method of Python&#39;s string class uses the curly braces syntax for string formatting. This</span>
-<span class="sd">    breaks when the string `s` contains curly braces that are not meant to be replaced. So as a solution one can turn</span>
-<span class="sd">    `s` into a string Template and use the ``safe_substitute`` method to replace the variables. This is what the</span>
-<span class="sd">    SmartString class does: It is a subclass of string that overrides the format method to use ``string.Template`` for</span>
-<span class="sd">    string formatting.</span>
+
+<span class="sd">    1. Safe String Formatting</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">    Overrides the format method to use ``safe_substitute`` from ``string.Template``.</span>
+
+<span class="sd">    Problem it fixes:</span>
+<span class="sd">        Users often have JSON-like strings in their tasks, which can cause errors with normal string formatting.</span>
+
+<span class="sd">    Explanation:</span>
+<span class="sd">        Python&#39;s standard string formatting uses curly braces, which can break when the string contains curly braces NOT meant for replacement.</span>
+<span class="sd">        SmartString uses ``string.Template.safe_substitute()`` to safely replace variables, avoiding these problems.</span>
+
+<span class="sd">    2. Avoid Double Periods</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">    Prevents double periods at the end of formatted strings.</span>
+
+<span class="sd">    Problem it fixes:</span>
+<span class="sd">        When a replacement value ends with a period and the original string also ends with a period, it results in an undesired double period.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; task = SmartString(&quot;Complete the following task: {task}.&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; task.format(task=&quot;Do the thing.&quot;)</span>
+<span class="sd">        &#39;Complete the following task: Do the thing.&#39;</span>
+
+<span class="sd">        **Without** this feature, the output would be:</span>
+<span class="sd">        &#39;Complete the following task: Do the thing..&#39;</span>
+
+<span class="sd">    3. None Replacement</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">    Replaces &#39;None&#39; with an empty string during string creation.</span>
+
+<span class="sd">    Problem it fixes:</span>
+<span class="sd">        ``str(None)`` returns the string &#39;None&#39;, but for the ``Agent.process`` function, it&#39;s preferable to replace &#39;None&#39; with an empty string.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; SmartString(None)</span>
+<span class="sd">        &#39;&#39;</span>
+<span class="sd">        &gt;&gt;&gt; str(None)</span>
+<span class="sd">        &#39;None&#39;</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The `format` method uses `string.Template.safe_substitute()` internally.</span>
+<span class="sd">    - Double periods are automatically avoided unless specified otherwise.</span>
+<span class="sd">    - &#39;None&#39; is replaced with an empty string during string creation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+        <span class="c1"># Replace &#39;None&#39; with an empty string during string creation</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SmartString.format">
 <a class="viewcode-back" href="../../helpers.html#plurals.helpers.SmartString.format">[docs]</a>
@@ -242,9 +288,19 @@
 <span class="sd">            **kwargs: Key-value pairs to replace in the string.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            str: The formatted string.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            - In edge case where the value for a key is None, we replace it with an empty string. Example of this:</span>
+<span class="sd">            &gt;&gt;&gt; task = SmartString(&quot;Complete the following task: {task}.&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; task.format(task=None)</span>
+<span class="sd">            &#39;Complete the following task: .&#39;</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
         <span class="n">template</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">Template</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">formatted_string</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">safe_substitute</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">avoid_double_period</span><span class="p">:</span>

@@ -88,16 +88,58 @@
 <span id="helpers-module"></span><h1>Helpers Module<a class="headerlink" href="#module-plurals.helpers" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="plurals.helpers.SmartString">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.helpers.</span></span><span class="sig-name descname"><span class="pre">SmartString</span></span><a class="reference internal" href="_modules/plurals/helpers.html#SmartString"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.helpers.SmartString" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.helpers.</span></span><span class="sig-name descname"><span class="pre">SmartString</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/helpers.html#SmartString"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.helpers.SmartString" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
-<p>A custom string class that overrides the format method to use string.Template’s safe substitute.</p>
-<p>Problem it fixes: Oftentimes users will have some kind of json type string in their task and this throws an error with
-normal strings.</p>
-<p>Longer explanation: The format method of Python’s string class uses the curly braces syntax for string formatting. This
-breaks when the string <cite>s</cite> contains curly braces that are not meant to be replaced. So as a solution one can turn
-<cite>s</cite> into a string Template and use the <code class="docutils literal notranslate"><span class="pre">safe_substitute</span></code> method to replace the variables. This is what the
-SmartString class does: It is a subclass of string that overrides the format method to use <code class="docutils literal notranslate"><span class="pre">string.Template</span></code> for
-string formatting.</p>
+<p>A custom string class with several nice features for this package.</p>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading"></a></h2>
+<section id="safe-string-formatting">
+<h3>1. Safe String Formatting<a class="headerlink" href="#safe-string-formatting" title="Link to this heading"></a></h3>
+<p>Overrides the format method to use <code class="docutils literal notranslate"><span class="pre">safe_substitute</span></code> from <code class="docutils literal notranslate"><span class="pre">string.Template</span></code>.</p>
+<dl class="simple">
+<dt>Problem it fixes:</dt><dd><p>Users often have JSON-like strings in their tasks, which can cause errors with normal string formatting.</p>
+</dd>
+<dt>Explanation:</dt><dd><p>Python’s standard string formatting uses curly braces, which can break when the string contains curly braces NOT meant for replacement.
+SmartString uses <code class="docutils literal notranslate"><span class="pre">string.Template.safe_substitute()</span></code> to safely replace variables, avoiding these problems.</p>
+</dd>
+</dl>
+</section>
+<section id="avoid-double-periods">
+<h3>2. Avoid Double Periods<a class="headerlink" href="#avoid-double-periods" title="Link to this heading"></a></h3>
+<p>Prevents double periods at the end of formatted strings.</p>
+<dl class="simple">
+<dt>Problem it fixes:</dt><dd><p>When a replacement value ends with a period and the original string also ends with a period, it results in an undesired double period.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">task</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="s2">&quot;Complete the following task: </span><span class="si">{task}</span><span class="s2">.&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">task</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;Do the thing.&quot;</span><span class="p">)</span>
+<span class="go">&#39;Complete the following task: Do the thing.&#39;</span>
+</pre></div>
+</div>
+<p><strong>Without</strong> this feature, the output would be:
+‘Complete the following task: Do the thing..’</p>
+</section>
+<section id="none-replacement">
+<h3>3. None Replacement<a class="headerlink" href="#none-replacement" title="Link to this heading"></a></h3>
+<p>Replaces ‘None’ with an empty string during string creation.</p>
+<dl class="simple">
+<dt>Problem it fixes:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">str(None)</span></code> returns the string ‘None’, but for the <code class="docutils literal notranslate"><span class="pre">Agent.process</span></code> function, it’s preferable to replace ‘None’ with an empty string.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">SmartString</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="go">&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="go">&#39;None&#39;</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The <cite>format</cite> method uses <cite>string.Template.safe_substitute()</cite> internally.</p></li>
+<li><p>Double periods are automatically avoided unless specified otherwise.</p></li>
+<li><p>‘None’ is replaced with an empty string during string creation.</p></li>
+</ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="plurals.helpers.SmartString.format">
 <span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">avoid_double_period</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/helpers.html#SmartString.format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.helpers.SmartString.format" title="Link to this definition"></a></dt>
@@ -126,8 +168,19 @@ the thing</cite>. In this case, the default output would have an extra period: <
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>In edge case where the value for a key is None, we replace it with an empty string. Example of this:</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">task</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="s2">&quot;Complete the following task: </span><span class="si">{task}</span><span class="s2">.&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">task</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="go">&#39;Complete the following task: .&#39;</span>
+</pre></div>
+</div>
 </dd></dl>
 
+</section>
+</section>
 </dd></dl>
 
 <dl class="py function">
