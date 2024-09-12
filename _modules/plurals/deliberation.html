@@ -473,7 +473,7 @@
 <span class="sd">        Set the task description for Moderators.</span>
 
 <span class="sd">        Logic:</span>
-<span class="sd">            - Case 1: Task provided to both Structure and moderator--use moderator&#39;s task description but throw a warning to user.</span>
+<span class="sd">            - Case 1: Different task provided to both Structure and moderator--use moderator&#39;s task description but throw a warning to user. But supress warning if system instructions are &#39;auto&#39;.</span>
 <span class="sd">            - Case 2: Value provided to neither moderator nor structure: Raise an error.</span>
 <span class="sd">            - Case 3: Value provided to Structure but not moderator--set moderator&#39;s task description to be Structure&#39;s</span>
 <span class="sd">            task description.</span>
@@ -481,10 +481,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
                     <span class="c1"># Case 1: Task provided to both Structure and moderator</span>
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;You provided a task to both the Structure and a Moderator. Using the Moderator&#39;s task description:&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="s2">Ensure this is what you want to happen.&quot;</span><span class="p">)</span>
+                        <span class="sa">f</span><span class="s2">&quot;You provided a different task to both the Structure and a Moderator. Using the Moderator&#39;s task description:&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="s2">Ensure this is what you want to happen.&quot;</span><span class="p">)</span>
 
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Case 3: Value provided to Structure but not moderator</span>
