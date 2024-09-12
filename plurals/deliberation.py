@@ -387,7 +387,7 @@ class AbstractStructure(ABC):
         Set the task description for Moderators.
 
         Logic:
-            - Case 1: Task provided to both Structure and moderator--use moderator's task description but throw a warning to user.
+            - Case 1: Task provided to both Structure and moderator--use moderator's task description but throw a warning to user. But supress warning if system instructions are 'auto'.
             - Case 2: Value provided to neither moderator nor structure: Raise an error.
             - Case 3: Value provided to Structure but not moderator--set moderator's task description to be Structure's
             task description.
@@ -395,10 +395,10 @@ class AbstractStructure(ABC):
         """
         if self.moderator:
             if self.task:
-                if self.moderator.task:
+                if self.moderator.task and self.moderator.task.strip() != self.task.strip():
                     # Case 1: Task provided to both Structure and moderator
                     warnings.warn(
-                        f"You provided a task to both the Structure and a Moderator. Using the Moderator's task description:'''\n\n{self.moderator.task}'''\n\nEnsure this is what you want to happen.")
+                        f"You provided a different task to both the Structure and a Moderator. Using the Moderator's task description:'''\n\n{self.moderator.task}'''\n\nEnsure this is what you want to happen.")
 
                 else:
                     # Case 3: Value provided to Structure but not moderator
