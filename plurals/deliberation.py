@@ -387,7 +387,7 @@ class AbstractStructure(ABC):
         Set the task description for Moderators.
 
         Logic:
-            - Case 1: Task provided to both Structure and moderator--use moderator's task description but throw a warning to user. But supress warning if system instructions are 'auto'.
+            - Case 1: Different task provided to both Structure and moderator--use moderator's task description but throw a warning to user. But supress warning if system instructions are 'auto'.
             - Case 2: Value provided to neither moderator nor structure: Raise an error.
             - Case 3: Value provided to Structure but not moderator--set moderator's task description to be Structure's
             task description.
