@@ -687,7 +687,7 @@
     <span class="k">def</span> <span class="nf">_format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        We don&#39;t need to append [Response 0] and [Response 1] to the responses here because they will be prefixed</span>
-<span class="sd">        with [You] and [Other] in the process method already.</span>
+<span class="sd">        with appropriate &#39;you/other&#39; tags in the process method already.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: The formatted responses newline seperated</span>
