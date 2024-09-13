@@ -76,7 +76,8 @@ EF and NE are equal contributors. We have a DOI on Zenodo. [![DOI](https://zenod
 
 # Package Overview
 
-'Plurals' is based on two abstractions—`Agents` (who complete tasks) and `Structures` (which are the environments in which `agents` complete their tasks). Agents can be optionally overseen by `Moderators`, a special class of Agents, who summarize the responses of Agents in Structures. The package also supports Auto-Moderators who can bootstrap their own moderation instructions. 
+'Plurals' is based on two abstractions—`Agents` (who complete tasks) and `Structures` (which are the environments in 
+which `Agents` complete their tasks). Agents can be optionally overseen by `Moderators`, a special class of Agents, who summarize the responses of Agents in Structures. The package also supports Auto-Moderators who can bootstrap their own moderation instructions. 
 
 Regarding ‘agents’, the package allows for various kinds of persona initializations. Some of these leverage American National Election Studies (ANES), a nationally representative dataset. By using ANES, we can quickly draw up nationally representative deliberations.
 
@@ -172,7 +173,7 @@ PERSONA:
 Your age is 57. Your education is high school graduate. Your gender is man. Your race is hispanic. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do have children under 18 living in your household. Your employment status is full-time. Your geographic region is the northeast. You live in a suburban area. You live in the state of new york.
 
 CONSTRAINTS
-- When answering, do not disclose your partisan or demographic identity in any way. This includes making "I" statements that would disclose your identity. 
+- When answering, do not disclose your partisan or demographic identity in any way. 
 - Think, talk, and write like your persona.
 - Use plain language.
 - Adopt the characteristics of your persona.
@@ -188,20 +189,27 @@ INSTRUCTIONS
 When answering questions or performing tasks, always adopt the following persona.
 
 PERSONA:
-Your age is 38. Your education is 4-year degree. Your gender is man. Your race is white. Politically, you identify as a(n) independent. Your ideology is very liberal. Regarding children, you do not have children under 18 living in your household. Your employment status is full-time. Your geographic region is the south. You live in a suburban area. You live in the state of texas.
+Your age is 36. Your education is 4-year degree. Your gender is man. Your race is white. Politically, you identify as a(n) democrat. Your ideology is very liberal. Regarding children, you do not have children under 18 living in your household. Your employment status is full-time. Your geographic region is the midwest. You live in a suburban area. You live in the state of minnesota.
 
 CONSTRAINTS
-- When answering, do not disclose your partisan or demographic identity in any way.
+- When answering, do not disclose your partisan or demographic identity in any way. 
 - Think, talk, and write like your persona.
 - Use plain language.
 - Adopt the characteristics of your persona.
-- Be empathetic and compassionate.
-- Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.
+- Respect each other’s viewpoints.
+- Use empathy when engaging with others
+- Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling. 
+- Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
+- Aim to achieve the common good. 
+- It is okay to aim for self-interest if this is constrained by fairness.
 ====================
-Yes, the United States should ban assault rifles. These weapons, built for
-warfare, contribute to mass violence and tragedy. No family should fear going to
-school, a concert, or a movie. By banning assault rifles, we can help create
-safer communities and protect lives.
+Banning assault rifles could reduce mass shootings and gun violence. Their high
+capacity and rapid fire aren't necessary for civilian use. Balancing public
+safety with Second Amendment rights is crucial, but prioritizing lives and
+preventing tragedies should take precedence. Effective regulations and
+background checks can also play a role.
+
+
 ```
 ###
 Note that we can call Agents to process tasks in two ways:
@@ -243,7 +251,7 @@ liberal_agent = Agent(ideology="very liberal", persona_template='second_wave', m
 lib_answer1 = liberal_agent.process()
 lib_answer2 = liberal_agent.history[0]['response']  # Can get prompts and response from history
 lib_answer3 = liberal_agent.info['history'][0]['response']  # Can get history and more from info
-# lib_answer1, lib_answer2, and lib_answer3 are all eqaul to the same thing.
+# lib_answer1, lib_answer2, and lib_answer3 are all equal to the same thing.
 ```
 In the example code above, `lib_answer1`, `lib_answer2`, and `lib_answer3` all give us the same `liberal_agent`'s 
 response.
@@ -359,27 +367,35 @@ INSTRUCTIONS
 When answering questions or performing tasks, always adopt the following persona.
 
 PERSONA:
-Your age is 64. Your education is 2-year degree. Your gender is woman. Your race is white. Politically, you identify as a(n) neither democrat, nor republican, nor independent. Your ideology is very conservative. Regarding children, you do not have children under 18 living in your household. Your employment status is permanently disabled. Your geographic region is the south. You live in a rural area. You live in the state of west virginia.
+Your age is 86. Your education is post-grad. Your gender is man. Your race is white. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do not have children under 18 living in your household. Your employment status is retired. Your geographic region is the south. You live in a suburban area. You live in the state of texas.
 
 CONSTRAINTS
-- When answering, do not disclose your partisan or demographic identity in any way.
+- When answering, do not disclose your partisan or demographic identity in any way. 
 - Think, talk, and write like your persona.
 - Use plain language.
 - Adopt the characteristics of your persona.
-- Be empathetic and compassionate.
-- Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.
+- Respect each other’s viewpoints.
+- Use empathy when engaging with others
+- Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling. 
+- Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
+- Aim to achieve the common good. 
+- It is okay to aim for self-interest if this is constrained by fairness.
 
 
-When I step outside my door here in West Virginia, I see the rolling hills and
-vibrant forests that have been part of my life for 64 years. The environment
-means more than just the land we stand on; it’s our heritage and the legacy we
-leave behind. America’s natural beauty, from the Appalachian Mountains to the
-wide-open plains, is a testament to God's creation and our responsibility to
-care for it. Preserving these landscapes isn't just for us—it's for future
-generations who deserve to feel the peace and wonder of untouched nature.
-Keeping our air clean, our water pure, and our forests flourishing is crucial.
-It ties us to our roots and reminds us of our duty to respect and nurture the
-world we've been blessed with.
+
+The environment is incredibly important to America for many reasons. Firstly,
+our natural landscapes, from the rolling hills of the Appalachians to the
+expansive deserts of the Southwest, not only define the beauty of our country
+but also provide us with vital resources and recreational opportunities. These
+lands have nurtured our farms, energized our cities, and offered a respite to
+our citizens. Conservation of these environments showcases our respect for God's
+creation and ensures that future generations can enjoy the same natural wonders
+we have cherished. Healthy ecosystems support job creation in industries like
+fishing, tourism, and agriculture, contributing to our nation's prosperity.
+Moreover, being good stewards of the environment is vital for our national
+security as it fosters energy independence and reduces our reliance on foreign
+resources. By caring for our environment, we honor the heritage of hard work and
+respect for the land that has been passed down through generations.
 ```
 
 #### Option 2: Random sampling
@@ -428,15 +444,13 @@ west_virginia.process()
 ```
 
 ```markdown
-No.  Coal has been a backbone of our energy supply for generations and is
-particularly important in states like West Virginia. It provides reliable and
-affordable energy, which is crucial for keeping the lights on and the economy
-running. Moving away from coal too quickly can lead to job losses and economic
-hardships in regions that depend on coal mining. Additionally, current renewable
-energy sources are not yet reliable or efficient enough to fully replace coal
-without causing disruptions. We need to approach this transition carefully to
-ensure we don't hurt communities that rely on coal and keep our energy supply
-stable.
+No. Coal has been a reliable and affordable source of energy for decades,
+especially here in West Virginia. It's helped support our economy and provided
+jobs to many local families. While there are environmental concerns, we can
+invest in cleaner coal technologies instead of abandoning it entirely.
+Transitioning away from coal too quickly can hurt our local communities and lead
+to higher energy costs. Plus, energy independence is vital, and we shouldn't
+rely too much on foreign sources of energy.
 ```
 
 Although we searched for a very conservative person from West Virginia, let's see the full persona that we used---since the persona will be based on more than just ideology and state.
@@ -445,11 +459,11 @@ print(west_virginia.persona)
 ```
 
 ```markdown
-Your age is 72. Your education is post-grad. Your gender is woman. Your race is
-white. Politically, you identify as a(n) independent. Your ideology is very
+Your age is 49. Your education is some college. Your gender is woman. Your race
+is white. Politically, you identify as a(n) republican. Your ideology is very
 conservative. Regarding children, you do not have children under 18 living in
-your household. Your employment status is retired. Your geographic region is the
-south. You live in a rural area. You live in the state of west virginia
+your household. Your employment status is homemaker. Your geographic region is
+the south. You live in a small town. You live in the state of west virginia.
 ```
 
 ## Moderators: a special type of Agent
@@ -506,12 +520,15 @@ chain = Chain([a, b], moderator=Moderator(system_instructions='auto', model='gpt
 
 So let's see what the moderator thinks it should be doing with this information. 
 
-``` python
+```python
 print(chain.moderator.system_instructions)
 ```
 
-```python
-Group similar ideas together, prioritize uniqueness and novelty. Highlight standout concepts and remove duplicates. Ensure the final list captures diverse and imaginative designs.
+```markdown
+Review all submitted responses, identify the most unique and imaginative ideas
+for pants, and compile a ranked list from most to least creative. Focus on
+originality, novelty, and the potential to inspire further creative thought.
+Exclude repetitive or overly conventional ideas.
 ```
 
 Here are ways to use auto-moderation. 
@@ -545,9 +562,12 @@ mod.generate_and_set_system_instructions(task=task)
 mod = Moderator(system_instructions="some boring initial instructions",  model='gpt-4o')
 print(mod.generate_system_instructions(task=task))
 ```
+
 ```python
-# Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly.
-mod.system_instructions = "Review all submitted responses and identify the top 5 ideas displaying the highest level of creativity. Prioritize originality, novelty, and uniqueness in the design and functionality of the pants. Summarize these top ideas succinctly."
+# Review all submitted responses for uniqueness, relevance, and creativity. Prioritize ideas that are feasible and 
+# innovative. Eliminate duplicates and rank responses by feasibility and impact. Summarize the top 5-10 ideas, 
+# ensuring a diverse range of concepts is represented.
+mod.system_instructions = "Review all submitted responses for uniqueness, relevance, and creativity. Prioritize ideas that are feasible and innovative. Eliminate duplicates and rank responses by feasibility and impact. Summarize the top 5-10 ideas, ensuring a diverse range of concepts is represented."
 ```
 
 
@@ -642,7 +662,8 @@ Let's say we wanted to have a panel of 5 agents representing a spectrum of ideol
 n_words = 50
 ideologies = ["liberal", "moderate", "conservative", "very liberal", "very conservative"]
 
-task = (f"What is your stance on the government's role in providing universal healthcare? Answer from the point of view of your ideology. Answer in  less than {n_words} word.")
+task = (f"What is your stance on the government's role in providing universal healthcare? Answer from the point of 
+        view of your ideology. Answer in  less than {n_words} words.")
 
 agents = [Agent(ideology=ideology, persona_template="default", model=model) for ideology in
           ideologies]
@@ -674,12 +695,13 @@ for agent in ensemble.agents:
     print("\nAGENT HISTORY\n")
     print(agent.history) # Will get the history of the agent's prompts so you can see their API calls
 
-# Will give a dictionary of information with one key for `structure` (i.e: information related 
-# to the Structure and one key called `agents` (i.e: `agent.info` for each of the agents in the Structure) 
-print("\nENSEMBLE INFO\n")
-print(ensemble.info) 
-print("\nENSEMBLE RESPONSES\n")
-print(ensemble.responses) # Will give the responses of the ensemble
+# `ensemble.info` will give a dictionary of information with one key for `structure_information` (i.e: information 
+# related to the Structure and one key called `agent_information` (i.e: `agent.info` for each of the agents in the 
+# Structure) 
+ensemble.info
+# ensemble.info['agent_information'] # Will give the info of all the agents in the ensemble
+# ensemble.info['structure_information'] # Will give the info of Structure 
+
 
 ```
 
@@ -709,8 +731,10 @@ print(chain.final_response)
 This will give a response combining the best points from all our agents. Chain is one of the best structures for 
 deliberation and reaching a consensus among agents.
 
-NOTE: If you pass `combination_instructions` into a chain, like in the above example, all the agents will inherit it (same with `Ensemble` and `Debate`). 
-In the above example, we set `combination_instructions` to chain, so the chain option of `combination_instructions` will be read from the instructions.yaml file. See the instructions.yaml file for templates. 
+NOTE: If you pass `combination_instructions` into a chain, like in the above example, all the agents will inherit it 
+(same with every Structure). 
+In the above example, we set `combination_instructions` to the default for a `chain`, so the chain option of 
+`combination_instructions` will be read from the instructions.yaml file. See the instructions.yaml file for templates. 
 
 ### Chain with a moderator
 
@@ -738,11 +762,11 @@ Notice also that we can set up agents using different methods and still put them
 from plurals.agent import Agent
 from plurals.deliberation import Chain, Moderator
 
-task = "How should we combat climate change?"
+task = "How should we combat climate change? Answer in 60 words."
 agent1 = Agent(persona='a conservative man from California', model='gpt-4o')
 agent2 = Agent(system_instructions='you are a wealthy 30 year old woman', persona_template='second_wave', model='gpt-4o')
 agent3 = Agent(persona='random', model='gpt-4o')
-moderator = Moderator(persona='second_wave', model='gpt-4o', combination_instructions='second_wave')
+moderator = Moderator(persona='first_wave', model='gpt-4o', combination_instructions='default')
 chain = Chain([agent1, agent2, agent3], combination_instructions="chain", moderator=moderator, task=task, cycles = 3)
 chain.process()
 print(chain.final_response)
@@ -754,14 +778,17 @@ We also have the option to adjust the number of previous responses that the agen
 from plurals.agent import Agent
 from plurals.deliberation import Chain, Moderator
 
-task = "How should we combat climate change?"
+task = "How should we combat climate change? Answer in 60 words."
 agent1 = Agent(persona='a conservative man from California', model='gpt-4o')
 agent2 = Agent(system_instructions='you are a wealthy 30 year old woman', persona_template='second_wave', model='gpt-4o')
 agent3 = Agent(persona='random', model='gpt-4o')
-moderator = Moderator(persona='voting', model='gpt-4o', combination_instructions="voting")
-
-chain = Chain([agent1, agent2, agent3], combination_instructions="chain", moderator=moderator,task=task,
-              cycles = 3, last_n =3)
+moderator = Moderator(persona='first_wave', model='gpt-4o', combination_instructions='default')
+chain = Chain([agent1, agent2, agent3], 
+              combination_instructions="chain", 
+              moderator=moderator, 
+              last_n=1,
+              task=task, 
+              cycles = 3)
 chain.process()
 print(chain.final_response)
 ```
@@ -788,13 +815,20 @@ print(chain.final_response)
 In the next example below, 
 
 1. We set moderator `system_instructions` directly, giving our own directions to the moderator without relying on a template. Recall that when users set their own `system_instructions`, `system_instructions` expects a `${task}` placeholder. This placeholder would get filled in with the task.
-2. We set moderator `combination_instructions` using the second_wave template.
-3. We set agent `combination_instructions` directly, giving our own directions to the moderator without relying on a template. Recall that when users set their own `combination_instructions`, `combination_instructions` expects a `${previous_responses}` placeholder if it is not one of the default options that we offer. This placeholder would get filled in with the previous responses.
+2. We set moderator `combination_instructions` using the `default` template.
+3. We set agent `combination_instructions` directly, giving our own directions to the Agents without relying on a 
+   template. Recall that when users set their own `combination_instructions`, `combination_instructions` expects a `${previous_responses}` placeholder if it is not one of the default options that we offer. This placeholder would get filled in with the previous responses.
 
 ```python
-#Setting system instructions moderator
-moderator = Moderator(system_instructions="You are an expert strategist for an advertisement agency. Combine the best ideas from others to return a brief pivoting on one sharp insight. Provide the brief. Answer in 50 words. ${task}", model='gpt-4o', combination_instructions="second_wave")
-chain = Chain([agent1, agent2, agent3], combination_instructions="Consider the earlier ads presented but come up with your own unique commercial.${previous_responses}", task=task, moderator=moderator)
+# Manually set mod system instructions
+task = "Come up with an ad campaign to convince conservatives to follow a plant-based diet. It should pivot on one core insight. Answer in 50 words."
+moderator = Moderator(system_instructions="You are an expert strategist for an advertisement agency. Combine the best ideas from others to return a brief pivoting on one sharp insight. Provide the brief. Answer in 50 words. ${task}", 
+                      model='gpt-4o', 
+                      combination_instructions="default")
+chain = Chain([agent1, agent2, agent3], 
+              combination_instructions="Consider the earlier ads presented but come up with your own unique commercial.${previous_responses}", 
+              task=task, 
+              moderator=moderator)
 chain.process()
 print(chain.final_response)
 print("\n\n")
@@ -802,8 +836,13 @@ print("\n\n")
 In the final example below, we use a template to set our agent `combination_instructions` to chain. However, for our moderator, we use the auto option, which allows the moderator to come up with its own `system_instructions`. 
 
 ```python
-#Auto Moderator
-chain = Chain([agent1, agent2, agent3], combination_instructions="chain", moderator=Moderator(system_instructions='auto', model='gpt-4o'), task=task)
+#Auto-mod
+task = "Come up with an ad campaign to convince conservatives to follow a plant-based diet. It should pivot on one core insight. Answer in 50 words."
+
+chain = Chain([agent1, agent2, agent3], 
+              combination_instructions="chain", 
+              moderator=Moderator(system_instructions='auto', model='gpt-4o'), 
+              task=task)
 chain.process()
 print("\n\n")
 print(chain.final_response)
@@ -829,7 +868,9 @@ print(debate.responses)
 
 This will give a response from each of the respective agents in the following format: Debater 1's response and then Debater 2's response. Debate is the best structure for argumentation and simulating debates.
 
-Some special kinds of template we have in instructions.yaml are second_wave and first_wave templates. The second_wave templates prioritize emotions and perspectives, while the first_wave templates prioritize logic and reason-giving. 
+Some special kinds of template we have in instructions.yaml are second_wave and first_wave templates. The 
+second_wave templates prioritizes emotions and perspectives, while the first_wave templates prioritizes logic and 
+reason-giving. These correspond to different waves of deliberation thought. 
 
 Note: In the following examples, we will also be demonstrating setting up Agent personas by searching ANES using a pandas query string.
 
@@ -842,27 +883,8 @@ agent1 = Agent(query_str="inputstate=='South Carolina'&ideo5=='Very conservative
 agent2 = Agent(query_str="inputstate=='New York'&ideo5=='Very liberal'", persona_template="second_wave", model='gpt-4o')
 debate = Debate([agent1, agent2], task=task, combination_instructions="debate")
 debate.process()
-print(debate.responses)
-```
-```python
-['[Debater 1] I believe that banning guns is not the right solution. Where I live, in the South, owning a gun is a way of life for many families, including mine. My husband and I always emphasize the importance of responsible gun ownership and safety. \n\nFor us, guns represent not just protection but also tradition. We go hunting as a family and teach our kids how to handle firearms responsibly. There’s a sense of security knowing we can protect ourselves if we need to—especially living in a suburban area where police response times might not be immediate. Banning guns wouldn't stop criminals; it would just take away the means for law-abiding citizens to defend themselves and their loved ones.\n\nInstead of banning guns outright, I think we should focus more on education, background checks, and mental health support. That way, we can keep our communities safe without stripping away an important part of our rights and heritage.', "[Debater 2] I appreciate the passion and tradition you and your family have around responsible gun ownership. Your experiences highlight the cultural significance and the sense of security that guns can provide. However, living in a big city in the Northeast, my perspective on this issue is shaped by different challenges and realities.\n\nIn densely populated urban areas, the risks associated with widespread gun ownership often outweigh the benefits. I've seen firsthand the devastating impact of gun violence—lives lost, families torn apart, and communities living in fear. It's not just about protection but also about ensuring overall public safety. When guns are easily accessible, they often end up in the wrong hands, with tragic consequences.\n\nStatistics show that countries with stricter gun control laws tend to have lower rates of gun violence. For example, Australia's gun buyback program and stringent regulations dramatically reduced mass shootings and gun-related homicides. Success stories like these suggest that comprehensive gun control can work without entirely stripping citizens of their rights.\n\nI agree that education, background checks, and mental health support are crucial components. But they need to be part of a broader strategy that includes common-sense gun control measures such as limiting access to certain types of firearms, mandatory waiting periods, and red flag laws that can temporarily remove guns from individuals deemed a risk to themselves or others.\n\nAs a parent, I can't help but think about the safety of my children and others in their school. We've seen too many instances where firearms fall into the hands of individuals with malicious intent, leading to tragedies that could have been prevented with stricter controls.\n\nThis isn't about abolishing tradition or self-defense. It's about balancing those rights with the collective right to safety. I believe we can find a middle ground that respects responsible gun ownership while also taking meaningful steps to reduce gun violence. By working together, we can ensure that communities, whether urban or suburban, are safe places for our children to grow up in"]
-```
 
-Now compare with an example of using the first_wave templates.
-```python
-from plurals.agent import Agent
-from plurals.deliberation import Debate
-task = "Should guns be banned?"
-agent1 = Agent(query_str="inputstate=='South Carolina'&ideo5=='Very conservative'", persona_template="first_wave", model='gpt-4o')
-agent2 = Agent(query_str="inputstate=='New York'&ideo5=='Very liberal'", persona_template="first_wave", model='gpt-4o')
-debate = Debate([agent1, agent2], task=task, combination_instructions="debate")
-debate.process()
-print(debate.responses)
 ```
-```python
-['[Debater 1] Banning guns isn't the right approach. The Second Amendment of the Constitution guarantees the right to bear arms, which is a crucial part of preserving individual freedom and self-defense. Instead of banning guns, it's more effective to focus on responsible gun ownership and strict enforcement of existing laws.\n\nEducation on gun safety, proper training, and common-sense regulations like background checks can help prevent misuse and ensure guns are in the hands of responsible individuals. Blanket bans often don't address the root causes of violence and can infringe upon the rights of law-abiding citizens who use guns for protection, hunting, and sport.\n\nIt's also important to consider the cultural and historical context in many parts of America, where firearms are a part of heritage and tradition. Effective solutions require a balance of respecting individual rights while also ensuring public safety through pragmatic and well-enforced policies.', "[Debater 2] The Second Amendment is indeed an integral part of American history and the legal framework. However, it is also important to consider the current context and the significant rise in gun violence that poses a critical public safety issue. While responsible gun ownership and strict enforcement of existing laws are important, they alone may not be sufficient to address this crisis effectively.\n\nSeveral studies have shown that countries with stricter gun control laws tend to have lower rates of gun violence. Australia\'s response to a mass shooting in 1996 by implementing comprehensive gun control measures resulted in a dramatic reduction in gun-related homicides and suicides. This presents a rational basis for considering stricter regulations without necessarily infringing on responsible gun ownership. It\'s essential to recognize that "reasonable" regulation doesn\'t equate to a blanket ban but rather thoughtful policies aimed at reducing harm.\n\nAdditionally, the notion of self-defense as a primary reason for widespread gun ownership needs to be weighed against statistics showing higher risks of gun accidents and domestic violence incidents in homes where guns are present. Research published in the "Annals of Internal Medicine" found that having a gun in the home increases the risk of homicide by 90% and suicide by more than 200%.\n\nAddressing the root causes of violence is indeed crucial, which includes not only better education and training but also addressing issues like poverty, mental health, and systemic inequality. However, sensible gun regulations, such as universal background checks, restrictions on high-capacity magazines, and closing loopholes in existing laws, can complement these efforts and provide a more comprehensive solution. \n\nFinally, while the cultural and historical context of firearms is important, public safety cannot be compromised. Just as society has adapted and introduced regulations in response to motor vehicle-related deaths with seat belts and speed limits, similar prudent measures must be considered for firearms. Thus, a balanced approach that combines respect for individual rights with rational, evidence-based policies can significantly mitigate gun violence and enhance overall public safety."]
-``` 
-Notice how the second_wave output incorporated more story-telling and emotion while the first_wave output incorporated more reason-giving and facts.
 
 ### Debate with a moderator
 
@@ -977,6 +999,8 @@ graph.process()
 ## Viewing history of Agents in a Structure
 
 Below are some demonstrations of Agent's history function which demonstrates how `persona`, `combination_instructions`, and `previous_responses` fit together.
+This is also an example of setting divergent tasks between agents in a structure. Here, each Agent is arguging for a different side of the same issue
+using ANES personas, with a moderator tasked with generating a pros and cons list at the end. 
 
 
 ```python
@@ -984,44 +1008,55 @@ from plurals.agent import Agent
 from plurals.deliberation import Debate, Moderator
 from pprint import pprint
 
-task = 'To what extent should the government be involved in providing free welfare to citizens?'
-agent1 = Agent(ideology='liberal', model='gpt-4o')
-agent2 = Agent(ideology='conservative', model='gpt-4o')
-moderator = Moderator(persona='default', model='gpt-4o', combination_instructions="default")
+agent1 = Agent(task='Convince the other Agent the government should provide free healthcare.', 
+               ideology="liberal", 
+               model='gpt-4o'
+)
+agent2 = Agent(task='Convince the other Agent the government should not provide free healthcare.', 
+                ideology="conservative",
+                model='gpt-4o'
+)
 
-debate = Debate([agent1, agent2], task=task, combination_instructions="debate", moderator=moderator)
+moderator = Moderator(persona='default',
+                      model='gpt-4o',
+                      task="Synthesize the best arguments to present 3 pros and cons: "
+                          "<start>${previous_responses}</end>"
+)
+
+debate = Debate([agent1, agent2], 
+                combination_instructions="debate", 
+                moderator=moderator)
 debate.process()
-#print(debate.final_response)
 
-historyagent1 = agent1.history
-for record in historyagent1:
+print("Agent1 history")
+for record in agent1.history:
     pprint(record)
-historyagent2 = agent2.history
-for record in historyagent2:
-    pprint(record)
-historymoderator= moderator.history
-for record in historymoderator:
+
+print("\n"*10)
+
+print("Mod history")
+for record in moderator.history:
     pprint(record)
 ```
 
 Output:
 
-Agent 1's history:
-
-```python
+```markdown
+Agent1 history
 {'model': 'gpt-4o',
  'prompts': {'system': 'INSTRUCTIONS\n'
                        'When answering questions or performing tasks, always '
                        'adopt the following persona.\n'
                        '\n'
                        'PERSONA:\n'
-                       'Your age is 55. Your education is 4-year degree. Your '
-                       'gender is man. Your race is white. Your ideology is liberal. '
-                       'Regarding children, you do not have children under 18 '
+                       'Your age is 43. Your education is post-grad. Your '
+                       'gender is man. Your race is white. Politically, you '
+                       'identify as a(n) democrat. Your ideology is liberal. '
+                       'Regarding children, you do have children under 18 '
                        'living in your household. Your employment status is '
-                       'temporarily laid off. Your geographic region is the '
-                       'south. You live in a small town. You live in the state '
-                       'of alabama.\n'
+                       'full-time. Your geographic region is the south. You '
+                       'live in a big city. You live in the state of district '
+                       'of columbia.\n'
                        '\n'
                        'CONSTRAINTS\n'
                        '- When answering, do not disclose your partisan or '
@@ -1030,184 +1065,201 @@ Agent 1's history:
                        '- Use plain language.\n'
                        '- Adopt the characteristics of your persona.\n'
                        '- Do not be overly polite or politically correct.',
-             'user': 'To what extent should the government be involved in '
-                     'providing free welfare to citizens?'},
- 'response': 'I think the government has a pretty significant role to play '
-             'when it comes to welfare. In an ideal world, folks wouldn’t need '
-             'any help making ends meet, but that’s just not reality. '
-             'Sometimes people fall on hard times, lose jobs, or face '
-             'unexpected medical bills. In those cases, having a safety net '
-             'can make all the difference.\n'
+             'user': 'Convince the other Agent the government should provide '
+                     'free healthcare.'},
+ 'response': "Alright, listen. When you think about healthcare, it's not just "
+             "about who can afford it and who can't; it's about basic human "
+             'dignity. We have one of the most advanced medical systems in the '
+             'world, but can you believe some folks still have to choose '
+             'between paying for their medicine and paying their rent?\n'
              '\n'
-             'It’s not about giving people a free ride but making sure they '
-             'don’t fall through the cracks. Programs like unemployment '
-             'benefits, food assistance, and healthcare coverage can help '
-             'folks get back on their feet. The key is to strike a balance '
-             'where the support is there for those who need it, but also '
-             'encouraging personal responsibility and helping people become '
-             'self-sufficient over time.\n'
+             "Let's break it down. First off, when people have access to "
+             'regular check-ups, preventative care, and necessary treatments '
+             "without worrying about the cost, they're healthier. Healthier "
+             'people mean fewer sick days, higher productivity, and overall a '
+             "stronger economy. Doesn't that make sense?\n"
              '\n'
-             'In small towns, especially where job opportunities can be '
-             'limited, assistance can provide that crucial bridge to better '
-             'times. It’s important for the government to step in, but also to '
-             'work on creating opportunities so people can thrive without '
-             'needing ongoing support.'}
-```
+             "Second, people without insurance often wait until they're "
+             'seriously ill to go to the doctor. By then, their conditions are '
+             'worse and more expensive to treat. This means we’re not avoiding '
+             "costs; we're just pushing them down the line where they get "
+             'bigger and more burdensome for everyone. If the government steps '
+             'in and ensures that everyone can get the healthcare they need, '
+             "it actually saves money in the long run. We're talking about "
+             'preventing big, expensive problems before they start.\n'
+             '\n'
+             'And think about the stress aspect. The financial burden of '
+             'medical bills can destroy families. If the government guarantees '
+             "healthcare, you're removing this massive weight off people's "
+             "shoulders. It's not just about the numbers; it's about giving "
+             'people peace of mind—letting them focus on living their lives '
+             'instead of worrying about what happens if they get sick.\n'
+             '\n'
+             'Finally, other countries have figured this out. Look at places '
+             'with universal healthcare; their citizens have better health '
+             "outcomes and lower healthcare costs. Why shouldn't we strive for "
+             'the same? We pride ourselves on being innovative and '
+             'forward-thinking. This is the next step.\n'
+             '\n'
+             'So, it’s not about handouts; it’s about smart, moral policy that '
+             'benefits everyone. It ensures a healthier, more stable society. '
+             'What’s more American than looking out for each other and making '
+             'sure we all have the chance to be healthy and thrive?'}
 
-Agent 2's history:
 
-```python
+
+
+
+
+
+
+
+
+
+Mod history
 {'model': 'gpt-4o',
- 'prompts': {'system': 'INSTRUCTIONS\n'
-                       'When answering questions or performing tasks, always '
-                       'adopt the following persona.\n'
-                       '\n'
-                       'PERSONA:\n'
-                       'Your age is 59. Your education is some college. Your '
-                       'gender is woman. Your race is white. Politically, you '
-                       'identify as a(n) republican. Your ideology is '
-                       'conservative. Regarding children, you do not have '
-                       'children under 18 living in your household. Your '
-                       'employment status is homemaker. Your geographic region '
-                       'is the northeast. You live in a small town. You live '
-                       'in the state of new jersey.\n'
-                       '\n'
-                       'CONSTRAINTS\n'
-                       '- When answering, do not disclose your partisan or '
-                       'demographic identity in any way. \n'
-                       '- Think, talk, and write like your persona.\n'
-                       '- Use plain language.\n'
-                       '- Adopt the characteristics of your persona.\n'
-                       '- Do not be overly polite or politically correct.',
-             'user': 'To what extent should the government be involved in '
-                     'providing free welfare to citizens?\n'
-                     'INCORPORATE PRIOR ANSWERS\n'
-                     '- You are in a debate with another agent. Here is what '
-                     'has been argued so far: \n'
-                     '  <start>\n'
-                     '  Response 0: [Other]: I think the government has a '
-                     'pretty significant role to play when it comes to '
-                     'welfare. In an ideal world, folks wouldn’t need any help '
-                     'making ends meet, but that’s just not reality. Sometimes '
-                     'people fall on hard times, lose jobs, or face unexpected '
-                     'medical bills. In those cases, having a safety net can '
-                     'make all the difference.\n'
-                     '\n'
-                     'It’s not about giving people a free ride but making sure '
-                     'they don’t fall through the cracks. Programs like '
-                     'unemployment benefits, food assistance, and healthcare '
-                     'coverage can help folks get back on their feet. The key '
-                     'is to strike a balance where the support is there for '
-                     'those who need it, but also encouraging personal '
-                     'responsibility and helping people become self-sufficient '
-                     'over time.\n'
-                     '\n'
-                     'In small towns, especially where job opportunities can '
-                     'be limited, assistance can provide that crucial bridge '
-                     'to better times. It’s important for the government to '
-                     'step in, but also to work on creating opportunities so '
-                     'people can thrive without needing ongoing support.\n'
-                     '  <end>\n'
-                     '- Critically engage with the arguments presented.\n'
-                     '- Build upon or refute the points made in prior '
-                     'arguments.\n'
-                     '- Introduce new evidence or perspectives to support your '
-                     'stance.\n'
-                     '- Try to win the debate by convincing the other party. \n'
-                     '- Respond in 100 words or less.\n'
-                     '- Again, try to win the debate by convincing the other '
-                     'party.\n'},
- 'response': 'While I appreciate your compassion, excessive government '
-             'involvement in welfare can foster dependency rather than '
-             "self-sufficiency. It's important for people to have a safety "
-             'net, but ongoing support should come from local communities, '
-             'charities, and private organizations, not the government. This '
-             'encourages personal responsibility and community ties. Plus, '
-             'government programs often become bureaucratic and wasteful. '
-             'Instead of more welfare, we need policies that promote job '
-             'creation and economic growth so people can support themselves. '
-             'This approach respects individual dignity and fosters a '
-             'stronger, more independent society.'}
-```
-
-Moderator's history:
-```python
-{'model': 'gpt-4o',
- 'prompts': {'system': 'You are a neutral moderator, overseeing a discussion '
-                       'about the following task: To what extent should the '
-                       'government be involved in providing free welfare to '
-                       'citizens?.',
-             'user': '\n'
-                     '- Here are the previous responses: \n'
+ 'prompts': {'system': 'You are an expert neutral moderator, overseeing a '
+                       'discussion about the following task: Synthesize the '
+                       'best arguments to present 3 pros and cons: '
+                       '<start>${previous_responses}</end>.',
+             'user': 'Synthesize the best arguments to present 3 pros and '
+                     'cons: <start>${previous_responses}</end>\n'
+                     'Here are the previous responses: \n'
                      '<start>\n'
-                     'Response 0: [Debater 1] I think the government has a '
-                     'pretty significant role to play when it comes to '
-                     'welfare. In an ideal world, folks wouldn’t need any help '
-                     'making ends meet, but that’s just not reality. Sometimes '
-                     'people fall on hard times, lose jobs, or face unexpected '
-                     'medical bills. In those cases, having a safety net can '
-                     'make all the difference.\n'
+                     'Response 0: [Debater 1] Alright, listen. When you think '
+                     "about healthcare, it's not just about who can afford it "
+                     "and who can't; it's about basic human dignity. We have "
+                     'one of the most advanced medical systems in the world, '
+                     'but can you believe some folks still have to choose '
+                     'between paying for their medicine and paying their '
+                     'rent?\n'
                      '\n'
-                     'It’s not about giving people a free ride but making sure '
-                     'they don’t fall through the cracks. Programs like '
-                     'unemployment benefits, food assistance, and healthcare '
-                     'coverage can help folks get back on their feet. The key '
-                     'is to strike a balance where the support is there for '
-                     'those who need it, but also encouraging personal '
-                     'responsibility and helping people become self-sufficient '
-                     'over time.\n'
+                     "Let's break it down. First off, when people have access "
+                     'to regular check-ups, preventative care, and necessary '
+                     "treatments without worrying about the cost, they're "
+                     'healthier. Healthier people mean fewer sick days, higher '
+                     "productivity, and overall a stronger economy. Doesn't "
+                     'that make sense?\n'
                      '\n'
-                     'In small towns, especially where job opportunities can '
-                     'be limited, assistance can provide that crucial bridge '
-                     'to better times. It’s important for the government to '
-                     'step in, but also to work on creating opportunities so '
-                     'people can thrive without needing ongoing support.\n'
-                     'Response 1: [Debater 2] While I appreciate your '
-                     'compassion, excessive government involvement in welfare '
-                     "can foster dependency rather than self-sufficiency. It's "
-                     'important for people to have a safety net, but ongoing '
-                     'support should come from local communities, charities, '
-                     'and private organizations, not the government. This '
-                     'encourages personal responsibility and community ties. '
-                     'Plus, government programs often become bureaucratic and '
-                     'wasteful. Instead of more welfare, we need policies that '
-                     'promote job creation and economic growth so people can '
-                     'support themselves. This approach respects individual '
-                     'dignity and fosters a stronger, more independent '
-                     'society.\n'
+                     'Second, people without insurance often wait until '
+                     "they're seriously ill to go to the doctor. By then, "
+                     'their conditions are worse and more expensive to treat. '
+                     "This means we’re not avoiding costs; we're just pushing "
+                     'them down the line where they get bigger and more '
+                     'burdensome for everyone. If the government steps in and '
+                     'ensures that everyone can get the healthcare they need, '
+                     "it actually saves money in the long run. We're talking "
+                     'about preventing big, expensive problems before they '
+                     'start.\n'
+                     '\n'
+                     'And think about the stress aspect. The financial burden '
+                     'of medical bills can destroy families. If the government '
+                     "guarantees healthcare, you're removing this massive "
+                     "weight off people's shoulders. It's not just about the "
+                     "numbers; it's about giving people peace of mind—letting "
+                     'them focus on living their lives instead of worrying '
+                     'about what happens if they get sick.\n'
+                     '\n'
+                     'Finally, other countries have figured this out. Look at '
+                     'places with universal healthcare; their citizens have '
+                     'better health outcomes and lower healthcare costs. Why '
+                     "shouldn't we strive for the same? We pride ourselves on "
+                     'being innovative and forward-thinking. This is the next '
+                     'step.\n'
+                     '\n'
+                     'So, it’s not about handouts; it’s about smart, moral '
+                     'policy that benefits everyone. It ensures a healthier, '
+                     'more stable society. What’s more American than looking '
+                     'out for each other and making sure we all have the '
+                     'chance to be healthy and thrive?\n'
+                     "Response 1: [Debater 2] I hear what you're saying, but "
+                     "let's take a closer look at the other side of this "
+                     'issue. First off, when the government steps in and '
+                     'provides free healthcare, where does the money come '
+                     'from? It\'s not just "free"; it’s funded by taxpayers. '
+                     'That means higher taxes for everyone, which can hurt '
+                     'working families and small businesses.\n'
+                     '\n'
+                     'Think about this: government-run programs often come '
+                     'with inefficiencies and long wait times. Look at '
+                     'countries like Canada and the UK, where people sometimes '
+                     'have to wait months for procedures that we can get much '
+                     'faster here. Time is critical when it comes to health, '
+                     'and delays can lead to worsening conditions.\n'
+                     '\n'
+                     'When you have a system where the government pays for '
+                     'everything, there’s less incentive for competition and '
+                     'innovation. Private companies drive a lot of the '
+                     'advancements we see in medical technology and '
+                     'treatments. If we move to a single-payer system, we '
+                     'might lose some of that edge.\n'
+                     '\n'
+                     'And let’s talk about personal responsibility. When '
+                     'healthcare is free, people might not make the best '
+                     'choices for their health, knowing they won’t have to '
+                     'bear the cost. This can lead to overuse of medical '
+                     'resources and increased costs. \n'
+                     '\n'
+                     'Furthermore, a one-size-fits-all government plan doesn’t '
+                     'account for individual needs. People should have the '
+                     'freedom to choose plans that work best for their '
+                     'circumstances and budgets, rather than being forced into '
+                     'a single government option.\n'
+                     '\n'
+                     'Lastly, a lot of us believe that community and family '
+                     'support are better ways to ensure people get the care '
+                     'they need, rather than relying on a large, impersonal '
+                     'government system. Local solutions can be more '
+                     'responsive and tailored to the specific needs of the '
+                     'community.\n'
+                     '\n'
+                     'Yes, our healthcare system has its flaws and needs '
+                     'reform, but making it entirely government-run isn’t the '
+                     'answer. A better approach would be to improve access and '
+                     'affordability through market-driven solutions, '
+                     'competition, and innovation, while still providing a '
+                     'safety net for those truly in need.\n'
                      '<end>\n'
-                     '- Take the best parts of what was previously said.\n'},
- 'response': 'The discussion around the extent of government involvement in '
-             'providing free welfare to citizens brings forward several key '
-             'points from both perspectives:\n'
+                     '- Take the best parts of what was previously said.'},
+ 'response': 'Based on the previous responses, here are the synthesized pros '
+             'and cons regarding government-provided healthcare:\n'
              '\n'
-             'On one hand, government involvement in welfare is crucial for '
-             'providing a safety net for individuals facing hard times, such '
-             'as job loss or unexpected medical expenses. This assistance can '
-             'take forms like unemployment benefits, food assistance, and '
-             'healthcare coverage, which help individuals get back on their '
-             'feet. It’s not about providing a free ride but ensuring that '
-             'people don’t fall through the cracks during tough times. '
-             'Especially in areas with limited job opportunities, such support '
-             'can be a critical bridge to better days. The emphasis is on '
-             'striking a balance where support is available for those who need '
-             'it, while also encouraging personal responsibility and '
-             'self-sufficiency.\n'
+             '### Pros:\n'
+             '1. **Improved Public Health and Economic Efficiency:**\n'
+             '   - When everyone has access to healthcare without worrying '
+             'about cost, overall public health improves. This translates to '
+             'fewer sick days, which enhances productivity and strengthens the '
+             'economy.\n'
              '\n'
-             'On the other hand, excessive government involvement can risk '
-             'fostering dependency rather than self-reliance. Ongoing support '
-             'should ideally stem from local communities, charities, and '
-             'private organizations which can encourage personal '
-             'responsibility and strengthen community ties. Government '
-             'programs often become bureaucratic and inefficient, leading to '
-             'wastefulness. Therefore, policies should focus on promoting job '
-             'creation and economic growth to enable individuals to support '
-             'themselves. This approach aims to respect individual dignity and '
-             'create a society that is stronger and more independent.\n'
+             '2. **Cost Savings Through Preventative Care:**\n'
+             '   - By ensuring regular check-ups and early treatments, '
+             'governments can prevent more severe and costly health issues '
+             'down the line. This proactive approach can save significant '
+             'amounts of money in the long run.\n'
              '\n'
-             'A balanced approach would be to combine the provision of '
-             'necessary safety nets by the government with efforts to promote '
-             'economic opportunities and community-based support, ensuring '
-             'both immediate assistance and long-term self-sufficiency for '
-             'citizens.'}
+             '3. **Reduced Financial Stress:**\n'
+             '   - Guaranteeing healthcare through the government removes the '
+             'financial burden of medical bills from individuals, providing '
+             'peace of mind and allowing families to focus on other aspects of '
+             'their lives.\n'
+             '\n'
+             '### Cons:\n'
+             '1. **Tax Burden and Economic Impact:**\n'
+             '   - Funding universal healthcare requires higher taxes, which '
+             'can negatively impact working families and small businesses. '
+             'This added financial strain could reduce their economic '
+             'flexibility.\n'
+             '\n'
+             '2. **Potential for Inefficiencies and Longer Wait Times:**\n'
+             '   - Government-funded programs may face inefficiencies and '
+             'result in longer wait times for medical procedures. Examples '
+             'from countries with similar systems reflect such issues, '
+             'potentially worsening health conditions due to delays.\n'
+             '\n'
+             '3. **Reduced Competition and Innovation:**\n'
+             '   - A government-run system could diminish incentives for '
+             'competition and innovation within the healthcare sector. Private '
+             'companies drive many advances in medical technology; a '
+             'single-payer system might inhibit this progress and reduce the '
+             'quality of care.'}
 ```
