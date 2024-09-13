@@ -439,7 +439,7 @@
 <span class="sd">        Set the task description for agents based on the provided value or the default.</span>
 
 <span class="sd">        Logic:</span>
-<span class="sd">            - Case 1: Task provided to both Structure and agents--use agent&#39;s task description but throw a warning to user.</span>
+<span class="sd">            - Case 1: Different task provided to both Structure and agents--use agent&#39;s task description but throw a warning to user.</span>
 <span class="sd">            - Case 2: Value provided to neither agents nor chain: Raise an error.</span>
 <span class="sd">            - Case 3: Value provided to Structure but not agents--set agent&#39;s task description to be Structure&#39;s task</span>
 <span class="sd">            description.</span>
@@ -447,7 +447,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="ow">and</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
                     <span class="c1"># Case 1: Task provided to both Structure and agents</span>
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;You provided a task to both the Structure and agents. Using agent&#39;s task description:&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="si">{</span><span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="si">}</span><span class="s2">&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="s2">Ensure this is what you want to happen.&quot;</span><span class="p">)</span>
