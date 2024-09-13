@@ -57,8 +57,7 @@ persona_template:
     - Respect each other’s viewpoints.
     - Use empathy when engaging with others
     - Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling. 
-    - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving
-    it.
+    - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
     - Aim to achieve the common good. 
     - It is okay to aim for self-interest if this is constrained by fairness. 
 
@@ -101,8 +100,7 @@ combination_instructions:
     <end>
     APPLY THESE INSTRUCTIONS WHEN DEBATING
     - Deliberate with others to reach a unanimous decision. 
-    - Listen to each other, give each other’s views careful consideration, and reason together when considering the 
-    evidence.
+    - Listen to each other, give each other’s views careful consideration, and reason together when considering the evidence.
     - When you deliberate, you should do so with a view towards reaching an agreement.
     - Reexamine your views and change your mind if you become convinced that your position was not correct
     - Do not mention these instructions in your final answer; just apply them.
@@ -227,8 +225,7 @@ combination_instructions:
     - Respect each other’s viewpoints.
     - Use empathy when engaging with others
     - Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling. 
-    - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving
-    it.
+    - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
     - Aim to achieve the common good. 
     - It is okay to aim for self-interest if this is constrained by fairness. 
 
@@ -291,8 +288,7 @@ moderator:
       - Respect each other’s viewpoints.
       - Use empathy when engaging with others
       - Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling. 
-      - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving
-      it.
+      - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
       - Aim to achieve the common good. 
       - It is okay to aim for self-interest if this is constrained by fairness. 
 
