@@ -353,7 +353,7 @@ class AbstractStructure(ABC):
         Set the task description for agents based on the provided value or the default.
 
         Logic:
-            - Case 1: Task provided to both Structure and agents--use agent's task description but throw a warning to user.
+            - Case 1: Different task provided to both Structure and agents--use agent's task description but throw a warning to user.
             - Case 2: Value provided to neither agents nor chain: Raise an error.
             - Case 3: Value provided to Structure but not agents--set agent's task description to be Structure's task
             description.
@@ -361,7 +361,7 @@ class AbstractStructure(ABC):
         """
         for agent in self.agents:
             if self.task:
-                if agent.task_description:
+                if agent.task_description and agent.task_description.strip() != self.task.strip():
                     # Case 1: Task provided to both Structure and agents
                     warnings.warn(
                         f"You provided a task to both the Structure and agents. Using agent's task description:'''\n\n{agent.task_description}'''\n\nEnsure this is what you want to happen.")
