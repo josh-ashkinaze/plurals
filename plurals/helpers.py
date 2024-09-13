@@ -107,7 +107,7 @@ def format_previous_responses(responses: List[str]) -> str:
         return ""
     else:
         resp_list = [
-            "Response {}: {}\n".format(i, responses[i])
+            "Response {}: {}\n".format(i, str(responses[i]))
             for i in range(len(responses))
         ]
         return "".join(resp_list).strip()

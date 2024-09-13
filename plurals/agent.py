@@ -1,5 +1,5 @@
 import warnings
-from typing import Optional, Dict
+from typing import Optional, Dict, Union
 
 import pandas as pd
 from litellm import completion
@@ -66,6 +66,7 @@ class Agent:
                                   ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative'].
         query_str (Optional[str]): Custom query string for filtering the ANES dataset according to specific criteria.
         model (str): The language model version to use for generating responses.
+        include_prompt(Optional[bool]): Whether to also include the prompt (formatted as ``{'user':prompt, 'assistant':assistant}`` when passing on responses to future agents. Default is False.
         system_instructions (Optional[str]): Overrides automated instructions with a custom set of directives for the
             model.
         persona_template (Optional[str]): Template string for constructing the persona. If passing your own, you must include a ${persona}
@@ -223,6 +224,7 @@ class Agent:
                  ideology: Optional[str] = None,
                  query_str: Optional[str] = None,
                  model: str = "gpt-4o",
+                 include_prompt: Optional[bool] = False,
                  system_instructions: Optional[str] = None,
                  persona_template: Optional[str] = None,
                  persona: Optional[str] = None,
@@ -233,6 +235,7 @@ class Agent:
         self._history = []
         self.persona_mapping = PERSONA_MAPPING
         self.task_description = task
+        self.include_prompt = include_prompt
         self.persona = persona
         self.ideology = ideology
         self.data = DATASET
@@ -325,7 +328,7 @@ class Agent:
             self,
             task: Optional[str] = None,
             previous_responses: str = "",
-    ) -> Optional[str]:
+    ) -> Union[dict[str, Optional[str]], str, None]:
         """
         Process the task, optionally building upon a previous response. If you pass in a task, it will replace the
         Agent's initialized task description. If you pass in a previous responses, it will be incorporated into the task
@@ -355,7 +358,11 @@ class Agent:
             self.current_task_description = self.current_task_description.strip()
         else:
             self.current_task_description = self.original_task_description.strip()
-        return self._get_response(self.current_task_description)
+        response = self._get_response(self.current_task_description)
+        if self.include_prompt:
+            return {'user': self.original_task_description, 'assistant':response}
+        else:
+            return response
 
     def _get_random_persona(self, data: pd.DataFrame) -> str:
         """
