@@ -583,7 +583,7 @@ class Debate(AbstractStructure):
     def _format_previous_responses(responses: List[str]) -> str:
         """
         We don't need to append [Response 0] and [Response 1] to the responses here because they will be prefixed
-        with [You] and [Other] in the process method already.
+        with appropriate 'you/other' tags in the process method already.
 
         Returns:
             str: The formatted responses newline seperated
