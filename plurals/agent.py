@@ -360,7 +360,7 @@ class Agent:
             self.current_task_description = self.original_task_description.strip()
         response = self._get_response(self.current_task_description)
         if self.include_prompt:
-            return {'user': self.original_task_description, 'assistant':response}
+            return {'user': self.original_task_description, 'assistant': response}
         else:
             return response
 
@@ -556,6 +556,7 @@ class Agent:
             "combination_instructions": self.combination_instructions,
             "model": self.model,
             "kwargs": self.kwargs}
+
     @property
     def responses(self):
         """
