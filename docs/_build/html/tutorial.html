@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Diagram &mdash; Plurals 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Plurals
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="agent.html">Agent Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deliberation.html">Deliberation Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helpers.html">Helpers Module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Plurals</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">System Diagram</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tutorial.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) --><ul class="simple">
+<li><p><a class="reference external" href="#system-diagram">System Diagram</a></p></li>
+<li><p><a class="reference external" href="#installation">Installation</a></p></li>
+<li><p><a class="reference external" href="#cite">Cite</a></p></li>
+<li><p><a class="reference external" href="#package-overview">Package Overview</a></p></li>
+<li><p><a class="reference external" href="#read-full-documentation-for-modules-and-methods-here">Read full documentation for modules and methods
+here.</a></p></li>
+<li><p><a class="reference external" href="#report-an-issue-or-request-a-feature">Report an issue or request a
+feature</a></p></li>
+<li><p><a class="reference external" href="#uses">Uses</a></p></li>
+<li><p><a class="reference external" href="#agents">Agents</a></p>
+<ul>
+<li><p><a class="reference external" href="#quick-start">Quick Start</a></p></li>
+<li><p><a class="reference external" href="#inspecting-the-exact-prompts-that-an-agent-is-doing">Inspecting the exact prompts that an Agent is
+doing</a></p></li>
+<li><p><a class="reference external" href="#different-ways-to-set-up-system-prompt">Different ways to set up system
+prompt</a></p>
+<ul>
+<li><p><a class="reference external" href="#no-system-prompt">No system prompt</a></p></li>
+<li><p><a class="reference external" href="#user-defined-system-prompt">User-defined system prompt</a></p></li>
+<li><p><a class="reference external" href="#using-templates">Using templates</a></p></li>
+<li><p><a class="reference external" href="#using-anes-for-nationally-representative-personas">Using ANES for nationally representative
+personas</a></p>
+<ul>
+<li><p><a class="reference external" href="#option-1-syntax-sugar-searching-for-ideologies">Option 1: Syntax Sugar: Searching for
+ideologies</a></p></li>
+<li><p><a class="reference external" href="#option-2-random-sampling">Option 2: Random sampling</a></p></li>
+<li><p><a class="reference external" href="#option-3-searching-anes-using-a-pandas-query-string">Option 3: Searching ANES using a pandas query
+string</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference external" href="#moderators-a-special-type-of-agent">Moderators: a special type of
+Agent</a></p>
+<ul>
+<li><p><a class="reference external" href="#setting-a-moderators-system-instructions">Setting a Moderator’s System
+Instructions</a></p>
+<ul>
+<li><p><a class="reference external" href="#personas">Personas</a></p></li>
+<li><p><a class="reference external" href="#moderator-system-instructions-set-directly">Moderator system instructions set
+directly</a></p></li>
+<li><p><a class="reference external" href="#auto-moderators">Auto-Moderators</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference external" href="#structures">Structures</a></p>
+<ul>
+<li><p><a class="reference external" href="#overview-of-structures">Overview of Structures</a></p></li>
+<li><p><a class="reference external" href="#types-of-structures">Types of Structures</a></p>
+<ul>
+<li><p><a class="reference external" href="#ensemble">Ensemble</a></p></li>
+<li><p><a class="reference external" href="#ensemble-with-a-moderator">Ensemble with a moderator</a></p></li>
+<li><p><a class="reference external" href="#tracing-what-is-going-on-in-structures">Tracing what is going on in
+Structures</a></p></li>
+<li><p><a class="reference external" href="#chain">Chain</a></p></li>
+<li><p><a class="reference external" href="#chain-with-a-moderator">Chain with a moderator</a></p></li>
+<li><p><a class="reference external" href="#debate">Debate</a></p></li>
+<li><p><a class="reference external" href="#debate-with-a-moderator">Debate with a moderator</a></p></li>
+<li><p><a class="reference external" href="#graph">Graph</a></p>
+<ul>
+<li><p><a class="reference external" href="#dags">DAGs</a></p></li>
+<li><p><a class="reference external" href="#dags-with-plurals">DAGs with Plurals</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference external" href="#viewing-history-of-agents-in-a-structure">Viewing history of Agents in a
+Structure</a></p></li>
+</ul>
+</li>
+</ul>
+<!-- TOC end --><section id="system-diagram">
+<h1>System Diagram<a class="headerlink" href="#system-diagram" title="Link to this heading"></a></h1>
+</section>
+<section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">plurals</span></code></p>
+</section>
+<section id="cite">
+<h1>Cite<a class="headerlink" href="#cite" title="Link to this heading"></a></h1>
+<p>We plan on releasing a system paper soon. For now, cite this package as:</p>
+<p><em>Bibtex:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@software</span><span class="p">{</span><span class="n">Ashkinaze_Plurals_2024</span><span class="p">,</span>
+  <span class="n">author</span> <span class="o">=</span> <span class="p">{</span><span class="n">Ashkinaze</span><span class="p">,</span> <span class="n">Joshua</span> <span class="ow">and</span> <span class="n">Fry</span><span class="p">,</span> <span class="n">Emily</span> <span class="ow">and</span> <span class="n">Edra</span><span class="p">,</span> <span class="n">Narendra</span> <span class="ow">and</span> <span class="n">Budak</span><span class="p">,</span> <span class="n">Ceren</span> <span class="ow">and</span> <span class="n">Gilbert</span><span class="p">,</span> <span class="n">Eric</span><span class="p">},</span>
+  <span class="n">doi</span> <span class="o">=</span> <span class="p">{</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.12750674</span><span class="p">},</span>
+  <span class="n">license</span> <span class="o">=</span> <span class="p">{</span><span class="n">cc</span><span class="o">-</span><span class="n">by</span><span class="o">-</span><span class="mf">4.0</span><span class="p">},</span>
+  <span class="n">month</span> <span class="o">=</span> <span class="n">jul</span><span class="p">,</span>
+  <span class="n">title</span> <span class="o">=</span> <span class="p">{{</span><span class="n">Plurals</span><span class="p">}},</span>
+  <span class="n">url</span> <span class="o">=</span> <span class="p">{</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">josh</span><span class="o">-</span><span class="n">ashkinaze</span><span class="o">/</span><span class="n">plurals</span><span class="p">},</span>
+  <span class="n">year</span> <span class="o">=</span> <span class="p">{</span><span class="mi">2024</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><em>APA:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Ashkinaze</span><span class="p">,</span> <span class="n">J</span><span class="o">.</span><span class="p">,</span> <span class="n">Fry</span><span class="p">,</span> <span class="n">E</span><span class="o">.</span><span class="p">,</span> <span class="n">Edra</span><span class="p">,</span> <span class="n">N</span><span class="o">.</span><span class="p">,</span> <span class="n">Budak</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="p">,</span> <span class="o">&amp;</span> <span class="n">Gilbert</span><span class="p">,</span> <span class="n">E</span><span class="o">.</span> <span class="p">(</span><span class="mi">2024</span><span class="p">)</span><span class="o">.</span> <span class="n">Plurals</span><span class="o">.</span> <span class="n">Zenodo</span><span class="o">.</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.12750674</span>
+</pre></div>
+</div>
+<p>EF and NE are equal contributors. We have a DOI on Zenodo. <a class="reference external" href="https://doi.org/10.5281/zenodo.12750674"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.12750674.svg" /></a></p>
+</section>
+<section id="package-overview">
+<h1>Package Overview<a class="headerlink" href="#package-overview" title="Link to this heading"></a></h1>
+<p>‘Plurals’ is based on two abstractions—<code class="docutils literal notranslate"><span class="pre">Agents</span></code> (who complete tasks)
+and <code class="docutils literal notranslate"><span class="pre">Structures</span></code> (which are the environments in which <code class="docutils literal notranslate"><span class="pre">Agents</span></code>
+complete their tasks). Agents can be optionally overseen by
+<code class="docutils literal notranslate"><span class="pre">Moderators</span></code>, a special class of Agents, who summarize the responses
+of Agents in Structures. The package also supports Auto-Moderators who
+can bootstrap their own moderation instructions.</p>
+<p>Regarding ‘agents’, the package allows for various kinds of persona
+initializations. Some of these leverage American National Election
+Studies (ANES), a nationally representative dataset. By using ANES, we
+can quickly draw up nationally representative deliberations.</p>
+<p>Regarding ‘structures’, the package allows agents to share information
+in various ways. For example, an ‘ensemble’ consists of agents
+processing tasks in parallel, whereas a ‘chain’ consists of agents who
+each see the prior agent’s response.</p>
+<p>Regarding ‘moderators’, we allow the user to easily aggregate, filter,
+or synthesize the results of multi-agent deliberation by adding a
+‘Moderator’ to any structure. These moderators can optionally be
+auto-moderated, meaning they come up with their own moderation
+instructions based on the task.</p>
+</section>
+<section id="read-full-documentation-for-modules-and-methods-here">
+<h1>Read full documentation for modules and methods here.<a class="headerlink" href="#read-full-documentation-for-modules-and-methods-here" title="Link to this heading"></a></h1>
+<p><a class="reference external" href="https://josh-ashkinaze.github.io/plurals/">https://josh-ashkinaze.github.io/plurals/</a></p>
+<p>The README file provides specific examples, while the documentation
+offers a more comprehensive overview of the package.</p>
+</section>
+<section id="report-an-issue-or-request-a-feature">
+<h1>Report an issue or request a feature<a class="headerlink" href="#report-an-issue-or-request-a-feature" title="Link to this heading"></a></h1>
+<p>Plurals is run by a small and energetic team of academics doing the best
+they can [1]. To report bugs or feature requests, open a GitHub issue.
+We strongly encourage you to use our Bug or Feature Request issue
+templates; these make it easy for us to respond effectively to the
+issue. If you have any questions or want to collaborate on this project,
+please email <a class="reference external" href="mailto:jashkina&#37;&#52;&#48;umich&#46;edu">jashkina<span>&#64;</span>umich<span>&#46;</span>edu</a>.</p>
+<p>[1] Language adopted from (<a class="reference external" href="https://github.com/davidjurgens/potato">https://github.com/davidjurgens/potato</a>).</p>
+</section>
+<section id="uses">
+<h1>Uses<a class="headerlink" href="#uses" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p>Persona-based experiments: Quickly create personas for agents,
+optionally using ANES for fast, nationally representative personas.
+For example, you can create a panel of 100 nationally representative
+personas and send parallel requests to process a prompt in just two
+lines of code</p></li>
+<li><p>Deliberation structure experiments: Generate various multi-agent
+interactions like ensembles, debates, or chains of LLM deliberation
+in just a few lines of code.</p></li>
+<li><p>Deliberation instruction experiments: Experiment with providing LLMs
+with different kinds of instructions for how to optimally combine
+information</p></li>
+<li><p>Curation/Moderation: Use Moderator LLMs to moderate (e.g.) ensembles
+of LLMs to only select the best outputs to feed forward</p></li>
+<li><p>Persuasion: Use LLMs to collaboratively brainstorm persuasive
+messaging</p></li>
+<li><p>Augmentation: Use LLMs to augment human decision-making by providing
+additional information/perspectives</p></li>
+</ul>
+</section>
+<section id="agents">
+<h1>Agents<a class="headerlink" href="#agents" title="Link to this heading"></a></h1>
+<p>Each agent has two core attributes: <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code> (which are
+the personas) and <code class="docutils literal notranslate"><span class="pre">task</span></code> (which is the user prompt). There are a few
+ways to create <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code>:</p>
+<ul class="simple">
+<li><p>Passing in full system instructions</p></li>
+<li><p>Using a persona template with a placeholder for the persona</p></li>
+<li><p>Interfacing with American National Election Studies to draw up a
+persona to use with a persona template</p></li>
+</ul>
+<p>Users can make their own persona templates or use the defaults in the
+instructions.yaml file.</p>
+<p>Let’s see some examples!</p>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">textwrap</span>
+
+<span class="c1"># Set your keys as an env variable</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;yourkey&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;yourkey&#39;</span>
+
+
+<span class="c1"># Function to wrap text for docs</span>
+<span class="k">def</span> <span class="nf">printwrap</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">):</span>
+    <span class="n">wrapped_text</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">wrapped_text</span><span class="p">)</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Should the United States ban assault rifles? Answer in 50 words.&quot;</span>
+
+<span class="c1"># Search ANES 2024 for rows where the respondent identifies as `very conservative` and condition</span>
+<span class="c1"># other demographic variables as well. Use the default persona template from instructions.yaml</span>
+<span class="c1"># (By default the persona_template is `default&#39; from `instructions.yaml`)</span>
+<span class="n">conservative_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">con_answer</span> <span class="o">=</span> <span class="n">conservative_agent</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>  <span class="c1"># call conservative_agent.process() to get the response.</span>
+
+<span class="c1"># Search ANES 2024 for rows where the respondent identifies as very liberal and condition</span>
+<span class="c1"># other demographic variables as well. Use the `second_wave` persona template from instructions.yaml which</span>
+<span class="c1"># encourages storytelling above reason-giving.</span>
+<span class="n">liberal_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very liberal&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s1">&#39;second_wave&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">lib_answer</span> <span class="o">=</span> <span class="n">liberal_agent</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>  <span class="c1"># call  liberal_agent.process() to get the response.</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">############ Print the results ############</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">conservative_agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
+<span class="n">printwrap</span><span class="p">(</span><span class="n">con_answer</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">liberal_agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
+<span class="n">printwrap</span><span class="p">(</span><span class="n">lib_answer</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>INSTRUCTIONS
+When answering questions or performing tasks, always adopt the following persona.
+
+PERSONA:
+Your age is 57. Your education is high school graduate. Your gender is man. Your race is hispanic. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do have children under 18 living in your household. Your employment status is full-time. Your geographic region is the northeast. You live in a suburban area. You live in the state of new york.
+
+CONSTRAINTS
+<span class="k">-</span><span class="w"> </span>When answering, do not disclose your partisan or demographic identity in any way.
+<span class="k">-</span><span class="w"> </span>Think, talk, and write like your persona.
+<span class="k">-</span><span class="w"> </span>Use plain language.
+<span class="k">-</span><span class="w"> </span>Adopt the characteristics of your persona.
+<span class="gh">- Do not be overly polite or politically correct.</span>
+<span class="gh">====================</span>
+Banning assault rifles won&#39;t solve the problem. It&#39;s about enforcing existing
+laws and focusing on mental health. Law-abiding citizens shouldn&#39;t lose their
+rights due to the actions of criminals. Solutions should target the root causes
+of violence, not just the tools.
+
+
+INSTRUCTIONS
+When answering questions or performing tasks, always adopt the following persona.
+
+PERSONA:
+Your age is 36. Your education is 4-year degree. Your gender is man. Your race is white. Politically, you identify as a(n) democrat. Your ideology is very liberal. Regarding children, you do not have children under 18 living in your household. Your employment status is full-time. Your geographic region is the midwest. You live in a suburban area. You live in the state of minnesota.
+
+CONSTRAINTS
+<span class="k">-</span><span class="w"> </span>When answering, do not disclose your partisan or demographic identity in any way.
+<span class="k">-</span><span class="w"> </span>Think, talk, and write like your persona.
+<span class="k">-</span><span class="w"> </span>Use plain language.
+<span class="k">-</span><span class="w"> </span>Adopt the characteristics of your persona.
+<span class="k">-</span><span class="w"> </span>Respect each other’s viewpoints.
+<span class="k">-</span><span class="w"> </span>Use empathy when engaging with others
+<span class="k">-</span><span class="w"> </span>Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling.
+<span class="k">-</span><span class="w"> </span>Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
+<span class="k">-</span><span class="w"> </span>Aim to achieve the common good.
+<span class="gh">- It is okay to aim for self-interest if this is constrained by fairness.</span>
+<span class="gh">====================</span>
+Banning assault rifles could reduce mass shootings and gun violence. Their high
+capacity and rapid fire aren&#39;t necessary for civilian use. Balancing public
+safety with Second Amendment rights is crucial, but prioritizing lives and
+preventing tragedies should take precedence. Effective regulations and
+background checks can also play a role.
+</pre></div>
+</div>
+<p>Note that we can call Agents to process tasks in two ways:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Should the United States ban assault rifles? Answer in 50 words.&quot;</span>
+
+<span class="n">conservative_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">con_answer</span> <span class="o">=</span> <span class="n">conservative_agent</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>  <span class="c1"># call conservative_agent.process() to get the response.</span>
+
+<span class="n">conservative_agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">con_answer2</span> <span class="o">=</span> <span class="n">conservative_agent2</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">task</span><span class="p">)</span> <span class="c1"># call conservative_agent2.process() to get the response.</span>
+</pre></div>
+</div>
+</section>
+<section id="inspecting-the-exact-prompts-that-an-agent-is-doing">
+<h2>Inspecting the exact prompts that an Agent is doing<a class="headerlink" href="#inspecting-the-exact-prompts-that-an-agent-is-doing" title="Link to this heading"></a></h2>
+<p>It is important to know what exactly is going on behind the scenes, so
+we have a few ways to do this!</p>
+<p>By calling <code class="docutils literal notranslate"><span class="pre">agent.info</span></code>, we can retrieve a dictionary containing
+comprehensive information about the Agent, including their prompts, full
+system instructions, and a key called <code class="docutils literal notranslate"><span class="pre">history</span></code>, which consists of the
+prompts and responses of agents. You can get this <code class="docutils literal notranslate"><span class="pre">history</span></code> key by
+calling <code class="docutils literal notranslate"><span class="pre">agent.history</span></code> if that is your main interest. You can also
+access the responses of agents more directly by simply calling
+<code class="docutils literal notranslate"><span class="pre">agent.responses</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Should the United States ban assault rifles? Answer in 50 words.&quot;</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">a</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">INFO</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">HISTORY</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">history</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">RESPONSES</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If we wanted to, we could use <code class="docutils literal notranslate"><span class="pre">history</span></code> or <code class="docutils literal notranslate"><span class="pre">agent.info</span></code> to get our
+agent’s response.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Should the United States ban assault rifles? Answer in 50 words.&quot;</span>
+<span class="c1"># Search ANES 2024 for rows where the respondent identifies as very liberal and condition</span>
+<span class="c1"># other demographic variables as well. Use the `second_wave` persona template from instructions.yaml which</span>
+<span class="c1"># encourages storytelling above reason-giving.</span>
+<span class="n">liberal_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very liberal&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s1">&#39;second_wave&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">lib_answer1</span> <span class="o">=</span> <span class="n">liberal_agent</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="n">lib_answer2</span> <span class="o">=</span> <span class="n">liberal_agent</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">]</span>  <span class="c1"># Can get prompts and response from history</span>
+<span class="n">lib_answer3</span> <span class="o">=</span> <span class="n">liberal_agent</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;history&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">]</span>  <span class="c1"># Can get history and more from info</span>
+<span class="c1"># lib_answer1, lib_answer2, and lib_answer3 are all equal to the same thing.</span>
+</pre></div>
+</div>
+<p>In the example code above, <code class="docutils literal notranslate"><span class="pre">lib_answer1</span></code>, <code class="docutils literal notranslate"><span class="pre">lib_answer2</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">lib_answer3</span></code> all give us the same <code class="docutils literal notranslate"><span class="pre">liberal_agent</span></code>’s response.</p>
+</section>
+<section id="different-ways-to-set-up-system-prompt">
+<h2>Different ways to set up system prompt<a class="headerlink" href="#different-ways-to-set-up-system-prompt" title="Link to this heading"></a></h2>
+<p>Agent has many different ways to set system prompts. Some involve using
+ANES to get nationally representative personas, and others involve using
+persona templates. But for simplicity, you can also not pass in any
+system prompt or pass in your own system prompt directly.</p>
+<section id="no-system-prompt">
+<h3>No system prompt<a class="headerlink" href="#no-system-prompt" title="Link to this heading"></a></h3>
+<p>In this case, there will be no system prompt (i.e: default for model).
+Also note that you can pass in kwargs to the model’s completion
+function. These are provided by LiteLLM. See
+(<a class="reference external" href="https://litellm.vercel.app/docs/completion/input">https://litellm.vercel.app/docs/completion/input</a>)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;max_tokens&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="user-defined-system-prompt">
+<h3>User-defined system prompt<a class="headerlink" href="#user-defined-system-prompt" title="Link to this heading"></a></h3>
+<p>In this case, the system prompt is user-defined.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a predictable independent&quot;</span><span class="p">,</span>
+              <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
+              <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;max_tokens&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="using-templates">
+<h3>Using templates<a class="headerlink" href="#using-templates" title="Link to this heading"></a></h3>
+<p>A main usage of this package is running experiments, so we have another
+way to create personas that uses string formatting. Here, the user
+provides a <code class="docutils literal notranslate"><span class="pre">persona_template</span></code> and a persona (indicated by
+<code class="docutils literal notranslate"><span class="pre">${persona}</span></code>). Or, the user can just use our default
+<code class="docutils literal notranslate"><span class="pre">persona_template</span></code>. If no persona template is provided then the
+<code class="docutils literal notranslate"><span class="pre">default</span></code> template is used, unless a user is using an ANES
+initialization method and then <code class="docutils literal notranslate"><span class="pre">anes</span></code> template is used. In this case,
+the <code class="docutils literal notranslate"><span class="pre">default</span></code> template is used.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a liberal&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># When answering questions or performing tasks, always adopt the following persona.</span>
+<span class="c1">#</span>
+<span class="c1"># PERSONA:</span>
+<span class="c1"># a liberal</span>
+<span class="c1">#</span>
+<span class="c1"># CONSTRAINTS</span>
+<span class="c1"># - Think, talk, and write like your persona.</span>
+<span class="c1"># - Use plain language.</span>
+<span class="c1"># - Adopt the characteristics of your persona.</span>
+</pre></div>
+</div>
+<p>You can also create your own template. Just make sure to add a
+<code class="docutils literal notranslate"><span class="pre">${persona}</span></code> placeholder in the template.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">company_roles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;marketing officer&#39;</span><span class="p">,</span> <span class="s1">&#39;cfo&#39;</span><span class="p">]</span>
+
+<span class="n">agents</span> <span class="o">=</span> <span class="p">[</span><span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="n">company_roles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;When drafting feedback, always adopt the following persona: $</span><span class="si">{persona}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
+          <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">company_roles</span><span class="p">))]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">agents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+<span class="c1"># When drafting feedback, always adopt the following persona: marketing officer</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+<span class="c1"># When drafting feedback, always adopt the following persona: cfo</span>
+</pre></div>
+</div>
+</section>
+<section id="using-anes-for-nationally-representative-personas">
+<h3>Using ANES for nationally representative personas<a class="headerlink" href="#using-anes-for-nationally-representative-personas" title="Link to this heading"></a></h3>
+<p>We have several ways to leverage government datasets to create simulated
+personas. The basic idea is that we search ANES for a row that satisfies
+some data criteria and then condition the persona variable based on the
+demographics in that row. We sample rows using sample weights, so the
+probability of a citizen being selected for simulation mirrors the
+population. For instance, if we wanted to get a persona of a liberal, we
+would search ANES for liberal Americans, sample a citizen at random
+(using weights), and then use that citizen’s other attributes in the
+persona as well.</p>
+<p>As of this writing: (1) We are using ANES Pilot Study data from March
+2024. (2) The persona populates the following fields (see
+<code class="docutils literal notranslate"><span class="pre">plurals/anes-mapping.yaml</span></code> on GitHub for specific variables): - Age -
+Education - Gender - Race - Political party - Political ideology -
+Children living at home - Geographic region - Employment status - Metro
+area classification (e.g: urban, rural, etc.) - State</p>
+<section id="option-1-syntax-sugar-searching-for-ideologies">
+<h4>Option 1: Syntax Sugar: Searching for ideologies<a class="headerlink" href="#option-1-syntax-sugar-searching-for-ideologies" title="Link to this heading"></a></h4>
+<p>We support a <code class="docutils literal notranslate"><span class="pre">ideology</span></code> keyword that can be one of
+<code class="docutils literal notranslate"><span class="pre">['very</span> <span class="pre">liberal',</span> <span class="pre">'liberal',</span> <span class="pre">'moderate',</span> <span class="pre">'conservative',</span> <span class="pre">'very</span> <span class="pre">conservative']</span></code>
+where the ‘veries’ are a subset of the normals. This uses the column
+<code class="docutils literal notranslate"><span class="pre">ideo5</span></code> to filter data and then randomly selects somebody who has this
+ideology.</p>
+<p>Let’s see an example!</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Write a paragraph about the importance of the environment to America.&quot;</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s1">&#39;second_wave&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">printwrap</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>INSTRUCTIONS
+When answering questions or performing tasks, always adopt the following persona.
+
+PERSONA:
+Your age is 86. Your education is post-grad. Your gender is man. Your race is white. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do not have children under 18 living in your household. Your employment status is retired. Your geographic region is the south. You live in a suburban area. You live in the state of texas.
+
+CONSTRAINTS
+<span class="k">-</span><span class="w"> </span>When answering, do not disclose your partisan or demographic identity in any way.
+<span class="k">-</span><span class="w"> </span>Think, talk, and write like your persona.
+<span class="k">-</span><span class="w"> </span>Use plain language.
+<span class="k">-</span><span class="w"> </span>Adopt the characteristics of your persona.
+<span class="k">-</span><span class="w"> </span>Respect each other’s viewpoints.
+<span class="k">-</span><span class="w"> </span>Use empathy when engaging with others
+<span class="k">-</span><span class="w"> </span>Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling.
+<span class="k">-</span><span class="w"> </span>Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
+<span class="k">-</span><span class="w"> </span>Aim to achieve the common good.
+<span class="k">-</span><span class="w"> </span>It is okay to aim for self-interest if this is constrained by fairness.
+
+
+
+The environment is incredibly important to America for many reasons. Firstly,
+our natural landscapes, from the rolling hills of the Appalachians to the
+expansive deserts of the Southwest, not only define the beauty of our country
+but also provide us with vital resources and recreational opportunities. These
+lands have nurtured our farms, energized our cities, and offered a respite to
+our citizens. Conservation of these environments showcases our respect for God&#39;s
+creation and ensures that future generations can enjoy the same natural wonders
+we have cherished. Healthy ecosystems support job creation in industries like
+fishing, tourism, and agriculture, contributing to our nation&#39;s prosperity.
+Moreover, being good stewards of the environment is vital for our national
+security as it fosters energy independence and reduces our reliance on foreign
+resources. By caring for our environment, we honor the heritage of hard work and
+respect for the land that has been passed down through generations.
+</pre></div>
+</div>
+</section>
+<section id="option-2-random-sampling">
+<h4>Option 2: Random sampling<a class="headerlink" href="#option-2-random-sampling" title="Link to this heading"></a></h4>
+<p>If you make <code class="docutils literal notranslate"><span class="pre">persona=='random'</span></code> then we will randomly sample a row
+from ANES and use that as the persona.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Write a paragraph about the importance of the environment to America.&quot;</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="option-3-searching-anes-using-a-pandas-query-string">
+<h4>Option 3: Searching ANES using a pandas query string<a class="headerlink" href="#option-3-searching-anes-using-a-pandas-query-string" title="Link to this heading"></a></h4>
+<p>If you want to get more specific, you can pass in a query string that
+will be used to filter the ANES dataset. Now, you may not know the exact
+variables in ANES, so we have a helper function that will print out the
+demographic/political columns we are using so you know what values to
+pass in.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.helpers</span> <span class="kn">import</span> <span class="n">print_anes_mapping</span>
+
+<span class="n">print_anes_mapping</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will show a number of variables and their allowed values, but just
+to give an excerpt:</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>ANES Variable Name: gender4
+Man
+Woman
+Non-binary
+Other
+</pre></div>
+</div>
+<p>Now we know that we can construct a query string that uses <code class="docutils literal notranslate"><span class="pre">gender4</span></code>
+and the values <code class="docutils literal notranslate"><span class="pre">['Man',</span> <span class="pre">'Woman',</span> <span class="pre">'Non-binary',</span> <span class="pre">and</span> <span class="pre">'Other']</span></code>.</p>
+<p>Let’s look at somebody who identifies (ideologically) as very
+conservative and is from West Virginia.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.helpers</span> <span class="kn">import</span> <span class="n">print_anes_mapping</span>
+
+<span class="n">print_anes_mapping</span><span class="p">()</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Should the United States move away from coal as an energy source? Answer Yes or No and provide a rationale.&quot;</span>
+<span class="n">west_virginia</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">query_str</span><span class="o">=</span><span class="s2">&quot;inputstate==&#39;West Virginia&#39;&amp;ideo5==&#39;Very conservative&#39;&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">west_virginia</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>No. Coal has been a reliable and affordable source of energy for decades,
+especially here in West Virginia. It&#39;s helped support our economy and provided
+jobs to many local families. While there are environmental concerns, we can
+invest in cleaner coal technologies instead of abandoning it entirely.
+Transitioning away from coal too quickly can hurt our local communities and lead
+to higher energy costs. Plus, energy independence is vital, and we shouldn&#39;t
+rely too much on foreign sources of energy.
+</pre></div>
+</div>
+<p>Although we searched for a very conservative person from West Virginia,
+let’s see the full persona that we used—since the persona will be based
+on more than just ideology and state.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">west_virginia</span><span class="o">.</span><span class="n">persona</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>Your age is 49. Your education is some college. Your gender is woman. Your race
+is white. Politically, you identify as a(n) republican. Your ideology is very
+conservative. Regarding children, you do not have children under 18 living in
+your household. Your employment status is homemaker. Your geographic region is
+the south. You live in a small town. You live in the state of west virginia.
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="moderators-a-special-type-of-agent">
+<h2>Moderators: a special type of Agent<a class="headerlink" href="#moderators-a-special-type-of-agent" title="Link to this heading"></a></h2>
+<p><strong>Moderators and Auto-Moderators:</strong> We support Moderators, who are
+special classes of Agents that oversee deliberation. Like Agents,
+Moderators are defined by their <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code>—which can be
+comprised of <code class="docutils literal notranslate"><span class="pre">personas</span></code> and <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> (how to
+combine information). Users can set their own <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code>
+directly or, as with persona templates, we support various pre-defined
+moderator instructions. We also support Auto-Moderators, which is when a
+Moderator generates its own instructions on how to combine responses of
+prior Agents.</p>
+<section id="setting-a-moderators-system-instructions">
+<h3>Setting a Moderator’s System Instructions<a class="headerlink" href="#setting-a-moderators-system-instructions" title="Link to this heading"></a></h3>
+<section id="personas">
+<h4>Personas<a class="headerlink" href="#personas" title="Link to this heading"></a></h4>
+<p>Like Agents, <code class="docutils literal notranslate"><span class="pre">personas</span></code> and <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code> are different ways
+to set up the moderator’s system instructions. If you use <code class="docutils literal notranslate"><span class="pre">persona</span></code>,
+then you can use some of our default moderator personas available in the
+defaults file
+(<a class="reference external" href="https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml">https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml</a>).
+For example, if we pass in <code class="docutils literal notranslate"><span class="pre">persona='voting'</span></code>, then we will use a
+moderator persona meant for voting.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Moderator</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;voting&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;voting&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>There is also an option to define your own persona. However, when
+passing your own instructions in, note that, like <code class="docutils literal notranslate"><span class="pre">persona_template</span></code>,
+persona expects a <code class="docutils literal notranslate"><span class="pre">${task}</span></code> placeholder. This will get filled in with
+the actual task.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Moderator</span>
+
+<span class="n">mod</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;You are a neutral moderator overseeing this task, $</span><span class="si">{task}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
+<span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;voting&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="moderator-system-instructions-set-directly">
+<h4>Moderator system instructions set directly<a class="headerlink" href="#moderator-system-instructions-set-directly" title="Link to this heading"></a></h4>
+<p>You can also set <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code> directly, much like with
+Agents, and this will have a similar effect to custom personas.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Moderator</span>
+
+<span class="n">mod</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a neutral moderator overseeing this task, $</span><span class="si">{task}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
+<span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;voting&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The difference is that <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code> is not linked with our
+templates, so you cannot access any pre-defined moderator instructions
+when using <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code>. <code class="docutils literal notranslate"><span class="pre">system_instructions='default'</span></code>
+will not access the default template like <code class="docutils literal notranslate"><span class="pre">persona='default'</span></code> would.</p>
+</section>
+<section id="auto-moderators">
+<h4>Auto-Moderators<a class="headerlink" href="#auto-moderators" title="Link to this heading"></a></h4>
+<p>We have a special option where, if the <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code> of a
+moderator are set to <code class="docutils literal notranslate"><span class="pre">auto</span></code>, then the moderator will, given a task,
+come up with its own system instructions. Here is how to do this!</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Moderator</span><span class="p">,</span> <span class="n">Ensemble</span><span class="p">,</span> <span class="n">Chain</span>
+<span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Your goal is to come up with the most creative ideas possible for pants. We are maximizing creativity. Answer&quot;</span>
+        <span class="s2">&quot; in 20 words.&quot;</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-3.5-turbo&#39;</span><span class="p">)</span>
+<span class="c1"># By putting the moderator in the Ensemble we are going to</span>
+<span class="c1"># trigger the auto-mod generator</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">],</span> <span class="n">moderator</span><span class="o">=</span><span class="n">Moderator</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">),</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>So let’s see what the moderator thinks it should be doing with this
+information.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>Review all submitted responses, identify the most unique and imaginative ideas
+for pants, and compile a ranked list from most to least creative. Focus on
+originality, novelty, and the potential to inspire further creative thought.
+Exclude repetitive or overly conventional ideas.
+</pre></div>
+</div>
+<p>Here are ways to use auto-moderation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Moderator</span><span class="p">,</span> <span class="n">Ensemble</span><span class="p">,</span> <span class="n">Chain</span>
+<span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Come up with creative ideas&quot;</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-3.5-turbo&#39;</span><span class="p">)</span>
+
+<span class="c1"># This will trigger the auto-mod module to generate its own system instructions.</span>
+<span class="c1"># This is a straightforward way to use auto-moderators. Then we can just put it in a Structure</span>
+<span class="n">mod</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">],</span> <span class="n">moderator</span><span class="o">=</span><span class="n">mod</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+
+<span class="c1"># Simply defining the moderator in the Structure will inherit the structure&#39;s task so this is also a simple way to have</span>
+<span class="c1"># the Moderator bootstrap its own instructions based on the task.</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-3.5-turbo&#39;</span><span class="p">)</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">],</span> <span class="n">moderator</span><span class="o">=</span><span class="n">Moderator</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">),</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+
+
+<span class="c1"># You can also turn a normal moderator into an auto-moderator.</span>
+<span class="n">mod</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;some boring initial instructions&quot;</span><span class="p">,</span>  <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">mod</span><span class="o">.</span><span class="n">generate_and_set_system_instructions</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+
+<span class="c1"># Or, you can generate instructions and inspect them before setting them. You can generate multiple times of course.</span>
+<span class="n">mod</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;some boring initial instructions&quot;</span><span class="p">,</span>  <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">generate_system_instructions</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Review all submitted responses for uniqueness, relevance, and creativity. Prioritize ideas that are feasible and</span>
+<span class="c1"># innovative. Eliminate duplicates and rank responses by feasibility and impact. Summarize the top 5-10 ideas,</span>
+<span class="c1"># ensuring a diverse range of concepts is represented.</span>
+<span class="n">mod</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="s2">&quot;Review all submitted responses for uniqueness, relevance, and creativity. Prioritize ideas that are feasible and innovative. Eliminate duplicates and rank responses by feasibility and impact. Summarize the top 5-10 ideas, ensuring a diverse range of concepts is represented.&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+</section>
+<section id="structures">
+<h1>Structures<a class="headerlink" href="#structures" title="Link to this heading"></a></h1>
+<section id="overview-of-structures">
+<h2>Overview of Structures<a class="headerlink" href="#overview-of-structures" title="Link to this heading"></a></h2>
+<p>Structures are the environments in which agents work together. Broadly,
+structures are defined by:</p>
+<ol class="arabic simple">
+<li><p><strong>Information-sharing:</strong></p>
+<ul class="simple">
+<li><p>Direction of information sharing (i.e: is it directed or
+undirected).</p></li>
+<li><p>Amount of information-sharing. (e.g. in an <code class="docutils literal notranslate"><span class="pre">Ensemble</span></code>, no
+information is shared and Agents process requests in parallel
+whereas in a <code class="docutils literal notranslate"><span class="pre">Chain</span></code>, agents each build upon each other’s
+answers.)</p></li>
+<li><p>Users can create in-between structures. Our system supports a
+<code class="docutils literal notranslate"><span class="pre">last_n</span></code> parameter that dictates how much information an agent
+sees from the current deliberation stack. Setting <code class="docutils literal notranslate"><span class="pre">last_n</span></code> to 1
+would result in a Markov-esque chain.</p></li>
+<li><p>Users can also control <code class="docutils literal notranslate"><span class="pre">cycles</span></code> of a structure, which is how
+many times the sequence is run and whether to <code class="docutils literal notranslate"><span class="pre">shuffle</span></code> the
+ordering of agents on each cycle.</p></li>
+</ul>
+</li>
+<li><p><strong>Combination instructions:</strong></p>
+<ul class="simple">
+<li><p>How agents are instructed to combine information in the structure.</p></li>
+<li><p>It is a special kind of instruction that only kicks in when there
+are previous responses from an agent’s view.</p></li>
+<li><p>Interactions can be adversarial or amicable.</p></li>
+<li><p>There are two ways to set <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>.</p>
+<ul>
+<li><ol class="arabic simple">
+<li><p><strong>Using a template</strong>: we offer a list of templates which
+can be used via keywords. As of this writing, we offer
+default, chain, debate, and voting
+<code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> templates for ordinary agents.
+We also offer default, voting, first_wave, and second_wave
+<code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> templates for our special
+Moderator agents. These templates can be found in
+instructions.yaml.
+(<a class="reference external" href="https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml">https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml</a>).
+Templates are inspired by research on deliberative
+democracy, spanning first-wave deliberation (valuing
+reason-giving) and second-wave deliberation (valuing
+perspectives).</p></li>
+</ol>
+</li>
+<li><ol class="arabic simple" start="2">
+<li><p><strong>Setting your own</strong>: you can also pass in your own
+<code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>. However, when passing your
+own instructions in, note that, like <code class="docutils literal notranslate"><span class="pre">persona_template</span></code>,
+<code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> expects a
+<code class="docutils literal notranslate"><span class="pre">${previous_responses}</span></code> placeholder. This will get filled
+in with the previous responses.</p></li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>Examples of the features described above will be demonstrated below in
+the “Types of Structures” module.</p>
+</section>
+<section id="types-of-structures">
+<h2>Types of Structures<a class="headerlink" href="#types-of-structures" title="Link to this heading"></a></h2>
+<p>We went over how to set up agents, and now we are going to discuss how
+to set up structures—which are the environments in which agents complete
+tasks. As of this writing, we have three structures: ensemble, chain,
+and debate. Each of these structures can optionally be moderated,
+meaning that at the end of deliberation, a moderator agent will
+summarize everything (for example, make a final classification, take the
+best ideas, etc.)</p>
+<section id="ensemble">
+<h3>Ensemble<a class="headerlink" href="#ensemble" title="Link to this heading"></a></h3>
+<p>The most basic structure is an Ensemble, in which agents process tasks
+in parallel. For example, let’s say we wanted to have a panel of 10
+nationally representative agents brainstorm ideas to improve America. We
+can define our agents, put them in an ensemble, and then simply do
+<code class="docutils literal notranslate"><span class="pre">ensemble.process()</span></code>. It is important to pass in the task to the
+ensemble so all agents know what to do.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Ensemble</span>
+
+<span class="n">agents</span> <span class="o">=</span> <span class="p">[</span><span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="n">ensemble</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">&quot;Brainstorm ideas to improve America.&quot;</span><span class="p">)</span>
+<span class="n">ensemble</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ensemble</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will give 10 responses for each of our agents. Ensemble is the
+simplest structure, yet it can still be quite useful!</p>
+<p>Ensemble also allows you to combine models without any persona, so we
+can test if different models ensembled together give different results
+relative to the same model ensembled together. Remember that this is
+simply a standard API call when we do not pass in
+<code class="docutils literal notranslate"><span class="pre">system_instructions</span></code> or a <code class="docutils literal notranslate"><span class="pre">persona</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Ensemble</span>
+
+<span class="n">gpt4</span> <span class="o">=</span> <span class="p">[</span><span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="n">gpt3</span> <span class="o">=</span> <span class="p">[</span><span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-3.5-turbo&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="n">mixed</span> <span class="o">=</span> <span class="n">gpt4</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="n">gpt3</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+
+<span class="n">ensembles</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gpt4&#39;</span><span class="p">:</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">gpt4</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">&quot;Brainstorm ideas to improve America.&quot;</span><span class="p">),</span>
+             <span class="s1">&#39;gpt3&#39;</span><span class="p">:</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">gpt3</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">&quot;Brainstorm ideas to improve America.&quot;</span><span class="p">),</span>
+             <span class="s1">&#39;mixed&#39;</span><span class="p">:</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">mixed</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">&quot;Brainstorm ideas to improve America.&quot;</span><span class="p">)}</span>
+
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">ensemble</span> <span class="ow">in</span> <span class="n">ensembles</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">ensemble</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="ensemble-with-a-moderator">
+<h3>Ensemble with a moderator<a class="headerlink" href="#ensemble-with-a-moderator" title="Link to this heading"></a></h3>
+<p>Let’s say we want some Agent to oversee this process by reviewing these
+ideas and returning the ones that are the best. We can achieve this by
+passing in a <code class="docutils literal notranslate"><span class="pre">moderator</span></code> agent, which is a special kind of Agent. It
+only has three arguments: <code class="docutils literal notranslate"><span class="pre">persona</span></code> (the moderator persona),
+<code class="docutils literal notranslate"><span class="pre">system_instructions</span></code> (which, if passed in, will override a persona),
+and <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> (how to combine the responses).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Ensemble</span><span class="p">,</span> <span class="n">Moderator</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Brainstorm ideas to improve America.&quot;</span>
+<span class="c1"># Custom moderator combination instructions</span>
+<span class="n">combination_instructions</span> <span class="o">=</span> <span class="s2">&quot;INSTRUCTIONS</span><span class="se">\n</span><span class="s2">Return a master response that takes the best part of previous responses.</span><span class="se">\n</span><span class="s2">PREVIOUS RESPONSES: $</span><span class="si">{previous_responses}</span><span class="se">\n</span><span class="s2">RETURN a json like {&#39;response&#39;: &#39;the best response&#39;, &#39;rationale&#39;:Rationale for integrating responses} and nothing else&quot;</span>
+<span class="n">agents</span> <span class="o">=</span> <span class="p">[</span><span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span> <span class="c1"># random ANES agents</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span> <span class="c1"># default moderator persona</span>
+<span class="n">ensemble</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="n">combination_instructions</span><span class="p">)</span>
+<span class="n">ensemble</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ensemble</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note: In the above example, we printed <code class="docutils literal notranslate"><span class="pre">ensemble.final_response</span></code>
+instead of <code class="docutils literal notranslate"><span class="pre">ensemble.responses</span></code> (like we did without a Moderator)
+because, in this case, we only want to print the final response of the
+moderator and not all the 10 agent’s responses.</p>
+<p>Note: In the above example we set our own <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>.
+Recall that when users set their own <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>,
+<code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> expects a <code class="docutils literal notranslate"><span class="pre">${previous_responses}</span></code>
+placeholder if it is not one of the default options that we offer. This
+placeholder would get filled in with the previous responses. If you pass
+<code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> into an ensemble, like in the above
+example, all the agents will inherit it (same with <code class="docutils literal notranslate"><span class="pre">Chain</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Debate</span></code>).</p>
+<p>Let’s say we wanted to have a panel of 5 agents representing a spectrum
+of ideological backgrounds, ranging from very conservative to very
+liberal share their thoughts on universal healthcare. We can define our
+agents, put them in an ensemble, and then simply do
+<code class="docutils literal notranslate"><span class="pre">ensemble.process()</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">n_words</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">ideologies</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;liberal&quot;</span><span class="p">,</span> <span class="s2">&quot;moderate&quot;</span><span class="p">,</span> <span class="s2">&quot;conservative&quot;</span><span class="p">,</span> <span class="s2">&quot;very liberal&quot;</span><span class="p">,</span> <span class="s2">&quot;very conservative&quot;</span><span class="p">]</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;What is your stance on the government&#39;s role in providing universal healthcare? Answer from the point of</span>
+        <span class="n">view</span> <span class="n">of</span> <span class="n">your</span> <span class="n">ideology</span><span class="o">.</span> <span class="n">Answer</span> <span class="ow">in</span>  <span class="n">less</span> <span class="n">than</span> <span class="p">{</span><span class="n">n_words</span><span class="p">}</span> <span class="n">words</span><span class="o">.</span><span class="s2">&quot;)</span>
+
+<span class="n">agents</span> <span class="o">=</span> <span class="p">[</span><span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="n">ideology</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span> <span class="k">for</span> <span class="n">ideology</span> <span class="ow">in</span>
+          <span class="n">ideologies</span><span class="p">]</span>
+
+<span class="n">mod</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">combination_instructions</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+<span class="n">ensemble</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">moderator</span> <span class="o">=</span> <span class="n">mod</span><span class="p">)</span>
+<span class="n">ensemble</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TASK:  </span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1">#print(ensemble.responses)</span>
+
+<span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">agents</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Persona&#39;s ideology : </span><span class="si">{</span><span class="n">agent</span><span class="o">.</span><span class="n">ideology</span><span class="si">}</span><span class="s2">, </span><span class="se">\n</span><span class="s2">Response : </span><span class="si">{</span><span class="n">agent</span><span class="o">.</span><span class="n">responses</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;MODERATOR FINAL RESPONSE&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ensemble</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>NOTE: In the above example we set <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> using a
+template. We set <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> to default, so the default
+option of <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> will be read from the
+instructions.yaml file. See the instructions.yaml file for templates.</p>
+</section>
+<section id="tracing-what-is-going-on-in-structures">
+<h3>Tracing what is going on in Structures<a class="headerlink" href="#tracing-what-is-going-on-in-structures" title="Link to this heading"></a></h3>
+<p>To get a better sense of what is going on, we can access information of
+both the ensemble and the agents.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">AGENT INFO</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">info</span><span class="p">)</span> <span class="c1"># Will get info about the agent</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">AGENT HISTORY</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">history</span><span class="p">)</span> <span class="c1"># Will get the history of the agent&#39;s prompts so you can see their API calls</span>
+
+<span class="c1"># `ensemble.info` will give a dictionary of information with one key for `structure_information` (i.e: information</span>
+<span class="c1"># related to the Structure and one key called `agent_information` (i.e: `agent.info` for each of the agents in the</span>
+<span class="c1"># Structure)</span>
+<span class="n">ensemble</span><span class="o">.</span><span class="n">info</span>
+<span class="c1"># ensemble.info[&#39;agent_information&#39;] # Will give the info of all the agents in the ensemble</span>
+<span class="c1"># ensemble.info[&#39;structure_information&#39;] # Will give the info of Structure</span>
+</pre></div>
+</div>
+</section>
+<section id="chain">
+<h3>Chain<a class="headerlink" href="#chain" title="Link to this heading"></a></h3>
+<p>Another structure is a Chain, which is where agents process tasks in a
+sequence. A Chain consists of agents who each see the prior agent’s
+response. For example, let’s say we wanted to have a panel of agents
+with diverse backgrounds (e.g., diverse ideologies, genders, racial
+backgrounds, educational backgrounds, etc.) to discuss the topic of
+climate change. We can define our agents, put them in a chain, and then
+simply do <code class="docutils literal notranslate"><span class="pre">chain.process()</span></code>. You should pass in the task to the chain,
+so all agents know what to do.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Chain</span>
+
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a liberal woman from Missouri&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a 24 year old hispanic man from Florida&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent3</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;an elderly woman with a PhD&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">,</span> <span class="n">agent3</span><span class="p">],</span>
+              <span class="n">task</span><span class="o">=</span><span class="s2">&quot;How should we combat climate change?&quot;</span><span class="p">,</span>
+              <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;chain&quot;</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will give a response combining the best points from all our agents.
+Chain is one of the best structures for deliberation and reaching a
+consensus among agents.</p>
+<p>NOTE: If you pass <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> into a chain, like in the
+above example, all the agents will inherit it (same with every
+Structure). In the above example, we set <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> to
+the default for a <code class="docutils literal notranslate"><span class="pre">chain</span></code>, so the chain option of
+<code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> will be read from the instructions.yaml
+file. See the instructions.yaml file for templates.</p>
+</section>
+<section id="chain-with-a-moderator">
+<h3>Chain with a moderator<a class="headerlink" href="#chain-with-a-moderator" title="Link to this heading"></a></h3>
+<p>Let’s say we want some Agent to review the ideas presented, combine
+them, and incorporate the best points to provide a balanced answer. We
+can do this by passing in a <code class="docutils literal notranslate"><span class="pre">moderator</span></code> agent, which is a special kind
+of Agent with only three arguments: <code class="docutils literal notranslate"><span class="pre">persona</span></code> (the moderator’s
+persona), <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code> (which, if provided, will override a
+persona), and <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> (specifying how to combine
+the responses).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Chain</span><span class="p">,</span> <span class="n">Moderator</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;How should we combat climate change?&quot;</span>
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a liberal woman from Missouri&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a 24 year old hispanic man from Florida&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent3</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;an elderly woman with a PhD&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">,</span> <span class="n">agent3</span><span class="p">],</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Suppose we want the agents and the moderator to repeat this process
+multiple times instead of just once. In that case, we can change the
+variable <code class="docutils literal notranslate"><span class="pre">cycles</span></code> to a number greater than one. The value of the
+integer <code class="docutils literal notranslate"><span class="pre">cycles</span></code> will determine how many times we will go through this
+process, whether it’s ensemble, chain, or debate.</p>
+<p>Notice also that we can set up agents using different methods and still
+put them in the same chain.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Chain</span><span class="p">,</span> <span class="n">Moderator</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;How should we combat climate change? Answer in 60 words.&quot;</span>
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a conservative man from California&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s1">&#39;you are a wealthy 30 year old woman&#39;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s1">&#39;second_wave&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent3</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;first_wave&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">,</span> <span class="n">agent3</span><span class="p">],</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">cycles</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We also have the option to adjust the number of previous responses that
+the agents see by modifying the variable <code class="docutils literal notranslate"><span class="pre">last_n</span></code>. For instance, if
+<code class="docutils literal notranslate"><span class="pre">last_n</span></code> = 1, agents will only see one last response. However, if
+<code class="docutils literal notranslate"><span class="pre">last_n</span></code> = 3, agents will be able to see the three last responses.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Chain</span><span class="p">,</span> <span class="n">Moderator</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;How should we combat climate change? Answer in 60 words.&quot;</span>
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a conservative man from California&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s1">&#39;you are a wealthy 30 year old woman&#39;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s1">&#39;second_wave&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent3</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;first_wave&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">,</span> <span class="n">agent3</span><span class="p">],</span>
+              <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span>
+              <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span>
+              <span class="n">last_n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+              <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
+              <span class="n">cycles</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Suppose we wanted to create an ad campaign to convince conservatives to
+buy or do something like, for example, follow a plant-based diet. There
+a few different ways we can do this, but let’s demonstrate what we know
+so far about moderators and chains. To start let’s define our task and
+initialize our agents.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Chain</span><span class="p">,</span> <span class="n">Moderator</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Come up with an ad campaign to convince conservatives to follow a plant-based diet. It should pivot on one core insight. Answer in 50 words.&quot;</span>
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent3</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the example below, we use a template for our moderator and set both
+moderator <code class="docutils literal notranslate"><span class="pre">persona</span></code> and <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> to default. We
+also use a template for our agent <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>, as
+demonstrated by <code class="docutils literal notranslate"><span class="pre">combination_instructions=</span> <span class="pre">&quot;chain&quot;</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#Persona Moderator</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">,</span> <span class="n">agent3</span><span class="p">],</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">moderator</span> <span class="o">=</span> <span class="n">moderator</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the next example below,</p>
+<ol class="arabic simple">
+<li><p>We set moderator <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code> directly, giving our own
+directions to the moderator without relying on a template. Recall
+that when users set their own <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code>,
+<code class="docutils literal notranslate"><span class="pre">system_instructions</span></code> expects a <code class="docutils literal notranslate"><span class="pre">${task}</span></code> placeholder. This
+placeholder would get filled in with the task.</p></li>
+<li><p>We set moderator <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> using the <code class="docutils literal notranslate"><span class="pre">default</span></code>
+template.</p></li>
+<li><p>We set agent <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> directly, giving our own
+directions to the Agents without relying on a template. Recall that
+when users set their own <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>,
+<code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> expects a <code class="docutils literal notranslate"><span class="pre">${previous_responses}</span></code>
+placeholder if it is not one of the default options that we offer.
+This placeholder would get filled in with the previous responses.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Manually set mod system instructions</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Come up with an ad campaign to convince conservatives to follow a plant-based diet. It should pivot on one core insight. Answer in 50 words.&quot;</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are an expert strategist for an advertisement agency. Combine the best ideas from others to return a brief pivoting on one sharp insight. Provide the brief. Answer in 50 words. $</span><span class="si">{task}</span><span class="s2">&quot;</span><span class="p">,</span>
+                      <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
+                      <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">,</span> <span class="n">agent3</span><span class="p">],</span>
+              <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;Consider the earlier ads presented but come up with your own unique commercial.$</span><span class="si">{previous_responses}</span><span class="s2">&quot;</span><span class="p">,</span>
+              <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
+              <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the final example below, we use a template to set our agent
+<code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> to chain. However, for our moderator, we
+use the auto option, which allows the moderator to come up with its own
+<code class="docutils literal notranslate"><span class="pre">system_instructions</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#Auto-mod</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Come up with an ad campaign to convince conservatives to follow a plant-based diet. It should pivot on one core insight. Answer in 50 words.&quot;</span>
+
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">,</span> <span class="n">agent3</span><span class="p">],</span>
+              <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span>
+              <span class="n">moderator</span><span class="o">=</span><span class="n">Moderator</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">),</span>
+              <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="debate">
+<h3>Debate<a class="headerlink" href="#debate" title="Link to this heading"></a></h3>
+<p>Another type of structure is a Debate, which is where agents process
+tasks as if they are in an argument. A Debate involves agents who
+challenge the points made by a previous agent and attempt to persuade
+the other party of their viewpoint. Only two agents are allowed in
+Debate. For example, suppose we wanted to stage a debate between a
+liberal and a conservative on the government’s role in providing free
+welfare to citizens. We can define our agents, place them in a debate,
+and then simply do<code class="docutils literal notranslate"><span class="pre">debate.process()</span></code>. Make sure to provide the task
+to the debate so that all agents know what to do.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Debate</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s1">&#39;To what extent should the government be involved in providing free welfare to citizens?&#39;</span>
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a liberal&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a conservative&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+
+<span class="n">debate</span> <span class="o">=</span> <span class="n">Debate</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">],</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;debate&quot;</span><span class="p">)</span>
+<span class="n">debate</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">debate</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will give a response from each of the respective agents in the
+following format: Debater 1’s response and then Debater 2’s response.
+Debate is the best structure for argumentation and simulating debates.</p>
+<p>Some special kinds of template we have in instructions.yaml are
+second_wave and first_wave templates. The second_wave templates
+prioritizes emotions and perspectives, while the first_wave templates
+prioritizes logic and reason-giving. These correspond to different waves
+of deliberation thought.</p>
+<p>Note: In the following examples, we will also be demonstrating setting
+up Agent personas by searching ANES using a pandas query string.</p>
+<p>Below is an example of using the emotional templates.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Debate</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Should guns be banned?&quot;</span>
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">query_str</span><span class="o">=</span><span class="s2">&quot;inputstate==&#39;South Carolina&#39;&amp;ideo5==&#39;Very conservative&#39;&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;second_wave&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">query_str</span><span class="o">=</span><span class="s2">&quot;inputstate==&#39;New York&#39;&amp;ideo5==&#39;Very liberal&#39;&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;second_wave&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">debate</span> <span class="o">=</span> <span class="n">Debate</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">],</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;debate&quot;</span><span class="p">)</span>
+<span class="n">debate</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="debate-with-a-moderator">
+<h3>Debate with a moderator<a class="headerlink" href="#debate-with-a-moderator" title="Link to this heading"></a></h3>
+<p>Let’s say we want some Agent to read over the ideas presented and
+incorporate the best points to return a balanced answer. We can do this
+by passing in a <code class="docutils literal notranslate"><span class="pre">moderator</span></code> agent, which is a special kind of Agent
+with only three arguments: <code class="docutils literal notranslate"><span class="pre">persona</span></code> (the moderator’s persona),
+<code class="docutils literal notranslate"><span class="pre">system_instructions</span></code> (which, if provided, will override a persona),
+and <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> (specifying how to combine the
+responses).</p>
+<p>Implementing a moderator will change the output from solely the
+debaters’ responses to a combined response from the moderator,
+incorporating the best points from both debaters to provide a balanced
+answer.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Debate</span><span class="p">,</span> <span class="n">Moderator</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s1">&#39;To what extent should the government be involved in providing free welfare to citizens?&#39;</span>
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a liberal&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a conservative&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;You are a neutral moderator overseeing this task, $</span><span class="si">{task}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+
+<span class="n">debate</span> <span class="o">=</span> <span class="n">Debate</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">],</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>  <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;debate&quot;</span><span class="p">,</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,)</span>
+<span class="n">debate</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">debate</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note: In the above example, we printed <code class="docutils literal notranslate"><span class="pre">debate.final_response</span></code> instead
+of <code class="docutils literal notranslate"><span class="pre">debate.responses</span></code> (like we did without a Moderator) because, in
+this case, we only want to print the final response of the moderator and
+not all of the agent’s responses.</p>
+</section>
+<section id="graph">
+<h3>Graph<a class="headerlink" href="#graph" title="Link to this heading"></a></h3>
+<p>We also support a <code class="docutils literal notranslate"><span class="pre">Graph</span></code> structure. Specifically, we support
+deliberation on directed acyclic graphs (DAGs). Like other Structures,
+you can always add a Moderator. Please see documentation for more
+details. Before going into how to use the <code class="docutils literal notranslate"><span class="pre">Graph</span></code> structure, here’s a
+brief explainer of DAGs and why we are employing them.</p>
+<section id="dags">
+<h4>DAGs<a class="headerlink" href="#dags" title="Link to this heading"></a></h4>
+<p><strong>What is a DAG?</strong></p>
+<p>A Directed Acyclic Graph (DAG) is a type of graph that has the following
+properties:</p>
+<ul class="simple">
+<li><p>Directed: The edges in the graph have a direction, meaning they go
+from one node to another node, not both ways. For example, Bob
+following Alice on Twitter is a directed edge whereas Bob and Alice
+being friends on Facebook is undirected.</p></li>
+<li><p>Acyclic: The graph has no cycles, which means that starting from any
+node, if you follow the direction of the edges, you cannot come back
+to the same node. This ensures that there is no circular
+dependencies.</p></li>
+</ul>
+<p>For example, if you have three tasks where Task A needs to be completed
+before Task B, and Task B needs to be completed before Task C, you can
+represent this as a DAG with edges from Task A to Task B and from Task B
+to Task C. Here’s what that looks like:</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>A → B → C
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>A points to B, indicating that A must be completed before B.</p></li>
+<li><p>B points to C, indicating that B must be completed before C.</p></li>
+<li><p>This ensures that tasks are processed in the correct order,
+preventing circular dependencies and ensuring that each task’s
+requirements are met before it is processed.</p></li>
+</ul>
+<p><strong>Why are we using DAGs?</strong></p>
+<p>In the context of processing tasks with agents, a DAG is very useful! If
+the graph is not directed, it is not obvious which Agent should be
+processed first if there is a bi-directional edge. And if the graph is
+not acyclic, it is not clear when the processing should stop. So that is
+the rationale for requiring graphs be directed and acyclic (i.e: DAGs).</p>
+</section>
+<section id="dags-with-plurals">
+<h4>DAGs with Plurals<a class="headerlink" href="#dags-with-plurals" title="Link to this heading"></a></h4>
+<p>In the <code class="docutils literal notranslate"><span class="pre">Graph</span></code> structure, we take in a list of Agents (which are the
+nodes) and also an <code class="docutils literal notranslate"><span class="pre">edges</span></code> argument, which is the list of vertices.
+The edges must form a DAG or else an error is thrown. There are two ways
+to make a DAG (with examples right below):</p>
+<ul class="simple">
+<li><p>Dictionary Method: <code class="docutils literal notranslate"><span class="pre">agents</span></code> is a dictionary where the keys are the
+names of the agents and the values are the Agents. Then <code class="docutils literal notranslate"><span class="pre">edges</span></code> is
+a list of tuples, where each tuple is a directed edge from one agent
+to another specified like <code class="docutils literal notranslate"><span class="pre">(src_agent_name,</span> <span class="pre">dest_agent_name)</span></code>.</p></li>
+<li><p>List Method: <code class="docutils literal notranslate"><span class="pre">agents</span></code> is a list of Agents. Then <code class="docutils literal notranslate"><span class="pre">edges</span></code> is a list
+of tuples, where each tuple is a directed edge from one agent to
+another specified like <code class="docutils literal notranslate"><span class="pre">(src_agent_idx,</span> <span class="pre">dest_agent_idx)</span></code>.</p></li>
+</ul>
+<p>For example, Suppose we have three agents, and we want to create a graph
+where the output of the liberal is fed to both the conservative and
+libertarian. Then the output of the conservative is fed to the
+libertarian.</p>
+<p>Here’s the <strong>dictionary</strong> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Graph</span>
+<span class="n">agents</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;liberal&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a liberal&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">),</span>
+    <span class="s1">&#39;conservative&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">),</span>
+    <span class="s1">&#39;libertarian&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a libertarian&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;liberal&#39;</span><span class="p">,</span> <span class="s1">&#39;conservative&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;liberal&#39;</span><span class="p">,</span> <span class="s1">&#39;libertarian&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;conservative&#39;</span><span class="p">,</span> <span class="s1">&#39;libertarian&#39;</span><span class="p">)]</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;What are your thoughts on the role of government in society? Answer in 20 words.&quot;</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="n">agents</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Here’s the <strong>list</strong> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Graph</span>
+
+<span class="n">Agents</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a liberal&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">),</span>
+    <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">),</span>
+    <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a libertarian&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
+<span class="c1"># edges = (liberal -&gt; conservative), (liberal -&gt; libertarian), (conservative -&gt; libertarian)</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;What are your thoughts on the role of government in society? Answer in 20 words.&quot;</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="n">Agents</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="viewing-history-of-agents-in-a-structure">
+<h2>Viewing history of Agents in a Structure<a class="headerlink" href="#viewing-history-of-agents-in-a-structure" title="Link to this heading"></a></h2>
+<p>Below are some demonstrations of Agent’s history function which
+demonstrates how <code class="docutils literal notranslate"><span class="pre">persona</span></code>, <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">previous_responses</span></code> fit together. This is also an example of setting
+divergent tasks between agents in a structure. Here, each Agent is
+arguging for a different side of the same issue using ANES personas,
+with a moderator tasked with generating a pros and cons list at the end.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Debate</span><span class="p">,</span> <span class="n">Moderator</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">&#39;Convince the other Agent the government should provide free healthcare.&#39;</span><span class="p">,</span>
+               <span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;liberal&quot;</span><span class="p">,</span>
+               <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span>
+<span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">&#39;Convince the other Agent the government should not provide free healthcare.&#39;</span><span class="p">,</span>
+                <span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;conservative&quot;</span><span class="p">,</span>
+                <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span>
+<span class="p">)</span>
+
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
+                      <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
+                      <span class="n">task</span><span class="o">=</span><span class="s2">&quot;Synthesize the best arguments to present 3 pros and cons: &quot;</span>
+                          <span class="s2">&quot;&lt;start&gt;$</span><span class="si">{previous_responses}</span><span class="s2">&lt;/end&gt;&quot;</span>
+<span class="p">)</span>
+
+<span class="n">debate</span> <span class="o">=</span> <span class="n">Debate</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">],</span>
+                <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;debate&quot;</span><span class="p">,</span>
+                <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">)</span>
+<span class="n">debate</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Agent1 history&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">agent1</span><span class="o">.</span><span class="n">history</span><span class="p">:</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mod history&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">moderator</span><span class="o">.</span><span class="n">history</span><span class="p">:</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>Agent1 history
+{&#39;model&#39;: &#39;gpt-4o&#39;,
+ &#39;prompts&#39;: {&#39;system&#39;: &#39;INSTRUCTIONS\n&#39;
+                       &#39;When answering questions or performing tasks, always &#39;
+                       &#39;adopt the following persona.\n&#39;
+                       &#39;\n&#39;
+                       &#39;PERSONA:\n&#39;
+                       &#39;Your age is 43. Your education is post-grad. Your &#39;
+                       &#39;gender is man. Your race is white. Politically, you &#39;
+                       &#39;identify as a(n) democrat. Your ideology is liberal. &#39;
+                       &#39;Regarding children, you do have children under 18 &#39;
+                       &#39;living in your household. Your employment status is &#39;
+                       &#39;full-time. Your geographic region is the south. You &#39;
+                       &#39;live in a big city. You live in the state of district &#39;
+                       &#39;of columbia.\n&#39;
+                       &#39;\n&#39;
+                       &#39;CONSTRAINTS\n&#39;
+                       &#39;- When answering, do not disclose your partisan or &#39;
+                       &#39;demographic identity in any way. \n&#39;
+                       &#39;- Think, talk, and write like your persona.\n&#39;
+                       &#39;- Use plain language.\n&#39;
+                       &#39;- Adopt the characteristics of your persona.\n&#39;
+                       &#39;- Do not be overly polite or politically correct.&#39;,
+             &#39;user&#39;: &#39;Convince the other Agent the government should provide &#39;
+                     &#39;free healthcare.&#39;},
+ &#39;response&#39;: &quot;Alright, listen. When you think about healthcare, it&#39;s not just &quot;
+             &quot;about who can afford it and who can&#39;t; it&#39;s about basic human &quot;
+             &#39;dignity. We have one of the most advanced medical systems in the &#39;
+             &#39;world, but can you believe some folks still have to choose &#39;
+             &#39;between paying for their medicine and paying their rent?\n&#39;
+             &#39;\n&#39;
+             &quot;Let&#39;s break it down. First off, when people have access to &quot;
+             &#39;regular check-ups, preventative care, and necessary treatments &#39;
+             &quot;without worrying about the cost, they&#39;re healthier. Healthier &quot;
+             &#39;people mean fewer sick days, higher productivity, and overall a &#39;
+             &quot;stronger economy. Doesn&#39;t that make sense?\n&quot;
+             &#39;\n&#39;
+             &quot;Second, people without insurance often wait until they&#39;re &quot;
+             &#39;seriously ill to go to the doctor. By then, their conditions are &#39;
+             &#39;worse and more expensive to treat. This means we’re not avoiding &#39;
+             &quot;costs; we&#39;re just pushing them down the line where they get &quot;
+             &#39;bigger and more burdensome for everyone. If the government steps &#39;
+             &#39;in and ensures that everyone can get the healthcare they need, &#39;
+             &quot;it actually saves money in the long run. We&#39;re talking about &quot;
+             &#39;preventing big, expensive problems before they start.\n&#39;
+             &#39;\n&#39;
+             &#39;And think about the stress aspect. The financial burden of &#39;
+             &#39;medical bills can destroy families. If the government guarantees &#39;
+             &quot;healthcare, you&#39;re removing this massive weight off people&#39;s &quot;
+             &quot;shoulders. It&#39;s not just about the numbers; it&#39;s about giving &quot;
+             &#39;people peace of mind—letting them focus on living their lives &#39;
+             &#39;instead of worrying about what happens if they get sick.\n&#39;
+             &#39;\n&#39;
+             &#39;Finally, other countries have figured this out. Look at places &#39;
+             &#39;with universal healthcare; their citizens have better health &#39;
+             &quot;outcomes and lower healthcare costs. Why shouldn&#39;t we strive for &quot;
+             &#39;the same? We pride ourselves on being innovative and &#39;
+             &#39;forward-thinking. This is the next step.\n&#39;
+             &#39;\n&#39;
+             &#39;So, it’s not about handouts; it’s about smart, moral policy that &#39;
+             &#39;benefits everyone. It ensures a healthier, more stable society. &#39;
+             &#39;What’s more American than looking out for each other and making &#39;
+             &#39;sure we all have the chance to be healthy and thrive?&#39;}
+
+
+
+
+
+
+
+
+
+
+
+Mod history
+{&#39;model&#39;: &#39;gpt-4o&#39;,
+ &#39;prompts&#39;: {&#39;system&#39;: &#39;You are an expert neutral moderator, overseeing a &#39;
+                       &#39;discussion about the following task: Synthesize the &#39;
+                       &#39;best arguments to present 3 pros and cons: &#39;
+                       &#39;&lt;start&gt;${previous_responses}&lt;/end&gt;.&#39;,
+             &#39;user&#39;: &#39;Synthesize the best arguments to present 3 pros and &#39;
+                     &#39;cons: &lt;start&gt;${previous_responses}&lt;/end&gt;\n&#39;
+                     &#39;Here are the previous responses: \n&#39;
+                     &#39;&lt;start&gt;\n&#39;
+                     &#39;Response 0: [Debater 1] Alright, listen. When you think &#39;
+                     &quot;about healthcare, it&#39;s not just about who can afford it &quot;
+                     &quot;and who can&#39;t; it&#39;s about basic human dignity. We have &quot;
+                     &#39;one of the most advanced medical systems in the world, &#39;
+                     &#39;but can you believe some folks still have to choose &#39;
+                     &#39;between paying for their medicine and paying their &#39;
+                     &#39;rent?\n&#39;
+                     &#39;\n&#39;
+                     &quot;Let&#39;s break it down. First off, when people have access &quot;
+                     &#39;to regular check-ups, preventative care, and necessary &#39;
+                     &quot;treatments without worrying about the cost, they&#39;re &quot;
+                     &#39;healthier. Healthier people mean fewer sick days, higher &#39;
+                     &quot;productivity, and overall a stronger economy. Doesn&#39;t &quot;
+                     &#39;that make sense?\n&#39;
+                     &#39;\n&#39;
+                     &#39;Second, people without insurance often wait until &#39;
+                     &quot;they&#39;re seriously ill to go to the doctor. By then, &quot;
+                     &#39;their conditions are worse and more expensive to treat. &#39;
+                     &quot;This means we’re not avoiding costs; we&#39;re just pushing &quot;
+                     &#39;them down the line where they get bigger and more &#39;
+                     &#39;burdensome for everyone. If the government steps in and &#39;
+                     &#39;ensures that everyone can get the healthcare they need, &#39;
+                     &quot;it actually saves money in the long run. We&#39;re talking &quot;
+                     &#39;about preventing big, expensive problems before they &#39;
+                     &#39;start.\n&#39;
+                     &#39;\n&#39;
+                     &#39;And think about the stress aspect. The financial burden &#39;
+                     &#39;of medical bills can destroy families. If the government &#39;
+                     &quot;guarantees healthcare, you&#39;re removing this massive &quot;
+                     &quot;weight off people&#39;s shoulders. It&#39;s not just about the &quot;
+                     &quot;numbers; it&#39;s about giving people peace of mind—letting &quot;
+                     &#39;them focus on living their lives instead of worrying &#39;
+                     &#39;about what happens if they get sick.\n&#39;
+                     &#39;\n&#39;
+                     &#39;Finally, other countries have figured this out. Look at &#39;
+                     &#39;places with universal healthcare; their citizens have &#39;
+                     &#39;better health outcomes and lower healthcare costs. Why &#39;
+                     &quot;shouldn&#39;t we strive for the same? We pride ourselves on &quot;
+                     &#39;being innovative and forward-thinking. This is the next &#39;
+                     &#39;step.\n&#39;
+                     &#39;\n&#39;
+                     &#39;So, it’s not about handouts; it’s about smart, moral &#39;
+                     &#39;policy that benefits everyone. It ensures a healthier, &#39;
+                     &#39;more stable society. What’s more American than looking &#39;
+                     &#39;out for each other and making sure we all have the &#39;
+                     &#39;chance to be healthy and thrive?\n&#39;
+                     &quot;Response 1: [Debater 2] I hear what you&#39;re saying, but &quot;
+                     &quot;let&#39;s take a closer look at the other side of this &quot;
+                     &#39;issue. First off, when the government steps in and &#39;
+                     &#39;provides free healthcare, where does the money come &#39;
+                     &#39;from? It\&#39;s not just &quot;free&quot;; it’s funded by taxpayers. &#39;
+                     &#39;That means higher taxes for everyone, which can hurt &#39;
+                     &#39;working families and small businesses.\n&#39;
+                     &#39;\n&#39;
+                     &#39;Think about this: government-run programs often come &#39;
+                     &#39;with inefficiencies and long wait times. Look at &#39;
+                     &#39;countries like Canada and the UK, where people sometimes &#39;
+                     &#39;have to wait months for procedures that we can get much &#39;
+                     &#39;faster here. Time is critical when it comes to health, &#39;
+                     &#39;and delays can lead to worsening conditions.\n&#39;
+                     &#39;\n&#39;
+                     &#39;When you have a system where the government pays for &#39;
+                     &#39;everything, there’s less incentive for competition and &#39;
+                     &#39;innovation. Private companies drive a lot of the &#39;
+                     &#39;advancements we see in medical technology and &#39;
+                     &#39;treatments. If we move to a single-payer system, we &#39;
+                     &#39;might lose some of that edge.\n&#39;
+                     &#39;\n&#39;
+                     &#39;And let’s talk about personal responsibility. When &#39;
+                     &#39;healthcare is free, people might not make the best &#39;
+                     &#39;choices for their health, knowing they won’t have to &#39;
+                     &#39;bear the cost. This can lead to overuse of medical &#39;
+                     &#39;resources and increased costs. \n&#39;
+                     &#39;\n&#39;
+                     &#39;Furthermore, a one-size-fits-all government plan doesn’t &#39;
+                     &#39;account for individual needs. People should have the &#39;
+                     &#39;freedom to choose plans that work best for their &#39;
+                     &#39;circumstances and budgets, rather than being forced into &#39;
+                     &#39;a single government option.\n&#39;
+                     &#39;\n&#39;
+                     &#39;Lastly, a lot of us believe that community and family &#39;
+                     &#39;support are better ways to ensure people get the care &#39;
+                     &#39;they need, rather than relying on a large, impersonal &#39;
+                     &#39;government system. Local solutions can be more &#39;
+                     &#39;responsive and tailored to the specific needs of the &#39;
+                     &#39;community.\n&#39;
+                     &#39;\n&#39;
+                     &#39;Yes, our healthcare system has its flaws and needs &#39;
+                     &#39;reform, but making it entirely government-run isn’t the &#39;
+                     &#39;answer. A better approach would be to improve access and &#39;
+                     &#39;affordability through market-driven solutions, &#39;
+                     &#39;competition, and innovation, while still providing a &#39;
+                     &#39;safety net for those truly in need.\n&#39;
+                     &#39;&lt;end&gt;\n&#39;
+                     &#39;- Take the best parts of what was previously said.&#39;},
+ &#39;response&#39;: &#39;Based on the previous responses, here are the synthesized pros &#39;
+             &#39;and cons regarding government-provided healthcare:\n&#39;
+             &#39;\n&#39;
+             &#39;### Pros:\n&#39;
+             &#39;1. <span class="gs">**Improved Public Health and Economic Efficiency:**</span>\n&#39;
+             &#39;   - When everyone has access to healthcare without worrying &#39;
+             &#39;about cost, overall public health improves. This translates to &#39;
+             &#39;fewer sick days, which enhances productivity and strengthens the &#39;
+             &#39;economy.\n&#39;
+             &#39;\n&#39;
+             &#39;2. <span class="gs">**Cost Savings Through Preventative Care:**</span>\n&#39;
+             &#39;   - By ensuring regular check-ups and early treatments, &#39;
+             &#39;governments can prevent more severe and costly health issues &#39;
+             &#39;down the line. This proactive approach can save significant &#39;
+             &#39;amounts of money in the long run.\n&#39;
+             &#39;\n&#39;
+             &#39;3. <span class="gs">**Reduced Financial Stress:**</span>\n&#39;
+             &#39;   - Guaranteeing healthcare through the government removes the &#39;
+             &#39;financial burden of medical bills from individuals, providing &#39;
+             &#39;peace of mind and allowing families to focus on other aspects of &#39;
+             &#39;their lives.\n&#39;
+             &#39;\n&#39;
+             &#39;### Cons:\n&#39;
+             &#39;1. <span class="gs">**Tax Burden and Economic Impact:**</span>\n&#39;
+             &#39;   - Funding universal healthcare requires higher taxes, which &#39;
+             &#39;can negatively impact working families and small businesses. &#39;
+             &#39;This added financial strain could reduce their economic &#39;
+             &#39;flexibility.\n&#39;
+             &#39;\n&#39;
+             &#39;2. <span class="gs">**Potential for Inefficiencies and Longer Wait Times:**</span>\n&#39;
+             &#39;   - Government-funded programs may face inefficiencies and &#39;
+             &#39;result in longer wait times for medical procedures. Examples &#39;
+             &#39;from countries with similar systems reflect such issues, &#39;
+             &#39;potentially worsening health conditions due to delays.\n&#39;
+             &#39;\n&#39;
+             &#39;3. <span class="gs">**Reduced Competition and Innovation:**</span>\n&#39;
+             &#39;   - A government-run system could diminish incentives for &#39;
+             &#39;competition and innovation within the healthcare sector. Private &#39;
+             &#39;companies drive many advances in medical technology; a &#39;
+             &#39;single-payer system might inhibit this progress and reduce the &#39;
+             &#39;quality of care.&#39;}
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

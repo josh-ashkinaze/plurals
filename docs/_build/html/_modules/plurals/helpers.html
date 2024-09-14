@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>plurals.helpers &mdash; Plurals 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Plurals
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../agent.html">Agent Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deliberation.html">Deliberation Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../helpers.html">Helpers Module</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Plurals</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">plurals.helpers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for plurals.helpers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pkg_resources</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+
+<div class="viewcode-block" id="print_anes_mapping">
+<a class="viewcode-back" href="../../helpers.html#plurals.helpers.print_anes_mapping">[docs]</a>
+<span class="k">def</span> <span class="nf">print_anes_mapping</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints the values of ANES mapping in a human-readable format.</span>
+
+<span class="sd">    The purpose of this function is that in some cases users will want to conduct their own query on the ANES</span>
+<span class="sd">    dataset, but it is difficult to know what the values are without consulting a codebook.</span>
+
+<span class="sd">    Note that when generating personas we recode certain values but you should use original</span>
+<span class="sd">    values for filtering data, as they are printed here.</span>
+
+<span class="sd">    Here are the cases we recode values:</span>
+
+<span class="sd">    - ``child18`` asks participants if they have children under 18 living in their household. We recode ``Yes`` to ``do have</span>
+<span class="sd">      children under 18 living in your household`` and ``No`` to ``do not have children under 18 living in your household``.</span>
+
+<span class="sd">    - Several questions have multiple choice options (A, B, C) and then an ``Other`` option. We recode ``Other``</span>
+<span class="sd">      as ``neither A nor B nor C`` to be more explicit.</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s1">&#39;anes-mapping.yaml&#39;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span>
+        <span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;data/anes_pilot_2024_20240319.csv&#39;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">details</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ANES Variable Name: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">bad_vals</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bad_vals&#39;</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
+
+        <span class="c1"># Print the main values from the DataFrame, excluding those that are</span>
+        <span class="c1"># in bad_vals</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bad_vals</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;nan&quot;</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="strip_nested_dict">
+<a class="viewcode-back" href="../../helpers.html#plurals.helpers.strip_nested_dict">[docs]</a>
+<span class="k">def</span> <span class="nf">strip_nested_dict</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Strip whitespace from all strings in a nested dictionary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        d: The dictionary to strip whitespace from.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The dictionary with all strings stripped of whitespace.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">strip_nested_dict</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">strip_nested_dict</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">d</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+
+
+
+<div class="viewcode-block" id="load_yaml">
+<a class="viewcode-back" href="../../helpers.html#plurals.helpers.load_yaml">[docs]</a>
+<span class="k">def</span> <span class="nf">load_yaml</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a YAML file and return its content as a dictionary. We first get the directory of the current path</span>
+<span class="sd">    and then construct the full path by combining the base_path with the file_path. Hence, the file_path should be</span>
+<span class="sd">    relative to this script&#39;s location.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file_path: The path to the YAML file to load.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary containing the contents of the YAML file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">full_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">full_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The file </span><span class="si">{</span><span class="n">full_path</span><span class="si">}</span><span class="s2"> does not exist. Please ensure the file path is correct.&quot;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="format_previous_responses">
+<a class="viewcode-back" href="../../helpers.html#plurals.helpers.format_previous_responses">[docs]</a>
+<span class="k">def</span> <span class="nf">format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Format the previous responses for inclusion in the next task description.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        responses (List[str]): A list of previous responses.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: A formatted string of the previous responses.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; responses = [&quot;First response&quot;, &quot;Second response&quot;]</span>
+<span class="sd">        &gt;&gt;&gt; format_previous_responses(responses)</span>
+<span class="sd">        &#39;Response 0: First response\\nResponse 1: Second response&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">responses</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">resp_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;Response </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">responses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resp_list</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+
+<div class="viewcode-block" id="SmartString">
+<a class="viewcode-back" href="../../helpers.html#plurals.helpers.SmartString">[docs]</a>
+<span class="k">class</span> <span class="nc">SmartString</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A custom string class with several nice features for this package.</span>
+
+<span class="sd">    Features</span>
+<span class="sd">    --------</span>
+
+
+<span class="sd">    1. Safe String Formatting</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">    Overrides the format method to use ``safe_substitute`` from ``string.Template``.</span>
+
+<span class="sd">    Problem it fixes:</span>
+<span class="sd">        Users often have JSON-like strings in their tasks, which can cause errors with normal string formatting.</span>
+
+<span class="sd">    Explanation:</span>
+<span class="sd">        Python&#39;s standard string formatting uses curly braces, which can break when the string contains curly braces NOT meant for replacement.</span>
+<span class="sd">        SmartString uses ``string.Template.safe_substitute()`` to safely replace variables, avoiding these problems.</span>
+
+<span class="sd">    2. Avoid Double Periods</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">    Prevents double periods at the end of formatted strings.</span>
+
+<span class="sd">    Problem it fixes:</span>
+<span class="sd">        When a replacement value ends with a period and the original string also ends with a period, it results in an undesired double period.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; task = SmartString(&quot;Complete the following task: {task}.&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; task.format(task=&quot;Do the thing.&quot;)</span>
+<span class="sd">        &#39;Complete the following task: Do the thing.&#39;</span>
+
+<span class="sd">        **Without** this feature, the output would be:</span>
+<span class="sd">        &#39;Complete the following task: Do the thing..&#39;</span>
+
+<span class="sd">    3. None Replacement</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">    Replaces &#39;None&#39; with an empty string during string creation.</span>
+
+<span class="sd">    Problem it fixes:</span>
+<span class="sd">        ``str(None)`` returns the string &#39;None&#39;, but for the ``Agent.process`` function, it&#39;s preferable to replace &#39;None&#39; with an empty string.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; SmartString(None)</span>
+<span class="sd">        &#39;&#39;</span>
+<span class="sd">        &gt;&gt;&gt; str(None)</span>
+<span class="sd">        &#39;None&#39;</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The `format` method uses `string.Template.safe_substitute()` internally.</span>
+<span class="sd">    - Double periods are automatically avoided unless specified otherwise.</span>
+<span class="sd">    - &#39;None&#39; is replaced with an empty string during string creation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+        <span class="c1"># Replace &#39;None&#39; with an empty string during string creation</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SmartString.format">
+<a class="viewcode-back" href="../../helpers.html#plurals.helpers.SmartString.format">[docs]</a>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">avoid_double_period</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Override the format method to use string.Template for string formatting.</span>
+
+<span class="sd">        Also, if ``avoid_double_period`` is True, then we will remove the trailing period from the formatted string if it</span>
+<span class="sd">        is already present. This happens if the string is like `Complete the following task: {task}.` and the user passes `task=Do</span>
+<span class="sd">        the thing`. In this case, the default output would have an extra period: `Complete the following task: Do the thing..`</span>
+
+<span class="sd">        Double-period algorithm:</span>
+
+<span class="sd">        Foreach key, value in kwargs:</span>
+
+<span class="sd">        1. Construct a placeholder-plus-period like &quot;{task}.&quot; (assuming {task} is placeholder here)</span>
+
+<span class="sd">        2. Check if the placeholder-plus-period is in the string AND the replacement ends with a period.</span>
+
+<span class="sd">        3. If both conditions are met, replace the replacement-plus-period with just the replacement.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            avoid_double_period (bool): Whether to avoid double periods in the final string. (Default: True)</span>
+<span class="sd">            **kwargs: Key-value pairs to replace in the string.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The formatted string.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            - In edge case where the value for a key is None, we replace it with an empty string. Example of this:</span>
+<span class="sd">            &gt;&gt;&gt; task = SmartString(&quot;Complete the following task: {task}.&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; task.format(task=None)</span>
+<span class="sd">            &#39;Complete the following task: .&#39;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="n">template</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">Template</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">formatted_string</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">safe_substitute</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">avoid_double_period</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">placeholder</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;$</span><span class="se">{{</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="se">}}</span><span class="s2">.&quot;</span>
+                <span class="k">if</span> <span class="n">placeholder</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+                    <span class="n">formatted_string</span> <span class="o">=</span> <span class="n">formatted_string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">formatted_string</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
