@@ -1,82 +1,20 @@
-.. raw:: html
-
-   <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
-
--  `System Diagram <#system-diagram>`__
--  `Installation <#installation>`__
--  `Cite <#cite>`__
--  `Package Overview <#package-overview>`__
--  `Read full documentation for modules and methods
-   here. <#read-full-documentation-for-modules-and-methods-here>`__
--  `Report an issue or request a
-   feature <#report-an-issue-or-request-a-feature>`__
--  `Uses <#uses>`__
--  `Agents <#agents>`__
-
-   -  `Quick Start <#quick-start>`__
-   -  `Inspecting the exact prompts that an Agent is
-      doing <#inspecting-the-exact-prompts-that-an-agent-is-doing>`__
-   -  `Different ways to set up system
-      prompt <#different-ways-to-set-up-system-prompt>`__
-
-      -  `No system prompt <#no-system-prompt>`__
-      -  `User-defined system prompt <#user-defined-system-prompt>`__
-      -  `Using templates <#using-templates>`__
-      -  `Using ANES for nationally representative
-         personas <#using-anes-for-nationally-representative-personas>`__
-
-         -  `Option 1: Syntax Sugar: Searching for
-            ideologies <#option-1-syntax-sugar-searching-for-ideologies>`__
-         -  `Option 2: Random sampling <#option-2-random-sampling>`__
-         -  `Option 3: Searching ANES using a pandas query
-            string <#option-3-searching-anes-using-a-pandas-query-string>`__
-
-   -  `Moderators: a special type of
-      Agent <#moderators-a-special-type-of-agent>`__
-
-      -  `Setting a Moderator’s System
-         Instructions <#setting-a-moderators-system-instructions>`__
-
-         -  `Personas <#personas>`__
-         -  `Moderator system instructions set
-            directly <#moderator-system-instructions-set-directly>`__
-         -  `Auto-Moderators <#auto-moderators>`__
-
--  `Structures <#structures>`__
-
-   -  `Overview of Structures <#overview-of-structures>`__
-   -  `Types of Structures <#types-of-structures>`__
-
-      -  `Ensemble <#ensemble>`__
-      -  `Ensemble with a moderator <#ensemble-with-a-moderator>`__
-      -  `Tracing what is going on in
-         Structures <#tracing-what-is-going-on-in-structures>`__
-      -  `Chain <#chain>`__
-      -  `Chain with a moderator <#chain-with-a-moderator>`__
-      -  `Debate <#debate>`__
-      -  `Debate with a moderator <#debate-with-a-moderator>`__
-      -  `Graph <#graph>`__
-
-         -  `DAGs <#dags>`__
-         -  `DAGs with Plurals <#dags-with-plurals>`__
-
-   -  `Viewing history of Agents in a
-      Structure <#viewing-history-of-agents-in-a-structure>`__
-
-.. raw:: html
-
-   <!-- TOC end -->
-
-System Diagram
+Quick Guide
 ==============
 
+System Diagram
+--------------
+.. image:: ./asset/system_diagram.png
+   :alt: System Diagram
+   :width: 600px
+   :align: center
+
 Installation
-============
+--------------
 
 ``pip install plurals``
 
 Cite
-====
+--------------
 
 We plan on releasing a system paper soon. For now, cite this package as:
 
@@ -103,7 +41,7 @@ We plan on releasing a system paper soon. For now, cite this package as:
 EF and NE are equal contributors. We have a DOI on Zenodo. |DOI|
 
 Package Overview
-================
+-----------------
 
 ‘Plurals’ is based on two abstractions—``Agents`` (who complete tasks)
 and ``Structures`` (which are the environments in which ``Agents``
@@ -129,15 +67,14 @@ auto-moderated, meaning they come up with their own moderation
 instructions based on the task.
 
 Read full documentation for modules and methods here.
-=====================================================
-
+--------------------------------------------------------
 https://josh-ashkinaze.github.io/plurals/
 
 The README file provides specific examples, while the documentation
 offers a more comprehensive overview of the package.
 
 Report an issue or request a feature
-====================================
+------------------------------------------
 
 Plurals is run by a small and energetic team of academics doing the best
 they can [1]. To report bugs or feature requests, open a GitHub issue.
@@ -149,7 +86,7 @@ please email jashkina@umich.edu.
 [1] Language adopted from (https://github.com/davidjurgens/potato).
 
 Uses
-====
+--------------
 
 -  Persona-based experiments: Quickly create personas for agents,
    optionally using ANES for fast, nationally representative personas.
@@ -170,7 +107,7 @@ Uses
    additional information/perspectives
 
 Agents
-======
+--------------
 
 Each agent has two core attributes: ``system_instructions`` (which are
 the personas) and ``task`` (which is the user prompt). There are a few
@@ -710,7 +647,7 @@ Here are ways to use auto-moderation.
    mod.system_instructions = "Review all submitted responses for uniqueness, relevance, and creativity. Prioritize ideas that are feasible and innovative. Eliminate duplicates and rank responses by feasibility and impact. Summarize the top 5-10 ideas, ensuring a diverse range of concepts is represented."
 
 Structures
-==========
+--------------
 
 Overview of Structures
 ----------------------

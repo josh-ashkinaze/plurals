@@ -13,7 +13,8 @@ Welcome to Plurals's documentation!
    agent
    deliberation
    helpers
-
+   tutorial
+   
 Indices and tables
 ==================
 

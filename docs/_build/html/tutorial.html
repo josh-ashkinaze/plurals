@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>System Diagram &mdash; Plurals 0.0.1 documentation</title>
+  <title>Quick Guide &mdash; Plurals 0.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -20,7 +20,8 @@
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Helpers Module" href="helpers.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,10 +44,62 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="agent.html">Agent Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deliberation.html">Deliberation Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="helpers.html">Helpers Module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#system-diagram">System Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cite">Cite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#package-overview">Package Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#read-full-documentation-for-modules-and-methods-here">Read full documentation for modules and methods here.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#report-an-issue-or-request-a-feature">Report an issue or request a feature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#uses">Uses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#agents">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inspecting-the-exact-prompts-that-an-agent-is-doing">Inspecting the exact prompts that an Agent is doing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#different-ways-to-set-up-system-prompt">Different ways to set up system prompt</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#no-system-prompt">No system prompt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#user-defined-system-prompt">User-defined system prompt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-templates">Using templates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-anes-for-nationally-representative-personas">Using ANES for nationally representative personas</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#option-1-syntax-sugar-searching-for-ideologies">Option 1: Syntax Sugar: Searching for ideologies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#option-2-random-sampling">Option 2: Random sampling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#option-3-searching-anes-using-a-pandas-query-string">Option 3: Searching ANES using a pandas query string</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#moderators-a-special-type-of-agent">Moderators: a special type of Agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setting-a-moderators-system-instructions">Setting a Moderator’s System Instructions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#personas">Personas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#moderator-system-instructions-set-directly">Moderator system instructions set directly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#auto-moderators">Auto-Moderators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#structures">Structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview-of-structures">Overview of Structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#types-of-structures">Types of Structures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ensemble">Ensemble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ensemble-with-a-moderator">Ensemble with a moderator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tracing-what-is-going-on-in-structures">Tracing what is going on in Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#chain">Chain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#chain-with-a-moderator">Chain with a moderator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#debate">Debate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#debate-with-a-moderator">Debate with a moderator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#graph">Graph</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dags">DAGs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dags-with-plurals">DAGs with Plurals</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#viewing-history-of-agents-in-a-structure">Viewing history of Agents in a Structure</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -63,7 +116,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">System Diagram</li>
+      <li class="breadcrumb-item active">Quick Guide</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/tutorial.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -73,90 +126,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) --><ul class="simple">
-<li><p><a class="reference external" href="#system-diagram">System Diagram</a></p></li>
-<li><p><a class="reference external" href="#installation">Installation</a></p></li>
-<li><p><a class="reference external" href="#cite">Cite</a></p></li>
-<li><p><a class="reference external" href="#package-overview">Package Overview</a></p></li>
-<li><p><a class="reference external" href="#read-full-documentation-for-modules-and-methods-here">Read full documentation for modules and methods
-here.</a></p></li>
-<li><p><a class="reference external" href="#report-an-issue-or-request-a-feature">Report an issue or request a
-feature</a></p></li>
-<li><p><a class="reference external" href="#uses">Uses</a></p></li>
-<li><p><a class="reference external" href="#agents">Agents</a></p>
-<ul>
-<li><p><a class="reference external" href="#quick-start">Quick Start</a></p></li>
-<li><p><a class="reference external" href="#inspecting-the-exact-prompts-that-an-agent-is-doing">Inspecting the exact prompts that an Agent is
-doing</a></p></li>
-<li><p><a class="reference external" href="#different-ways-to-set-up-system-prompt">Different ways to set up system
-prompt</a></p>
-<ul>
-<li><p><a class="reference external" href="#no-system-prompt">No system prompt</a></p></li>
-<li><p><a class="reference external" href="#user-defined-system-prompt">User-defined system prompt</a></p></li>
-<li><p><a class="reference external" href="#using-templates">Using templates</a></p></li>
-<li><p><a class="reference external" href="#using-anes-for-nationally-representative-personas">Using ANES for nationally representative
-personas</a></p>
-<ul>
-<li><p><a class="reference external" href="#option-1-syntax-sugar-searching-for-ideologies">Option 1: Syntax Sugar: Searching for
-ideologies</a></p></li>
-<li><p><a class="reference external" href="#option-2-random-sampling">Option 2: Random sampling</a></p></li>
-<li><p><a class="reference external" href="#option-3-searching-anes-using-a-pandas-query-string">Option 3: Searching ANES using a pandas query
-string</a></p></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><a class="reference external" href="#moderators-a-special-type-of-agent">Moderators: a special type of
-Agent</a></p>
-<ul>
-<li><p><a class="reference external" href="#setting-a-moderators-system-instructions">Setting a Moderator’s System
-Instructions</a></p>
-<ul>
-<li><p><a class="reference external" href="#personas">Personas</a></p></li>
-<li><p><a class="reference external" href="#moderator-system-instructions-set-directly">Moderator system instructions set
-directly</a></p></li>
-<li><p><a class="reference external" href="#auto-moderators">Auto-Moderators</a></p></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><a class="reference external" href="#structures">Structures</a></p>
-<ul>
-<li><p><a class="reference external" href="#overview-of-structures">Overview of Structures</a></p></li>
-<li><p><a class="reference external" href="#types-of-structures">Types of Structures</a></p>
-<ul>
-<li><p><a class="reference external" href="#ensemble">Ensemble</a></p></li>
-<li><p><a class="reference external" href="#ensemble-with-a-moderator">Ensemble with a moderator</a></p></li>
-<li><p><a class="reference external" href="#tracing-what-is-going-on-in-structures">Tracing what is going on in
-Structures</a></p></li>
-<li><p><a class="reference external" href="#chain">Chain</a></p></li>
-<li><p><a class="reference external" href="#chain-with-a-moderator">Chain with a moderator</a></p></li>
-<li><p><a class="reference external" href="#debate">Debate</a></p></li>
-<li><p><a class="reference external" href="#debate-with-a-moderator">Debate with a moderator</a></p></li>
-<li><p><a class="reference external" href="#graph">Graph</a></p>
-<ul>
-<li><p><a class="reference external" href="#dags">DAGs</a></p></li>
-<li><p><a class="reference external" href="#dags-with-plurals">DAGs with Plurals</a></p></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><a class="reference external" href="#viewing-history-of-agents-in-a-structure">Viewing history of Agents in a
-Structure</a></p></li>
-</ul>
-</li>
-</ul>
-<!-- TOC end --><section id="system-diagram">
-<h1>System Diagram<a class="headerlink" href="#system-diagram" title="Link to this heading"></a></h1>
+  <section id="quick-guide">
+<h1>Quick Guide<a class="headerlink" href="#quick-guide" title="Link to this heading"></a></h1>
+<section id="system-diagram">
+<h2>System Diagram<a class="headerlink" href="#system-diagram" title="Link to this heading"></a></h2>
+<a class="reference internal image-reference" href="_images/system_diagram.png"><img alt="System Diagram" class="align-center" src="_images/system_diagram.png" style="width: 600px;" /></a>
 </section>
 <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">plurals</span></code></p>
 </section>
 <section id="cite">
-<h1>Cite<a class="headerlink" href="#cite" title="Link to this heading"></a></h1>
+<h2>Cite<a class="headerlink" href="#cite" title="Link to this heading"></a></h2>
 <p>We plan on releasing a system paper soon. For now, cite this package as:</p>
 <p><em>Bibtex:</em></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@software</span><span class="p">{</span><span class="n">Ashkinaze_Plurals_2024</span><span class="p">,</span>
@@ -177,7 +158,7 @@ Structure</a></p></li>
 <p>EF and NE are equal contributors. We have a DOI on Zenodo. <a class="reference external" href="https://doi.org/10.5281/zenodo.12750674"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.12750674.svg" /></a></p>
 </section>
 <section id="package-overview">
-<h1>Package Overview<a class="headerlink" href="#package-overview" title="Link to this heading"></a></h1>
+<h2>Package Overview<a class="headerlink" href="#package-overview" title="Link to this heading"></a></h2>
 <p>‘Plurals’ is based on two abstractions—<code class="docutils literal notranslate"><span class="pre">Agents</span></code> (who complete tasks)
 and <code class="docutils literal notranslate"><span class="pre">Structures</span></code> (which are the environments in which <code class="docutils literal notranslate"><span class="pre">Agents</span></code>
 complete their tasks). Agents can be optionally overseen by
@@ -199,13 +180,13 @@ auto-moderated, meaning they come up with their own moderation
 instructions based on the task.</p>
 </section>
 <section id="read-full-documentation-for-modules-and-methods-here">
-<h1>Read full documentation for modules and methods here.<a class="headerlink" href="#read-full-documentation-for-modules-and-methods-here" title="Link to this heading"></a></h1>
+<h2>Read full documentation for modules and methods here.<a class="headerlink" href="#read-full-documentation-for-modules-and-methods-here" title="Link to this heading"></a></h2>
 <p><a class="reference external" href="https://josh-ashkinaze.github.io/plurals/">https://josh-ashkinaze.github.io/plurals/</a></p>
 <p>The README file provides specific examples, while the documentation
 offers a more comprehensive overview of the package.</p>
 </section>
 <section id="report-an-issue-or-request-a-feature">
-<h1>Report an issue or request a feature<a class="headerlink" href="#report-an-issue-or-request-a-feature" title="Link to this heading"></a></h1>
+<h2>Report an issue or request a feature<a class="headerlink" href="#report-an-issue-or-request-a-feature" title="Link to this heading"></a></h2>
 <p>Plurals is run by a small and energetic team of academics doing the best
 they can [1]. To report bugs or feature requests, open a GitHub issue.
 We strongly encourage you to use our Bug or Feature Request issue
@@ -215,7 +196,7 @@ please email <a class="reference external" href="mailto:jashkina&#37;&#52;&#48;u
 <p>[1] Language adopted from (<a class="reference external" href="https://github.com/davidjurgens/potato">https://github.com/davidjurgens/potato</a>).</p>
 </section>
 <section id="uses">
-<h1>Uses<a class="headerlink" href="#uses" title="Link to this heading"></a></h1>
+<h2>Uses<a class="headerlink" href="#uses" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Persona-based experiments: Quickly create personas for agents,
 optionally using ANES for fast, nationally representative personas.
@@ -237,7 +218,7 @@ additional information/perspectives</p></li>
 </ul>
 </section>
 <section id="agents">
-<h1>Agents<a class="headerlink" href="#agents" title="Link to this heading"></a></h1>
+<h2>Agents<a class="headerlink" href="#agents" title="Link to this heading"></a></h2>
 <p>Each agent has two core attributes: <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code> (which are
 the personas) and <code class="docutils literal notranslate"><span class="pre">task</span></code> (which is the user prompt). There are a few
 ways to create <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code>:</p>
@@ -250,6 +231,7 @@ persona to use with a persona template</p></li>
 <p>Users can make their own persona templates or use the defaults in the
 instructions.yaml file.</p>
 <p>Let’s see some examples!</p>
+</section>
 <section id="quick-start">
 <h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
@@ -717,9 +699,9 @@ Exclude repetitive or overly conventional ideas.
 </section>
 </section>
 </section>
-</section>
 <section id="structures">
-<h1>Structures<a class="headerlink" href="#structures" title="Link to this heading"></a></h1>
+<h2>Structures<a class="headerlink" href="#structures" title="Link to this heading"></a></h2>
+</section>
 <section id="overview-of-structures">
 <h2>Overview of Structures<a class="headerlink" href="#overview-of-structures" title="Link to this heading"></a></h2>
 <p>Structures are the environments in which agents work together. Broadly,
@@ -1531,7 +1513,9 @@ Mod history
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="helpers.html" class="btn btn-neutral float-left" title="Helpers Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
 
   <hr/>
 
