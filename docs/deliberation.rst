@@ -1,3 +1,6 @@
+.. note::
+   :doc:`Return to tutorial <tutorial>`
+
 Deliberation Module
 ===================
 
