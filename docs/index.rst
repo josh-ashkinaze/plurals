@@ -2,10 +2,15 @@ Welcome to Plurals's documentation!
 ===================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :hidden:
+   :caption: Tutorials
 
    tutorial
+
+.. toctree::
+   :hidden:
+   :caption: API Documentation
+
    agent
    deliberation
    helpers
