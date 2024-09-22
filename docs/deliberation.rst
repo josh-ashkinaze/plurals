@@ -1,8 +1,7 @@
-.. note::
-   :doc:`Return to tutorial <tutorial>`
-
 Deliberation Module
 ===================
+.. toctree::
+   :maxdepth: 2
 
 .. automodule:: plurals.deliberation
    :members:

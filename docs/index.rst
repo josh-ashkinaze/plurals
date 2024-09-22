@@ -1,5 +1,3 @@
-.. Plurals documentation master file
-
 Welcome to Plurals's documentation!
 ===================================
 

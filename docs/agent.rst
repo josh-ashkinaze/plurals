@@ -1,8 +1,8 @@
-.. note::
-   :doc:`Return to tutorial <tutorial>`
-
 Agent Module
 ============
+
+.. toctree::
+   :maxdepth: 2
 
 .. automodule:: plurals.agent
    :members:
