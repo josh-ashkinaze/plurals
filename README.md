@@ -1,4 +1,22 @@
+<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
 
+# ToC
+- [Cite](#cite)
+- [Overview](#overview)
+- [Detailed Documentation](#detailed-documentation)
+- [Quick Start ](#quick-start)
+   * [Installation](#installation)
+   * [Set environment variables](#set-environment-variables)
+   * [Create a nationally representative ensemble of Agents portrayed by different LLMs](#create-a-nationally-representative-ensemble-of-agents-portrayed-by-different-llms)
+   * [Create a directed acyclic graph of Agents for story development](#create-a-directed-acyclic-graph-of-agents-for-story-development)
+- [Report An Issue or Feature](#report-an-issue-or-feature)
+- [Some Potential Uses](#some-potential-uses)
+
+<!-- TOC end -->
+
+
+# Plurals is a package for simulated social ensembles.
+    
 
 ![PyPI Total Downloads](https://pepy.tech/badge/plurals)
 [![Build-Github-Pages](https://github.com/josh-ashkinaze/plurals/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/pages/pages-build-deployment)
@@ -34,15 +52,18 @@ Plurals is an end-to-end generator of simulated social ensembles. (1) **Agents**
 
 The building block is Agents, which are large language models (LLMs) that have system instructions and tasks. System instructions can be generated from user input, government datasets (American National Election Studies; ANES), or persona templates. Agents exist within Structures, which define what information is shared. Combination instructions tell Agents how to combine the responses of other Agents when deliberating in the Structure. Users can customize an Agent's combination instructions or use existing templates drawn from deliberation literature and beyond. Moderators aggregate responses from multi-agent deliberation.
 
-# Installation
 
-`pip install plurals`
-
-# Documentation
+# Detailed Documentation
 
 https://josh-ashkinaze.github.io/plurals/
 
-# Quick Start Examples 
+# Quick Start 
+
+## Installation
+
+```markddown
+pip install plurals
+```
 
 ## Set environment variables
 
