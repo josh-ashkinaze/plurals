@@ -1,26 +1,21 @@
-<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
-
-# ToC
-- [Cite](#cite)
-- [Overview](#overview)
-- [Detailed Documentation](#detailed-documentation)
-- [Quick Start ](#quick-start)
-   * [Installation](#installation)
-   * [Set environment variables](#set-environment-variables)
-   * [Create a nationally representative ensemble of Agents portrayed by different LLMs](#create-a-nationally-representative-ensemble-of-agents-portrayed-by-different-llms)
-   * [Create a directed acyclic graph of Agents for story development](#create-a-directed-acyclic-graph-of-agents-for-story-development)
-- [Report An Issue or Feature](#report-an-issue-or-feature)
-- [Some Potential Uses](#some-potential-uses)
-
-<!-- TOC end -->
 
 
-# Plurals is a package for simulated social ensembles.
+
+# Plurals: a Package for Simulated Social Ensembles
     
+_Package Stats_
 
 ![PyPI Total Downloads](https://pepy.tech/badge/plurals)
-[![Build-Github-Pages](https://github.com/josh-ashkinaze/plurals/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/pages/pages-build-deployment)
+![PyPI](https://img.shields.io/pypi/v/plurals)
 
+_Package Status_
+
+[![test-lint-docs](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml)
+[![Upload Python Package](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml)
+
+_Package Citation_
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12750674.svg)](https://doi.org/10.5281/zenodo.12750674)
 
 # Cite
 Paper coming soon. For now, please cite this package as [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12750674.svg)](https://doi.org/10.5281/zenodo.12750674):
