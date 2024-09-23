@@ -1,9 +1,9 @@
 Welcome to Plurals docs!
 ===================================
 
-.. image:: ../../../assets/figure1.png
-   :alt: Alternative text
-   :scale: 100 %
+.. image:: https://github.com/josh-ashkinaze/plurals/blob/main/assets/figure1.png
+   :alt: System diagram
+   :scale: 100%
 
 There are essentially two parts to this documentation. The first is a set of tutorials, which includes a bunch of examples.
 And the second is the lower-level API documentation.
