@@ -921,8 +921,7 @@ For example, consider if we had a DAG of this edge list with a Moderator at the 
 
 This would correspond to the following network.
 
-
-.. image:: ../../../assets/mermaid_diagram.svg
+.. image:: https://github.com/josh-ashkinaze/plurals/blob/main/assets/mermaid_diagram.svg
    :alt: Mermaid diagram
    :scale: 100 %
 
