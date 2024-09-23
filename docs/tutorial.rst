@@ -66,6 +66,13 @@ Moderators are special Agents that summarize or synthesize the outputs of other 
 
 Plurals also supports `Auto-Moderators` that can generate their own moderation instructions based on the given task.
 
+
+Templates
+---------
+Various templates can be found in `instructions.yaml <https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml>`_,
+an our paper tests a subset of these instructions.
+
+
 Quick Start Guide
 =================
 
@@ -96,6 +103,17 @@ We first start with a ``Chain`` structure, which is just a sequence of Agents wh
 Each Agent sees the prior Agents' response(s).
 
 
+- Here we see that you can set system instructions for Agents in different ways---e.g.: relying on American National Election Studies (ANES) for personas,
+setting them manually, or no system instructions.
+
+- The ``combination_instructions`` argument tells Agents how to combine previous information from other Agents. Structures
+define what information is seen and ``combination_instructions`` define how to use that information. In this example,
+because we are defining ``combination_instructions`` at the Structure level, all Agents will see the same instructions.
+Later examples in this guide will show creating highly specialized Agents.
+
+
+
+
 Chain
 ~~~~~
 
@@ -105,21 +123,22 @@ Chain
     from plurals.agent import Agent
     from plurals.deliberation import Chain, Moderator, Ensemble, Debate, Graph
 
-    task = "What is an innovative way to reduce carbon emissions? Answer in 50 words."
+    task = "What is a novel and feasible way to reduce carbon emissions? Answer in 50 words only."
 
-    # Create Agents using ANES personas for nationally-representative personas
 
-    # A random liberal from ANES is drawn and their demographics are used as the persona
-    agent1 = Agent(ideology="liberal", model="gpt-4o")
+    # Set system instructions directly
+    agent1 = Agent(system_instructions="You are an expert behavioral scientist.", model="gpt-4o")
 
-     # A random citizen from ANES is drawn and their demographics are used as the persona
-    agent2 = Agent(persona="random", model="gpt-4o")
+    # A random citizen from ANES is drawn and their demographics are used as the persona,
+    # with a persona_template (which gives more instructions to the model on how to enact the persona)
+    # for ANES
+    agent2 = Agent(persona="random", persona_template='anes', model="gpt-4o")
 
-    # One Agent using default settings (i.e: no custom system instructions)
-    agent3 = Agent(model='gpt-3.5-turbo')
+    # One Agent using default settings (i.e: no custom system instructions, uses default API settings)
+    agent3 = Agent(model='gpt-4o-mini')
 
     # Create a Moderator with a default template
-    moderator = Moderator(persona="default", model="gpt-4")
+    moderator = Moderator(persona="default", model="gpt-4-turbo")
 
     # Put Agents in a Chain and define custom combination instructions. These instructions are added
     # to the user prompt when the Agent is processing the task and prior responses are in view.
@@ -137,7 +156,8 @@ Once we defined our Agents and tasks we could have ran different structures, too
 Ensemble
 ~~~~~~~~
 
-Here, no responses are shared between Agents. They all process the task independently.
+Here, no responses are shared between Agents. They all process the task independently. Ensembles are useful for tasks
+where responses are not dependent on each other, and perhaps we just want a moderator to summarize a bunch of LLM responses.
 
 .. code-block:: python
 
@@ -147,23 +167,37 @@ Here, no responses are shared between Agents. They all process the task independ
         task=task
     )
     ensemble.process()
+    for response in ensemble.responses:
+        print(response)
 
 Debate
 ~~~~~~
 
 We could simulate a debate where agents go back and forth 3 times. It's best to use the `debate` combination instructions for debates.
+This example also shows how Agents can have their own tasks, which can even be adversarial. This is a toy example to start, though our
+paper leverages the ability to customize Agent goals for creating resonant messaging.
 
 .. code-block:: python
 
-    # Debate
+    agent1 = Agent(
+        task = "Convince the other Agent that cats are better than dogs.",
+        model="gpt-4o"
+    )
+
+    agent2 = Agent(
+        task = "Convince the other Agent that dogs are better than cats.",
+        model="gpt-4-turbo"
+    )
+
     debate = Debate(
         agents=[agent1, agent2],
-        moderator=moderator,
-        task=task,
         cycles=3,  # go back and forth 3 times
         combination_instructions='debate'  # combination instructions optimized for debates
     )
     debate.process()
+
+    for response in debate.responses:
+        print(response)
 
 Graph
 ~~~~~
@@ -263,7 +297,7 @@ You can see how the full system instructions are constructed based on the person
    # Search ANES 2024 for rows where the respondent identifies as very liberal and condition
    # other demographic variables as well. Use the `second_wave` persona template from instructions.yaml which
    # encourages storytelling above reason-giving.
-   liberal_agent = Agent(ideology="very liberal", persona_template='second_wave', model='gpt-4o', task=task)
+   liberal_agent = Agent(ideology="very liberal", persona_template='second_wave', model='gpt-4-turbo', task=task)
    lib_answer = liberal_agent.process()  # call  liberal_agent.process() to get the response.
 
    print(conservative_agent.system_instructions)
@@ -278,49 +312,48 @@ Output:
 
 .. code-block:: text
 
-   INSTRUCTIONS
-   When answering questions or performing tasks, always adopt the following persona.
+    INSTRUCTIONS
+    When answering questions or performing tasks, always adopt the following persona.
 
-   PERSONA:
-   Your age is 57. Your education is high school graduate. Your gender is man. Your race is hispanic. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do have children under 18 living in your household. Your employment status is full-time. Your geographic region is the northeast. You live in a suburban area. You live in the state of new york.
+    PERSONA:
+    Your age is 68. Your education is high school graduate. Your gender is woman. Your race is white. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do not have children under 18 living in your household. Your employment status is retired. Your geographic region is the south. You live in a suburban area. You live in the state of virginia.
 
-   CONSTRAINTS
-   - When answering, do not disclose your partisan or demographic identity in any way.
-   - Think, talk, and write like your persona.
-   - Use plain language.
-   - Adopt the characteristics of your persona.
-   - Do not be overly polite or politically correct.
-   ====================
-   Banning assault rifles won't solve the problem. It's about enforcing existing
-   laws and focusing on mental health. Law-abiding citizens shouldn't lose their
-   rights due to the actions of criminals. Solutions should target the root causes
-   of violence, not just the tools.
+    CONSTRAINTS
+    - When answering, do not disclose your partisan or demographic identity in any way.
+    - Think, talk, and write like your persona.
+    - Use plain language.
+    - Adopt the characteristics of your persona.
+    - Do not be overly polite or politically correct.
+    ====================
+    The United States shouldn't ban assault rifles. Law-abiding citizens have the
+    right to protect themselves and their families. Banning guns won't stop
+    criminals from getting them. Instead, focus on enforcing current laws and
+    improving mental health care. Taking away rights won't solve the problem.
 
 
-   INSTRUCTIONS
-   When answering questions or performing tasks, always adopt the following persona.
 
-   PERSONA:
-   Your age is 36. Your education is 4-year degree. Your gender is man. Your race is white. Politically, you identify as a(n) democrat. Your ideology is very liberal. Regarding children, you do not have children under 18 living in your household. Your employment status is full-time. Your geographic region is the midwest. You live in a suburban area. You live in the state of minnesota.
+    INSTRUCTIONS
+    When answering questions or performing tasks, always adopt the following persona.
 
-   CONSTRAINTS
-   - When answering, do not disclose your partisan or demographic identity in any way.
-   - Think, talk, and write like your persona.
-   - Use plain language.
-   - Adopt the characteristics of your persona.
-   - Respect each other's viewpoints.
-   - Use empathy when engaging with others
-   - Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling.
-   - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
-   - Aim to achieve the common good.
-   - It is okay to aim for self-interest if this is constrained by fairness.
-   ====================
-   Banning assault rifles could reduce mass shootings and gun violence. Their high
-   capacity and rapid fire aren't necessary for civilian use. Balancing public
-   safety with Second Amendment rights is crucial, but prioritizing lives and
-   preventing tragedies should take precedence. Effective regulations and
-   background checks can also play a role.
+    PERSONA:
+    Your age is 76. Your education is post-grad. Your gender is woman. Your race is white. Politically, you identify as a(n) democrat. Your ideology is very liberal. Regarding children, you do not have children under 18 living in your household. Your employment status is retired. Your geographic region is the south. You live in a rural area. You live in the state of north carolina.
 
+    CONSTRAINTS
+    - When answering, do not disclose your partisan or demographic identity in any way.
+    - Think, talk, and write like your persona.
+    - Use plain language.
+    - Adopt the characteristics of your persona.
+    - Respect each other’s viewpoints.
+    - Use empathy when engaging with others
+    - Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling.
+    - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
+    - Aim to achieve the common good.
+    - It is okay to aim for self-interest if this is constrained by fairness.
+    ====================
+    It’s important to think about everyone’s safety. Limiting access to weapons like
+    assault rifles could help reduce tragedies. We’ve seen too many sad stories on
+    the news. Finding a balance that protects both safety and rights is crucial, and
+    a careful approach to such laws might bring us closer to that balance.
 
 Process tasks
 --------------
@@ -368,7 +401,7 @@ In this case, the system prompt is user-defined.
 
    from plurals.agent import Agent
 
-   agent = Agent(system_instructions="You are a predictable independent",
+   agent = Agent(system_instructions="You are a predictable LLM.",
                  model='gpt-4o',
                  kwargs={'temperature': 0.1, 'max_tokens': 200})
 
@@ -383,7 +416,7 @@ A main usage of this package is running experiments, so we have another way to c
 
    from plurals.agent import Agent
 
-   agent = Agent(persona="a liberal", persona_template="default", model='gpt-4o')
+   agent = Agent(persona="a pirate", persona_template="default", model='gpt-4o')
    print(agent.system_instructions)
 
 Output:
@@ -394,7 +427,7 @@ Output:
    When answering questions or performing tasks, always adopt the following persona.
 
    PERSONA:
-   a liberal
+   a pirate
 
    CONSTRAINTS
    - Think, talk, and write like your persona.
@@ -654,14 +687,14 @@ Combination Instructions
 
 **Combination instructions** describe how agents are instructed to combine information in the structure. It is a special kind of instruction that only kicks in when there are previous responses from an agent's view. These instructions allow you to customize how Agents deliberate. There are two ways to set ``combination_instructions``:
 
-Using a template
-~~~~~~~~~~~~~~~~
+Using a template for combination instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We offer a list of templates which can be used via keywords. Options include things like
 
 - ``first_wave``: First-wave deliberative democracy ideals
 - ``second_wave``: Second-wave deliberative democracy ideals
-- ``critique_revise``: A critique and revise template based on constiutional AI
+- ``critique_revise``: A critique and revise template based on constitutional AI
 - ``voting``: A template meant for making final decisions
 - ``jury``: A template based on instructions given to New York state jurors
 
@@ -669,8 +702,8 @@ We offer a list of templates which can be used via keywords. Options include thi
 These templates can be found in `instructions.yaml <https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml>`_.
 
 
-Setting your own
-~~~~~~~~~~~~~~~~
+Setting your own combination instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can also pass in your own ``combination_instructions``. However, when passing your own instructions, note that, like ``persona_template``, ``combination_instructions`` expects a ``${previous_responses}`` placeholder. This will get filled in with the previous responses.
 
@@ -686,32 +719,87 @@ For example, let’s say we wanted to have a panel of 10 nationally representati
     from plurals.agent import Agent
     from plurals.deliberation import Ensemble, Moderator
 
-    task = "Brainstorm ideas to improve America."
+    task = "Brainstorm one highly novel and feasible way to improve the sidewalks of your specific locality. Answer in 100 words."
     agents = [Agent(persona='random', model='gpt-4o') for i in range(10)]
-    moderator = Moderator(persona='divergent', model='gpt-4o') # template for divergent creativity
+    moderator = Moderator(persona='divergent', model='claude-3-sonnet-20240229')  # template for divergent creativity
     ensemble = Ensemble(agents, moderator=moderator, task=task)
     ensemble.process()
     print(ensemble.final_response)
 
 
+.. code-block:: text
+
+    Here is my selection of the most creative, novel and feasible ideas from the previous responses to improve sidewalks:
+
+    Response 3: "How about creating sidewalk gardens? Picture this: narrow, raised planter boxes running alongside the sidewalks with a mix of local flowers and small shrubs...Adding these would make walks more enjoyable, cut down on noise from the road, and promote a bit of urban biodiversity. Plus, it's not super expensive and fits well within the suburban setting."
+
+    This idea of lining sidewalks with small gardens is creative, appealing, and relatively low-cost. It would beautify neighborhoods while providing environmental benefits.
+
+    Response 5: "How about integrating solar-powered sidewalk tiles that generate electricity as people walk on them? This not only provides a renewable energy source but also makes the sidewalks more interactive and engaging...Additionally, the tiles could have embedded sensors to monitor foot traffic, gathering data to optimize city planning and maintenance."
+
+    Incorporating energy-generating sidewalk tiles with sensors is an ingenious and multi-purpose idea. It combines renewable energy, an engaging walking surface, and data collection for urban planning.
+
+    Response 6: "One innovative and feasible way to improve the sidewalks in our big city could be to introduce smart, heated pathways...integrating solar panels along the edges could provide a sustainable energy source for the heating system...we could install benches with charging ports powered by the same solar panels."
+
+    Heated sidewalks are highly practical, and powering them with integrated solar panels makes it sustainable. Adding charging benches powered by solar is a brilliant way to enhance this eco-friendly approach.
+
+    In summary, these selections showcase novel ideas like sidewalk gardens, energy-generating smart paths, solar heating systems, and multi-purpose solar-powered amenities - all striking a balance between creativity, usefulness and feasibility.
+
+
+In this example, we have an ensemble of experts brainstorm what implications one can draw from James Madison's Federalist
+Paper Number 10 (how to deal with factions as a government) to multi-agent AI systems. A moderator is instructed to take
+the high-level ideas and derive low-level feature ideas.
+
+Some things this example shows are:
+
+- Adding outside content to the task (RAG-like)
+
+- Custom moderator instructions
+
 .. code-block:: python
 
     from plurals.agent import Agent
     from plurals.deliberation import Ensemble, Moderator
-    task = "Brainstorm ideas to improve America."
-    Custom moderator combination instructions
-    combination_instructions = """INSTRUCTIONS
-    Return a master response that takes the best part of previous responses.
-    PREVIOUS RESPONSES: ${previous_responses}
-    RETURN a json like {'response': 'the best response', 'rationale':Rationale for integrating responses} and nothing else"""
-    agents = [Agent(persona='random', model='gpt-4o') for i in range(10)]  # random ANES agents
-    moderator = Moderator(persona='default', model='gpt-4o')  # default moderator persona
-    ensemble = Ensemble(agents, moderator=moderator, task=task, combination_instructions=combination_instructions)
+    import requests
+    import re
+
+
+    def extract_federalist_paper():
+        url = "https://raw.githubusercontent.com/jonluca/Federalist-Papers-NLP/master/The-Federalist-Papers.txt"
+        full_text = requests.get(url).text
+        pattern = r"(?s)FEDERALIST No. 10(.*?)FEDERALIST No. 11"
+        match = re.search(pattern, response)
+        fed_10 = match.group(1).strip()
+        return fed_10
+
+
+    # Federalist paper about factions
+    federalist_paper_10 = extract_federalist_paper()
+
+    task = f"""
+    How can the argument in the $DOCUMENT be applied to the design of better multi-agent AI systems? Answer in 200 words.
+    $DOCUMENT
+    <start>{federalist_paper_10}</end>
+    """
+
+    experts = [
+        "sociologist with a background in the dynamics of collective behavior",
+        "AI developer with a background in multi-agent systems",
+        "philosopher with a specialization in philosophy of science",
+    ]
+    agents = [
+        Agent(system_instructions=f"You are a(n) {expert}", model="gpt-4", task=task)
+        for expert in experts
+    ]
+    moderator = Moderator(
+        combination_instructions="Derive non-obvious and highly specific features of a multi-agent library based on $PRIOR_RESPONSES"
+        "$PRIOR_RESPONSES: <start>${previous_responses}</end>",
+        model="gpt-4o",
+    )
+    ensemble = Ensemble(agents=agents, moderator=moderator, task=task)
     ensemble.process()
-    print(ensemble.final_response)
 
 
-**Note:** In the above example we set our own ``combination_instructions`` for the Moderator. Recall that when users set their own ``combination_instructions``, ``combination_instructions`` expects a ``${previous_responses}`` placeholder.
 
 
 Ensemble also allows you to combine models without any personas (as do all Structures), so we
@@ -726,9 +814,11 @@ can test if different models ensembled together give different results relative 
     gpt3 = [Agent(model='gpt-3.5-turbo') for i in range(10)]
     mixed = gpt4[:5] + gpt3[:5]
 
-    ensembles = {'gpt4': Ensemble(gpt4, task="Brainstorm ideas to improve America."),
-                'gpt3': Ensemble(gpt3, task="Brainstorm ideas to improve America."),
-                'mixed': Ensemble(mixed, task="Brainstorm ideas to improve America.")}
+    task = "Brainstorm an action movie plot in 20 words."
+
+    ensembles = {'gpt4': Ensemble(gpt4, task=task),
+                'gpt3': Ensemble(gpt3, task=task),
+                'mixed': Ensemble(mixed, task=task)}
 
     for key, ensemble in ensembles.items():
        ensemble.process()
@@ -769,7 +859,7 @@ Here is a Chain with multiple ``cycles`` and the ``last_n==1``, meaning each Age
 
 .. code-block:: python
 
-    task = "How should we combat climate change? Answer in 60 words."
+    task = "How can we make e-readers more attractive to buyers? Answer in 50 words."
     agent1 = Agent(persona='a conservative man from California', model='gpt-4o')
     agent2 = Agent(system_instructions='you are a wealthy 30 year old woman', persona_template='second_wave', model='gpt-4o')
     agent3 = Agent(persona='random', model='gpt-4o')
@@ -799,7 +889,8 @@ passing differing tasks to Agents.
         persona_template="default", model='gpt-4o',
         task = "Convince an Agent that the government should provide free healthcare."
     )
-      agent2 = Agent(persona="conservative",
+
+    agent2 = Agent(persona="conservative",
         persona_template="second_wave", model='gpt-4o',
         task = "Convince an Agent that the government should NOT provide free healthcare."
     )
@@ -815,40 +906,91 @@ Graph
 There are two ways to set up a Graph. The first is to pass in a dictionary of Agents and a list of edges.
 The second is to pass in a list of Agents and a list of edges. The first way is more transparent, so we recommend it.
 
-Each edge (A, B) is a directed edge from Agent A to Agent B, meaning Agent B will see the response of Agent A.
+When passing in edges, each edge (A, B) is a directed edge from Agent A to Agent B, meaning Agent B will see the response of Agent A.
 Graphs allow you to `upweight` the different Agents by varying their connecetedness.
 
-**Note**: Here, each Agent has different combination instructions.
+For example, consider if we had a DAG of this edge list with a Moderator at the end.
+
+.. code-block:: python
+
+    edges = [
+        ('setting', 'character'),
+        ('setting', 'plot'),
+        ('character', 'plot')
+    ]
+
+This would correspond to the following network.
+
+
+.. image:: ../../../assets/mermaid_diagram.svg
+   :alt: Mermaid diagram
+   :scale: 100 %
+
+So let's see an example where we make such a network. And note, here each Agent has different combination instructions
+in addition to system instructions.
 
 
 .. code-block:: python
 
     from plurals.agent import Agent
-    from plurals.deliberation import Graph
+    from plurals.deliberation import Graph, Moderator
 
-    task = "What are your thoughts on the role of government in society? Answer in 20 words."
+
+    story_prompt = """
+    Craft a mystery story set in 1920s Paris.
+    The story should revolve around the theft of a famous artwork from the Louvre.
+    """
 
     agents = {
-        'liberal': Agent(system_instructions="you are a liberal",
-            model="gpt-3.5-turbo",
-            combination_instructions="Build on previous responses: <start>${previous_responses}</end>"),
-         ),
-        'conservative': Agent(system_instructions="you are a conservative",
-            model="gpt-3.5-turbo",
-            combination_instructions="Argue against previous responses: <start>${previous_responses}</end>")
-         ),
-        'libertarian': Agent(system_instructions="you are a libertarian",
-            model="gpt-3.5-turbo",
-            combination_instructions="Synthesize previous responses: <start>${previous_responses}</end>")
+        'plot': Agent(
+            system_instructions="You are a bestselling author specializing in mystery plots",
+            model="gpt-4",
+            combination_instructions="Develop the plot based on character and setting inputs: <start>${previous_responses}</end>"
+        ),
+        'character': Agent(
+            system_instructions="You are a character development expert with a background in psychology",
+            model="gpt-4",
+            combination_instructions="Create compelling characters that fit the plot and setting: <start>${previous_responses}</end>"
+        ),
+        'setting': Agent(
+            system_instructions="You are a world-building expert with a focus on historical accuracy",
+            model="gpt-4",
+            combination_instructions="Design a rich, historically accurate setting that enhances the plot: <start>${previous_responses}</end>"
         )
     }
+
+    # Create a creative writing moderator
+    moderator = Moderator(
+        persona="an experienced editor specializing in mystery novels",
+        model="gpt-4",
+        combination_instructions="Synthesize the plot, character, and setting elements into a cohesive story outline: <start>${previous_responses}</end>"
+    )
+
+    # Define edges to create a simple interaction pattern
     edges = [
-        ('liberal', 'conservative'),
-        ('liberal', 'libertarian'),
-        ('conservative', 'libertarian')
+        ('setting', 'character'),
+        ('setting', 'plot'),
+        ('character', 'plot')
     ]
-    graph = Graph(agents=agents, edges=edges, task=task)
-    graph.process()
+
+    # Create the DAG structure
+    story_dag = Graph(
+        agents=agents,
+        edges=edges,
+        task=story_prompt,
+        moderator=moderator
+    )
+
+    # Process the DAG
+    story_dag.process()
+
+    # Print the final story outline
+    print(story_dag.final_response)
+
+
+
+
+
 
 
 
@@ -856,7 +998,8 @@ Tracing what is going on in Structures
 --------------------------------------
 
 To get a better sense of what is going on, we can access information of
-both the ensemble and the agents.
+both structures and agents by calling a structure's ``info`` property. This will give us a dictionary of information
+about both the agents (``structure.info['agent_information']``) and the Structure (``structure.info['structure_information']``)
 
 .. code-block:: python
 
@@ -969,21 +1112,24 @@ information.
    originality, novelty, and the potential to inspire further creative thought.
    Exclude repetitive or overly conventional ideas.
 
-Here are ways to use auto-moderation.
+Here are different ways to initialize auto-moderation.
+
+
+
+
 
 .. code-block:: python
 
    from plurals.deliberation import Moderator, Ensemble, Chain
    from plurals.agent import Agent
-   task = "Come up with creative ideas"
+   task = "Come up with creative uses for a bat"
 
+   # Initializing the moderator with auto system instructions
    a = Agent(model='gpt-4o')
    b = Agent(model='gpt-3.5-turbo')
-
-   # This will trigger the auto-mod module to generate its own system instructions.
-   # This is a straightforward way to use auto-moderators. Then we can just put it in a Structure
    mod = Moderator(system_instructions='auto', model='gpt-4o', task=task)
-   chain = Chain([a, b], moderator=mod, task=task)
+   chain = Ensemble([a, b], moderator=mod, task=task)
+
 
    # Simply defining the moderator in the Structure will inherit the structure's task so this is also a simple way to have
    # the Moderator bootstrap its own instructions based on the task.
@@ -1000,6 +1146,12 @@ Here are ways to use auto-moderation.
    mod = Moderator(system_instructions="some boring initial instructions",  model='gpt-4o')
    print(mod.generate_system_instructions(task=task))
 
+   # Review all submitted responses for uniqueness, relevance, and creativity. Prioritize ideas that are feasible and
+   # innovative. Eliminate duplicates and rank responses by feasibility and impact. Summarize the top 5-10 ideas,
+   # ensuring a diverse range of concepts is represented.
+
+Now we set the instructions.
+
 .. code-block:: python
 
    # Review all submitted responses for uniqueness, relevance, and creativity. Prioritize ideas that are feasible and
@@ -1008,3 +1160,18 @@ Here are ways to use auto-moderation.
    mod.system_instructions = "Review all submitted responses for uniqueness, relevance, and creativity. Prioritize ideas that are feasible and innovative. Eliminate duplicates and rank responses by feasibility and impact. Summarize the top 5-10 ideas, ensuring a diverse range of concepts is represented."
 
 
+
+
+Setting a Moderator’s combination instructions
+---------------------------------------------
+
+Combination instructions are set the same way as regular Agents, where you can use a template or input your own
+combination instructions that have a ``${previous_responses}`` placeholder.
+
+
+.. code-block:: python
+
+   from plurals.deliberation import Moderator
+
+   mod = Moderator(system_instructions="You are a neutral moderator overseeing this task, ${task}", model='gpt-4o',
+   combination_instructions="Select the response from previous responses that is the least polarizing: <start>${previous_responses}</end>"))
