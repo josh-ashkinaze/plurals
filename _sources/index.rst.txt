@@ -1,7 +1,7 @@
 Welcome to Plurals docs!
 ===================================
 
-.. image:: https://github.com/josh-ashkinaze/plurals/blob/main/assets/figure1.png
+.. image:: https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/figure1.png
    :alt: System diagram
    :scale: 100%
 
