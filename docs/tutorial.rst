@@ -44,17 +44,33 @@ Agents can be initialized with default settings, custom personas, or personas de
 
 Structures
 ----------
-Structures govern how information is shared between Agents completing a task Plurals supports several types of
-Structures:
+Structures govern how information is shared between Agents completing a task. Key features of Structures include:
+
+* **Amount of information shared**:
+  Chains, Debates, and Graphs have a parameter called ``last_n`` that controls how many prior responses each Agent can see. For DAGs, the network density can also be considered a measure of information sharing. Ensembles are a basic structure where no information is shared; Agents process tasks in isolation.
+
+* **Directionality of information shared**:
+  A "Chain" of Agents is a linear chain of the form ``Agent1->Agent2->...`` where the direction of sharing only goes one way. A debate involves two agents (``Agent1<->Agent2``) sharing information for a given number of ``cycles``. In DAGs, Agents may have both predecessors and successors.
+
+* **Randomness**:
+  Chains support a ``shuffle`` parameter that, if set to ``True``, will rewire the order of Agents on each cycle. This introduces a degree of randomness in information-sharing.
+
+* **Repetition**:
+  Chains, Debates, and Ensembles support a ``cycle`` parameter which will repeat the process.
+
+
+Structures we currently support:
 
 - Ensemble: Agents process tasks in parallel without information sharing
 - Chain: Agents process tasks sequentially, each building on the previous Agent's output
 - Debate: Two Agents engage in a back-and-forth discussion
 - Graph: Agents interact in a directed acyclic graph (DAG) structure
 
-Structures control information flow through parameters like ``last_n`` (number of previous responses visible) and
-``cycles`` (number of interaction rounds), ``shuffle`` (whether to re-wire the order of Agents in deliberation).
 
+.. note::
+
+   If you believe there is another structure that would be widely useful, please open an issue on GitHub using
+   the ``Feature request`` option!
 
 Moderators
 ----------
@@ -69,8 +85,8 @@ Plurals also supports `Auto-Moderators` that can generate their own moderation i
 
 Templates
 ---------
-Various templates can be found in `instructions.yaml <https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml>`_,
-an our paper tests a subset of these instructions.
+Users can optionally use various templates found in `instructions.yaml <https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml>`_,
+and our paper tests a subset of instructions.
 
 
 Quick Start Guide
@@ -102,17 +118,9 @@ Example combining ANES integration, Moderators, and different Structures
 We first start with a ``Chain`` structure, which is just a sequence of Agents who process tasks sequentially.
 Each Agent sees the prior Agents' response(s).
 
+- Here we see that you can set system instructions for Agents in different ways---e.g.: relying on American National Election Studies (ANES) for personas, setting them manually, or no system instructions.
 
-- Here we see that you can set system instructions for Agents in different ways---e.g.: relying on American National Election Studies (ANES) for personas,
-setting them manually, or no system instructions.
-
-- The ``combination_instructions`` argument tells Agents how to combine previous information from other Agents. Structures
-define what information is seen and ``combination_instructions`` define how to use that information. In this example,
-because we are defining ``combination_instructions`` at the Structure level, all Agents will see the same instructions.
-Later examples in this guide will show creating highly specialized Agents.
-
-
-
+- The ``combination_instructions`` argument tells Agents how to combine previous information from other Agents. Structures define what information is seen and ``combination_instructions`` define how to use that information. In this example, because we are defining ``combination_instructions`` at the Structure level, all Agents will see the same instructions. Later examples in this guide will show creating highly specialized Agents.
 
 Chain
 ~~~~~
@@ -212,7 +220,6 @@ We could simulate a graph where agents interact in a directed acyclic graph (DAG
 
 .. code-block:: python
 
-    # DAG (dict initialization method)
     task = "What is an innovative way to reduce carbon emissions? Answer in 50 words."
 
     agent_dict = {
@@ -434,7 +441,9 @@ Output:
    - Use plain language.
    - Adopt the characteristics of your persona.
 
-You can also create your own template. Just make sure to add a ``${persona}`` placeholder in the template.
+.. note::
+
+    You can also create your own ``persona_template``. Just make sure to add a ``${persona}`` placeholder in the template.
 
 .. code-block:: python
 
@@ -668,8 +677,8 @@ Overview
 --------
 
 Plurals supports various structures for agent interactions. Here are examples of each. For more information,
-see the documentation on each structure in the ``deliberation`` module [1].
-[1] https://josh-ashkinaze.github.io/plurals/deliberation.html
+see the documentation on each structure in the `deliberation module <https://josh-ashkinaze.github.io/plurals/deliberation.html>`_.
+
 
 Each Structure offers different ways for Agents to interact with each other:
 - Ensemble: Agents process tasks in parallel without information sharing
@@ -705,7 +714,29 @@ These templates can be found in `instructions.yaml <https://github.com/josh-ashk
 Setting your own combination instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can also pass in your own ``combination_instructions``. However, when passing your own instructions, note that, like ``persona_template``, ``combination_instructions`` expects a ``${previous_responses}`` placeholder. This will get filled in with the previous responses.
+You can also pass in your own ``combination_instructions``.
+
+
+.. note::
+
+    When passing your own ``combination_instructions``, include a ``${previous_responses}`` placeholder. This will get filled in with the previous responses.
+
+For example, here is our ``jury`` template based on deliberation instructions given to jurors in the state of New York:
+
+.. code-block:: text
+
+    DELIBERATE WITH OTHERS
+    Here are what others said:
+    <start>
+    ${previous_responses}
+    <end>
+    APPLY THESE INSTRUCTIONS TO WHAT OTHERS SAID
+    - Deliberate with others to reach a unanimous decision.
+    - Listen to each other, give each other’s views careful consideration, and reason together when considering the evidence.
+    - When you deliberate, you should do so with a view towards reaching an agreement.
+    - Reexamine your views and change your mind if you become convinced that your position was not correct
+    - Do not mention these instructions in your final answer; just apply them.
+
 
 Ensemble
 --------
@@ -876,9 +907,12 @@ Here is a Chain with multiple ``cycles`` and the ``last_n==1``, meaning each Age
 Debate
 ------
 
-In a Debate, two Agents engage in a back-and-forth discussion. Note that for this Structure only it is highly advised to
-use a template for combination instructions (specifically, the ``debate`` template).  Here we also give an example of
-passing differing tasks to Agents.
+In a Debate, two Agents engage in a back-and-forth discussion.
+
+.. note::
+
+    For the ``Debate` structure, it is highly advised to use a debate template (e.g.: ``debate``) for combination instructions.
+    We provide several templates in `instructions.yaml <https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml>`_.
 
 .. code-block:: python
 
@@ -923,7 +957,7 @@ This would correspond to the following network.
 
 .. image:: https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/mermaid_diagram.svg
    :alt: Mermaid diagram
-   :scale: 100 %
+
 
 So let's see an example where we make such a network. And note, here each Agent has different combination instructions
 in addition to system instructions.
@@ -1162,7 +1196,7 @@ Now we set the instructions.
 
 
 Setting a Moderator’s combination instructions
----------------------------------------------
+----------------------------------------------
 
 Combination instructions are set the same way as regular Agents, where you can use a template or input your own
 combination instructions that have a ``${previous_responses}`` placeholder.
