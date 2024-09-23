@@ -5,13 +5,15 @@
     
 _Package Stats_
 
-![PyPI Total Downloads](https://pepy.tech/badge/plurals)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/plurals)
+![GitHub last commit](https://img.shields.io/github/last-commit/josh-ashkinaze/plurals)
+![GitHub Created At](https://img.shields.io/github/created-at/josh-ashkinaze/plurals)
+
+_Package Build (Tests/Doc Creation/PyPi Releases)_
+
+[![Build](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml)
+[![Push to pypy](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml)
 ![PyPI](https://img.shields.io/pypi/v/plurals)
-
-_Package Status_
-
-[![test-lint-docs](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml)
-[![Upload Python Package](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml)
 
 _Package Citation_
 
