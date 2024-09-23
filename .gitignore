@@ -155,3 +155,34 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+/docs/_build/html/index.html
+/docs/_build/html/objects.inv
+/docs/_build/html/py-modindex.html
+/docs/_build/html/scratch_tutorial.html
+/docs/_build/html/search.html
+/docs/_build/html/searchindex.js
+/docs/_build/html/tutorial.html
+/docs/_build/html/agent.html
+/docs/_build/html/deliberation.html
+/docs/_build/html/genindex.html
+/docs/_build/html/helpers.html
+/docs/_build/html/.buildinfo
+/docs/_build/html/_sources/agent.rst.txt
+/docs/_build/html/_sources/deliberation.rst.txt
+/docs/_build/html/_sources/helpers.rst.txt
+/docs/_build/html/_sources/index.rst.txt
+/docs/_build/html/_sources/scratch_tutorial.rst.txt
+/docs/_build/html/_sources/tutorial.rst.txt
+/docs/_build/doctrees/agent.doctree
+/docs/_build/doctrees/deliberation.doctree
+/docs/_build/doctrees/environment.pickle
+/docs/_build/doctrees/helpers.doctree
+/docs/_build/doctrees/index.doctree
+/docs/_build/doctrees/introduction.doctree
+/docs/_build/doctrees/quickstart.doctree
+/docs/_build/doctrees/scratch_tutorial.doctree
+/docs/_build/doctrees/structures_and_moderators.doctree
+/docs/_build/doctrees/tutorial.doctree
+/docs/_build/doctrees/using_agents.doctree
+/docs/_build/doctrees/using_moderators.doctree
+/docs/_build/doctrees/using_structures.doctree
