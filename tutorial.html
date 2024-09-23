@@ -92,11 +92,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#id4">Ensemble</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id5">Chain</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id6">Debate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id7">Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tracing-what-is-going-on-in-structures">Tracing what is going on in Structures</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#id8">Moderators</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="#id9">Moderators</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#setting-a-moderators-system-instructions">Setting a Moderator’s System Instructions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#via-personas">Via personas</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#moderator-system-instructions-set-directly">Moderator system instructions set directly</a></li>
@@ -170,16 +170,29 @@ Agent’s view. Users can rely on templates or create their own. We provide, and
 </section>
 <section id="structures">
 <h2>Structures<a class="headerlink" href="#structures" title="Link to this heading"></a></h2>
-<p>Structures govern how information is shared between Agents completing a task Plurals supports several types of
-Structures:</p>
+<p>Structures govern how information is shared between Agents completing a task. Key features of Structures include:</p>
+<ul class="simple">
+<li><p><strong>Amount of information shared</strong>:
+Chains, Debates, and Graphs have a parameter called <code class="docutils literal notranslate"><span class="pre">last_n</span></code> that controls how many prior responses each Agent can see. For DAGs, the network density can also be considered a measure of information sharing. Ensembles are a basic structure where no information is shared; Agents process tasks in isolation.</p></li>
+<li><p><strong>Directionality of information shared</strong>:
+A “Chain” of Agents is a linear chain of the form <code class="docutils literal notranslate"><span class="pre">Agent1-&gt;Agent2-&gt;...</span></code> where the direction of sharing only goes one way. A debate involves two agents (<code class="docutils literal notranslate"><span class="pre">Agent1&lt;-&gt;Agent2</span></code>) sharing information for a given number of <code class="docutils literal notranslate"><span class="pre">cycles</span></code>. In DAGs, Agents may have both predecessors and successors.</p></li>
+<li><p><strong>Randomness</strong>:
+Chains support a <code class="docutils literal notranslate"><span class="pre">shuffle</span></code> parameter that, if set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, will rewire the order of Agents on each cycle. This introduces a degree of randomness in information-sharing.</p></li>
+<li><p><strong>Repetition</strong>:
+Chains, Debates, and Ensembles support a <code class="docutils literal notranslate"><span class="pre">cycle</span></code> parameter which will repeat the process.</p></li>
+</ul>
+<p>Structures we currently support:</p>
 <ul class="simple">
 <li><p>Ensemble: Agents process tasks in parallel without information sharing</p></li>
 <li><p>Chain: Agents process tasks sequentially, each building on the previous Agent’s output</p></li>
 <li><p>Debate: Two Agents engage in a back-and-forth discussion</p></li>
 <li><p>Graph: Agents interact in a directed acyclic graph (DAG) structure</p></li>
 </ul>
-<p>Structures control information flow through parameters like <code class="docutils literal notranslate"><span class="pre">last_n</span></code> (number of previous responses visible) and
-<code class="docutils literal notranslate"><span class="pre">cycles</span></code> (number of interaction rounds), <code class="docutils literal notranslate"><span class="pre">shuffle</span></code> (whether to re-wire the order of Agents in deliberation).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you believe there is another structure that would be widely useful, please open an issue on GitHub using
+the <code class="docutils literal notranslate"><span class="pre">Feature</span> <span class="pre">request</span></code> option!</p>
+</div>
 </section>
 <section id="moderators">
 <h2>Moderators<a class="headerlink" href="#moderators" title="Link to this heading"></a></h2>
@@ -193,8 +206,8 @@ Structures:</p>
 </section>
 <section id="templates">
 <h2>Templates<a class="headerlink" href="#templates" title="Link to this heading"></a></h2>
-<p>Various templates can be found in <a class="reference external" href="https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml">instructions.yaml</a>,
-an our paper tests a subset of these instructions.</p>
+<p>Users can optionally use various templates found in <a class="reference external" href="https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml">instructions.yaml</a>,
+and our paper tests a subset of instructions.</p>
 </section>
 </section>
 <section id="quick-start-guide">
@@ -220,15 +233,9 @@ an our paper tests a subset of these instructions.</p>
 <p>We first start with a <code class="docutils literal notranslate"><span class="pre">Chain</span></code> structure, which is just a sequence of Agents who process tasks sequentially.
 Each Agent sees the prior Agents’ response(s).</p>
 <ul class="simple">
-<li><p>Here we see that you can set system instructions for Agents in different ways—e.g.: relying on American National Election Studies (ANES) for personas,</p></li>
+<li><p>Here we see that you can set system instructions for Agents in different ways—e.g.: relying on American National Election Studies (ANES) for personas, setting them manually, or no system instructions.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> argument tells Agents how to combine previous information from other Agents. Structures define what information is seen and <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> define how to use that information. In this example, because we are defining <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> at the Structure level, all Agents will see the same instructions. Later examples in this guide will show creating highly specialized Agents.</p></li>
 </ul>
-<p>setting them manually, or no system instructions.</p>
-<ul class="simple">
-<li><p>The <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> argument tells Agents how to combine previous information from other Agents. Structures</p></li>
-</ul>
-<p>define what information is seen and <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> define how to use that information. In this example,
-because we are defining <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> at the Structure level, all Agents will see the same instructions.
-Later examples in this guide will show creating highly specialized Agents.</p>
 <section id="chain">
 <h3>Chain<a class="headerlink" href="#chain" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
@@ -315,8 +322,7 @@ paper leverages the ability to customize Agent goals for creating resonant messa
 <li><p>We also pass in custom combination instructions, which are special instructions that are only visible when prior responses are in the agent’s view.</p></li>
 <li><p>We customize the moderator instructions as well.</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># DAG (dict initialization method)</span>
-<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;What is an innovative way to reduce carbon emissions? Answer in 50 words.&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;What is an innovative way to reduce carbon emissions? Answer in 50 words.&quot;</span>
 
 <span class="n">agent_dict</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;liberal&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;liberal&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">),</span>
@@ -507,7 +513,10 @@ CONSTRAINTS
 - Adopt the characteristics of your persona.
 </pre></div>
 </div>
-<p>You can also create your own template. Just make sure to add a <code class="docutils literal notranslate"><span class="pre">${persona}</span></code> placeholder in the template.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can also create your own <code class="docutils literal notranslate"><span class="pre">persona_template</span></code>. Just make sure to add a <code class="docutils literal notranslate"><span class="pre">${persona}</span></code> placeholder in the template.</p>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
 
 <span class="n">company_roles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;marketing officer&#39;</span><span class="p">,</span> <span class="s1">&#39;cfo&#39;</span><span class="p">]</span>
@@ -695,8 +704,7 @@ so you can (e.g) pass in a temperature or max tokens. Here are some examples of 
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
 <p>Plurals supports various structures for agent interactions. Here are examples of each. For more information,
-see the documentation on each structure in the <code class="docutils literal notranslate"><span class="pre">deliberation</span></code> module [1].
-[1] <a class="reference external" href="https://josh-ashkinaze.github.io/plurals/deliberation.html">https://josh-ashkinaze.github.io/plurals/deliberation.html</a></p>
+see the documentation on each structure in the <a class="reference external" href="https://josh-ashkinaze.github.io/plurals/deliberation.html">deliberation module</a>.</p>
 <p>Each Structure offers different ways for Agents to interact with each other:
 - Ensemble: Agents process tasks in parallel without information sharing
 - Chain: Agents process tasks sequentially, each building on the previous Agent’s output
@@ -722,7 +730,25 @@ Structures will return <code class="docutils literal notranslate"><span class="p
 </section>
 <section id="setting-your-own-combination-instructions">
 <h3>Setting your own combination instructions<a class="headerlink" href="#setting-your-own-combination-instructions" title="Link to this heading"></a></h3>
-<p>You can also pass in your own <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>. However, when passing your own instructions, note that, like <code class="docutils literal notranslate"><span class="pre">persona_template</span></code>, <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code> expects a <code class="docutils literal notranslate"><span class="pre">${previous_responses}</span></code> placeholder. This will get filled in with the previous responses.</p>
+<p>You can also pass in your own <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When passing your own <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>, include a <code class="docutils literal notranslate"><span class="pre">${previous_responses}</span></code> placeholder. This will get filled in with the previous responses.</p>
+</div>
+<p>For example, here is our <code class="docutils literal notranslate"><span class="pre">jury</span></code> template based on deliberation instructions given to jurors in the state of New York:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>DELIBERATE WITH OTHERS
+Here are what others said:
+&lt;start&gt;
+${previous_responses}
+&lt;end&gt;
+APPLY THESE INSTRUCTIONS TO WHAT OTHERS SAID
+- Deliberate with others to reach a unanimous decision.
+- Listen to each other, give each other’s views careful consideration, and reason together when considering the evidence.
+- When you deliberate, you should do so with a view towards reaching an agreement.
+- Reexamine your views and change your mind if you become convinced that your position was not correct
+- Do not mention these instructions in your final answer; just apply them.
+</pre></div>
+</div>
 </section>
 </section>
 <section id="id4">
@@ -872,9 +898,12 @@ The available parameters are <code class="docutils literal notranslate"><span cl
 </section>
 <section id="id6">
 <h2>Debate<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
-<p>In a Debate, two Agents engage in a back-and-forth discussion. Note that for this Structure only it is highly advised to
-use a template for combination instructions (specifically, the <code class="docutils literal notranslate"><span class="pre">debate</span></code> template).  Here we also give an example of
-passing differing tasks to Agents.</p>
+<p>In a Debate, two Agents engage in a back-and-forth discussion.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">Debate`</span> <span class="pre">structure,</span> <span class="pre">it</span> <span class="pre">is</span> <span class="pre">highly</span> <span class="pre">advised</span> <span class="pre">to</span> <span class="pre">use</span> <span class="pre">a</span> <span class="pre">debate</span> <span class="pre">template</span> <span class="pre">(e.g.:</span> <span class="pre">``debate</span></code>) for combination instructions.
+We provide several templates in <a class="reference external" href="https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml">instructions.yaml</a>.</p>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
 <span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Debate</span><span class="p">,</span> <span class="n">Moderator</span>
 
@@ -893,8 +922,8 @@ passing differing tasks to Agents.</p>
 </pre></div>
 </div>
 </section>
-<section id="id7">
-<h2>Graph<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<section id="id8">
+<h2>Graph<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
 <p>There are two ways to set up a Graph. The first is to pass in a dictionary of Agents and a list of edges.
 The second is to pass in a list of Agents and a list of edges. The first way is more transparent, so we recommend it.</p>
 <p>When passing in edges, each edge (A, B) is a directed edge from Agent A to Agent B, meaning Agent B will see the response of Agent A.
@@ -908,8 +937,7 @@ Graphs allow you to <cite>upweight</cite> the different Agents by varying their 
 </pre></div>
 </div>
 <p>This would correspond to the following network.</p>
-<a class="reference internal image-reference" href="https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/mermaid_diagram.svg"><img alt="Mermaid diagram" src="https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/mermaid_diagram.svg" /></a>
-<p>So let’s see an example where we make such a network. And note, here each Agent has different combination instructions
+<img alt="Mermaid diagram" src="https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/mermaid_diagram.svg" /><p>So let’s see an example where we make such a network. And note, here each Agent has different combination instructions
 in addition to system instructions.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
 <span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">Moderator</span>
@@ -989,8 +1017,8 @@ about both the agents (<code class="docutils literal notranslate"><span class="p
 </div>
 </section>
 </section>
-<section id="id8">
-<h1>Moderators<a class="headerlink" href="#id8" title="Link to this heading"></a></h1>
+<section id="id9">
+<h1>Moderators<a class="headerlink" href="#id9" title="Link to this heading"></a></h1>
 <p>Moderators are a subclass of Agents who summarize multi-agent deliberation. Any Structure supports an optional Moderator. Moderators are defined by:</p>
 <ul class="simple">
 <li><p><strong>Profile:</strong> Like Agents, Moderators have a distinct “profile” which we operationalize as system instructions. System instructions can be set directly or via persona methods. We have a special class of Moderators called “Auto-Moderators” who generate their own system instructions based on a task.</p></li>
