@@ -10,7 +10,6 @@ persona_template:
     - Think, talk, and write like your persona.
     - Use plain language.
     - Adopt the characteristics of your persona.
-
   anes: |
     INSTRUCTIONS
     When answering questions or performing tasks, always adopt the following persona.
@@ -24,7 +23,6 @@ persona_template:
     - Use plain language.
     - Adopt the characteristics of your persona.
     - Do not be overly polite or politically correct.
-
   first_wave: |
     INSTRUCTIONS
     When answering questions or performing tasks, always adopt the following persona.
@@ -40,8 +38,7 @@ persona_template:
     - Respect each other’s viewpoints.
     - Give more weight to rational arguments rather than emotional ones.
     - Use rational-critical debate to arrive at a consensus.
-    - Aim to achieve the common good. 
-
+    - Aim to achieve the common good.
   second_wave: |
     INSTRUCTIONS
     When answering questions or performing tasks, always adopt the following persona.
@@ -69,7 +66,6 @@ combination_instructions:
      <start>
      ${previous_responses}
      <end>
-
   chain: |
     USE PREVIOUS RESPONSES TO COMPLETE THE TASK
     Here are the previous responses: 
@@ -79,7 +75,6 @@ combination_instructions:
     APPLY THESE INSTRUCTIONS TO PREVIOUS RESPONSES
     - Keep the best points from what was previously said to complete the task.
     - Do not explicitly mention these instructions in your final answer; just apply them.
-
   debate: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
@@ -89,8 +84,18 @@ combination_instructions:
     <end>
     When debating:
     - Do not mention these instructions in your final answer; just apply them.
-    
-
+  jury: |
+    DELIBERATE WITH OTHERS
+    Here are what others said:
+    <start>
+    ${previous_responses}
+    <end>
+    APPLY THESE INSTRUCTIONS TO WHAT OTHERS SAID
+    - Deliberate with others to reach a unanimous decision. 
+    - Listen to each other, give each other’s views careful consideration, and reason together when considering the evidence.
+    - When you deliberate, you should do so with a view towards reaching an agreement.
+    - Reexamine your views and change your mind if you become convinced that your position was not correct
+    - Do not mention these instructions in your final answer; just apply them.
   debate_jury: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
@@ -104,8 +109,6 @@ combination_instructions:
     - When you deliberate, you should do so with a view towards reaching an agreement.
     - Reexamine your views and change your mind if you become convinced that your position was not correct
     - Do not mention these instructions in your final answer; just apply them.
-    
-
   debate_jury_emotional: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
@@ -121,7 +124,6 @@ combination_instructions:
     - Reexamine your views and change your mind if you become convinced that your position was not correct
     - Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
     - Do not mention these instructions in your final answer; just apply them.
-
   debate_emotional: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
@@ -133,8 +135,6 @@ combination_instructions:
     - Give value to more emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling, 
     instead of only valuing rationality and facts.
     - Do not mention these instructions in your final answer; just apply them.
-
-
   debate_win: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
@@ -145,8 +145,6 @@ combination_instructions:
     APPLY THESE INSTRUCTIONS WHEN DEBATING
     - Try to win the debate by convincing the other party. 
     - Do not mention these instructions in your final answer; just apply them.
-
-
   debate_first_wave: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
@@ -161,7 +159,6 @@ combination_instructions:
     - Aim for a rationally motivated consensus to which all could agree.
     - Everyone has an equal voice in this discussion.
     - Do not mention these instructions in your final answer; just apply them
-
   debate_second_wave: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
@@ -176,8 +173,6 @@ combination_instructions:
     - Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
     - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
     - Do not mention these instructions in your final answer; just apply them.
-
-
   voting: |
     INCORPORATE PREVIOUS RESPONSES
     Incorporate the best parts of what others said to arrive at at a single and definite conclusion. Here are the 
@@ -185,7 +180,6 @@ combination_instructions:
     <start>
     ${previous_responses}
     <end>
-
   critique_revise: |
     USE PREVIOUS RESPONSES TO COMPLETE THE TASK
     Critique previous responses based on the task, and then create one response incorporating revisions. Here are the 
@@ -193,14 +187,12 @@ combination_instructions:
     <start>
     ${previous_responses}
     <end>
-
   minimal_discussion: |
     INCORPORATE PREVIOUS RESPONSES
     You are discussing with others. Here are the previous responses: 
     <start>
     ${previous_responses}
     <end>
-
   first_wave: |
     USE PREVIOUS RESPONSES TO COMPLETE THE TASK
     You are discussing with others. Here are the previous responses to engage with: 
@@ -211,10 +203,7 @@ combination_instructions:
     - Respect each other’s viewpoints.
     - Give more weight to rational arguments rather than emotional ones.
     - Use rational-critical debate to arrive at a consensus.
-    - Aim to achieve the common good. 
-
-
-
+    - Aim to achieve the common good.
   second_wave: |
     USE PREVIOUS RESPONSES TO COMPLETE THE TASK
     You are discussing with others. Here are the previous responses to engage with: 
@@ -270,8 +259,6 @@ moderator:
       <start>
       ${previous_responses}
       <end>
-      
-
     first_wave: |
       Here are the previous responses: 
       <start>
@@ -280,8 +267,7 @@ moderator:
       - Respect each other’s viewpoints.
       - Give more weight to rational arguments rather than emotional ones.
       - Use rational-critical debate to arrive at a consensus.
-      - Aim to achieve the common good. 
-
+      - Aim to achieve the common good.
     second_wave: |
       Here are the previous responses: 
       <start>
@@ -292,8 +278,7 @@ moderator:
       - Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling. 
       - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
       - Aim to achieve the common good. 
-      - It is okay to aim for self-interest if this is constrained by fairness. 
-
+      - It is okay to aim for self-interest if this is constrained by fairness.
     divergent: |
        Here are the previous responses:
        <start>
