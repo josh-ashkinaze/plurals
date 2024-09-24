@@ -12,7 +12,7 @@ Moderators are a subclass of Agents who summarize multi-agent deliberation. Any 
 
 - **Model:** Moderators are initialized to be a particular LLM.
 
-Setting a Moderator’s System Instructions
+Setting a Moderator’s system instructions
 -----------------------------------------
 
 Via personas
@@ -60,7 +60,7 @@ templates, so you cannot access any pre-defined moderator instructions
 when using ``system_instructions``. ``system_instructions='default'``
 will not access the default template like ``persona='default'`` would.
 
-Auto-Moderators
+Auto-moderators
 ~~~~~~~~~~~~~~~
 
 We have a special option where, if the ``system_instructions`` of a
