@@ -1,5 +1,5 @@
 Welcome to Plurals docs!
-===================================
+========================
 
 .. image:: https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/figure1.png
    :alt: System diagram
@@ -7,15 +7,18 @@ Welcome to Plurals docs!
 There are essentially two parts to this documentation. The first is a set of tutorials, which includes a bunch of examples.
 And the second is the lower-level API documentation.
 
-Because we very recently released this package, there may be: (1) things you would like to be more clearly documented or (2)
-things you want to do but this cannot do. We have issue templates for feature requests and documentation requests `here <https://github.com/josh-ashkinaze/plurals/issues/new/choose>`_.
-
+Contents
+--------
 
 .. toctree::
    :caption: Tutorials
    :maxdepth: 2
 
-   tutorial
+   tutorial_1_core
+   tutorial_2_quick_start
+   tutorial_3_agents
+   tutorial_4_structures
+   tutorial_5_moderators
 
 .. toctree::
    :caption: API Documentation
@@ -28,5 +31,5 @@ things you want to do but this cannot do. We have issue templates for feature re
 Indices and tables
 ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
+* `Index <genindex.html>`_
+* `Module Index <py-modindex.html>`_
