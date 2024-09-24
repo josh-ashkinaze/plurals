@@ -182,6 +182,6 @@ See paper for more details.
 - **Persuasive messaging**: Use many LLMs to collaboratively brainstorm and refine persuasive messaging strategies for different audiences. Experiment with the idea of `simulated focus groups`.
 
 - **Decision augmentation**: Enhance human decision-making by providing perspectives and information synthesized from multiple agents.
-- 
+
 - **Hypothesis generation**: Use different AI perspectives to generate novel hypotheses or research questions (optionally combined with RAG)
 
