@@ -22,7 +22,7 @@
 **Documentation 📋** [(Click here!)](https://josh-ashkinaze.github.io/plurals/)
 
 
-# Cite
+# Cite ℹ️
 Paper coming soon. For now, please cite this package as [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12750674.svg)](https://doi.org/10.5281/zenodo.12750674):
 
 _Bibtex:_
@@ -45,7 +45,7 @@ Ashkinaze, J., Fry, E., Edra, N., Budak, C., & Gilbert, E. (2024). Plurals. Zeno
 
 
 
-# Overview
+# Overview 🌌
 <img src="assets/figure1.png" alt="System Diagram" width="100%">
 
 Plurals is an end-to-end generator of simulated social ensembles. (1) **Agents** complete tasks within (2) **Structures**, with communication optionally summarized by (3) **Moderators**. Plurals integrates with government datasets (1a) and templates, some inspired by democratic deliberation theory (1b). 
@@ -53,11 +53,11 @@ Plurals is an end-to-end generator of simulated social ensembles. (1) **Agents**
 The building block is Agents, which are large language models (LLMs) that have system instructions and tasks. System instructions can be generated from user input, government datasets (American National Election Studies; ANES), or persona templates. Agents exist within Structures, which define what information is shared. Combination instructions tell Agents how to combine the responses of other Agents when deliberating in the Structure. Users can customize an Agent's combination instructions or use existing templates drawn from deliberation literature and beyond. Moderators aggregate responses from multi-agent deliberation.
 
 
-# Detailed Documentation
+# Detailed Documentation 📋
 
 https://josh-ashkinaze.github.io/plurals/
 
-# Quick Start 
+# Quick Start ⚡
 
 ## Installation
 
@@ -156,14 +156,14 @@ print(story_dag.final_response)
 
 
 
-# Report An Issue or Feature
+# Report An Issue or Feature 📝
 
 Plurals is run by a small and energetic team of academics doing the best they can [1]. To report bugs or feature requests, open a GitHub issue. We strongly encourage you to use our Bug or Feature Request issue templates; these make it easy for us to respond effectively to the issue. If you have any questions or want to collaborate on this project, please email jashkina@umich.edu. 
 
 [1] Language adopted from (https://github.com/davidjurgens/potato). 
 
 
-# Some Potential Uses
+# Some Potential Uses 🔨🔭🔦✂️
 
 
 - Persona-based experiments (Ex: Create a panel of nationally representative personas)
