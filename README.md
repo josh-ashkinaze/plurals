@@ -3,21 +3,24 @@
 
 # Plurals: a Package for Simulated Social Ensembles
     
-_Package Stats_
+**Package Stats**
 
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/plurals)
 ![GitHub last commit](https://img.shields.io/github/last-commit/josh-ashkinaze/plurals)
 ![GitHub Created At](https://img.shields.io/github/created-at/josh-ashkinaze/plurals)
 
-_Package Build (Tests/Doc Creation/PyPi Releases)_
+**Package Build (Tests/Doc Creation/PyPi Releases)**
 
 [![Build](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml)
 [![Push to pypy](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml)
 ![PyPI](https://img.shields.io/pypi/v/plurals)
 
-_Package Citation_
+**Package Citation**
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12750674.svg)](https://doi.org/10.5281/zenodo.12750674)
+
+**Documentation 📋** [(Click here!)](https://josh-ashkinaze.github.io/plurals/)
+
 
 # Cite
 Paper coming soon. For now, please cite this package as [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12750674.svg)](https://doi.org/10.5281/zenodo.12750674):
