@@ -303,7 +303,7 @@ If you make ``persona=='random'`` then we will randomly sample a row from ANES a
    task = "Write a paragraph about the importance of the environment to America."
    agent = Agent(persona='random', model='gpt-4o', task=task)
 
-ANES Option 3: Searching ANES using a pandas query string
+ANES Option 3: Searching ANES using a Pandas query string
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you want to get more specific, you can pass in a query string that will be used to filter the ANES dataset. Now, you may not know the exact variables in ANES, so we have a helper function that will print out the demographic/political columns we are using so you know what values to pass in.
@@ -367,7 +367,7 @@ on more than just ideology and state.
    the south. You live in a small town. You live in the state of west virginia.
 
 
-Using Different LLM Models
+Using different LLMs
 ---------------------------------------------------
 
 Plurals supports various LLMs by using LiteLLM to make API calls. Agents also support LiteLLM's ``kwargs`` arguments

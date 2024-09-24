@@ -324,10 +324,10 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-anes-for-nationally-representative-personas">Using ANES for nationally representative personas</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-1-ideology-initializer">ANES Option 1: <code class="docutils literal notranslate"><span class="pre">ideology</span></code> initializer</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-2-random-sampling">ANES Option 2: Random sampling</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-3-searching-anes-using-a-pandas-query-string">ANES Option 3: Searching ANES using a pandas query string</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-3-searching-anes-using-a-pandas-query-string">ANES Option 3: Searching ANES using a Pandas query string</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-different-llm-models">Using Different LLM Models</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-different-llms">Using different LLMs</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-exact-prompts-that-an-agent-is-doing">Inspecting the exact prompts that an Agent is doing</a></li>
 </ul>
             </nav>
@@ -598,7 +598,7 @@ respect for the land that has been passed down through generations.
 </div>
 </section>
 <section id="anes-option-3-searching-anes-using-a-pandas-query-string">
-<h3>ANES Option 3: Searching ANES using a pandas query string<a class="headerlink" href="#anes-option-3-searching-anes-using-a-pandas-query-string" title="Link to this heading">#</a></h3>
+<h3>ANES Option 3: Searching ANES using a Pandas query string<a class="headerlink" href="#anes-option-3-searching-anes-using-a-pandas-query-string" title="Link to this heading">#</a></h3>
 <p>If you want to get more specific, you can pass in a query string that will be used to filter the ANES dataset. Now, you may not know the exact variables in ANES, so we have a helper function that will print out the demographic/political columns we are using so you know what values to pass in.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.helpers</span> <span class="kn">import</span> <span class="n">print_anes_mapping</span>
 
@@ -649,8 +649,8 @@ the south. You live in a small town. You live in the state of west virginia.
 </div>
 </section>
 </section>
-<section id="using-different-llm-models">
-<h2>Using Different LLM Models<a class="headerlink" href="#using-different-llm-models" title="Link to this heading">#</a></h2>
+<section id="using-different-llms">
+<h2>Using different LLMs<a class="headerlink" href="#using-different-llms" title="Link to this heading">#</a></h2>
 <p>Plurals supports various LLMs by using LiteLLM to make API calls. Agents also support LiteLLM’s <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> arguments
 so you can (e.g) pass in a temperature or max tokens. Here are some examples of using different models:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
@@ -741,10 +741,10 @@ so you can (e.g) pass in a temperature or max tokens. Here are some examples of 
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-anes-for-nationally-representative-personas">Using ANES for nationally representative personas</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-1-ideology-initializer">ANES Option 1: <code class="docutils literal notranslate"><span class="pre">ideology</span></code> initializer</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-2-random-sampling">ANES Option 2: Random sampling</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-3-searching-anes-using-a-pandas-query-string">ANES Option 3: Searching ANES using a pandas query string</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-3-searching-anes-using-a-pandas-query-string">ANES Option 3: Searching ANES using a Pandas query string</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-different-llm-models">Using Different LLM Models</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-different-llms">Using different LLMs</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-exact-prompts-that-an-agent-is-doing">Inspecting the exact prompts that an Agent is doing</a></li>
 </ul>
   </nav></div>

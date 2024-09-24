@@ -18,7 +18,7 @@ Every Structure can be moderated, which means that a Moderator Agent will overse
 Structures will return ``responses`` as a list or you can access the final response by calling the ``final_response`` attribute.
 
 
-Combination Instructions
+Combination instructions
 ------------------------
 
 
