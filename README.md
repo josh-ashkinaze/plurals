@@ -52,6 +52,7 @@ Plurals is an end-to-end generator of simulated social ensembles. (1) **Agents**
 
 The building block is Agents, which are large language models (LLMs) that have system instructions and tasks. System instructions can be generated from user input, government datasets (American National Election Studies; ANES), or persona templates. Agents exist within Structures, which define what information is shared. Combination instructions tell Agents how to combine the responses of other Agents when deliberating in the Structure. Users can customize an Agent's combination instructions or use existing templates drawn from deliberation literature and beyond. Moderators aggregate responses from multi-agent deliberation.
 
+Plurals includes support for multiple information-sharing structures (e.g., chains, graphs, debates, ensembles) and [templates](https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml) for customizing LLM deliberation within these.
 
 # Detailed Documentation 📋
 
