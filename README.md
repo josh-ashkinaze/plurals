@@ -164,24 +164,24 @@ Plurals is run by a small and energetic team of academics doing the best they ca
 
 
 # Some Potential Uses
+See paper for more details. 
 
 
-- **Persona-based experiments**: Quickly create agents with diverse personas, optionally using ANES for fast, nationally representative samples. Ex: Create a panel of 100 nationally representative personas and process a prompt in parallel with just two lines of code.
+- **Persona-based experiments**: Quickly create agents with diverse personas, optionally using ANES for nationally representative personas. Ex: Create a panel of nationally representative personas and process a prompt in parallel with just two lines of code.
 
-- **Deliberation structure experiments**: Generate various multi-agent interactions like ensembles, debates, graphs, or chains of LLM deliberation in just a few lines of code. Test how different information-sharing structures affect outcomes.
+- **Deliberation structure experiments**: Generate different multi-agent interactions like ensembles, debates, graphs, or chains to see optimal information-sharing structures.
 
-- **Deliberation instruction experiments**: Experiment with providing LLMs different instructions for optimally combining information. Compare outcomes across various deliberation protocols.
+- **Deliberation instruction experiments**: Experiment with providing LLMs different combination instructions for optimally combining information. 
 
-- **Curation and moderation**: Use Moderator LLMs to filter and select the best outputs from LLMs.
+- **ABMs**: Use Plurals as the basis for agent-based models (e.g: understanding contagion in AI networks)
 
-- **Persuasive messaging**: Use many LLMs to collaboratively brainstorm and refine persuasive messaging strategies for different audiences.
+- **Curation**: To what extent can Moderator LLMs filter and select the best outputs from other LLMs?
 
-- **Decision augmentation**: Enhance human decision-making by providing additional perspectives and information synthesized from multiple AI agents.
+- **Steerable guardrails**: Implement steerable guardrails through LLM deliberation.
 
-- **Ethical guardrails**: Implement customizable ethical checks by having diverse AI agents evaluate potential actions or outputs.
+- **Persuasive messaging**: Use many LLMs to collaboratively brainstorm and refine persuasive messaging strategies for different audiences. Experiment with the idea of `simulated focus groups`.
 
-- **Simulated focus groups**: Create and run simulated focus groups.
+- **Decision augmentation**: Enhance human decision-making by providing perspectives and information synthesized from multiple agents.
+- 
+- **Hypothesis generation**: Use different AI perspectives to generate novel hypotheses or research questions (optionally combined with RAG)
 
-- **Hypothesis generation**: Use diverse AI perspectives to generate novel hypotheses or research questions in various fields.
-
-- **Creative ideation**: Leverage multiple AI agents with different expertise or viewpoints to generate innovative ideas for various applications.
