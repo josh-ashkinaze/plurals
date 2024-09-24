@@ -109,21 +109,6 @@ combination_instructions:
     - When you deliberate, you should do so with a view towards reaching an agreement.
     - Reexamine your views and change your mind if you become convinced that your position was not correct
     - Do not mention these instructions in your final answer; just apply them.
-  debate_jury_emotional: |
-    KEEP TRACK OF DEBATE HISTORY
-    You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
-    refer to yourself in the third person.
-    <start>
-    ${previous_responses}
-    <end>
-    APPLY THESE INSTRUCTIONS WHEN DEBATING
-    - Deliberate with others to reach a unanimous decision. 
-    - Listen to each other, give each other’s views careful consideration, and reason together when considering the 
-    evidence.
-    - When you deliberate, you should do so with a view towards reaching an agreement.
-    - Reexamine your views and change your mind if you become convinced that your position was not correct
-    - Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
-    - Do not mention these instructions in your final answer; just apply them.
   debate_emotional: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
