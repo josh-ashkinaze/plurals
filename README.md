@@ -167,21 +167,21 @@ Plurals is run by a small and energetic team of academics doing the best they ca
 See paper for more details. 
 
 
-- **Persona-based experiments**: Quickly create agents with diverse personas, optionally using ANES for nationally representative personas. Ex: Create a panel of nationally representative personas and process a prompt in parallel with just two lines of code.
+- Persona-based experiments (Ex: Create a panel of nationally representative personas)
 
-- **Deliberation structure experiments**: Generate different multi-agent interactions like ensembles, debates, graphs, or chains to see optimal information-sharing structures.
+- Deliberation structure experiments (What are optimal information-sharing structures?) 
 
-- **Deliberation instruction experiments**: Experiment with providing LLMs different combination instructions for optimally combining information. 
+- Deliberation instruction experiments (What are optimal instructions for combining information?) 
 
-- **ABMs**: Use Plurals as the basis for agent-based models (e.g: understanding contagion in AI networks)
+- Agent-based models (Ex: understanding contagion in AI networks)
 
-- **Curation**: To what extent can Moderator LLMs filter and select the best outputs from other LLMs?
+- Curation (Ex: To what extent can Moderator LLMs filter and select the best outputs from other LLMs?)
 
-- **Steerable guardrails**: Implement steerable guardrails through LLM deliberation.
+- Steerable guardrails (Ex: Can LLM deliberation steer abstensions?)
 
-- **Persuasive messaging**: Use many LLMs to collaboratively brainstorm and refine persuasive messaging strategies for different audiences. Experiment with the idea of `simulated focus groups`.
+- Persuasive messaging (Use many LLMs to collaboratively brainstorm and refine persuasive messaging for different audiences; Experiment with `simulated focus groups`)
 
-- **Decision augmentation**: Enhance human decision-making by providing perspectives and information synthesized from multiple agents.
+- Viewpoint augmentation (Provide varied perspectives and information from multiple agents)
 
-- **Hypothesis generation**: Use different AI perspectives to generate novel hypotheses or research questions (optionally combined with RAG)
+- Creative ideation (e.g., get ideas from multiple LLMs with different perspectives/roles for hypothesis generation, creative ideas, or product design)
 
