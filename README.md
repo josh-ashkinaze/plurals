@@ -164,7 +164,6 @@ Plurals is run by a small and energetic team of academics doing the best they ca
 
 
 # Some Potential Uses
-See paper for more details. 
 
 
 - Persona-based experiments (Ex: Create a panel of nationally representative personas)
