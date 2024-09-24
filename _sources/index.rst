@@ -1,5 +1,5 @@
-Welcome to Plurals docs!
-========================
+Welcome to Plurals documentation!
+=================================
 
 .. image:: https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/figure1.png
    :alt: System diagram
@@ -28,8 +28,8 @@ Contents
    deliberation
    helpers
 
-Indices and tables
-==================
+Indices
+=======
 
 * `Index <genindex.html>`_
 * `Module Index <py-modindex.html>`_
