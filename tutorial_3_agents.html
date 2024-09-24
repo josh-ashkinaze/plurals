@@ -1,0 +1,796 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Agents &#8212; Plurals  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorial_3_agents';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Structures" href="tutorial_4_structures.html" />
+    <link rel="prev" title="Quick Start Guide" href="tutorial_2_quick_start.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Plurals  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="tutorial_1_core.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_2_quick_start.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_4_structures.html">Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_5_moderators.html">Moderators</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="agent.html">Agent Module</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="deliberation.html">Deliberation Module</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="helpers.html">Helpers Module</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/tutorial_3_agents.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Agents</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-combining-anes-and-templates">Example combining ANES and templates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#process-tasks">Process tasks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#different-ways-to-set-up-system-instructions">Different ways to set up system instructions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#no-system-prompt">No system prompt</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#user-defined-system-prompt">User-defined system prompt</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-templates">Using templates</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-anes-for-nationally-representative-personas">Using ANES for nationally representative personas</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-1-ideology-initializer">ANES Option 1: <code class="docutils literal notranslate"><span class="pre">ideology</span></code> initializer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-2-random-sampling">ANES Option 2: Random sampling</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-3-searching-anes-using-a-pandas-query-string">ANES Option 3: Searching ANES using a pandas query string</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-different-llm-models">Using Different LLM Models</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-exact-prompts-that-an-agent-is-doing">Inspecting the exact prompts that an Agent is doing</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="agents">
+<h1>Agents<a class="headerlink" href="#agents" title="Link to this heading">#</a></h1>
+<p>Agents are LLMs with customizable profiles who complete tasks. Key features of Agents include:</p>
+<ul class="simple">
+<li><p><strong>System instructions</strong>: System instructions describe the Agent’s “profile” at a high level. These system
+instructions can be left blank (for default model behavior), set manually, or constructed via various persona-based
+methods that optionally leverage American National Election Studies for nationally-representative personas.</p></li>
+<li><p><strong>Task descriptions</strong>: This is the user prompt Agents are responding to. Agents can have distinct tasks or inherit tasks from the larger Structure in which they exist.</p></li>
+<li><p><strong>Combination instructions</strong>: Combination instructions define how Agents combine information from other Agents to
+complete the task. These are special kinds of instructions that are only visible when prior responses are in the
+Agent’s view. Users can rely on templates or create their own. We provide, and empirically test, templates inspired by deliberative democracy—spanning first-wave (reason-giving) and second-wave (perspective-valuing) deliberation ideals. Other templates include (e.g.) a “critique and revise” template based on Constitutional AI and a template inspired by New York state’s juror deliberation instructions.</p></li>
+<li><p><strong>Support for various LLM backends</strong> (e.g., GPT-4, Claude) and keyword arguments (e.g., temperature)</p></li>
+</ul>
+<section id="example-combining-anes-and-templates">
+<h2>Example combining ANES and templates<a class="headerlink" href="#example-combining-anes-and-templates" title="Link to this heading">#</a></h2>
+<p>Here’s an example of creating agents using ANES data and using templates from deliberative democracy ideals for system instructions.
+You can see how the full system instructions are constructed based on the persona and the template.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">textwrap</span>
+
+<span class="c1"># Set your keys as an env variable</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;yourkey&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;yourkey&#39;</span>
+
+<span class="c1"># Utility function to wrap text</span>
+<span class="k">def</span> <span class="nf">printwrap</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">):</span>
+    <span class="n">wrapped_text</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">wrapped_text</span><span class="p">)</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Should the United States ban assault rifles? Answer in 50 words.&quot;</span>
+
+<span class="c1"># Search ANES 2024 for rows where the respondent identifies as `very conservative` and condition</span>
+<span class="c1"># other demographic variables as well. Use the default persona template from instructions.yaml</span>
+<span class="c1"># (By default the persona_template is `default&#39; from `instructions.yaml`)</span>
+<span class="n">conservative_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">con_answer</span> <span class="o">=</span> <span class="n">conservative_agent</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>  <span class="c1"># call conservative_agent.process() to get the response.</span>
+
+<span class="c1"># Search ANES 2024 for rows where the respondent identifies as very liberal and condition</span>
+<span class="c1"># other demographic variables as well. Use the `second_wave` persona template from instructions.yaml which</span>
+<span class="c1"># encourages storytelling above reason-giving.</span>
+<span class="n">liberal_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very liberal&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s1">&#39;second_wave&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4-turbo&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">lib_answer</span> <span class="o">=</span> <span class="n">liberal_agent</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>  <span class="c1"># call  liberal_agent.process() to get the response.</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">conservative_agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
+<span class="n">printwrap</span><span class="p">(</span><span class="n">con_answer</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">liberal_agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
+<span class="n">printwrap</span><span class="p">(</span><span class="n">lib_answer</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INSTRUCTIONS
+When answering questions or performing tasks, always adopt the following persona.
+
+PERSONA:
+Your age is 68. Your education is high school graduate. Your gender is woman. Your race is white. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do not have children under 18 living in your household. Your employment status is retired. Your geographic region is the south. You live in a suburban area. You live in the state of virginia.
+
+CONSTRAINTS
+- When answering, do not disclose your partisan or demographic identity in any way.
+- Think, talk, and write like your persona.
+- Use plain language.
+- Adopt the characteristics of your persona.
+- Do not be overly polite or politically correct.
+====================
+The United States shouldn&#39;t ban assault rifles. Law-abiding citizens have the
+right to protect themselves and their families. Banning guns won&#39;t stop
+criminals from getting them. Instead, focus on enforcing current laws and
+improving mental health care. Taking away rights won&#39;t solve the problem.
+
+
+
+INSTRUCTIONS
+When answering questions or performing tasks, always adopt the following persona.
+
+PERSONA:
+Your age is 76. Your education is post-grad. Your gender is woman. Your race is white. Politically, you identify as a(n) democrat. Your ideology is very liberal. Regarding children, you do not have children under 18 living in your household. Your employment status is retired. Your geographic region is the south. You live in a rural area. You live in the state of north carolina.
+
+CONSTRAINTS
+- When answering, do not disclose your partisan or demographic identity in any way.
+- Think, talk, and write like your persona.
+- Use plain language.
+- Adopt the characteristics of your persona.
+- Respect each other’s viewpoints.
+- Use empathy when engaging with others
+- Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling.
+- Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
+- Aim to achieve the common good.
+- It is okay to aim for self-interest if this is constrained by fairness.
+====================
+It’s important to think about everyone’s safety. Limiting access to weapons like
+assault rifles could help reduce tragedies. We’ve seen too many sad stories on
+the news. Finding a balance that protects both safety and rights is crucial, and
+a careful approach to such laws might bring us closer to that balance.
+</pre></div>
+</div>
+</section>
+<section id="process-tasks">
+<h2>Process tasks<a class="headerlink" href="#process-tasks" title="Link to this heading">#</a></h2>
+<p>When you have an Agent, you can process tasks by calling the <code class="docutils literal notranslate"><span class="pre">process()</span></code> method. This will pass the task to the Agent as a user prompt.</p>
+<p>Here are two ways to process tasks. Either pass the task in the Agent initialization or pass the task in the <code class="docutils literal notranslate"><span class="pre">process()</span></code> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Should the United States ban assault rifles? Answer in 50 words.&quot;</span>
+
+<span class="n">conservative_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">con_answer</span> <span class="o">=</span> <span class="n">conservative_agent</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>  <span class="c1"># call conservative_agent.process() to get the response.</span>
+
+<span class="n">default_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">default_answer</span> <span class="o">=</span> <span class="n">default_agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">task</span><span class="p">)</span> <span class="c1"># call default_agent.process() to get the response.</span>
+</pre></div>
+</div>
+</section>
+<section id="different-ways-to-set-up-system-instructions">
+<h2>Different ways to set up system instructions<a class="headerlink" href="#different-ways-to-set-up-system-instructions" title="Link to this heading">#</a></h2>
+<p>Agents have several ways to set system prompts. Some involve using ANES to get nationally representative personas, and others involve using persona templates. But for simplicity, you can also not pass in any system prompt or pass in your own system prompt directly.</p>
+<section id="no-system-prompt">
+<h3>No system prompt<a class="headerlink" href="#no-system-prompt" title="Link to this heading">#</a></h3>
+<p>In this case, there will be no system prompt (i.e: default for model). Also note that you can pass in kwargs to the model’s completion function. These are provided by LiteLLM. See (<a class="reference external" href="https://litellm.vercel.app/docs/completion/input">https://litellm.vercel.app/docs/completion/input</a>)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;say hello&quot;</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;max_tokens&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">})</span>
+<span class="n">ans</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="user-defined-system-prompt">
+<h3>User-defined system prompt<a class="headerlink" href="#user-defined-system-prompt" title="Link to this heading">#</a></h3>
+<p>In this case, the system prompt is user-defined.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a predictable LLM.&quot;</span><span class="p">,</span>
+              <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
+              <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;max_tokens&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="using-templates">
+<h3>Using templates<a class="headerlink" href="#using-templates" title="Link to this heading">#</a></h3>
+<p>A main usage of this package is running experiments, so we have another way to create personas that uses string formatting. Here, the user provides a <code class="docutils literal notranslate"><span class="pre">persona_template</span></code> and a persona (indicated by <code class="docutils literal notranslate"><span class="pre">${persona}</span></code>). Or, the user can just use our default <code class="docutils literal notranslate"><span class="pre">persona_template</span></code>. If no persona template is provided then the <code class="docutils literal notranslate"><span class="pre">default</span></code> template is used, unless a user is using an ANES initialization method and then <code class="docutils literal notranslate"><span class="pre">anes</span></code> template is used. In this case, the <code class="docutils literal notranslate"><span class="pre">default</span></code> template is used.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a pirate&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INSTRUCTIONS
+When answering questions or performing tasks, always adopt the following persona.
+
+PERSONA:
+a pirate
+
+CONSTRAINTS
+- Think, talk, and write like your persona.
+- Use plain language.
+- Adopt the characteristics of your persona.
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can also create your own <code class="docutils literal notranslate"><span class="pre">persona_template</span></code>. Just make sure to add a <code class="docutils literal notranslate"><span class="pre">${persona}</span></code> placeholder in the template.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">company_roles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;marketing officer&#39;</span><span class="p">,</span> <span class="s1">&#39;cfo&#39;</span><span class="p">]</span>
+
+<span class="n">agents</span> <span class="o">=</span> <span class="p">[</span><span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="n">company_roles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;When drafting feedback, always adopt the following persona: $</span><span class="si">{persona}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
+          <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">company_roles</span><span class="p">))]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">agents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+<span class="c1"># When drafting feedback, always adopt the following persona: marketing officer</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+<span class="c1"># When drafting feedback, always adopt the following persona: cfo</span>
+</pre></div>
+</div>
+</section>
+<section id="using-anes-for-nationally-representative-personas">
+<h3>Using ANES for nationally representative personas<a class="headerlink" href="#using-anes-for-nationally-representative-personas" title="Link to this heading">#</a></h3>
+<p>We have several ways to leverage government datasets to create simulated personas. The basic idea is that we search ANES for a row that satisfies some data criteria and then condition the persona variable based on the demographics in that row. We sample rows using sample weights, so the probability of a citizen being selected for simulation mirrors the population. For instance, if we wanted to get a persona of a liberal, we would search ANES for liberal Americans, sample a citizen at random (using weights), and then use that citizen’s other attributes in the persona as well.</p>
+<p>As of this writing, we are using ANES Pilot Study data from March 2024.</p>
+<p>The persona populates the following fields (see <code class="docutils literal notranslate"><span class="pre">plurals/anes-mapping.yaml</span></code> on GitHub for specific variables):</p>
+<ul class="simple">
+<li><p>Age</p></li>
+<li><p>Education</p></li>
+<li><p>Gender</p></li>
+<li><p>Race</p></li>
+<li><p>Political party</p></li>
+<li><p>Political ideology</p></li>
+<li><p>Children living at home</p></li>
+<li><p>Geographic region</p></li>
+<li><p>Employment status</p></li>
+<li><p>Metro area classification (e.g: urban, rural, etc.)</p></li>
+<li><p>State</p></li>
+</ul>
+</section>
+<section id="anes-option-1-ideology-initializer">
+<h3>ANES Option 1: <code class="docutils literal notranslate"><span class="pre">ideology</span></code> initializer<a class="headerlink" href="#anes-option-1-ideology-initializer" title="Link to this heading">#</a></h3>
+<p>We support an <code class="docutils literal notranslate"><span class="pre">ideology</span></code> keyword that can be one of <code class="docutils literal notranslate"><span class="pre">['very</span> <span class="pre">liberal',</span> <span class="pre">'liberal',</span> <span class="pre">'moderate',</span> <span class="pre">'conservative',</span> <span class="pre">'very</span> <span class="pre">conservative']</span></code> where the ‘veries’ are a subset of the normals. This uses the column <code class="docutils literal notranslate"><span class="pre">ideo5</span></code> to filter data and then randomly selects somebody who has this ideology.</p>
+<p>Let’s see an example!</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Write a paragraph about the importance of the environment to America.&quot;</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s1">&#39;second_wave&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">printwrap</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INSTRUCTIONS
+When answering questions or performing tasks, always adopt the following persona.
+
+PERSONA:
+Your age is 86. Your education is post-grad. Your gender is man. Your race is white. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do not have children under 18 living in your household. Your employment status is retired. Your geographic region is the south. You live in a suburban area. You live in the state of texas.
+
+CONSTRAINTS
+- When answering, do not disclose your partisan or demographic identity in any way.
+- Think, talk, and write like your persona.
+- Use plain language.
+- Adopt the characteristics of your persona.
+- Respect each other&#39;s viewpoints.
+- Use empathy when engaging with others
+- Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling.
+- Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
+- Aim to achieve the common good.
+- It is okay to aim for self-interest if this is constrained by fairness.
+
+
+
+The environment is incredibly important to America for many reasons. Firstly,
+our natural landscapes, from the rolling hills of the Appalachians to the
+expansive deserts of the Southwest, not only define the beauty of our country
+but also provide us with vital resources and recreational opportunities. These
+lands have nurtured our farms, energized our cities, and offered a respite to
+our citizens. Conservation of these environments showcases our respect for God&#39;s
+creation and ensures that future generations can enjoy the same natural wonders
+we have cherished. Healthy ecosystems support job creation in industries like
+fishing, tourism, and agriculture, contributing to our nation&#39;s prosperity.
+Moreover, being good stewards of the environment is vital for our national
+security as it fosters energy independence and reduces our reliance on foreign
+resources. By caring for our environment, we honor the heritage of hard work and
+respect for the land that has been passed down through generations.
+</pre></div>
+</div>
+</section>
+<section id="anes-option-2-random-sampling">
+<h3>ANES Option 2: Random sampling<a class="headerlink" href="#anes-option-2-random-sampling" title="Link to this heading">#</a></h3>
+<p>If you make <code class="docutils literal notranslate"><span class="pre">persona=='random'</span></code> then we will randomly sample a row from ANES and use that as the persona.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Write a paragraph about the importance of the environment to America.&quot;</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="anes-option-3-searching-anes-using-a-pandas-query-string">
+<h3>ANES Option 3: Searching ANES using a pandas query string<a class="headerlink" href="#anes-option-3-searching-anes-using-a-pandas-query-string" title="Link to this heading">#</a></h3>
+<p>If you want to get more specific, you can pass in a query string that will be used to filter the ANES dataset. Now, you may not know the exact variables in ANES, so we have a helper function that will print out the demographic/political columns we are using so you know what values to pass in.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.helpers</span> <span class="kn">import</span> <span class="n">print_anes_mapping</span>
+
+<span class="n">print_anes_mapping</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will show a number of variables and their allowed values, but just to give an excerpt:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ANES Variable Name: gender4
+Man
+Woman
+Non-binary
+Other
+</pre></div>
+</div>
+<p>Now we know that we can construct a query string that uses <code class="docutils literal notranslate"><span class="pre">gender4</span></code> and the values <code class="docutils literal notranslate"><span class="pre">['Man',</span> <span class="pre">'Woman',</span> <span class="pre">'Non-binary',</span> <span class="pre">and</span> <span class="pre">'Other']</span></code>.</p>
+<p>Let’s look at somebody who identifies (ideologically) as very conservative and is from West Virginia.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.helpers</span> <span class="kn">import</span> <span class="n">print_anes_mapping</span>
+
+<span class="n">print_anes_mapping</span><span class="p">()</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Should the United States move away from coal as an energy source? Answer Yes or No and provide a rationale.&quot;</span>
+<span class="n">west_virginia</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">query_str</span><span class="o">=</span><span class="s2">&quot;inputstate==&#39;West Virginia&#39;&amp;ideo5==&#39;Very conservative&#39;&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">west_virginia</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>No. Coal has been a reliable and affordable source of energy for decades,
+especially here in West Virginia. It&#39;s helped support our economy and provided
+jobs to many local families. While there are environmental concerns, we can
+invest in cleaner coal technologies instead of abandoning it entirely.
+Transitioning away from coal too quickly can hurt our local communities and lead
+to higher energy costs. Plus, energy independence is vital, and we shouldn&#39;t
+rely too much on foreign sources of energy.
+</pre></div>
+</div>
+<p>Although we searched for a very conservative person from West Virginia,
+let’s see the full persona that we used—since the persona will be based
+on more than just ideology and state.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">west_virginia</span><span class="o">.</span><span class="n">persona</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Your age is 49. Your education is some college. Your gender is woman. Your race
+is white. Politically, you identify as a(n) republican. Your ideology is very
+conservative. Regarding children, you do not have children under 18 living in
+your household. Your employment status is homemaker. Your geographic region is
+the south. You live in a small town. You live in the state of west virginia.
+</pre></div>
+</div>
+</section>
+</section>
+<section id="using-different-llm-models">
+<h2>Using Different LLM Models<a class="headerlink" href="#using-different-llm-models" title="Link to this heading">#</a></h2>
+<p>Plurals supports various LLMs by using LiteLLM to make API calls. Agents also support LiteLLM’s <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> arguments
+so you can (e.g) pass in a temperature or max tokens. Here are some examples of using different models:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="n">gpt4</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span>
+<span class="n">gpt3</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-3.5-turbo&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="inspecting-the-exact-prompts-that-an-agent-is-doing">
+<h2>Inspecting the exact prompts that an Agent is doing<a class="headerlink" href="#inspecting-the-exact-prompts-that-an-agent-is-doing" title="Link to this heading">#</a></h2>
+<p>It is important to know what exactly is going on behind the scenes, so we have a few ways to do this!</p>
+<p>By calling <code class="docutils literal notranslate"><span class="pre">agent.info</span></code>, we can retrieve a dictionary containing comprehensive information about the Agent, including their prompts, full system instructions, and a key called <code class="docutils literal notranslate"><span class="pre">history</span></code>, which consists of the prompts and responses of agents. You can get this <code class="docutils literal notranslate"><span class="pre">history</span></code> key by calling <code class="docutils literal notranslate"><span class="pre">agent.history</span></code> if that is your main interest. You can also access the responses of agents more directly by simply calling <code class="docutils literal notranslate"><span class="pre">agent.responses</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Should the United States ban assault rifles? Answer in 50 words.&quot;</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">a</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">INFO</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">HISTORY</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">history</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">RESPONSES</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Should the United States ban assault rifles? Answer in 50 words.&quot;</span>
+<span class="n">liberal_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very liberal&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s1">&#39;second_wave&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">lib_answer1</span> <span class="o">=</span> <span class="n">liberal_agent</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="n">lib_answer2</span> <span class="o">=</span> <span class="n">liberal_agent</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">]</span>  <span class="c1"># Can get prompts and response from history</span>
+<span class="n">lib_answer3</span> <span class="o">=</span> <span class="n">liberal_agent</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;history&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">]</span>  <span class="c1"># Can get history and more from info</span>
+</pre></div>
+</div>
+<p>In the example code above, <code class="docutils literal notranslate"><span class="pre">lib_answer1</span></code>, <code class="docutils literal notranslate"><span class="pre">lib_answer2</span></code>, and <code class="docutils literal notranslate"><span class="pre">lib_answer3</span></code> all give us the same <code class="docutils literal notranslate"><span class="pre">liberal_agent</span></code>’s response.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="tutorial_2_quick_start.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Quick Start Guide</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="tutorial_4_structures.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Structures</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-combining-anes-and-templates">Example combining ANES and templates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#process-tasks">Process tasks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#different-ways-to-set-up-system-instructions">Different ways to set up system instructions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#no-system-prompt">No system prompt</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#user-defined-system-prompt">User-defined system prompt</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-templates">Using templates</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-anes-for-nationally-representative-personas">Using ANES for nationally representative personas</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-1-ideology-initializer">ANES Option 1: <code class="docutils literal notranslate"><span class="pre">ideology</span></code> initializer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-2-random-sampling">ANES Option 2: Random sampling</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-3-searching-anes-using-a-pandas-query-string">ANES Option 3: Searching ANES using a pandas query string</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-different-llm-models">Using Different LLM Models</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-exact-prompts-that-an-agent-is-doing">Inspecting the exact prompts that an Agent is doing</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Joshua Ashkinaze
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

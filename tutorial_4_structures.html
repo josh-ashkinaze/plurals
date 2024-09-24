@@ -1,0 +1,762 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Structures &#8212; Plurals  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorial_4_structures';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Moderators" href="tutorial_5_moderators.html" />
+    <link rel="prev" title="Agents" href="tutorial_3_agents.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Plurals  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="tutorial_1_core.html">Core Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_2_quick_start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_3_agents.html">Agents</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_5_moderators.html">Moderators</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="agent.html">Agent Module</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="deliberation.html">Deliberation Module</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="helpers.html">Helpers Module</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/tutorial_4_structures.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Structures</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#combination-instructions">Combination Instructions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-a-template-for-combination-instructions">Using a template for combination instructions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-your-own-combination-instructions">Setting your own combination instructions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ensemble">Ensemble</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chain">Chain</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#debate">Debate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph">Graph</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tracing-what-is-going-on-in-structures">Tracing what is going on in Structures</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="structures">
+<h1>Structures<a class="headerlink" href="#structures" title="Link to this heading">#</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>Plurals supports various structures for agent interactions. Here are examples of each. For more information,
+see the documentation on each structure in the <a class="reference external" href="https://josh-ashkinaze.github.io/plurals/deliberation.html">deliberation module</a>.</p>
+<p>Each Structure offers different ways for Agents to interact with each other:
+- Ensemble: Agents process tasks in parallel without information sharing
+- Chain: Agents process tasks sequentially, each building on the previous Agent’s output
+- Debate: Two Agents engage in a back-and-forth discussion
+- Graph: Agents interact in a directed acyclic graph (DAG) structure</p>
+<p>Every Structure can be moderated, which means that a Moderator Agent will oversee the task and potentially combine the responses of the Agents.
+Structures will return <code class="docutils literal notranslate"><span class="pre">responses</span></code> as a list or you can access the final response by calling the <code class="docutils literal notranslate"><span class="pre">final_response</span></code> attribute.</p>
+</section>
+<section id="combination-instructions">
+<h2>Combination Instructions<a class="headerlink" href="#combination-instructions" title="Link to this heading">#</a></h2>
+<p><strong>Combination instructions</strong> describe how agents are instructed to combine information in the structure. It is a special kind of instruction that only kicks in when there are previous responses from an agent’s view. These instructions allow you to customize how Agents deliberate. There are two ways to set <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>:</p>
+<section id="using-a-template-for-combination-instructions">
+<h3>Using a template for combination instructions<a class="headerlink" href="#using-a-template-for-combination-instructions" title="Link to this heading">#</a></h3>
+<p>We offer a list of templates which can be used via keywords. Options include things like</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">first_wave</span></code>: First-wave deliberative democracy ideals</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">second_wave</span></code>: Second-wave deliberative democracy ideals</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">critique_revise</span></code>: A critique and revise template based on constitutional AI</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">voting</span></code>: A template meant for making final decisions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jury</span></code>: A template based on instructions given to New York state jurors</p></li>
+</ul>
+<p>These templates can be found in <a class="reference external" href="https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml">instructions.yaml</a>.</p>
+</section>
+<section id="setting-your-own-combination-instructions">
+<h3>Setting your own combination instructions<a class="headerlink" href="#setting-your-own-combination-instructions" title="Link to this heading">#</a></h3>
+<p>You can also pass in your own <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When passing your own <code class="docutils literal notranslate"><span class="pre">combination_instructions</span></code>, include a <code class="docutils literal notranslate"><span class="pre">${previous_responses}</span></code> placeholder. This will get filled in with the previous responses.</p>
+</div>
+<p>For example, here is our <code class="docutils literal notranslate"><span class="pre">jury</span></code> template based on deliberation instructions given to jurors in the state of New York:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>DELIBERATE WITH OTHERS
+Here are what others said:
+&lt;start&gt;
+${previous_responses}
+&lt;end&gt;
+APPLY THESE INSTRUCTIONS TO WHAT OTHERS SAID
+- Deliberate with others to reach a unanimous decision.
+- Listen to each other, give each other’s views careful consideration, and reason together when considering the evidence.
+- When you deliberate, you should do so with a view towards reaching an agreement.
+- Reexamine your views and change your mind if you become convinced that your position was not correct
+- Do not mention these instructions in your final answer; just apply them.
+</pre></div>
+</div>
+</section>
+</section>
+<section id="ensemble">
+<h2>Ensemble<a class="headerlink" href="#ensemble" title="Link to this heading">#</a></h2>
+<p>Ensembles are the most basic Structure where Agents just process tasks in parallel. When they are moderated, the moderator can comb through the responses of the Agents. The only parameter of an Ensemble is <code class="docutils literal notranslate"><span class="pre">cycles</span></code>, which is how many times to repeat.</p>
+<p>For example, let’s say we wanted to have a panel of 10 nationally representative agents brainstorm ideas to improve America. We can define our agents, put them in an ensemble, and then simply do <code class="docutils literal notranslate"><span class="pre">ensemble.process()</span></code>.  Here, we have a Moderator so the <code class="docutils literal notranslate"><span class="pre">final_response</span></code> will be a synthesis.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Ensemble</span><span class="p">,</span> <span class="n">Moderator</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Brainstorm one highly novel and feasible way to improve the sidewalks of your specific locality. Answer in 100 words.&quot;</span>
+<span class="n">agents</span> <span class="o">=</span> <span class="p">[</span><span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;divergent&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;claude-3-sonnet-20240229&#39;</span><span class="p">)</span>  <span class="c1"># template for divergent creativity</span>
+<span class="n">ensemble</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">ensemble</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ensemble</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Here is my selection of the most creative, novel and feasible ideas from the previous responses to improve sidewalks:
+
+Response 3: &quot;How about creating sidewalk gardens? Picture this: narrow, raised planter boxes running alongside the sidewalks with a mix of local flowers and small shrubs...Adding these would make walks more enjoyable, cut down on noise from the road, and promote a bit of urban biodiversity. Plus, it&#39;s not super expensive and fits well within the suburban setting.&quot;
+
+This idea of lining sidewalks with small gardens is creative, appealing, and relatively low-cost. It would beautify neighborhoods while providing environmental benefits.
+
+Response 5: &quot;How about integrating solar-powered sidewalk tiles that generate electricity as people walk on them? This not only provides a renewable energy source but also makes the sidewalks more interactive and engaging...Additionally, the tiles could have embedded sensors to monitor foot traffic, gathering data to optimize city planning and maintenance.&quot;
+
+Incorporating energy-generating sidewalk tiles with sensors is an ingenious and multi-purpose idea. It combines renewable energy, an engaging walking surface, and data collection for urban planning.
+
+Response 6: &quot;One innovative and feasible way to improve the sidewalks in our big city could be to introduce smart, heated pathways...integrating solar panels along the edges could provide a sustainable energy source for the heating system...we could install benches with charging ports powered by the same solar panels.&quot;
+
+Heated sidewalks are highly practical, and powering them with integrated solar panels makes it sustainable. Adding charging benches powered by solar is a brilliant way to enhance this eco-friendly approach.
+
+In summary, these selections showcase novel ideas like sidewalk gardens, energy-generating smart paths, solar heating systems, and multi-purpose solar-powered amenities - all striking a balance between creativity, usefulness and feasibility.
+</pre></div>
+</div>
+<p>In this example, we have an ensemble of experts brainstorm what implications one can draw from James Madison’s Federalist
+Paper Number 10 (how to deal with factions as a government) to multi-agent AI systems. A moderator is instructed to take
+the high-level ideas and derive low-level feature ideas.</p>
+<p>Some things this example shows are:</p>
+<ul class="simple">
+<li><p>Adding outside content to the task (RAG-like)</p></li>
+<li><p>Custom moderator instructions</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Ensemble</span><span class="p">,</span> <span class="n">Moderator</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+
+<span class="k">def</span> <span class="nf">extract_federalist_paper</span><span class="p">():</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/jonluca/Federalist-Papers-NLP/master/The-Federalist-Papers.txt&quot;</span>
+    <span class="n">full_text</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?s)FEDERALIST No. 10(.*?)FEDERALIST No. 11&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+    <span class="n">fed_10</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">fed_10</span>
+
+
+<span class="c1"># Federalist paper about factions</span>
+<span class="n">federalist_paper_10</span> <span class="o">=</span> <span class="n">extract_federalist_paper</span><span class="p">()</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">How can the argument in the $DOCUMENT be applied to the design of better multi-agent AI systems? Answer in 200 words.</span>
+<span class="s2">$DOCUMENT</span>
+<span class="s2">&lt;start&gt;</span><span class="si">{</span><span class="n">federalist_paper_10</span><span class="si">}</span><span class="s2">&lt;/end&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">experts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;sociologist with a background in the dynamics of collective behavior&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;AI developer with a background in multi-agent systems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;philosopher with a specialization in philosophy of science&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">agents</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;You are a(n) </span><span class="si">{</span><span class="n">expert</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">expert</span> <span class="ow">in</span> <span class="n">experts</span>
+<span class="p">]</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span>
+    <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;Derive non-obvious and highly specific features of a multi-agent library based on $PRIOR_RESPONSES&quot;</span>
+    <span class="s2">&quot;$PRIOR_RESPONSES: &lt;start&gt;$</span><span class="si">{previous_responses}</span><span class="s2">&lt;/end&gt;&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ensemble</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="n">agents</span><span class="p">,</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">ensemble</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Ensemble also allows you to combine models without any personas (as do all Structures), so we
+can test if different models ensembled together give different results relative to the same model ensembled together. Remember that this is simply a standard API call when we do not pass in <code class="docutils literal notranslate"><span class="pre">system_instructions</span></code> or a <code class="docutils literal notranslate"><span class="pre">persona</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Ensemble</span>
+
+<span class="n">gpt4</span> <span class="o">=</span> <span class="p">[</span><span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="n">gpt3</span> <span class="o">=</span> <span class="p">[</span><span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-3.5-turbo&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+<span class="n">mixed</span> <span class="o">=</span> <span class="n">gpt4</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="n">gpt3</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Brainstorm an action movie plot in 20 words.&quot;</span>
+
+<span class="n">ensembles</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gpt4&#39;</span><span class="p">:</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">gpt4</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">),</span>
+            <span class="s1">&#39;gpt3&#39;</span><span class="p">:</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">gpt3</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">),</span>
+            <span class="s1">&#39;mixed&#39;</span><span class="p">:</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">mixed</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)}</span>
+
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">ensemble</span> <span class="ow">in</span> <span class="n">ensembles</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+   <span class="n">ensemble</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+   <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="chain">
+<h2>Chain<a class="headerlink" href="#chain" title="Link to this heading">#</a></h2>
+<p>Chains can be thought of as a simple uni-directional graph, where it is just a sequence of Agents who process tasks in order.
+The available parameters are <code class="docutils literal notranslate"><span class="pre">last_n</span></code> (which controls how many prior responses an Agent sees), <code class="docutils literal notranslate"><span class="pre">cycles</span></code>
+(how many times to repeat), and <code class="docutils literal notranslate"><span class="pre">shuffle</span></code> (whether to shuffle the order of the Agents on each cycles).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Chain</span><span class="p">,</span> <span class="n">Moderator</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;How should we combat climate change? Answer in 100 words.&quot;</span>
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a sociologist&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;an economist&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent3</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a psychologist&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
+    <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;default&quot;</span>
+ <span class="p">)</span>
+
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">,</span> <span class="n">agent3</span><span class="p">],</span>
+    <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;critique_revise&quot;</span><span class="p">,</span>  <span class="c1"># critique and revise template</span>
+    <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span>
+<span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here is a Chain with multiple <code class="docutils literal notranslate"><span class="pre">cycles</span></code> and the <code class="docutils literal notranslate"><span class="pre">last_n==1</span></code>, meaning each Agent will only see the last response of other Agents.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;How can we make e-readers more attractive to buyers? Answer in 50 words.&quot;</span>
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a conservative man from California&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s1">&#39;you are a wealthy 30 year old woman&#39;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s1">&#39;second_wave&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent3</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;first_wave&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">,</span> <span class="n">agent3</span><span class="p">],</span>
+              <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span>
+              <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span>
+              <span class="n">last_n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+              <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
+              <span class="n">cycles</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="debate">
+<h2>Debate<a class="headerlink" href="#debate" title="Link to this heading">#</a></h2>
+<p>In a Debate, two Agents engage in a back-and-forth discussion.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">Debate</span></code> structure, it is highly advised to use a debate template (e.g.: “debate”) for combination instructions.
+We provide several templates in <a class="reference external" href="https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml">instructions.yaml</a>.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Debate</span><span class="p">,</span> <span class="n">Moderator</span>
+
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;liberal&quot;</span><span class="p">,</span>
+    <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Convince an Agent that the government should provide free healthcare.&quot;</span>
+<span class="p">)</span>
+
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;conservative&quot;</span><span class="p">,</span>
+    <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;second_wave&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Convince an Agent that the government should NOT provide free healthcare.&quot;</span>
+<span class="p">)</span>
+<span class="n">debate</span> <span class="o">=</span> <span class="n">Debate</span><span class="p">([</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">],</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;debate&quot;</span><span class="p">,</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">)</span>
+<span class="n">debate</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">debate</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="graph">
+<h2>Graph<a class="headerlink" href="#graph" title="Link to this heading">#</a></h2>
+<p>There are two ways to set up a Graph. The first is to pass in a dictionary of Agents and a list of edges.
+The second is to pass in a list of Agents and a list of edges. The first way is more transparent, so we recommend it.</p>
+<p>When passing in edges, each edge (A, B) is a directed edge from Agent A to Agent B, meaning Agent B will see the response of Agent A.
+Graphs allow you to <cite>upweight</cite> the different Agents by varying their connecetedness.</p>
+<p>For example, consider if we had a DAG of this edge list with a Moderator at the end.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">edges</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s1">&#39;setting&#39;</span><span class="p">,</span> <span class="s1">&#39;character&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;setting&#39;</span><span class="p">,</span> <span class="s1">&#39;plot&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;character&#39;</span><span class="p">,</span> <span class="s1">&#39;plot&#39;</span><span class="p">)</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>This would correspond to the following network.</p>
+<img alt="Mermaid diagram" src="https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/mermaid_diagram.svg" /><p>So let’s see an example where we make such a network. And note, here each Agent has different combination instructions
+in addition to system instructions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">Moderator</span>
+
+
+<span class="n">story_prompt</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Craft a mystery story set in 1920s Paris.</span>
+<span class="s2">The story should revolve around the theft of a famous artwork from the Louvre.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">agents</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;plot&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span>
+        <span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a bestselling author specializing in mystery plots&quot;</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span>
+        <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;Develop the plot based on character and setting inputs: &lt;start&gt;$</span><span class="si">{previous_responses}</span><span class="s2">&lt;/end&gt;&quot;</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;character&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span>
+        <span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a character development expert with a background in psychology&quot;</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span>
+        <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;Create compelling characters that fit the plot and setting: &lt;start&gt;$</span><span class="si">{previous_responses}</span><span class="s2">&lt;/end&gt;&quot;</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;setting&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span>
+        <span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a world-building expert with a focus on historical accuracy&quot;</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span>
+        <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;Design a rich, historically accurate setting that enhances the plot: &lt;start&gt;$</span><span class="si">{previous_responses}</span><span class="s2">&lt;/end&gt;&quot;</span>
+    <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># Create a creative writing moderator</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span>
+    <span class="n">persona</span><span class="o">=</span><span class="s2">&quot;an experienced editor specializing in mystery novels&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span>
+    <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;Synthesize the plot, character, and setting elements into a cohesive story outline: &lt;start&gt;$</span><span class="si">{previous_responses}</span><span class="s2">&lt;/end&gt;&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Define edges to create a simple interaction pattern</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s1">&#39;setting&#39;</span><span class="p">,</span> <span class="s1">&#39;character&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;setting&#39;</span><span class="p">,</span> <span class="s1">&#39;plot&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;character&#39;</span><span class="p">,</span> <span class="s1">&#39;plot&#39;</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># Create the DAG structure</span>
+<span class="n">story_dag</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span>
+    <span class="n">agents</span><span class="o">=</span><span class="n">agents</span><span class="p">,</span>
+    <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span>
+    <span class="n">task</span><span class="o">=</span><span class="n">story_prompt</span><span class="p">,</span>
+    <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span>
+<span class="p">)</span>
+
+<span class="c1"># Process the DAG</span>
+<span class="n">story_dag</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+
+<span class="c1"># Print the final story outline</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">story_dag</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="tracing-what-is-going-on-in-structures">
+<h2>Tracing what is going on in Structures<a class="headerlink" href="#tracing-what-is-going-on-in-structures" title="Link to this heading">#</a></h2>
+<p>To get a better sense of what is going on, we can access information of
+both structures and agents by calling a structure’s <code class="docutils literal notranslate"><span class="pre">info</span></code> property. This will give us a dictionary of information
+about both the agents (<code class="docutils literal notranslate"><span class="pre">structure.info['agent_information']</span></code>) and the Structure (<code class="docutils literal notranslate"><span class="pre">structure.info['structure_information']</span></code>)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">AGENT INFO</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">info</span><span class="p">)</span> <span class="c1"># Will get info about the agent</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">AGENT HISTORY</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">history</span><span class="p">)</span> <span class="c1"># Will get the history of the agent&#39;s prompts so you can see their API calls</span>
+
+<span class="c1"># `ensemble.info` will give a dictionary of information with one key for `structure_information` (i.e: information</span>
+<span class="c1"># related to the Structure and one key called `agent_information` (i.e: `agent.info` for each of the agents in the</span>
+<span class="c1"># Structure)</span>
+<span class="n">ensemble</span><span class="o">.</span><span class="n">info</span>
+<span class="c1"># ensemble.info[&#39;agent_information&#39;] # Will give the info of all the agents in the ensemble</span>
+<span class="c1"># ensemble.info[&#39;structure_information&#39;] # Will give the info of Structure</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="tutorial_3_agents.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Agents</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="tutorial_5_moderators.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Moderators</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#combination-instructions">Combination Instructions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-a-template-for-combination-instructions">Using a template for combination instructions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-your-own-combination-instructions">Setting your own combination instructions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ensemble">Ensemble</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chain">Chain</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#debate">Debate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph">Graph</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tracing-what-is-going-on-in-structures">Tracing what is going on in Structures</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Joshua Ashkinaze
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
