@@ -9,6 +9,8 @@ from plurals.helpers import SmartString, strip_nested_dict
 import re
 import collections
 from pprint import pformat
+import networkx as nx
+import matplotlib.pyplot as plt
 
 DEFAULTS = load_yaml("instructions.yaml")
 DEFAULTS = strip_nested_dict(DEFAULTS)
@@ -765,6 +767,29 @@ class Graph(AbstractStructure):
             dst_agent = self.agents[dst_idx]
             self.graph[src_agent].append(dst_agent)
             self.in_degree[dst_agent] += 1
+
+    def nx_graph(self):
+      """
+      Returns the networkx directed graph representation of the graph.
+      """
+      G = nx.DiGraph()
+      G.add_edges_from(self.edges)
+      # for src_agent, dst_agents in self.graph.items():
+      #     for dst_agent in dst_agents:
+      #         G.add_edge(src_agent, dst_agent)
+      return G
+
+    def draw_graph(self):
+        """
+        Draws the graph using networkx and matplotlib.
+        """
+
+        G = self.nx_graph()
+        pos = nx.spring_layout(G)
+        nx.draw(G, pos, with_labels=True, node_size=3000, node_color="skyblue", font_size=10, font_weight="bold",
+                font_color="black", edge_color="black", linewidths=1, width=1, alpha=0.7, arrowsize=20)
+        plt.title("Directed Acyclic Graph (DAG) of Agents")
+        plt.show()
 
     def process(self):
         """
