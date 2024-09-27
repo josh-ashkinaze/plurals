@@ -15,32 +15,32 @@
 [![Push to pypy](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml)
 ![PyPI](https://img.shields.io/pypi/v/plurals)
 
-**Package Citation**
-
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12750674.svg)](https://doi.org/10.5281/zenodo.12750674)
+**Paper 📜** [(Click here!)](https://arxiv.org/abs/2409.17213)
 
 **Documentation 📋** [(Click here!)](https://josh-ashkinaze.github.io/plurals/)
 
 
 # Cite ℹ️
-Paper coming soon. For now, please cite this package as [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12750674.svg)](https://doi.org/10.5281/zenodo.12750674):
+If you use Plurals in your research, please cite the following [paper](https://arxiv.org/abs/2409.17213):
 
 _Bibtex:_
 ```
-@software{Ashkinaze_Plurals_2024,
-  author = {Ashkinaze, Joshua and Fry, Emily and Edra, Narendra and Budak, Ceren and Gilbert, Eric},
-  doi = {10.5281/zenodo.12750674},
-  license = {cc-by-4.0},
-  month = jul,
-  title = {{Plurals}},
-  url = {https://github.com/josh-ashkinaze/plurals},
-  year = {2024}
+@misc{ashkinaze_plurals_2024,
+	title = {Plurals: {A} {System} for {Guiding} {LLMs} {Via} {Simulated} {Social} {Ensembles}},
+	shorttitle = {Plurals},
+	url = {http://arxiv.org/abs/2409.17213},
+	doi = {10.48550/arXiv.2409.17213},
+	urldate = {2024-09-27},
+	publisher = {arXiv},
+	author = {Ashkinaze, Joshua and Fry, Emily and Edara, Narendra and Gilbert, Eric and Budak, Ceren},
+	month = sep,
+	year = {2024},
 }
 ```
 
 _APA:_
 ```
-Ashkinaze, J., Fry, E., Edra, N., Budak, C., & Gilbert, E. (2024). Plurals. Zenodo. https://doi.org/10.5281/zenodo.12750674
+Ashkinaze, J., Fry, E., Edara, N., Gilbert, E., & Budak, C. (2024). Plurals: A System for Guiding LLMs Via Simulated Social Ensembles (No. arXiv:2409.17213). arXiv. https://doi.org/10.48550/arXiv.2409.17213
 ```
 
 
