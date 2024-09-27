@@ -157,9 +157,9 @@ print(story_dag.final_response)
 
 
 
-# Report An Issue or Feature 📝
+# Issues and Features 📝
 
-Plurals is run by a small and energetic team of academics doing the best they can [1]. To report bugs or feature requests, open a GitHub issue. We strongly encourage you to use our Bug or Feature Request issue templates; these make it easy for us to respond effectively to the issue. If you have any questions or want to collaborate on this project, please email jashkina@umich.edu. 
+Plurals is run by a small and energetic team of academics doing the best they can [1]. To report bugs or feature requests, open a GitHub issue. We strongly encourage you to use our Bug or Feature Request issue templates; these make it easy for us to respond effectively to the issue. 
 
 [1] Language adopted from (https://github.com/davidjurgens/potato). 
 
@@ -177,7 +177,7 @@ Plurals is run by a small and energetic team of academics doing the best they ca
 
 - Curation (Ex: To what extent can Moderator LLMs filter and select the best outputs from other LLMs?)
 
-- Steerable guardrails (Ex: Can LLM deliberation steer abstensions?)
+- Steerable guardrails (Ex: Can LLM deliberation steer abstentions?)
 
 - Persuasive messaging (Use many LLMs to collaboratively brainstorm and refine persuasive messaging for different audiences; Experiment with `simulated focus groups`)
 
@@ -185,3 +185,7 @@ Plurals is run by a small and energetic team of academics doing the best they ca
 
 - Creative ideation (e.g., get ideas from multiple LLMs with different perspectives/roles for hypothesis generation, creative ideas, or product design)
 
+# Collaborators 🤝
+
+If you are interested in collaborating, please reach out to Joshua Ashkinaze (jashkina@umich.edu). We are 
+running more experiments to test how and when these simulated social ensembles can augment humans. 
