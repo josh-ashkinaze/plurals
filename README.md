@@ -3,13 +3,13 @@
 
 # Plurals: a Package for Simulated Social Ensembles
     
-**Package Stats**
+**Package Stats 📊**
 
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/plurals)
 ![GitHub last commit](https://img.shields.io/github/last-commit/josh-ashkinaze/plurals)
 ![GitHub Created At](https://img.shields.io/github/created-at/josh-ashkinaze/plurals)
 
-**Package Build (Tests/Doc Creation/PyPi Releases)**
+**Package Build (Tests/Doc Creation/PyPi Releases) 👌**
 
 [![Build](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml)
 [![Push to pypy](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml)
