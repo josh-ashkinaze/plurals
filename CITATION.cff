@@ -12,17 +12,10 @@ authors:
   - family-names: Budak
     given-names: Ceren
 title: "Plurals: A System for Guiding LLMs Via Simulated Social Ensembles"
-type: article
+type: misc
 date-released: 2024-09
 year: 2024
 doi: "10.48550/arXiv.2409.17213"
 url: "http://arxiv.org/abs/2409.17213"
-abstract: "Plurals: A System for Guiding LLMs Via Simulated Social Ensembles"
-repository-code: "http://arxiv.org/abs/2409.17213"
-identifiers:
-  - type: doi
-    value: 10.48550/arXiv.2409.17213
-  - type: url
-    value: http://arxiv.org/abs/2409.17213
 publisher:
   name: arXiv
