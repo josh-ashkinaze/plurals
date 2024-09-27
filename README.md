@@ -46,7 +46,7 @@ Ashkinaze, J., Fry, E., Edara, N., Gilbert, E., & Budak, C. (2024). Plurals: A S
 
 
 # Overview 🌌
-<img src="assets/figure1.png" alt="System Diagram" width="100%">
+<img src="https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/figure1.png" alt="System Diagram" width="100%">
 
 Plurals is an end-to-end generator of simulated social ensembles. (1) **Agents** complete tasks within (2) **Structures**, with communication optionally summarized by (3) **Moderators**. Plurals integrates with government datasets (1a) and templates, some inspired by democratic deliberation theory (1b). 
 
