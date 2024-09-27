@@ -93,7 +93,7 @@ for r in ensemble.responses:
 ## Create a directed acyclic graph of Agents for story development
 
 <div style="text-align: center;">
-    <img src="assets/mermaid_diagram.svg" alt="System Diagram" width="80%">
+    <img src="https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/mermaid_diagram.svg" alt="System Diagram" width="80%">
 </div>
 
 ```python
