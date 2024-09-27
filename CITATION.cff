@@ -12,10 +12,26 @@ authors:
   - family-names: Budak
     given-names: Ceren
 title: "Plurals: A System for Guiding LLMs Via Simulated Social Ensembles"
-type: misc
-date-released: 2024-09-27
-year: 2024
-doi: "10.48550/arXiv.2409.17213"
+type: software
 url: "http://arxiv.org/abs/2409.17213"
-publisher:
-  name: arXiv
+date-released: 2024-09-27
+
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Ashkinaze
+      given-names: Joshua
+    - family-names: Fry
+      given-names: Emily
+    - family-names: Edara
+      given-names: Narendra
+    - family-names: Gilbert
+      given-names: Eric
+    - family-names: Budak
+      given-names: Ceren
+  doi: "10.48550/arXiv.2409.17213"
+  journal: "arXiv"
+  month: 9
+  title: "Plurals: A System for Guiding LLMs Via Simulated Social Ensembles"
+  year: 2024
+  url: "http://arxiv.org/abs/2409.17213"
