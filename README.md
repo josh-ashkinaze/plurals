@@ -1,7 +1,7 @@
 
 
 
-# Plurals: a Package for Simulated Social Ensembles
+# Plurals: A System for Guiding LLMs Via Simulated Social Ensembles
     
 **Package Stats 📊**
 
