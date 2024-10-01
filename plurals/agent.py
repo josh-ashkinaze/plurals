@@ -510,8 +510,7 @@ class Agent:
         if not self._history:
             warnings.warn("Be aware: No Agent history was found since tasks have not been processed yet.")
             return None
-        else:
-            return self._history
+        return self._history
 
     @property
     def _info(self):
@@ -606,12 +605,10 @@ class Agent:
             return True
         if self.persona == "random":
             return True
-        else:
-            return False
+        return False
 
     def handle_default_persona_template(self):
         """The default persona template should be `default' if not ANES persona else 'anes'"""
         if self.is_anes_persona():
             return "anes"
-        else:
-            return "default"
+        return "default"
