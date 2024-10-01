@@ -517,7 +517,7 @@ class Ensemble(AbstractStructure):
             print(ensemble.final_response)
     """
 
-    def process(self):
+    def process(self) -> None:
         """
         Requests are sent to all agents simultaneously.
         """
@@ -753,7 +753,7 @@ class Graph(AbstractStructure):
                          moderator=moderator)
         self._build_graph()
 
-    def _build_graph(self):
+    def _build_graph(self) -> None:
         """
         Builds the graph from the agents and edges. Edges are defined using indices to reference agents.
         Initializes the graph and in-degree count for each agent. This is the first part of the topological sorting.
@@ -766,7 +766,7 @@ class Graph(AbstractStructure):
             self.graph[src_agent].append(dst_agent)
             self.in_degree[dst_agent] += 1
 
-    def process(self):
+    def process(self) -> Any:
         """
         Processes the tasks within the network of agents, respecting the directed acyclic graph (DAG) structure. The order
         of agent deliberation is determined using Kahn's algorithm for topological sorting.
@@ -838,7 +838,7 @@ class Graph(AbstractStructure):
         return self.final_response
 
     @staticmethod
-    def _validate_input_format(agents, edges):
+    def _validate_input_format(agents, edges) -> None:
 
         # Check #1: Check if agents and edges are in the correct format
         if isinstance(agents, list) and all(isinstance(agent, Agent) for agent in agents) and all(

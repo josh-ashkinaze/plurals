@@ -12,7 +12,7 @@ DEFAULTS = load_yaml("instructions.yaml")
 DEFAULTS = strip_nested_dict(DEFAULTS)
 
 
-def _load_global_anes_data():
+def _load_global_anes_data() -> None:
     """
     Load global ANES data for the agent. As per codebook page 2 section 1, the cases that don't have weights are
     not meant for population inference.
@@ -246,7 +246,7 @@ class Agent:
         self._set_system_instructions()
         self.kwargs = kwargs if kwargs is not None else {}
 
-    def _set_system_instructions(self):
+    def _set_system_instructions(self) -> None:
         """
         Users can directly pass in system_instructions. Or, we can generate system instructions by combining a
         persona_template and a persona.
@@ -456,7 +456,7 @@ class Agent:
         except Exception as e:
             raise AssertionError(f"Error filtering data by ideology: {e}")
 
-    def _validate_system_instructions(self):
+    def _validate_system_instructions(self) -> None:
         """
         Validates the system instructions arguments.
 
@@ -486,7 +486,7 @@ class Agent:
                 'very conservative']
             assert self.ideology in allowed_vals, f"Ideology has to be one of: {str(allowed_vals)}"
 
-    def _validate_templates(self):
+    def _validate_templates(self) -> None:
         """
         Errors raised if:
         - a user passes in persona_template but it does not contain a persona placeholder (so there is no way to
@@ -500,7 +500,7 @@ class Agent:
                 default_templates))
 
     @property
-    def history(self):
+    def history(self) -> (list | None):
         """
         An Agent's history
 
@@ -531,7 +531,7 @@ class Agent:
             "kwargs": self.kwargs}
 
     @property
-    def info(self):
+    def info(self) -> dict[str, any]:
         """
         Info of Agent
 
@@ -548,8 +548,9 @@ class Agent:
             "combination_instructions": self.combination_instructions,
             "model": self.model,
             "kwargs": self.kwargs}
+    
     @property
-    def responses(self):
+    def responses(self) -> (list | None):
         """
         The responses to prompts
 
@@ -563,7 +564,7 @@ class Agent:
         return [history[i]['response'] for i in range(len(history))]
 
     @property
-    def prompts(self):
+    def prompts(self) -> (list | None):
         """
         The prompts that generated the responses
 
@@ -576,10 +577,10 @@ class Agent:
             return None
         return [history[i]['prompts'] for i in range(len(history))]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return pformat(self.info, indent=2)
 
-    def set_task(self, task: str):
+    def set_task(self, task: str) -> None:
         """
         Set the task description for the agent to process.
 
@@ -607,7 +608,7 @@ class Agent:
             return True
         return False
 
-    def handle_default_persona_template(self):
+    def handle_default_persona_template(self) -> str:
         """The default persona template should be `default' if not ANES persona else 'anes'"""
         if self.is_anes_persona():
             return "anes"

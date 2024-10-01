@@ -7,7 +7,7 @@ import pkg_resources
 import yaml
 
 
-def print_anes_mapping():
+def print_anes_mapping() -> None:
     """
     Prints the values of ANES mapping in a human-readable format.
 
@@ -174,7 +174,7 @@ class SmartString(str):
             content = content.replace('None', '')
         return super().__new__(cls, content)
 
-    def format(self, avoid_double_period=True, **kwargs):
+    def format(self, avoid_double_period=True, **kwargs) -> (str | None):
         """
         Override the format method to use string.Template for string formatting.
 
