@@ -516,7 +516,7 @@ class Agent:
     @property
     def _info(self):
         """
-        This is a pricate property, mainly used for debugging and testing. It includes more than in the user-facing info.
+        This is a private property, mainly used for debugging and testing. It includes more than in the user-facing info.
         """
         return {
             "original_task": self.original_task_description,
@@ -549,6 +549,7 @@ class Agent:
             "combination_instructions": self.combination_instructions,
             "model": self.model,
             "kwargs": self.kwargs}
+
     @property
     def responses(self):
         """

@@ -46,6 +46,7 @@ def print_anes_mapping():
                     print(f"{val}")
         print()
 
+
 def strip_nested_dict(d: Dict[str, Any]) -> Dict[str, Any]:
     """
     Strip whitespace from all strings in a nested dictionary.
@@ -64,7 +65,6 @@ def strip_nested_dict(d: Dict[str, Any]) -> Dict[str, Any]:
         return d.strip()
     else:
         return d
-
 
 
 def load_yaml(file_path: str) -> Dict[str, Any]:
@@ -111,7 +111,6 @@ def format_previous_responses(responses: List[str]) -> str:
             for i in range(len(responses))
         ]
         return "".join(resp_list).strip()
-
 
 
 class SmartString(str):

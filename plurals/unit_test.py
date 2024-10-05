@@ -84,19 +84,18 @@ class TestAgent(unittest.TestCase):
         structures the desired behavior is that agents will overwrite structure combination instructions"""
         a2 = Agent(ideology='moderate', model=self.model, combination_instructions='agent 2 instructions',
                    kwargs=self.kwargs)
-        a3 = Agent(ideology='liberal', model=self.model, kwargs=self.kwargs, combination_instructions='agent 3 instructions')
+        a3 = Agent(ideology='liberal', model=self.model, kwargs=self.kwargs,
+                   combination_instructions='agent 3 instructions')
         a4 = Agent(ideology='conservative', model=self.model, combination_instructions='agent 4 instructions',
                    kwargs=self.kwargs)
         mixed = Chain([a2, a3, a4], task=self.task, combination_instructions='voting')
 
         mixed._set_combination_instructions()
 
-
         # Assertions
         self.assertEqual("agent 2 instructions", a2.combination_instructions)
         self.assertEqual("agent 3 instructions", a3.combination_instructions)
         self.assertEqual("agent 4 instructions", a4.combination_instructions)
-
 
     def test_agent_process_task_with_task_arg(self):
         """
@@ -417,6 +416,7 @@ class TestModerator(unittest.TestCase):
         self.assertEqual(expected_persona, mixed.moderator.persona)
         self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
 
+
 class TestChain(unittest.TestCase):
 
     def setUp(self):
@@ -518,8 +518,8 @@ Here are the previous responses:
         chain = Chain([agent1, agent2, agent3])
 
         with patch.object(Agent, '_get_response', side_effect=["Pros: flexibility, no commute.",
-            "Cons: isolation, difficulty in team building.",
-            "Summary: Remote work offers flexibility but poses challenges in collaboration."]):
+                                                               "Cons: isolation, difficulty in team building.",
+                                                               "Summary: Remote work offers flexibility but poses challenges in collaboration."]):
             chain.process()
 
         self.assertEqual(task1, chain.agents[0].original_task_description)
@@ -570,8 +570,8 @@ class TestEnsemble(unittest.TestCase):
         ensemble = Ensemble([a1, a2, a3])
 
         expected_responses = ["Economic impacts include increased costs for adaptation.",
-            "Social impacts include displacement of communities.",
-            "Environmental impacts include loss of biodiversity."]
+                              "Social impacts include displacement of communities.",
+                              "Environmental impacts include loss of biodiversity."]
 
         with patch.object(Agent, '_get_response', side_effect=expected_responses):
             ensemble.process()
@@ -657,9 +657,9 @@ class TestDebate(unittest.TestCase):
         debate = Debate([agent1, agent2], cycles=2)
 
         with patch.object(Agent, '_get_response', side_effect=["Stricter laws will reduce gun violence.",
-            "Stricter laws infringe on Second Amendment rights.",
-            "Gun control laws have been effective in other countries.",
-            "Law-abiding citizens need guns for self-defense."]):
+                                                               "Stricter laws infringe on Second Amendment rights.",
+                                                               "Gun control laws have been effective in other countries.",
+                                                               "Law-abiding citizens need guns for self-defense."]):
             debate.process()
 
         self.assertEqual(task1, debate.agents[0].original_task_description)
@@ -731,9 +731,10 @@ class TestNetworkStructure(unittest.TestCase):
         self.agents_list = list(self.agents_dict.values())
         self.edges = [(self.agents_list.index(self.agents_dict['liberal']),
                        self.agents_list.index(self.agents_dict['conservative'])), (
-        self.agents_list.index(self.agents_dict['liberal']), self.agents_list.index(self.agents_dict['libertarian'])), (
-            self.agents_list.index(self.agents_dict['conservative']),
-            self.agents_list.index(self.agents_dict['libertarian']))]
+                          self.agents_list.index(self.agents_dict['liberal']),
+                          self.agents_list.index(self.agents_dict['libertarian'])), (
+                          self.agents_list.index(self.agents_dict['conservative']),
+                          self.agents_list.index(self.agents_dict['libertarian']))]
 
     def test_graph_with_different_agent_tasks(self):
         """Test Graph processes Agents with different tasks correctly."""
@@ -751,8 +752,8 @@ class TestNetworkStructure(unittest.TestCase):
         graph = Graph(agents=agents, edges=edges)
 
         with patch.object(Agent, 'process', side_effect=["Economic policies should focus on growth.",
-            "Social policies should address inequality.",
-            "Both economic growth and social equality are important policy goals."]):
+                                                         "Social policies should address inequality.",
+                                                         "Both economic growth and social equality are important policy goals."]):
             final_response = graph.process()
 
         self.assertEqual(task1, graph.agents[0].original_task_description)
@@ -783,8 +784,8 @@ class TestNetworkStructure(unittest.TestCase):
         # Check that edges are correctly converted to use indices
         expected_edges = [(list(agents_dict.keys()).index('liberal'), list(agents_dict.keys()).index('conservative')),
                           (list(agents_dict.keys()).index('liberal'), list(agents_dict.keys()).index('libertarian')), (
-                          list(agents_dict.keys()).index('conservative'),
-                          list(agents_dict.keys()).index('libertarian'))]
+                              list(agents_dict.keys()).index('conservative'),
+                              list(agents_dict.keys()).index('libertarian'))]
         self.assertEqual(expected_edges, network_dict.edges)
 
         # Check that the graph is built correctly
@@ -842,10 +843,10 @@ class TestNetworkStructure(unittest.TestCase):
         """Test that a cycle in the graph raises a ValueError."""
         cyclic_edges = [(self.agents_list.index(self.agents_dict['liberal']),
                          self.agents_list.index(self.agents_dict['conservative'])), (
-        self.agents_list.index(self.agents_dict['conservative']),
-        self.agents_list.index(self.agents_dict['libertarian'])), (
-            self.agents_list.index(self.agents_dict['libertarian']),
-            self.agents_list.index(self.agents_dict['liberal']))]
+                            self.agents_list.index(self.agents_dict['conservative']),
+                            self.agents_list.index(self.agents_dict['libertarian'])), (
+                            self.agents_list.index(self.agents_dict['libertarian']),
+                            self.agents_list.index(self.agents_dict['liberal']))]
         with self.assertRaises(ValueError):
             Graph(agents=self.agents_list, edges=cyclic_edges, task=self.task).process()
 
@@ -1180,6 +1181,7 @@ class TestSmartString(unittest.TestCase):
         formatted = s.format(var1=None, var2=None)
         self.assertEqual("", formatted)
 
+
 class TestAgentRepr(unittest.TestCase):
     def setUp(self):
         self.agent = Agent(task="Test task", model="gpt-3.5-turbo")
@@ -1204,6 +1206,7 @@ class TestAgentRepr(unittest.TestCase):
         repr_string = repr(self.agent)
         self.assertIn("'history': None", repr_string)
         self.assertIn("'kwargs': {}", repr_string)
+
 
 class TestStructureRepr(unittest.TestCase):
     def setUp(self):
