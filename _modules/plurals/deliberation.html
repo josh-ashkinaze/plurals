@@ -689,7 +689,8 @@ document.write(`
                 <span class="c1"># Common operations for cases 1 and 3</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="k">else</span> <span class="kc">None</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
                     <span class="c1"># Case 2: Value provided to neither moderator nor structure</span>
@@ -877,7 +878,7 @@ document.write(`
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">agents</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Debate requires exactly two agents.&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">agents</span><span class="p">,</span><span class="n">task</span><span class="p">,</span><span class="n">shuffle</span><span class="p">,</span><span class="n">cycles</span><span class="p">,</span><span class="n">last_n</span><span class="p">,</span><span class="n">combination_instructions</span><span class="p">,</span><span class="n">moderator</span><span class="p">)</span>
+            <span class="n">agents</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">last_n</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="p">,</span> <span class="n">moderator</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1013,8 +1014,6 @@ document.write(`
 <span class="sd">            task = &quot;What are your thoughts on the role of government in society?&quot;</span>
 <span class="sd">            graph = Graph(agents=agents, edges=edges, task=task)</span>
 <span class="sd">            graph.process()</span>
-
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>

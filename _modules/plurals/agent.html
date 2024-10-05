@@ -792,7 +792,7 @@ document.write(`
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This is a pricate property, mainly used for debugging and testing. It includes more than in the user-facing info.</span>
+<span class="sd">        This is a private property, mainly used for debugging and testing. It includes more than in the user-facing info.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;original_task&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_task_description</span><span class="p">,</span>
@@ -825,6 +825,7 @@ document.write(`
             <span class="s2">&quot;combination_instructions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">,</span>
             <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
             <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">}</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">responses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
