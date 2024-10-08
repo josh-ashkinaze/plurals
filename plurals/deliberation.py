@@ -135,18 +135,21 @@ class Moderator(Agent):
 
         # Case 1: if both persona and system_instructions are provided, raise a ValueError
         if persona and system_instructions and system_instructions != 'auto':
-            raise ValueError("Cannot provide both persona and system instructions")
+            raise ValueError(
+                "Cannot provide both persona and system instructions")
 
         # Case 2: if system_instructions is 'auto', generate system instructions using an LLM
         if system_instructions == 'auto':
             self.model = model
             self.kwargs = kwargs
-            self.system_instructions = self.generate_system_instructions(task=task)
+            self.system_instructions = self.generate_system_instructions(
+                task=task)
 
         # Case 3: if only persona is provided, use persona with dummy persona template ${persona}
         if persona and not system_instructions:
             persona_template = "${persona}"
-            persona_value = DEFAULTS["moderator"]['persona'].get(persona, persona)
+            persona_value = DEFAULTS["moderator"]['persona'].get(
+                persona, persona)
             super().__init__(persona=persona_value, persona_template=persona_template, model=model, kwargs=kwargs,
                              task=task)
 
@@ -189,7 +192,8 @@ class Moderator(Agent):
                       f"less and start with 'System Instructions':\n"
                       f"System Instructions:")
             try:
-                response = Agent(task=prompt, model=self.model, kwargs=self.kwargs).process()
+                response = Agent(task=prompt, model=self.model,
+                                 kwargs=self.kwargs).process()
                 # Check if the response starts with "System Instructions:" (case-insensitive and allows for spaces)
                 # Remove the "System Instructions:" part and any leading/trailing whitespace
                 if re.match(r"^\s*system\s+instructions\s*:\s*", response, re.IGNORECASE):
@@ -199,7 +203,8 @@ class Moderator(Agent):
             except Exception as e:
                 print(f"Attempt failed with error: {e}")
 
-        raise ValueError("Failed to generate valid system instructions after max tries.")
+        raise ValueError(
+            "Failed to generate valid system instructions after max tries.")
 
     def generate_and_set_system_instructions(self, task: str, max_tries: int = 10) -> None:
         """
@@ -216,7 +221,8 @@ class Moderator(Agent):
         Sets:
             system_instructions (str): The system instructions for the moderator.
         """
-        self.system_instructions = self.generate_system_instructions(task, max_tries)
+        self.system_instructions = self.generate_system_instructions(
+            task, max_tries)
         return self.system_instructions
 
     def _moderate_responses(self, responses: List[str]) -> str:
@@ -377,7 +383,8 @@ class AbstractStructure(ABC):
             else:
                 if not agent.task_description or agent.task_description.strip() == '':
                     # Case 2: Value provided to neither agents nor chain
-                    raise ValueError("Error: You did not specify a task for agents or chain")
+                    raise ValueError(
+                        "Error: You did not specify a task for agents or chain")
                 else:
                     # Case 4: Value provided to agents but not Structure
                     pass  # Use Agent's existing task description
@@ -412,7 +419,8 @@ class AbstractStructure(ABC):
             else:
                 if not self.moderator.task or self.moderator.task.strip() == '':
                     # Case 2: Value provided to neither moderator nor structure
-                    raise ValueError("Error: You did not specify a task for Moderator or Structure")
+                    raise ValueError(
+                        "Error: You did not specify a task for Moderator or Structure")
                 else:
                     # Case 4: Value provided to moderator but not Structure
                     pass  # Use Moderator's existing task description
@@ -488,14 +496,17 @@ class Chain(AbstractStructure):
             for agent in self.agents:
                 agent.current_task_description = None
                 previous_responses_slice = previous_responses[-self.last_n:]
-                previous_responses_str = format_previous_responses(previous_responses_slice)
+                previous_responses_str = format_previous_responses(
+                    previous_responses_slice)
                 agent.combination_instructions = self.combination_instructions
-                response = agent.process(previous_responses=previous_responses_str)
+                response = agent.process(
+                    previous_responses=previous_responses_str)
                 previous_responses.append(response)
                 self.responses.append(response)
 
         if self.moderated and self.moderator:
-            moderated_response = self.moderator._moderate_responses(self.responses)
+            moderated_response = self.moderator._moderate_responses(
+                self.responses)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
 
@@ -528,7 +539,8 @@ class Ensemble(AbstractStructure):
                 for agent in self.agents:
                     previous_responses_str = ""
                     agent.combination_instructions = self.combination_instructions
-                    futures.append(executor.submit(agent.process, previous_responses=previous_responses_str))
+                    futures.append(executor.submit(
+                        agent.process, previous_responses=previous_responses_str))
                 for future in as_completed(futures):
                     response = future.result()
                     self.responses.append(response)
@@ -637,17 +649,22 @@ class Debate(AbstractStructure):
                         previous_responses_agent2[-self.last_n:])
 
                 agent.combination_instructions = self.combination_instructions
-                response = agent.process(previous_responses=previous_responses_str)
+                response = agent.process(
+                    previous_responses=previous_responses_str)
                 response = self._strip_placeholders(response)
                 self.responses.append("[Debater {}] ".format(i + 1) + response)
 
                 # Apply the correct prefix and update both lists
                 if i == 0:
-                    previous_responses_agent1.append(f"[WHAT YOU SAID]: {response}")
-                    previous_responses_agent2.append(f"[WHAT OTHER PARTICIPANT SAID]: {response}")
+                    previous_responses_agent1.append(
+                        f"[WHAT YOU SAID]: {response}")
+                    previous_responses_agent2.append(
+                        f"[WHAT OTHER PARTICIPANT SAID]: {response}")
                 else:
-                    previous_responses_agent2.append(f"[WHAT YOU SAID]: {response}")
-                    previous_responses_agent1.append(f"[WHAT OTHER PARTICIPANT SAID]: {response}")
+                    previous_responses_agent2.append(
+                        f"[WHAT YOU SAID]: {response}")
+                    previous_responses_agent1.append(
+                        f"[WHAT OTHER PARTICIPANT SAID]: {response}")
 
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(
@@ -794,7 +811,8 @@ class Graph(AbstractStructure):
         """
 
         # Initialize the queue with agents that have in-degree 0
-        zero_in_degree_queue = collections.deque([agent for agent in self.agents if self.in_degree[agent] == 0])
+        zero_in_degree_queue = collections.deque(
+            [agent for agent in self.agents if self.in_degree[agent] == 0])
         topological_order = []
 
         # Kahn's Algorithm
@@ -814,15 +832,18 @@ class Graph(AbstractStructure):
                     zero_in_degree_queue.append(successor)
 
         if len(topological_order) != len(self.agents):
-            raise ValueError("There is a cycle in the graph!!! This is not allowed in a DAG.")
+            raise ValueError(
+                "There is a cycle in the graph!!! This is not allowed in a DAG.")
 
         # Process agents according to topological order
         response_dict = {}
         for agent in topological_order:
             agent.combination_instructions = self.combination_instructions
             # Gather responses from all predecessors to form the input for the current agent
-            previous_responses = [response_dict[pred] for pred in self.agents if agent in self.graph[pred]]
-            previous_responses_str = format_previous_responses(previous_responses)
+            previous_responses = [response_dict[pred]
+                                  for pred in self.agents if agent in self.graph[pred]]
+            previous_responses_str = format_previous_responses(
+                previous_responses)
             response = agent.process(previous_responses=previous_responses_str)
             response_dict[agent] = response
             self.responses.append(response)
@@ -830,7 +851,8 @@ class Graph(AbstractStructure):
         # Handle the moderator if present
         if self.moderated and self.moderator:
             original_task = self.agents[0].original_task_description
-            moderated_response = self.moderator._moderate_responses(list(response_dict.values()))
+            moderated_response = self.moderator._moderate_responses(
+                list(response_dict.values()))
             self.responses.append(moderated_response)
             self.final_response = moderated_response
         self.final_response = self.responses[-1]
@@ -857,13 +879,16 @@ class Graph(AbstractStructure):
         if isinstance(agents, list):
             for src_idx, dst_idx in edges:
                 if src_idx >= len(agents) or dst_idx >= len(agents):
-                    raise ValueError("Edge indices must be within the range of agents.")
+                    raise ValueError(
+                        "Edge indices must be within the range of agents.")
                 if src_idx == dst_idx:
-                    raise ValueError("Self loops are not allowed in the graph.")
+                    raise ValueError(
+                        "Self loops are not allowed in the graph.")
 
         # If Method 2: Check if agent names in edges are keys in the agent dictionary
         if isinstance(agents, dict):
             agent_names = list(agents.keys())
             for src_agent_name, dst_agent_name in edges:
                 if src_agent_name not in agent_names or dst_agent_name not in agent_names:
-                    raise ValueError("Agent names in edges must be keys in the agent dictionary.")
+                    raise ValueError(
+                        "Agent names in edges must be keys in the agent dictionary.")
