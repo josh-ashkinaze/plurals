@@ -946,7 +946,6 @@ document.write(`
             <span class="n">last_n</span><span class="o">=</span><span class="n">last_n</span><span class="p">,</span>
             <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_combination_instructions</span><span class="p">()</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1006,12 +1005,6 @@ document.write(`
                     <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_previous_responses</span><span class="p">(</span>
                         <span class="n">previous_responses_agent2</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span> <span class="p">:]</span>
                     <span class="p">)</span>
-
-                <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span>
-                    <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span>
-                    <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
-                <span class="p">)</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strip_placeholders</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;[Debater </span><span class="si">{}</span><span class="s2">] &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">response</span><span class="p">)</span>
@@ -1135,7 +1128,6 @@ document.write(`
             <span class="n">agents</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">last_n</span><span class="o">=</span><span class="n">last_n</span><span class="p">,</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="o">=</span><span class="n">combination_instructions</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_build_graph</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_combination_instructions</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_build_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1210,11 +1202,6 @@ document.write(`
         <span class="c1"># Process agents according to topological order</span>
         <span class="n">response_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">topological_order</span><span class="p">:</span>
-            <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span>
-                <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span>
-                <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
-            <span class="p">)</span>
             <span class="c1"># Gather responses from all predecessors to form the input for the current agent</span>
             <span class="n">previous_responses</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">response_dict</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="k">if</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span>
