@@ -388,56 +388,68 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">persona</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">system_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">combination_instructions</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
-            <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
-            <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">persona</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">system_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">combination_instructions</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+        <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 
         <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="n">task</span>
 
-        <span class="k">if</span> <span class="n">system_instructions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">system_instructions</span> <span class="o">!=</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">system_instructions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">system_instructions</span> <span class="o">!=</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;$</span><span class="si">{task}</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">system_instructions</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">&quot;System instructions usually contain the placeholder $</span><span class="si">{task}</span><span class="s2"> so Moderators know what task it is. Consider adding &#39;Here is the task: $</span><span class="si">{task}</span><span class="s2">&#39; to your system instructions.&quot;</span><span class="p">)</span>
+                    <span class="s2">&quot;System instructions usually contain the placeholder $</span><span class="si">{task}</span><span class="s2"> so Moderators know what task it is. Consider adding &#39;Here is the task: $</span><span class="si">{task}</span><span class="s2">&#39; to your system instructions.&quot;</span>
+                <span class="p">)</span>
 
         <span class="c1"># Case 1: if both persona and system_instructions are provided, raise a ValueError</span>
-        <span class="k">if</span> <span class="n">persona</span> <span class="ow">and</span> <span class="n">system_instructions</span> <span class="ow">and</span> <span class="n">system_instructions</span> <span class="o">!=</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot provide both persona and system instructions&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">persona</span> <span class="ow">and</span> <span class="n">system_instructions</span> <span class="ow">and</span> <span class="n">system_instructions</span> <span class="o">!=</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot provide both persona and system instructions&quot;</span><span class="p">)</span>
 
         <span class="c1"># Case 2: if system_instructions is &#39;auto&#39;, generate system instructions using an LLM</span>
-        <span class="k">if</span> <span class="n">system_instructions</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">system_instructions</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_system_instructions</span><span class="p">(</span>
-                <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_system_instructions</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
 
         <span class="c1"># Case 3: if only persona is provided, use persona with dummy persona template ${persona}</span>
         <span class="k">if</span> <span class="n">persona</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">system_instructions</span><span class="p">:</span>
             <span class="n">persona_template</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">{persona}</span><span class="s2">&quot;</span>
-            <span class="n">persona_value</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span><span class="s1">&#39;persona&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="n">persona</span><span class="p">,</span> <span class="n">persona</span><span class="p">)</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="n">persona_value</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="n">persona_template</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
-                             <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+            <span class="n">persona_value</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span><span class="s2">&quot;persona&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">persona</span><span class="p">,</span> <span class="n">persona</span><span class="p">)</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+                <span class="n">persona</span><span class="o">=</span><span class="n">persona_value</span><span class="p">,</span>
+                <span class="n">persona_template</span><span class="o">=</span><span class="n">persona_template</span><span class="p">,</span>
+                <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="c1"># Case 4: if only system_instructions is provided, set system_instructions and set persona and persona_template to None</span>
         <span class="k">elif</span> <span class="n">system_instructions</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">persona</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="n">system_instructions</span><span class="p">,</span> <span class="n">persona</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
-                             <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+                <span class="n">system_instructions</span><span class="o">=</span><span class="n">system_instructions</span><span class="p">,</span>
+                <span class="n">persona</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">persona_template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="c1"># Case 5: if neither persona nor system_instructions are provided, set no system instructions.</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
-                             <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+                <span class="n">system_instructions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span>
+            <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span><span class="s1">&#39;combination_instructions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">combination_instructions</span><span class="p">,</span>
-                                                                                              <span class="n">combination_instructions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;moderator&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;combination_instructions&quot;</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">combination_instructions</span><span class="p">,</span> <span class="n">combination_instructions</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Moderator.generate_system_instructions">
 <a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Moderator.generate_system_instructions">[docs]</a>
@@ -461,30 +473,42 @@ document.write(`
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_tries</span><span class="p">):</span>
-            <span class="n">prompt</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;INSTRUCTIONS</span><span class="se">\n</span><span class="s2">A moderator LLM will see responses for the following task: </span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s2">. Generate &quot;</span>
-                      <span class="sa">f</span><span class="s2">&quot;system instructions for the moderator to best aggregate these responses after all responses are &quot;</span>
-                      <span class="sa">f</span><span class="s2">&quot;submitted. Return system instructions and nothing else. Instructions should be 50 words or &quot;</span>
-                      <span class="sa">f</span><span class="s2">&quot;less and start with &#39;System Instructions&#39;:</span><span class="se">\n</span><span class="s2">&quot;</span>
-                      <span class="sa">f</span><span class="s2">&quot;System Instructions:&quot;</span><span class="p">)</span>
+            <span class="n">prompt</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;INSTRUCTIONS</span><span class="se">\n</span><span class="s2">A moderator LLM will see responses for the following task: </span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s2">. Generate &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;system instructions for the moderator to best aggregate these responses after all responses are &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;submitted. Return system instructions and nothing else. Instructions should be 50 words or &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;less and start with &#39;System Instructions&#39;:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;System Instructions:&quot;</span>
+            <span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">response</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
-                                 <span class="n">kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+                    <span class="n">task</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
                 <span class="c1"># Check if the response starts with &quot;System Instructions:&quot; (case-insensitive and allows for spaces)</span>
                 <span class="c1"># Remove the &quot;System Instructions:&quot; part and any leading/trailing whitespace</span>
-                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s*system\s+instructions\s*:\s*&quot;</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">):</span>
-                    <span class="n">system_instructions</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s*system\s+instructions\s*:\s*&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span>
-                                                 <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
+                    <span class="sa">r</span><span class="s2">&quot;^\s*system\s+instructions\s*:\s*&quot;</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span>
+                <span class="p">):</span>
+                    <span class="n">system_instructions</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+                        <span class="sa">r</span><span class="s2">&quot;^\s*system\s+instructions\s*:\s*&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                        <span class="n">response</span><span class="p">,</span>
+                        <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">,</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                     <span class="k">return</span> <span class="n">system_instructions</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempt failed with error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Failed to generate valid system instructions after max tries.&quot;</span><span class="p">)</span></div>
+            <span class="s2">&quot;Failed to generate valid system instructions after max tries.&quot;</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Moderator.generate_and_set_system_instructions">
 <a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Moderator.generate_and_set_system_instructions">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_and_set_system_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_tries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">generate_and_set_system_instructions</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_tries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate and set system instructions using an LLM and a task. This function will generate the system</span>
 <span class="sd">        instructions and also set it as the system instructions for the moderator.</span>
@@ -499,8 +523,7 @@ document.write(`
 <span class="sd">        Sets:</span>
 <span class="sd">            system_instructions (str): The system instructions for the moderator.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_system_instructions</span><span class="p">(</span>
-            <span class="n">task</span><span class="p">,</span> <span class="n">max_tries</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_system_instructions</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">max_tries</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span></div>
 
 
@@ -515,16 +538,18 @@ document.write(`
 <span class="sd">            str: A combined response based on the moderator&#39;s instructions</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">combined_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">previous_responses</span><span class="o">=</span><span class="n">combined_responses_str</span><span class="p">,</span>
             <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">,</span>
-            <span class="n">avoid_double_period</span><span class="o">=</span><span class="kc">True</span>
+            <span class="n">avoid_double_period</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">,</span>
                 <span class="n">previous_responses</span><span class="o">=</span><span class="n">combined_responses_str</span><span class="p">,</span>
-                <span class="n">persona</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persona</span>
+                <span class="n">persona</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -567,14 +592,15 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">agents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Agent</span><span class="p">],</span>
-            <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">cycles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="n">last_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
-            <span class="n">combination_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
-            <span class="n">moderator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Moderator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">agents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Agent</span><span class="p">],</span>
+        <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">cycles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">last_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">combination_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">moderator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Moderator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="n">DEFAULTS</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="n">task</span>
@@ -608,13 +634,16 @@ document.write(`
         <span class="c1"># populate the templates</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_moderator_task_description</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">generate_system_instructions</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">generate_system_instructions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
+                <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">))</span>
@@ -626,9 +655,10 @@ document.write(`
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;combination_instructions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">[</span><span class="s2">&quot;combination_instructions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">:</span>
@@ -649,10 +679,14 @@ document.write(`
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="ow">and</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span>
+                    <span class="ow">and</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="p">):</span>
                     <span class="c1"># Case 1: Task provided to both Structure and agents</span>
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;You provided a task to both the Structure and agents. Using agent&#39;s task description:&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="si">{</span><span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="si">}</span><span class="s2">&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="s2">Ensure this is what you want to happen.&quot;</span><span class="p">)</span>
+                        <span class="sa">f</span><span class="s2">&quot;You provided a task to both the Structure and agents. Using agent&#39;s task description:&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="si">{</span><span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="si">}</span><span class="s2">&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="s2">Ensure this is what you want to happen.&quot;</span>
+                    <span class="p">)</span>
                     <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Case 3: Value provided to Structure but not agents</span>
@@ -661,12 +695,14 @@ document.write(`
                 <span class="c1"># Common operations for cases 1 and 3</span>
                 <span class="n">agent</span><span class="o">.</span><span class="n">original_task_description</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span>
                 <span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
-                    <span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
+                    <span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="ow">or</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span> <span class="ow">or</span> <span class="n">agent</span><span class="o">.</span><span class="n">task_description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
                     <span class="c1"># Case 2: Value provided to neither agents nor chain</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;Error: You did not specify a task for agents or chain&quot;</span><span class="p">)</span>
+                        <span class="s2">&quot;Error: You did not specify a task for agents or chain&quot;</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Case 4: Value provided to agents but not Structure</span>
                     <span class="k">pass</span>  <span class="c1"># Use Agent&#39;s existing task description</span>
@@ -684,10 +720,14 @@ document.write(`
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="p">):</span>
                     <span class="c1"># Case 1: Task provided to both Structure and moderator</span>
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;You provided a different task to both the Structure and a Moderator. Using the Moderator&#39;s task description:&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="s2">Ensure this is what you want to happen.&quot;</span><span class="p">)</span>
+                        <span class="sa">f</span><span class="s2">&quot;You provided a different task to both the Structure and a Moderator. Using the Moderator&#39;s task description:&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&#39;&#39;&#39;</span><span class="se">\n\n</span><span class="s2">Ensure this is what you want to happen.&quot;</span>
+                    <span class="p">)</span>
 
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Case 3: Value provided to Structure but not moderator</span>
@@ -695,14 +735,19 @@ document.write(`
 
                 <span class="c1"># Common operations for cases 1 and 3</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">SmartString</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">system_instructions</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
                     <span class="c1"># Case 2: Value provided to neither moderator nor structure</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;Error: You did not specify a task for Moderator or Structure&quot;</span><span class="p">)</span>
+                        <span class="s2">&quot;Error: You did not specify a task for Moderator or Structure&quot;</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Case 4: Value provided to moderator but not Structure</span>
                     <span class="k">pass</span>  <span class="c1"># Use Moderator&#39;s existing task description</span>
@@ -714,7 +759,8 @@ document.write(`
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;The structure has not been processed yet so there are no responses.&quot;</span><span class="p">)</span>
+                <span class="s2">&quot;The structure has not been processed yet so there are no responses.&quot;</span>
+            <span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;structure_information&quot;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s2">&quot;final_response&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span><span class="p">,</span>
@@ -723,9 +769,11 @@ document.write(`
                 <span class="s2">&quot;combination_instructions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span><span class="p">,</span>
                 <span class="s2">&quot;moderated&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span><span class="p">,</span>
                 <span class="s2">&quot;moderator_persona&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s2">&quot;moderator_instructions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="s2">&quot;moderator_instructions&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">),</span>
             <span class="p">},</span>
-            <span class="s2">&quot;agent_information&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">agent</span><span class="o">.</span><span class="n">info</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">]</span>
+            <span class="s2">&quot;agent_information&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">agent</span><span class="o">.</span><span class="n">info</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">],</span>
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">result</span>
 
@@ -736,8 +784,7 @@ document.write(`
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Abstract method for processing agents. Must be implemented in a subclass.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;This method must be implemented in a subclass&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;This method must be implemented in a subclass&quot;</span><span class="p">)</span></div>
 
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -785,18 +832,21 @@ document.write(`
                 <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
                 <span class="n">agent</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">previous_responses_slice</span> <span class="o">=</span> <span class="n">previous_responses</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span><span class="p">:]</span>
+                <span class="n">previous_responses_slice</span> <span class="o">=</span> <span class="n">previous_responses</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span> <span class="p">:]</span>
                 <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span>
-                    <span class="n">previous_responses_slice</span><span class="p">)</span>
-                <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
-                <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
-                    <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
+                    <span class="n">previous_responses_slice</span>
+                <span class="p">)</span>
+                <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span>
+                    <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span>
+                    <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
+                <span class="p">)</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
                 <span class="n">previous_responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
-            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
+            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 </div>
@@ -835,15 +885,17 @@ document.write(`
                 <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
                     <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
                     <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
-                    <span class="n">futures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
-                        <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">))</span>
+                    <span class="n">futures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+                            <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
                 <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">):</span>
                     <span class="n">response</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
-            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
+            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 </div>
@@ -879,18 +931,25 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">agents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Agent</span><span class="p">],</span>
-            <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">cycles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="n">last_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
-            <span class="n">combination_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;debate&quot;</span><span class="p">,</span>
-            <span class="n">moderator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Moderator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">agents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Agent</span><span class="p">],</span>
+        <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">cycles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">last_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">combination_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;debate&quot;</span><span class="p">,</span>
+        <span class="n">moderator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Moderator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">agents</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Debate requires exactly two agents.&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">agents</span><span class="o">=</span><span class="n">agents</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">cycles</span><span class="o">=</span><span class="n">cycles</span><span class="p">,</span> <span class="n">last_n</span><span class="o">=</span><span class="n">last_n</span><span class="p">,</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">)</span>
+            <span class="n">agents</span><span class="o">=</span><span class="n">agents</span><span class="p">,</span>
+            <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span>
+            <span class="n">cycles</span><span class="o">=</span><span class="n">cycles</span><span class="p">,</span>
+            <span class="n">last_n</span><span class="o">=</span><span class="n">last_n</span><span class="p">,</span>
+            <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">combination_instructions</span>
 
     <span class="nd">@staticmethod</span>
@@ -905,10 +964,7 @@ document.write(`
         <span class="k">if</span> <span class="ow">not</span> <span class="n">responses</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">resp_list</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="s2">&quot;</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">responses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
-                    <span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">))]</span>
+            <span class="n">resp_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">responses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">))]</span>
             <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resp_list</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
     <span class="nd">@staticmethod</span>
@@ -917,7 +973,9 @@ document.write(`
 <span class="sd">        Strip placeholders from the response. These placeholders are used to indicate the speaker in the debate, but</span>
 <span class="sd">        sometimes LLMs add them to the response. This function removes them.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[WHAT YOU SAID]: &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[WHAT OTHER PARTICIPANT SAID]: &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[WHAT YOU SAID]: &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="s2">&quot;[WHAT OTHER PARTICIPANT SAID]: &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="Debate.process">
 <a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Debate.process">[docs]</a>
@@ -946,32 +1004,36 @@ document.write(`
                 <span class="c1"># index</span>
                 <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_previous_responses</span><span class="p">(</span>
-                        <span class="n">previous_responses_agent1</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span><span class="p">:])</span>
+                        <span class="n">previous_responses_agent1</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span> <span class="p">:]</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_previous_responses</span><span class="p">(</span>
-                        <span class="n">previous_responses_agent2</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span><span class="p">:])</span>
+                        <span class="n">previous_responses_agent2</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span> <span class="p">:]</span>
+                    <span class="p">)</span>
 
-                <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
-                <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
-                    <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
+                <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span>
+                    <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span>
+                    <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
+                <span class="p">)</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strip_placeholders</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;[Debater </span><span class="si">{}</span><span class="s2">] &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">response</span><span class="p">)</span>
 
                 <span class="c1"># Apply the correct prefix and update both lists</span>
                 <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">previous_responses_agent1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;[WHAT YOU SAID]: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">previous_responses_agent1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[WHAT YOU SAID]: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">previous_responses_agent2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;[WHAT OTHER PARTICIPANT SAID]: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="sa">f</span><span class="s2">&quot;[WHAT OTHER PARTICIPANT SAID]: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">previous_responses_agent2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;[WHAT YOU SAID]: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">previous_responses_agent2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[WHAT YOU SAID]: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">previous_responses_agent1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;[WHAT OTHER PARTICIPANT SAID]: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="sa">f</span><span class="s2">&quot;[WHAT OTHER PARTICIPANT SAID]: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
-            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
+            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 </div>
@@ -1034,13 +1096,15 @@ document.write(`
 <span class="sd">            graph.process()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">agents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Agent</span><span class="p">],</span>
-                 <span class="n">edges</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
-                 <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">last_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
-                 <span class="n">combination_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
-                 <span class="n">moderator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Moderator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">agents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Agent</span><span class="p">],</span>
+        <span class="n">edges</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+        <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">last_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">combination_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">moderator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Moderator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            agents (Union[List[Agent], Dict[str, Agent]]): A list or dictionary of agents to be included in the structure.</span>
@@ -1071,8 +1135,9 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">=</span> <span class="n">agents</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">edges</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">last_n</span><span class="o">=</span><span class="n">last_n</span><span class="p">,</span>
-                         <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">agents</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">last_n</span><span class="o">=</span><span class="n">last_n</span><span class="p">,</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_build_graph</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_build_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1120,7 +1185,8 @@ document.write(`
 
         <span class="c1"># Initialize the queue with agents that have in-degree 0</span>
         <span class="n">zero_in_degree_queue</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">agent</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="p">[</span><span class="n">agent</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
         <span class="n">topological_order</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Kahn&#39;s Algorithm</span>
@@ -1141,17 +1207,22 @@ document.write(`
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">topological_order</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;There is a cycle in the graph!!! This is not allowed in a DAG.&quot;</span><span class="p">)</span>
+                <span class="s2">&quot;There is a cycle in the graph!!! This is not allowed in a DAG.&quot;</span>
+            <span class="p">)</span>
 
         <span class="c1"># Process agents according to topological order</span>
         <span class="n">response_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">topological_order</span><span class="p">:</span>
-            <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
+            <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span>
+                <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span>
+                <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
+            <span class="p">)</span>
             <span class="c1"># Gather responses from all predecessors to form the input for the current agent</span>
-            <span class="n">previous_responses</span> <span class="o">=</span> <span class="p">[</span><span class="n">response_dict</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span>
-                                  <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="k">if</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">pred</span><span class="p">]]</span>
-            <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span>
-                <span class="n">previous_responses</span><span class="p">)</span>
+            <span class="n">previous_responses</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">response_dict</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="k">if</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span>
+            <span class="p">]</span>
+            <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span><span class="n">previous_responses</span><span class="p">)</span>
             <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
             <span class="n">response_dict</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="o">=</span> <span class="n">response</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
@@ -1160,7 +1231,8 @@ document.write(`
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
             <span class="n">original_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">original_task_description</span>
             <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span>
-                <span class="nb">list</span><span class="p">(</span><span class="n">response_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">response_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="n">moderated_response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -1171,36 +1243,46 @@ document.write(`
     <span class="k">def</span> <span class="nf">_validate_input_format</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="n">edges</span><span class="p">):</span>
 
         <span class="c1"># Check #1: Check if agents and edges are in the correct format</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">Agent</span><span class="p">)</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">agents</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span>
-                <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">Agent</span><span class="p">)</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">agents</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">)</span>
+        <span class="p">):</span>
             <span class="k">pass</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">Agent</span><span class="p">)</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">agents</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span>
-                <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">Agent</span><span class="p">)</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">agents</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">)</span>
+        <span class="p">):</span>
             <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The agents and edges must be in the correct format. See the documentation for more &quot;</span>
-                             <span class="s2">&quot;information. Either (Method 1) `agents` is a list of Agents and `edges` is a list of &quot;</span>
-                             <span class="s2">&quot;tuples corresponding to the indices of agents, (src_idx, dest_idx). Or, (Method 2) &quot;</span>
-                             <span class="s2">&quot;`agents` is a dictionary of Agents and edges is a list of tuples corresponding to the &quot;</span>
-                             <span class="s2">&quot;names of agents (src_agent_name, dest_agent_name).&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The agents and edges must be in the correct format. See the documentation for more &quot;</span>
+                <span class="s2">&quot;information. Either (Method 1) `agents` is a list of Agents and `edges` is a list of &quot;</span>
+                <span class="s2">&quot;tuples corresponding to the indices of agents, (src_idx, dest_idx). Or, (Method 2) &quot;</span>
+                <span class="s2">&quot;`agents` is a dictionary of Agents and edges is a list of tuples corresponding to the &quot;</span>
+                <span class="s2">&quot;names of agents (src_agent_name, dest_agent_name).&quot;</span>
+            <span class="p">)</span>
 
         <span class="c1"># If Method 1: Check if edge indices are within the range of agents</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">src_idx</span><span class="p">,</span> <span class="n">dst_idx</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">src_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">agents</span><span class="p">)</span> <span class="ow">or</span> <span class="n">dst_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">agents</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;Edge indices must be within the range of agents.&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Edge indices must be within the range of agents.&quot;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">src_idx</span> <span class="o">==</span> <span class="n">dst_idx</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;Self loops are not allowed in the graph.&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Self loops are not allowed in the graph.&quot;</span><span class="p">)</span>
 
         <span class="c1"># If Method 2: Check if agent names in edges are keys in the agent dictionary</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">agent_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">agents</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
             <span class="k">for</span> <span class="n">src_agent_name</span><span class="p">,</span> <span class="n">dst_agent_name</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">src_agent_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">agent_names</span> <span class="ow">or</span> <span class="n">dst_agent_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">agent_names</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">src_agent_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">agent_names</span>
+                    <span class="ow">or</span> <span class="n">dst_agent_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">agent_names</span>
+                <span class="p">):</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;Agent names in edges must be keys in the agent dictionary.&quot;</span><span class="p">)</span></div>
+                        <span class="s2">&quot;Agent names in edges must be keys in the agent dictionary.&quot;</span>
+                    <span class="p">)</span></div>
 
 </pre></div>
 
