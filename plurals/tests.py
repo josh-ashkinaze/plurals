@@ -1052,7 +1052,6 @@ class TestDebate(unittest.TestCase):
         )
 
         self.assertNotIn("${previous_responses}", agent2.prompts[0]["user"])
-
         self.assertIn("Counter the previous point:", agent2.prompts[0]["user"])
 
     def test_set_some_individual_agent_combination_instructions(self):
