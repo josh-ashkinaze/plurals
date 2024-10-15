@@ -646,7 +646,6 @@ class Debate(AbstractStructure):
             last_n=last_n,
             moderator=moderator,
         )
-        self._set_combination_instructions()
 
     @staticmethod
     def _format_previous_responses(responses: List[str]) -> str:
@@ -704,12 +703,6 @@ class Debate(AbstractStructure):
                     previous_responses_str = self._format_previous_responses(
                         previous_responses_agent2[-self.last_n :]
                     )
-
-                agent.combination_instructions = (
-                    agent.combination_instructions
-                    if agent.combination_instructions
-                    else self.combination_instructions
-                )
                 response = agent.process(previous_responses=previous_responses_str)
                 response = self._strip_placeholders(response)
                 self.responses.append("[Debater {}] ".format(i + 1) + response)
