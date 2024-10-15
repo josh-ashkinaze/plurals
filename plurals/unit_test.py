@@ -598,24 +598,25 @@ class TestChain(unittest.TestCase):
 
     def test_set_all_individual_agent_combination_instructions(self):
         """Set custom combo insts for all agents"""
+
         task = "Generate argument for or against social media in 10 words."
         agent1 = Agent(
             task=task,
             combination_instructions="Build on previous ideas: ${previous_responses}",
             model="gpt-3.5-turbo",
-            kwargs={"max_tokens": 30}
+            kwargs={"max_tokens": 30},
         )
         agent2 = Agent(
             task=task,
             combination_instructions="Critique previous points: ${previous_responses}",
             model="gpt-3.5-turbo",
-            kwargs={"max_tokens": 30}
+            kwargs={"max_tokens": 30},
         )
         agent3 = Agent(
             task=task,
             combination_instructions="Synthesize all points: ${previous_responses}",
             model="gpt-3.5-turbo",
-            kwargs={"max_tokens": 30}
+            kwargs={"max_tokens": 30},
         )
 
         chain = Chain([agent1, agent2, agent3], task=task)
@@ -636,20 +637,24 @@ class TestChain(unittest.TestCase):
 
         self.assertEqual(3, len(chain.responses))
 
+        self.assertIn("Critique previous points:", agent2.prompts[0]["user"])
+        self.assertIn("Synthesize all points:", agent3.prompts[0]["user"])
+
     def test_set_some_individual_agent_combination_instructions(self):
-        """When combo insts set for some Agents, we use the set instructions for the relevant Agents
-        and structure combo instructions for other Agents"""
+        """When combo insts set for some Agents, we use the set instructions for the relevant Agents and structure combo instructions for other Agents"""
         task = "Generate argument for or against social media in 10 words."
         agent1 = Agent(
             task=task,
             combination_instructions="Expand on previous responses: ${previous_responses}",
             model="gpt-3.5-turbo",
-            kwargs={"max_tokens": 30}
+            kwargs={"max_tokens": 30},
         )
         agent2 = Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
         agent3 = Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
 
-        chain = Chain([agent1, agent2, agent3], task=task, combination_instructions="chain")
+        chain = Chain(
+            [agent1, agent2, agent3], task=task, combination_instructions="jury"
+        )
         chain.process()
 
         self.assertEqual(
@@ -657,15 +662,18 @@ class TestChain(unittest.TestCase):
             agent1.combination_instructions,
         )
         self.assertEqual(
-            DEFAULTS['combination_instructions']['chain'],
+            DEFAULTS["combination_instructions"]["jury"],
             agent2.combination_instructions,
         )
         self.assertEqual(
-            DEFAULTS['combination_instructions']['chain'],
+            DEFAULTS["combination_instructions"]["jury"],
             agent3.combination_instructions,
         )
 
         self.assertEqual(3, len(chain.responses))
+
+        self.assertIn("Reexamine your views", agent2.prompts[0]["user"])
+        self.assertIn("Reexamine your views", agent3.prompts[0]["user"])
 
     def test_no_individual_agent_combination_instructions(self):
         """Make sure when no combo inst set, but set in structure, Agents get what is set in structure"""
@@ -674,49 +682,26 @@ class TestChain(unittest.TestCase):
         agent2 = Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
         agent3 = Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
 
-        chain = Chain([agent1, agent2, agent3], task=task, combination_instructions="first_wave")
+        chain = Chain(
+            [agent1, agent2, agent3], task=task, combination_instructions="first_wave"
+        )
         chain.process()
 
         self.assertEqual(
-            DEFAULTS['combination_instructions']['first_wave'],
+            DEFAULTS["combination_instructions"]["first_wave"],
             agent1.combination_instructions,
         )
         self.assertEqual(
-            DEFAULTS['combination_instructions']['first_wave'],
+            DEFAULTS["combination_instructions"]["first_wave"],
             agent2.combination_instructions,
         )
         self.assertEqual(
-            DEFAULTS['combination_instructions']['first_wave'],
+            DEFAULTS["combination_instructions"]["first_wave"],
             agent3.combination_instructions,
         )
 
-        self.assertEqual(3, len(chain.responses))
-
-    def test_no_individual_agent_combination_instructions_default(self):
-        """Make sure when no combo inst set every Agent gets default"""
-        task = "Generate argument for or against social media in 10 words."
-        agent1 = Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
-        agent2 = Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
-        agent3 = Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
-
-        chain = Chain([agent1, agent2, agent3], task=task)
-        chain.process()
-
-        self.assertEqual(
-            DEFAULTS['combination_instructions']['default'],
-            agent1.combination_instructions,
-        )
-        self.assertEqual(
-            DEFAULTS['combination_instructions']['default'],
-            agent2.combination_instructions,
-        )
-        self.assertEqual(
-            DEFAULTS['combination_instructions']['default'],
-            agent3.combination_instructions,
-        )
-
-        self.assertEqual(3, len(chain.responses))
-
+        self.assertIn("Respect each other’s viewpoints", agent2.prompts[0]["user"])
+        self.assertIn("Respect each other’s viewpoints", agent3.prompts[0]["user"])
 
     def test_chain_debate_instructions(self):
         a2 = Agent(ideology="moderate", model=self.model)
@@ -1038,7 +1023,6 @@ class TestDebate(unittest.TestCase):
 
         self.assertIn("Counter the previous point:", agent2.prompts[0]["user"])
 
-
     def test_set_all_individual_agent_combination_instructions(self):
         """Set custom combo insts for all agents"""
         task = "Generate argument for or against social media in 10 words."
@@ -1046,13 +1030,13 @@ class TestDebate(unittest.TestCase):
             task=task,
             combination_instructions="Respond to previous argument: ${previous_responses}",
             model="gpt-3.5-turbo",
-            kwargs={"max_tokens": 30}
+            kwargs={"max_tokens": 30},
         )
         agent2 = Agent(
             task=task,
             combination_instructions="Counter the previous point: ${previous_responses}",
             model="gpt-3.5-turbo",
-            kwargs={"max_tokens": 30}
+            kwargs={"max_tokens": 30},
         )
 
         debate = Debate([agent1, agent2], task=task)
@@ -1067,7 +1051,7 @@ class TestDebate(unittest.TestCase):
             "Counter the previous point: ${previous_responses}",
         )
 
-        self.assertEqual(len(debate.responses), 2)
+        self.assertNotIn("${previous_responses}", agent2.prompts[0]["user"])
 
         self.assertIn("Counter the previous point:", agent2.prompts[0]["user"])
 
@@ -1079,7 +1063,7 @@ class TestDebate(unittest.TestCase):
             task=task,
             combination_instructions="Address the previous point: ${previous_responses}",
             model="gpt-3.5-turbo",
-            kwargs={"max_tokens": 30}
+            kwargs={"max_tokens": 30},
         )
         agent2 = Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
 
@@ -1090,9 +1074,12 @@ class TestDebate(unittest.TestCase):
             "Address the previous point: ${previous_responses}",
             agent1.combination_instructions,
         )
-        self.assertEqual(DEFAULTS['combination_instructions']['debate'], agent2.combination_instructions)
-
-        self.assertEqual(len(debate.responses), 2)
+        self.assertEqual(
+            DEFAULTS["combination_instructions"]["debate"],
+            agent2.combination_instructions,
+        )
+        self.assertNotIn("${previous_responses}", agent2.prompts[0]["user"])
+        self.assertIn("in the third person", agent2.prompts[0]["user"])
 
     def test_no_individual_agent_combination_instructions(self):
         """Make sure when no combo inst set, but set in structure, Agents get what is set in structure"""
@@ -1100,13 +1087,24 @@ class TestDebate(unittest.TestCase):
         agent1 = Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
         agent2 = Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
 
-        debate = Debate([agent1, agent2], task=task, combination_instructions="first_wave")
+        debate = Debate(
+            [agent1, agent2], task=task, combination_instructions="first_wave"
+        )
         debate.process()
 
-        self.assertEqual(DEFAULTS['combination_instructions']['first_wave'], agent1.combination_instructions)
-        self.assertEqual(DEFAULTS['combination_instructions']['first_wave'], agent2.combination_instructions)
+        self.assertEqual(
+            DEFAULTS["combination_instructions"]["first_wave"],
+            agent1.combination_instructions,
+        )
+        self.assertEqual(
+            DEFAULTS["combination_instructions"]["first_wave"],
+            agent2.combination_instructions,
+        )
 
         self.assertEqual(len(debate.responses), 2)
+        self.assertNotIn("${previous_responses}", agent2.prompts[0]["user"])
+
+        self.assertIn("rational-critical debate", agent2.prompts[0]["user"])
 
     def test_no_individual_agent_combination_instructions_default(self):
         """Make sure when no combo inst set every Agent gets default"""
@@ -1117,10 +1115,18 @@ class TestDebate(unittest.TestCase):
         debate = Debate([agent1, agent2], task=task)
         debate.process()
 
-        self.assertEqual(DEFAULTS['combination_instructions']['debate'], agent1.combination_instructions)
-        self.assertEqual(DEFAULTS['combination_instructions']['debate'], agent2.combination_instructions)
+        self.assertEqual(
+            DEFAULTS["combination_instructions"]["debate"],
+            agent1.combination_instructions,
+        )
+        self.assertEqual(
+            DEFAULTS["combination_instructions"]["debate"],
+            agent2.combination_instructions,
+        )
+        self.assertNotIn("${previous_responses}", agent2.prompts[0]["user"])
 
         self.assertEqual(len(debate.responses), 2)
+        self.assertIn("third person", agent2.prompts[0]["user"])
 
 
 class TestAgentStructures(unittest.TestCase):
@@ -1306,6 +1312,8 @@ class TestNetworkStructure(unittest.TestCase):
         self.assertIn("Prev2 to previous", agent2.prompts[0]["user"])
         self.assertIn("Greetings to previous", agent3.prompts[0]["user"])
 
+        self.assertNotIn("${previous_responses}", agent2.prompts[0]["user"])
+        self.assertNotIn("${previous_responses}", agent3.prompts[0]["user"])
 
     def test_set_all_individual_agent_combination_instructions(self):
         """Set custom combo insts for all agents"""
@@ -1314,19 +1322,19 @@ class TestNetworkStructure(unittest.TestCase):
             task=task,
             combination_instructions="Summarize previous insights: ${previous_responses}",
             model="gpt-3.5-turbo",
-            kwargs={"max_tokens": 30}
+            kwargs={"max_tokens": 30},
         )
         agent2 = Agent(
             task=task,
             combination_instructions="Provide contrasting viewpoint: ${previous_responses}",
             model="gpt-3.5-turbo",
-            kwargs={"max_tokens": 30}
+            kwargs={"max_tokens": 30},
         )
         agent3 = Agent(
             task=task,
             combination_instructions="Synthesize all perspectives: ${previous_responses}",
             model="gpt-3.5-turbo",
-            kwargs={"max_tokens": 30}
+            kwargs={"max_tokens": 30},
         )
 
         agents = {"agent1": agent1, "agent2": agent2, "agent3": agent3}
@@ -1348,6 +1356,10 @@ class TestNetworkStructure(unittest.TestCase):
             agent3.combination_instructions,
         )
 
+        self.assertIn("Provide contrasting viewpoint:", agent2.prompts[0]["user"])
+        self.assertIn("Synthesize all perspectives:", agent3.prompts[0]["user"])
+        self.assertNotIn("${previous_responses}", agent2.prompts[0]["user"])
+        self.assertNotIn("${previous_responses}", agent3.prompts[0]["user"])
         self.assertEqual(3, len(graph.responses))
 
     def test_set_some_individual_agent_combination_instructions(self):
@@ -1358,7 +1370,7 @@ class TestNetworkStructure(unittest.TestCase):
             task=task,
             combination_instructions="Build on previous ideas: ${previous_responses}",
             model="gpt-3.5-turbo",
-            kwargs={"max_tokens": 30}
+            kwargs={"max_tokens": 30},
         )
         agent2 = Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
         agent3 = Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
@@ -1366,7 +1378,9 @@ class TestNetworkStructure(unittest.TestCase):
         agents = {"agent1": agent1, "agent2": agent2, "agent3": agent3}
         edges = [("agent1", "agent2"), ("agent1", "agent3"), ("agent2", "agent3")]
 
-        graph = Graph(agents=agents, edges=edges, task=task, combination_instructions="voting")
+        graph = Graph(
+            agents=agents, edges=edges, task=task, combination_instructions="voting"
+        )
         graph.process()
 
         self.assertEqual(
@@ -1374,14 +1388,18 @@ class TestNetworkStructure(unittest.TestCase):
             agent1.combination_instructions,
         )
         self.assertEqual(
-            DEFAULTS['combination_instructions']['voting'],
+            DEFAULTS["combination_instructions"]["voting"],
             agent2.combination_instructions,
         )
         self.assertEqual(
-            DEFAULTS['combination_instructions']['voting'],
+            DEFAULTS["combination_instructions"]["voting"],
             agent3.combination_instructions,
         )
 
+        self.assertIn("single and", agent2.prompts[0]["user"])
+        self.assertIn("single and", agent3.prompts[0]["user"])
+        self.assertNotIn("${previous_responses}", agent2.prompts[0]["user"])
+        self.assertNotIn("${previous_responses}", agent3.prompts[0]["user"])
         self.assertEqual(3, len(graph.responses))
 
     def test_no_individual_agent_combination_instructions(self):
@@ -1394,21 +1412,32 @@ class TestNetworkStructure(unittest.TestCase):
         agents = {"agent1": agent1, "agent2": agent2, "agent3": agent3}
         edges = [("agent1", "agent2"), ("agent1", "agent3"), ("agent2", "agent3")]
 
-        graph = Graph(agents=agents, edges=edges, task=task, combination_instructions="second_wave")
+        graph = Graph(
+            agents=agents,
+            edges=edges,
+            task=task,
+            combination_instructions="second_wave",
+        )
         graph.process()
 
         self.assertEqual(
-            DEFAULTS['combination_instructions']['second_wave'],
+            DEFAULTS["combination_instructions"]["second_wave"],
             agent1.combination_instructions,
         )
         self.assertEqual(
-            DEFAULTS['combination_instructions']['second_wave'],
+            DEFAULTS["combination_instructions"]["second_wave"],
             agent2.combination_instructions,
         )
         self.assertEqual(
-            DEFAULTS['combination_instructions']['second_wave'],
+            DEFAULTS["combination_instructions"]["second_wave"],
             agent3.combination_instructions,
         )
+
+        self.assertIn("Use empathy", agent2.prompts[0]["user"])
+        self.assertIn("Use empathy", agent3.prompts[0]["user"])
+
+        self.assertNotIn("${previous_responses}", agent2.prompts[0]["user"])
+        self.assertNotIn("${previous_responses}", agent3.prompts[0]["user"])
         self.assertEqual(3, len(graph.responses))
 
     def test_no_individual_agent_combination_instructions_default(self):
@@ -1425,17 +1454,23 @@ class TestNetworkStructure(unittest.TestCase):
         graph.process()
 
         self.assertEqual(
-            DEFAULTS['combination_instructions']['default'],
+            DEFAULTS["combination_instructions"]["default"],
             agent1.combination_instructions,
         )
         self.assertEqual(
-            DEFAULTS['combination_instructions']['default'],
+            DEFAULTS["combination_instructions"]["default"],
             agent2.combination_instructions,
         )
         self.assertEqual(
-            DEFAULTS['combination_instructions']['default'],
+            DEFAULTS["combination_instructions"]["default"],
             agent3.combination_instructions,
         )
+
+        self.assertIn("USE PREVIOUS", agent2.prompts[0]["user"])
+        self.assertIn("USE PREVIOUS", agent3.prompts[0]["user"])
+
+        self.assertNotIn("${previous_responses}", agent2.prompts[0]["user"])
+        self.assertNotIn("${previous_responses}", agent3.prompts[0]["user"])
 
         self.assertEqual(3, len(graph.responses))
 
