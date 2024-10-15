@@ -454,6 +454,26 @@ class TestChain(unittest.TestCase):
         self.assertIsNotNone(mixed.final_response)
         self.assertEqual(DEFAULTS['combination_instructions']['chain'], mixed.combination_instructions)
 
+    def test_chain_with_different_combination_instructions(self):
+        task = "Say hello"
+        agent1 = Agent(task=task, combination_instructions="Hello to previous ${previous_responses}",
+                       model="gpt-3.5-turbo")
+        agent2 = Agent(task=task, combination_instructions="Prev2 to previous ${previous_responses}", model="gpt-4")
+        agent3 = Agent(task=task, combination_instructions="Greetings to previous ${previous_responses}",
+                       model="gpt-3.5-turbo")
+
+        chain = Chain([agent1, agent2, agent3], task=task)
+        chain.process()
+
+        self.assertEqual(agent1.combination_instructions, "Hello to previous ${previous_responses}")
+        self.assertEqual(agent2.combination_instructions, "Prev2 to previous ${previous_responses}")
+        self.assertEqual(agent3.combination_instructions, "Greetings to previous ${previous_responses}")
+
+        self.assertEqual(len(chain.responses), 3)
+
+        self.assertIn("Prev2 to previous", agent2.prompts[0]['user'])
+        self.assertIn("Greetings to previous", agent3.prompts[0]['user'])
+
     def test_chain_debate_instructions(self):
         a2 = Agent(ideology='moderate', model=self.model)
         a3 = Agent(ideology='liberal', model=self.model)
@@ -670,6 +690,26 @@ class TestDebate(unittest.TestCase):
         self.assertIn("effective in other countries", debate.responses[2])
         self.assertIn("self-defense", debate.responses[3])
 
+    def test_debate_with_different_combination_instructions(self):
+        task = "Debate the pros and cons of artificial intelligence in 10 words."
+        agent1 = Agent(task=task, combination_instructions="Respond to previous argument: ${previous_responses}",
+                       model="gpt-3.5-turbo")
+        agent2 = Agent(task=task, combination_instructions="Counter the previous point: ${previous_responses}",
+                       model="gpt-4")
+
+        debate = Debate([agent1, agent2], task=task)
+        debate.process()
+
+        print(agent1.combination_instructions)
+        self.assertEqual(agent1.combination_instructions, "Respond to previous argument: ${previous_responses}")
+        self.assertEqual(agent2.combination_instructions, "Counter the previous point: ${previous_responses}")
+
+        self.assertEqual(len(debate.responses), 2)
+
+        self.assertIn("Counter the previous point:", agent2.prompts[0]['user'])
+
+
+
 
 class TestAgentStructures(unittest.TestCase):
 
@@ -763,6 +803,35 @@ class TestNetworkStructure(unittest.TestCase):
         self.assertIn("growth", graph.responses[0])
         self.assertIn("inequality", graph.responses[1])
         self.assertIn("Both economic growth and social equality", final_response)
+
+    def test_graph_with_different_combination_instructions(self):
+        task = "Say hello"
+        agent1 = Agent(task=task, combination_instructions="Hello to previous ${previous_responses}",
+                       model="gpt-3.5-turbo")
+        agent2 = Agent(task=task, combination_instructions="Prev2 to previous ${previous_responses}", model="gpt-4")
+        agent3 = Agent(task=task, combination_instructions="Greetings to previous ${previous_responses}",
+                       model="gpt-3.5-turbo")
+
+        agents = {
+            'agent1': agent1,
+            'agent2': agent2,
+            'agent3': agent3
+        }
+        edges = [('agent1', 'agent2'), ('agent1', 'agent3'), ('agent2', 'agent3')]
+
+        graph = Graph(agents=agents, edges=edges, task=task)
+        graph.process()
+
+        # Check if the combination instructions are preserved for each agent
+        self.assertEqual(agent1.combination_instructions, "Hello to previous ${previous_responses}")
+        self.assertEqual(agent2.combination_instructions, "Prev2 to previous ${previous_responses}")
+        self.assertEqual(agent3.combination_instructions, "Greetings to previous ${previous_responses}")
+
+        self.assertEqual(len(graph.responses), 3)
+
+        # Check if the combination instructions are used in the prompts
+        self.assertIn("Prev2 to previous", agent2.prompts[0]['user'])
+        self.assertIn("Greetings to previous", agent3.prompts[0]['user'])
 
     def test_dict_to_list_conversion(self):
         """Test that the dictionary method (Method 2) correctly converts to the list method (Method 1) internally."""

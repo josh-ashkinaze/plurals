@@ -498,7 +498,7 @@ class Chain(AbstractStructure):
                 previous_responses_slice = previous_responses[-self.last_n:]
                 previous_responses_str = format_previous_responses(
                     previous_responses_slice)
-                agent.combination_instructions = self.combination_instructions
+                agent.combination_instructions = agent.combination_instructions if agent.combination_instructions else self.combination_instructions
                 response = agent.process(
                     previous_responses=previous_responses_str)
                 previous_responses.append(response)
@@ -590,7 +590,8 @@ class Debate(AbstractStructure):
         if len(agents) != 2:
             raise ValueError("Debate requires exactly two agents.")
         super().__init__(
-            agents, task, shuffle, cycles, last_n, combination_instructions, moderator)
+            agents=agents, task=task, shuffle=shuffle, cycles=cycles, last_n=last_n, moderator=moderator)
+        self.combination_instructions = combination_instructions
 
     @staticmethod
     def _format_previous_responses(responses: List[str]) -> str:
@@ -648,7 +649,7 @@ class Debate(AbstractStructure):
                     previous_responses_str = self._format_previous_responses(
                         previous_responses_agent2[-self.last_n:])
 
-                agent.combination_instructions = self.combination_instructions
+                agent.combination_instructions = agent.combination_instructions if agent.combination_instructions else self.combination_instructions
                 response = agent.process(
                     previous_responses=previous_responses_str)
                 response = self._strip_placeholders(response)
@@ -765,7 +766,6 @@ class Graph(AbstractStructure):
             self.edges = edges
 
         super().__init__(agents=self.agents, task=task, last_n=last_n,
-                         combination_instructions=combination_instructions,
                          moderator=moderator)
         self._build_graph()
 
@@ -838,7 +838,7 @@ class Graph(AbstractStructure):
         # Process agents according to topological order
         response_dict = {}
         for agent in topological_order:
-            agent.combination_instructions = self.combination_instructions
+            agent.combination_instructions = agent.combination_instructions if agent.combination_instructions else self.combination_instructions
             # Gather responses from all predecessors to form the input for the current agent
             previous_responses = [response_dict[pred]
                                   for pred in self.agents if agent in self.graph[pred]]
