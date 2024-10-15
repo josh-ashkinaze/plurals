@@ -368,20 +368,15 @@ class AbstractStructure(ABC):
 
     def _set_combination_instructions(self) -> None:
         """
-        Set the combination instructions for agents based on the provided value or the default. If agents have their own
-        combination instructions, use those instead.
-
+        Set the combination instructions for agents based on the provided value or the default.
+        If agents have their own combination instructions, use those instead.
         """
-        self.combination_instructions = SmartString(
-            self.defaults["combination_instructions"].get(
-                self.combination_instructions, self.combination_instructions
-            )
+        self.combination_instructions = self.defaults["combination_instructions"].get(
+            self.combination_instructions, self.combination_instructions
         )
 
         for agent in self.agents:
-            if agent.combination_instructions:
-                pass
-            else:
+            if not agent.combination_instructions:
                 agent.combination_instructions = self.combination_instructions
 
     def _set_agent_task_description(self) -> None:
@@ -646,11 +641,12 @@ class Debate(AbstractStructure):
             agents=agents,
             task=task,
             shuffle=shuffle,
+            combination_instructions=combination_instructions,
             cycles=cycles,
             last_n=last_n,
             moderator=moderator,
         )
-        self.combination_instructions = combination_instructions
+        self._set_combination_instructions()
 
     @staticmethod
     def _format_previous_responses(responses: List[str]) -> str:
@@ -830,9 +826,10 @@ class Graph(AbstractStructure):
             self.edges = edges
 
         super().__init__(
-            agents=self.agents, task=task, last_n=last_n, moderator=moderator
+            agents=self.agents, task=task, last_n=last_n, moderator=moderator, combination_instructions=combination_instructions
         )
         self._build_graph()
+        self._set_combination_instructions()
 
     def _build_graph(self):
         """
