@@ -2,8 +2,20 @@ import unittest
 from unittest.mock import MagicMock, patch, Mock
 
 from plurals.agent import Agent
-from plurals.deliberation import Chain, Moderator, Ensemble, Debate, Graph, AbstractStructure
-from plurals.helpers import load_yaml, format_previous_responses, SmartString, strip_nested_dict
+from plurals.deliberation import (
+    Chain,
+    Moderator,
+    Ensemble,
+    Debate,
+    Graph,
+    AbstractStructure,
+)
+from plurals.helpers import (
+    load_yaml,
+    format_previous_responses,
+    SmartString,
+    strip_nested_dict,
+)
 import json
 
 DEFAULTS = load_yaml("instructions.yaml")
@@ -19,26 +31,31 @@ class TestStructure(AbstractStructure):
 
 
 class TestAgent(unittest.TestCase):
-    anes_template = DEFAULTS['persona_template'].get("anes").strip()
-    default_template = DEFAULTS['persona_template'].get("default").strip()
+    anes_template = DEFAULTS["persona_template"].get("anes").strip()
+    default_template = DEFAULTS["persona_template"].get("default").strip()
 
     def setUp(self):
         self.task = "How should the US handle gun control? Answer in 100 words."
-        self.model = 'gpt-3.5-turbo'
+        self.model = "gpt-3.5-turbo"
         self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
 
     def test_agent_system_instructions(self):
         """Test whether agents can be properly initialized with system instructions"""
-        agent = Agent(task="test task", system_instructions="Here are some random system instructions.",
-                      kwargs=self.kwargs)
+        agent = Agent(
+            task="test task",
+            system_instructions="Here are some random system instructions.",
+            kwargs=self.kwargs,
+        )
         self.assertIsNotNone(agent.system_instructions)
-        self.assertIn("Here are some random system instructions.", agent.system_instructions)
+        self.assertIn(
+            "Here are some random system instructions.", agent.system_instructions
+        )
 
     def test_agent_no_system_instructions(self):
         """Test whether agents are initialized with no system instructions"""
         agent = Agent(task="Write a 10 word story.", kwargs=self.kwargs)
         agent.process()
-        system_prompt = agent.history[0]['prompts']['system']
+        system_prompt = agent.history[0]["prompts"]["system"]
         self.assertIsNone(system_prompt)
         self.assertIsNone(agent.system_instructions)
 
@@ -47,7 +64,7 @@ class TestAgent(unittest.TestCase):
         task1 = "Test Task1"
         task2 = "Test Task2"
 
-        a = Agent(ideology='liberal', task=task1, model=self.model, kwargs=self.kwargs)
+        a = Agent(ideology="liberal", task=task1, model=self.model, kwargs=self.kwargs)
 
         persona1 = a.persona
         system_instructions1 = a.system_instructions
@@ -72,23 +89,41 @@ class TestAgent(unittest.TestCase):
 
     def test_agent_combo_inst_in_user_prompt(self):
         """Test if when combination instructions are set they are appropriately used in user prompt"""
-        a = Agent(ideology='moderate', task="write a haiku", model=self.model,
-                  combination_instructions='eccentric instructions', kwargs=self.kwargs)
-        previous_responses = format_previous_responses(['response1', 'response2'])
+        a = Agent(
+            ideology="moderate",
+            task="write a haiku",
+            model=self.model,
+            combination_instructions="eccentric instructions",
+            kwargs=self.kwargs,
+        )
+        previous_responses = format_previous_responses(["response1", "response2"])
         a.process(previous_responses=previous_responses)
-        user_prompt = a.info['history'][0]['prompts']['user']
+        user_prompt = a.info["history"][0]["prompts"]["user"]
         self.assertIn("eccentric instructions", user_prompt)
 
     def test_agent_combo_inst_overwrite(self):
         """Test whether combination instructions are properly set for agents. If they are provided to agents and
-        structures the desired behavior is that agents will overwrite structure combination instructions"""
-        a2 = Agent(ideology='moderate', model=self.model, combination_instructions='agent 2 instructions',
-                   kwargs=self.kwargs)
-        a3 = Agent(ideology='liberal', model=self.model, kwargs=self.kwargs,
-                   combination_instructions='agent 3 instructions')
-        a4 = Agent(ideology='conservative', model=self.model, combination_instructions='agent 4 instructions',
-                   kwargs=self.kwargs)
-        mixed = Chain([a2, a3, a4], task=self.task, combination_instructions='voting')
+        structures the desired behavior is that agents will overwrite structure combination instructions
+        """
+        a2 = Agent(
+            ideology="moderate",
+            model=self.model,
+            combination_instructions="agent 2 instructions",
+            kwargs=self.kwargs,
+        )
+        a3 = Agent(
+            ideology="liberal",
+            model=self.model,
+            kwargs=self.kwargs,
+            combination_instructions="agent 3 instructions",
+        )
+        a4 = Agent(
+            ideology="conservative",
+            model=self.model,
+            combination_instructions="agent 4 instructions",
+            kwargs=self.kwargs,
+        )
+        mixed = Chain([a2, a3, a4], task=self.task, combination_instructions="voting")
 
         mixed._set_combination_instructions()
 
@@ -106,7 +141,7 @@ class TestAgent(unittest.TestCase):
         task1 = "Test Task1"
         task2 = "Test Task2"
 
-        a = Agent(ideology='conservative', task=task1)
+        a = Agent(ideology="conservative", task=task1)
         a.process()
 
         persona1 = a.persona
@@ -158,30 +193,55 @@ class TestAgent(unittest.TestCase):
     def test_agent_with_nonexistent_ideology(self):
         """Test whether the agent raises an error or handles gracefully when no matching ideology is found"""
         with self.assertRaises(AssertionError):
-            Agent(task=self.task, ideology='nonexistent', model=self.model, kwargs=self.kwargs)
+            Agent(
+                task=self.task,
+                ideology="nonexistent",
+                model=self.model,
+                kwargs=self.kwargs,
+            )
 
     def test_agent_with_invalid_query_str(self):
         """Test whether the agent raises an error or handles gracefully when query_str results in no data"""
         with self.assertRaises(AssertionError):
-            Agent(task=self.task, query_str="inputstate=='Atlantis'", model=self.model, kwargs=self.kwargs)
+            Agent(
+                task=self.task,
+                query_str="inputstate=='Atlantis'",
+                model=self.model,
+                kwargs=self.kwargs,
+            )
 
     def test_agent_manual_persona(self):
         """Test manual persona setting"""
-        a2 = Agent(task=self.task,
-                   persona='Very conservative White Man from the deep south who strongly believe in second amendment',
-                   model=self.model)
-        a3 = Agent(task=self.task, persona="Liberal White women from the east coast who has far left takes",
-                   model=self.model)
-        a4 = Agent(task=self.task, persona="Young man from a neighbourhood who has had friends die to gun violence",
-                   model=self.model)
+        a2 = Agent(
+            task=self.task,
+            persona="Very conservative White Man from the deep south who strongly believe in second amendment",
+            model=self.model,
+        )
+        a3 = Agent(
+            task=self.task,
+            persona="Liberal White women from the east coast who has far left takes",
+            model=self.model,
+        )
+        a4 = Agent(
+            task=self.task,
+            persona="Young man from a neighbourhood who has had friends die to gun violence",
+            model=self.model,
+        )
         mixed = Chain([a2, a3, a4])
 
         # Assertions for personas
-        self.assertEqual('Very conservative White Man from the deep south who strongly believe in second amendment',
-                         mixed.agents[0].persona)
-        self.assertEqual('Liberal White women from the east coast who has far left takes', mixed.agents[1].persona)
-        self.assertEqual('Young man from a neighbourhood who has had friends die to gun violence',
-                         mixed.agents[2].persona)
+        self.assertEqual(
+            "Very conservative White Man from the deep south who strongly believe in second amendment",
+            mixed.agents[0].persona,
+        )
+        self.assertEqual(
+            "Liberal White women from the east coast who has far left takes",
+            mixed.agents[1].persona,
+        )
+        self.assertEqual(
+            "Young man from a neighbourhood who has had friends die to gun violence",
+            mixed.agents[2].persona,
+        )
 
         # Assertions for persona templates
         self.assertEqual(self.default_template, mixed.agents[0].persona_template)
@@ -190,9 +250,9 @@ class TestAgent(unittest.TestCase):
 
     def test_agent_ideology(self):
         """Test ANES persona ideology method"""
-        a2 = Agent(task=self.task, ideology='moderate', model=self.model)
-        a3 = Agent(task=self.task, ideology='liberal', model=self.model)
-        a4 = Agent(task=self.task, ideology='conservative', model=self.model)
+        a2 = Agent(task=self.task, ideology="moderate", model=self.model)
+        a3 = Agent(task=self.task, ideology="liberal", model=self.model)
+        a4 = Agent(task=self.task, ideology="conservative", model=self.model)
         mixed = Chain([a2, a3, a4])
 
         # Persona assertions
@@ -207,9 +267,9 @@ class TestAgent(unittest.TestCase):
 
     def test_no_task_in_agent(self):
         """Test whether Structures work with no task in the agent"""
-        a2 = Agent(ideology='moderate', model=self.model)
-        a3 = Agent(ideology='liberal', model=self.model)
-        a4 = Agent(ideology='conservative', model=self.model)
+        a2 = Agent(ideology="moderate", model=self.model)
+        a3 = Agent(ideology="liberal", model=self.model)
+        a4 = Agent(ideology="conservative", model=self.model)
         mixed = Chain([a2, a3, a4], task=self.task)
         mixed.process()
 
@@ -219,9 +279,9 @@ class TestAgent(unittest.TestCase):
 
     def test_no_task_in_chain(self):
         """Test whether Structures work with no task in the chain"""
-        a2 = Agent(task=self.task, ideology='moderate', model=self.model)
-        a3 = Agent(task=self.task, ideology='liberal', model=self.model)
-        a4 = Agent(task=self.task, ideology='conservative', model=self.model)
+        a2 = Agent(task=self.task, ideology="moderate", model=self.model)
+        a3 = Agent(task=self.task, ideology="liberal", model=self.model)
+        a4 = Agent(task=self.task, ideology="conservative", model=self.model)
         mixed = Chain([a2, a3, a4])
         mixed.process()
 
@@ -231,9 +291,9 @@ class TestAgent(unittest.TestCase):
 
     def test_task_in_chain(self):
         """Test whether Structures work with a task in the chain"""
-        a2 = Agent(ideology='moderate', model=self.model)
-        a3 = Agent(ideology='liberal', model=self.model)
-        a4 = Agent(ideology='conservative', model=self.model)
+        a2 = Agent(ideology="moderate", model=self.model)
+        a3 = Agent(ideology="liberal", model=self.model)
+        a4 = Agent(ideology="conservative", model=self.model)
         mixed = Chain([a2, a3, a4], task=self.task)
         mixed.process()
 
@@ -246,7 +306,7 @@ class TestModerator(unittest.TestCase):
 
     def setUp(self):
         self.task = "How should the US handle gun control? Answer in 10 words."
-        self.model = 'gpt-3.5-turbo'
+        self.model = "gpt-3.5-turbo"
         self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
 
     def test_init_with_persona_and_system_instructions(self):
@@ -256,7 +316,7 @@ class TestModerator(unittest.TestCase):
     def test_init_with_persona_only(self):
         persona = "some_persona"
         mod = Moderator(persona=persona)
-        expected_persona = DEFAULTS["moderator"]['persona'].get(persona, persona)
+        expected_persona = DEFAULTS["moderator"]["persona"].get(persona, persona)
         self.assertEqual(expected_persona, mod.persona)
         self.assertEqual("${persona}", mod.persona_template)
 
@@ -264,16 +324,22 @@ class TestModerator(unittest.TestCase):
         sys_inst = "These should be moderator's system instructions"
         mod = Moderator(system_instructions=sys_inst)
         self.assertEqual(sys_inst, mod.system_instructions)
-        self.assertIsNone(mod.info['persona'])
-        self.assertIsNone(mod.info['persona_template'])
+        self.assertIsNone(mod.info["persona"])
+        self.assertIsNone(mod.info["persona_template"])
 
     def test_init_with_default(self):
-        default_persona = DEFAULTS["moderator"]['persona'].get('default', 'default_moderator_persona')
-        mod = Moderator(model=self.model, persona='default')
+        default_persona = DEFAULTS["moderator"]["persona"].get(
+            "default", "default_moderator_persona"
+        )
+        mod = Moderator(model=self.model, persona="default")
         self.assertEqual(default_persona, mod.persona)
         self.assertEqual("${persona}", mod.persona_template)
 
-    @patch.object(Agent, 'process', return_value="System Instructions: Moderate the responses carefully.")
+    @patch.object(
+        Agent,
+        "process",
+        return_value="System Instructions: Moderate the responses carefully.",
+    )
     def test_generate_system_instructions(self, mock_process):
         """Test system instructions generation when set to auto"""
         mod = Moderator(model=self.model, kwargs=self.kwargs)
@@ -281,7 +347,7 @@ class TestModerator(unittest.TestCase):
         self.assertEqual("Moderate the responses carefully.", system_instructions)
         mock_process.assert_called_once()
 
-    @patch.object(Agent, 'process', side_effect=["Invalid response"] * 10)
+    @patch.object(Agent, "process", side_effect=["Invalid response"] * 10)
     def test_generate_system_instructions_max_tries_exceeded(self, mock_process):
         """Test system instructions generation raises ValueError after max tries exceeded"""
         mod = Moderator(model=self.model, kwargs=self.kwargs)
@@ -292,225 +358,296 @@ class TestModerator(unittest.TestCase):
             mod.generate_system_instructions(task)
         self.assertEqual(mock_process.call_count, 10)
 
-    @patch.object(Agent, 'process', return_value="System Instructions: Synthesize the responses effectively.")
+    @patch.object(
+        Agent,
+        "process",
+        return_value="System Instructions: Synthesize the responses effectively.",
+    )
     def test_generate_and_set_system_instructions(self, mock_process):
         """Test generate_and_set_system_instructions method"""
         mod = Moderator(model=self.model, kwargs=self.kwargs)
         mod.generate_and_set_system_instructions(self.task)
-        self.assertEqual("Synthesize the responses effectively.", mod.system_instructions)
+        self.assertEqual(
+            "Synthesize the responses effectively.", mod.system_instructions
+        )
         mock_process.assert_called_once()
 
-    @patch.object(Agent, 'process', return_value="System Instructions: Combine responses coherently.")
+    @patch.object(
+        Agent,
+        "process",
+        return_value="System Instructions: Combine responses coherently.",
+    )
     def test_moderator_generate_system_instructions_in_structure(self, mock_process):
         """
         Test that the system instructions are generated properly in a structure when AutoModerated.
 
         The desired behavior is that the task from the Structure is passed to moderator.generate_system_instructions.
         """
-        agent1 = Agent(ideology='moderate', model=self.model)
-        agent2 = Agent(ideology='liberal', model=self.model)
+        agent1 = Agent(ideology="moderate", model=self.model)
+        agent2 = Agent(ideology="liberal", model=self.model)
 
-        moderator = Moderator(system_instructions='auto', model=self.model, kwargs=self.kwargs)
+        moderator = Moderator(
+            system_instructions="auto", model=self.model, kwargs=self.kwargs
+        )
 
         chain = Chain(agents=[agent1, agent2], task=self.task, moderator=moderator)
 
-        self.assertEqual("Combine responses coherently.", chain.moderator.system_instructions)
-        self.assertIsNone(chain.moderator.info['persona'])
-        self.assertIsNone(chain.moderator.info['persona_template'])
+        self.assertEqual(
+            "Combine responses coherently.", chain.moderator.system_instructions
+        )
+        self.assertIsNone(chain.moderator.info["persona"])
+        self.assertIsNone(chain.moderator.info["persona_template"])
 
     def test_moderator_kwargs(self):
         """Test setting kwargs for moderators results in valid response and are accurately passed to moderators"""
         kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
-        mod = Moderator(persona='default', model='gpt-3.5-turbo', kwargs=self.kwargs)
+        mod = Moderator(persona="default", model="gpt-3.5-turbo", kwargs=self.kwargs)
         self.assertEqual(kwargs, mod.kwargs)
 
     def test_moderator_default(self):
         """Test whether the moderator is properly initialized with default instructions"""
-        a2 = Agent(ideology='moderate', model=self.model)
-        a3 = Agent(ideology='liberal', model=self.model)
-        a4 = Agent(ideology='conservative', model=self.model)
-        mod = Moderator(persona='default')
+        a2 = Agent(ideology="moderate", model=self.model)
+        a3 = Agent(ideology="liberal", model=self.model)
+        a4 = Agent(ideology="conservative", model=self.model)
+        mod = Moderator(persona="default")
         mixed = Chain([a2, a3, a4], task=self.task, moderator=mod)
         mixed.process()
         formatted_responses = mixed.responses[:-1]
 
-        expected_persona = SmartString(DEFAULTS['moderator']['persona']['default']).format(task=self.task)
+        expected_persona = SmartString(
+            DEFAULTS["moderator"]["persona"]["default"]
+        ).format(task=self.task)
         expected_combination_instructions = SmartString(
-            DEFAULTS['moderator']['combination_instructions']['default']).format(
-            previous_responses=format_previous_responses(formatted_responses))
+            DEFAULTS["moderator"]["combination_instructions"]["default"]
+        ).format(previous_responses=format_previous_responses(formatted_responses))
 
         # Assertions
         self.assertIsNotNone(mixed.final_response)
         self.assertEqual(expected_persona, mixed.moderator.persona)
-        self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
+        self.assertEqual(
+            expected_combination_instructions, mixed.moderator.combination_instructions
+        )
 
     def test_moderator_no_instructions(self):
         """Test whether the moderator is properly initialized with default instructions"""
-        a2 = Agent(ideology='moderate', model=self.model)
-        a3 = Agent(ideology='liberal', model=self.model)
-        a4 = Agent(ideology='conservative', model=self.model)
+        a2 = Agent(ideology="moderate", model=self.model)
+        a3 = Agent(ideology="liberal", model=self.model)
+        a4 = Agent(ideology="conservative", model=self.model)
         mod = Moderator()
         mixed = Chain([a2, a3, a4], task=self.task, moderator=mod)
         mixed.process()
         formatted_responses = mixed.responses[:-1]
 
         expected_combination_instructions = SmartString(
-            DEFAULTS['moderator']['combination_instructions']['default']).format(
-            previous_responses=format_previous_responses(formatted_responses))
+            DEFAULTS["moderator"]["combination_instructions"]["default"]
+        ).format(previous_responses=format_previous_responses(formatted_responses))
 
         # Assertions
         self.assertIsNotNone(mixed.final_response)
         self.assertEqual(None, mixed.moderator.persona)
-        self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
+        self.assertEqual(
+            expected_combination_instructions, mixed.moderator.combination_instructions
+        )
         self.assertEqual(None, mixed.moderator.system_instructions)
 
     def test_moderator_manual(self):
         """Test manual moderator persona and combination instructions"""
-        a2 = Agent(ideology='moderate', model=self.model)
-        a3 = Agent(ideology='liberal', model=self.model)
-        a4 = Agent(ideology='conservative', model=self.model)
+        a2 = Agent(ideology="moderate", model=self.model)
+        a3 = Agent(ideology="liberal", model=self.model)
+        a4 = Agent(ideology="conservative", model=self.model)
         mod = Moderator(
             persona="You are a conservative moderator overseeing a discussion about the following task: ${task}.",
             combination_instructions="- Here are the previous responses: ${previous_responses}- Take only the most "
-                                     "conservative parts of what was previously said.")
+            "conservative parts of what was previously said.",
+        )
         mixed = Chain([a2, a3, a4], task=self.task, moderator=mod)
         mixed.process()
         formatted_responses = mixed.responses[:-1]
 
         expected_persona = SmartString(
-            "You are a conservative moderator overseeing a discussion about the following task: ${task}.").format(
-            task=self.task)
+            "You are a conservative moderator overseeing a discussion about the following task: ${task}."
+        ).format(task=self.task)
         expected_combination_instructions = SmartString(
             "- Here are the previous responses: ${previous_responses}- Take only the most "
-            "conservative parts of what was previously said.").format(
-            previous_responses=format_previous_responses(formatted_responses))
+            "conservative parts of what was previously said."
+        ).format(previous_responses=format_previous_responses(formatted_responses))
 
         # Assertions
         self.assertIsNotNone(mixed.final_response)
         self.assertEqual(expected_persona, mixed.moderator.persona)
-        self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
+        self.assertEqual(
+            expected_combination_instructions, mixed.moderator.combination_instructions
+        )
 
     def test_moderator_kwargs(self):
         """Test setting kwargs for moderators results in valid response and are accurately passed to moderators"""
-        mod = Moderator(persona='default', model=self.model, kwargs=self.kwargs)
+        mod = Moderator(persona="default", model=self.model, kwargs=self.kwargs)
         self.assertEqual(self.kwargs, mod.kwargs)
 
     def test_moderator_voting(self):
         """Test moderator persona and combination instructions for voting"""
-        a2 = Agent(ideology='moderate', model=self.model)
-        a3 = Agent(ideology='liberal', model=self.model)
-        a4 = Agent(ideology='conservative', model=self.model)
-        mod = Moderator(persona='voting', combination_instructions='voting')
+        a2 = Agent(ideology="moderate", model=self.model)
+        a3 = Agent(ideology="liberal", model=self.model)
+        a4 = Agent(ideology="conservative", model=self.model)
+        mod = Moderator(persona="voting", combination_instructions="voting")
         mixed = Ensemble([a2, a3, a4], task=self.task, moderator=mod)
         mixed.process()
         formatted_responses = mixed.responses[:-1]
 
-        expected_persona = SmartString(DEFAULTS['moderator']['persona']['voting']).format(task=self.task)
+        expected_persona = SmartString(
+            DEFAULTS["moderator"]["persona"]["voting"]
+        ).format(task=self.task)
         expected_combination_instructions = SmartString(
-            DEFAULTS['moderator']['combination_instructions']['voting']).format(
-            previous_responses=format_previous_responses(formatted_responses))
+            DEFAULTS["moderator"]["combination_instructions"]["voting"]
+        ).format(previous_responses=format_previous_responses(formatted_responses))
 
         # Assertions
         self.maxDiff = None
         self.assertIsNotNone(mixed.final_response)
         self.assertEqual(expected_persona, mixed.moderator.persona)
-        self.assertEqual(expected_combination_instructions, mixed.moderator.combination_instructions)
+        self.assertEqual(
+            expected_combination_instructions, mixed.moderator.combination_instructions
+        )
 
 
 class TestChain(unittest.TestCase):
 
     def setUp(self):
         self.task = "How should the US handle gun control? Answer in 100 words."
-        self.model = 'gpt-3.5-turbo'
+        self.model = "gpt-3.5-turbo"
         self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
 
     def test_chain_multiple_cycles(self):
         task = "Discuss the pros and cons of remote work."
-        agent1 = Agent(ideology='liberal', model='gpt-3.5-turbo')
-        agent2 = Agent(ideology='conservative', model='gpt-3.5-turbo')
+        agent1 = Agent(ideology="liberal", model="gpt-3.5-turbo")
+        agent2 = Agent(ideology="conservative", model="gpt-3.5-turbo")
 
         chain = Chain([agent1, agent2], task=task, cycles=3)
 
-        with patch.object(Agent, '_get_response', side_effect=["Pros: flexibility, no commute. Cons: isolation.",
-                                                               "Pros: reduced office costs. Cons: difficulty in team building.",
-                                                               "Agree on flexibility, add increased productivity as pro.",
-                                                               "Agree on team building issues, add potential for overwork.",
-                                                               "Emphasize need for balance and hybrid models.",
-                                                               "Suggest importance of clear communication and expectations."]):
+        with patch.object(
+            Agent,
+            "_get_response",
+            side_effect=[
+                "Pros: flexibility, no commute. Cons: isolation.",
+                "Pros: reduced office costs. Cons: difficulty in team building.",
+                "Agree on flexibility, add increased productivity as pro.",
+                "Agree on team building issues, add potential for overwork.",
+                "Emphasize need for balance and hybrid models.",
+                "Suggest importance of clear communication and expectations.",
+            ],
+        ):
             chain.process()
 
         self.assertEqual(len(chain.responses), 6)
-        self.assertEqual(chain.final_response, "Suggest importance of clear communication and expectations.")
+        self.assertEqual(
+            chain.final_response,
+            "Suggest importance of clear communication and expectations.",
+        )
 
     def test_chain_combination_instructions(self):
         """Test chain combination instructions"""
-        a2 = Agent(ideology='moderate', model=self.model)
-        a3 = Agent(ideology='liberal', model=self.model)
-        a4 = Agent(ideology='conservative', model=self.model)
-        mixed = Chain([a2, a3, a4], task=self.task, combination_instructions='chain')
+        a2 = Agent(ideology="moderate", model=self.model)
+        a3 = Agent(ideology="liberal", model=self.model)
+        a4 = Agent(ideology="conservative", model=self.model)
+        mixed = Chain([a2, a3, a4], task=self.task, combination_instructions="chain")
         mixed.process()
 
         # Assertions
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(DEFAULTS['combination_instructions']['chain'], mixed.combination_instructions)
+        self.assertEqual(
+            DEFAULTS["combination_instructions"]["chain"],
+            mixed.combination_instructions,
+        )
 
     def test_chain_with_different_combination_instructions(self):
         task = "Say hello"
-        agent1 = Agent(task=task, combination_instructions="Hello to previous ${previous_responses}",
-                       model="gpt-3.5-turbo")
-        agent2 = Agent(task=task, combination_instructions="Prev2 to previous ${previous_responses}", model="gpt-4")
-        agent3 = Agent(task=task, combination_instructions="Greetings to previous ${previous_responses}",
-                       model="gpt-3.5-turbo")
+        agent1 = Agent(
+            task=task,
+            combination_instructions="Hello to previous ${previous_responses}",
+            model="gpt-3.5-turbo",
+        )
+        agent2 = Agent(
+            task=task,
+            combination_instructions="Prev2 to previous ${previous_responses}",
+            model="gpt-4",
+        )
+        agent3 = Agent(
+            task=task,
+            combination_instructions="Greetings to previous ${previous_responses}",
+            model="gpt-3.5-turbo",
+        )
 
         chain = Chain([agent1, agent2, agent3], task=task)
         chain.process()
 
-        self.assertEqual(agent1.combination_instructions, "Hello to previous ${previous_responses}")
-        self.assertEqual(agent2.combination_instructions, "Prev2 to previous ${previous_responses}")
-        self.assertEqual(agent3.combination_instructions, "Greetings to previous ${previous_responses}")
+        self.assertEqual(
+            agent1.combination_instructions, "Hello to previous ${previous_responses}"
+        )
+        self.assertEqual(
+            agent2.combination_instructions, "Prev2 to previous ${previous_responses}"
+        )
+        self.assertEqual(
+            agent3.combination_instructions,
+            "Greetings to previous ${previous_responses}",
+        )
 
         self.assertEqual(len(chain.responses), 3)
 
-        self.assertIn("Prev2 to previous", agent2.prompts[0]['user'])
-        self.assertIn("Greetings to previous", agent3.prompts[0]['user'])
+        self.assertIn("Prev2 to previous", agent2.prompts[0]["user"])
+        self.assertIn("Greetings to previous", agent3.prompts[0]["user"])
 
     def test_chain_debate_instructions(self):
-        a2 = Agent(ideology='moderate', model=self.model)
-        a3 = Agent(ideology='liberal', model=self.model)
-        a4 = Agent(ideology='conservative', model=self.model)
-        mixed = Chain([a2, a3, a4], task=self.task, combination_instructions='debate')
+        a2 = Agent(ideology="moderate", model=self.model)
+        a3 = Agent(ideology="liberal", model=self.model)
+        a4 = Agent(ideology="conservative", model=self.model)
+        mixed = Chain([a2, a3, a4], task=self.task, combination_instructions="debate")
         mixed.process()
 
         # Assertions
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(DEFAULTS['combination_instructions']['debate'], mixed.combination_instructions)
+        self.assertEqual(
+            DEFAULTS["combination_instructions"]["debate"],
+            mixed.combination_instructions,
+        )
 
     def test_chain_voting_instructions(self):
         """Test chain voting instructions"""
-        a2 = Agent(ideology='moderate', model=self.model)
-        a3 = Agent(ideology='liberal', model=self.model)
-        a4 = Agent(ideology='conservative', model=self.model)
-        mixed = Chain([a2, a3, a4], task=self.task, combination_instructions='voting')
+        a2 = Agent(ideology="moderate", model=self.model)
+        a3 = Agent(ideology="liberal", model=self.model)
+        a4 = Agent(ideology="conservative", model=self.model)
+        mixed = Chain([a2, a3, a4], task=self.task, combination_instructions="voting")
         mixed.process()
 
         # Assertions
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(DEFAULTS['combination_instructions']['voting'], mixed.combination_instructions)
+        self.assertEqual(
+            DEFAULTS["combination_instructions"]["voting"],
+            mixed.combination_instructions,
+        )
 
     def test_chain_current_task_description(self):
         """Test that the current task description is correct for each agent in a two-agent chain."""
         task = "Describe the impact of social media on society in 50 words."
-        agent1 = Agent(ideology='moderate', task=task, model=self.model, kwargs=self.kwargs)
-        agent2 = Agent(ideology='conservative', task=task, model=self.model, kwargs=self.kwargs)
+        agent1 = Agent(
+            ideology="moderate", task=task, model=self.model, kwargs=self.kwargs
+        )
+        agent2 = Agent(
+            ideology="conservative", task=task, model=self.model, kwargs=self.kwargs
+        )
         chain = Chain([agent1, agent2], task=task)
 
         # Mock ONLY _get_response from `process()`.
-        with patch.object(Agent, '_get_response',
-                          return_value="Social media has both positive and negative impacts on society."):
+        with patch.object(
+            Agent,
+            "_get_response",
+            return_value="Social media has both positive and negative impacts on society.",
+        ):
             chain.process()
 
         # Expected formatted previous responses
-        previous_responses = ["Social media has both positive and negative impacts on society."]
+        previous_responses = [
+            "Social media has both positive and negative impacts on society."
+        ]
         formatted_previous_responses = format_previous_responses(previous_responses)
 
         # Expected current task descriptions
@@ -522,8 +659,12 @@ Here are the previous responses:
  <end>"""
 
         # Assertions
-        self.assertEqual(expected_agent1_task_description, agent1.current_task_description)
-        self.assertEqual(expected_agent2_task_description, agent2.current_task_description)
+        self.assertEqual(
+            expected_agent1_task_description, agent1.current_task_description
+        )
+        self.assertEqual(
+            expected_agent2_task_description, agent2.current_task_description
+        )
 
     def test_chain_with_different_agent_tasks(self):
         """Test Chain processes Agents with different tasks correctly."""
@@ -531,15 +672,21 @@ Here are the previous responses:
         task2 = "Discuss the cons of remote work."
         task3 = "Summarize the discussion on remote work."
 
-        agent1 = Agent(ideology='liberal', model=self.model, task=task1)
-        agent2 = Agent(ideology='conservative', model=self.model, task=task2)
-        agent3 = Agent(ideology='moderate', model=self.model, task=task3)
+        agent1 = Agent(ideology="liberal", model=self.model, task=task1)
+        agent2 = Agent(ideology="conservative", model=self.model, task=task2)
+        agent3 = Agent(ideology="moderate", model=self.model, task=task3)
 
         chain = Chain([agent1, agent2, agent3])
 
-        with patch.object(Agent, '_get_response', side_effect=["Pros: flexibility, no commute.",
-                                                               "Cons: isolation, difficulty in team building.",
-                                                               "Summary: Remote work offers flexibility but poses challenges in collaboration."]):
+        with patch.object(
+            Agent,
+            "_get_response",
+            side_effect=[
+                "Pros: flexibility, no commute.",
+                "Cons: isolation, difficulty in team building.",
+                "Summary: Remote work offers flexibility but poses challenges in collaboration.",
+            ],
+        ):
             chain.process()
 
         self.assertEqual(task1, chain.agents[0].original_task_description)
@@ -555,15 +702,15 @@ class TestEnsemble(unittest.TestCase):
 
     def setUp(self):
         self.task = "How should the US handle gun control? Answer in 100 words."
-        self.model = 'gpt-3.5-turbo'
+        self.model = "gpt-3.5-turbo"
         self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
 
     def test_moderator_voting(self):
         """Test moderator persona and combination instructions for voting"""
-        a2 = Agent(ideology='moderate', model=self.model)
-        a3 = Agent(ideology='liberal', model=self.model)
-        a4 = Agent(ideology='conservative', model=self.model)
-        mod = Moderator(persona='voting', combination_instructions='voting')
+        a2 = Agent(ideology="moderate", model=self.model)
+        a3 = Agent(ideology="liberal", model=self.model)
+        a4 = Agent(ideology="conservative", model=self.model)
+        mod = Moderator(persona="voting", combination_instructions="voting")
         mixed = Ensemble([a2, a3, a4], task=self.task, moderator=mod)
         mixed.process()
         formatted_responses = mixed.responses[:-1]
@@ -571,11 +718,18 @@ class TestEnsemble(unittest.TestCase):
         # Assertions
         self.maxDiff = None
         self.assertIsNotNone(mixed.final_response)
-        self.assertEqual(SmartString(DEFAULTS['moderator']['persona']['voting']).format(task=self.task),
-                         mixed.moderator.persona)
-        self.assertEqual(SmartString(DEFAULTS['moderator']['combination_instructions']['voting']).format(
-            previous_responses=format_previous_responses(formatted_responses)),
-            mixed.moderator.combination_instructions)
+        self.assertEqual(
+            SmartString(DEFAULTS["moderator"]["persona"]["voting"]).format(
+                task=self.task
+            ),
+            mixed.moderator.persona,
+        )
+        self.assertEqual(
+            SmartString(
+                DEFAULTS["moderator"]["combination_instructions"]["voting"]
+            ).format(previous_responses=format_previous_responses(formatted_responses)),
+            mixed.moderator.combination_instructions,
+        )
 
     def test_ensemble_with_different_agent_tasks(self):
         """Test Ensemble processes Agents with different tasks correctly."""
@@ -583,17 +737,19 @@ class TestEnsemble(unittest.TestCase):
         task2 = "Discuss social impacts of climate change."
         task3 = "Discuss environmental impacts of climate change."
 
-        a1 = Agent(ideology='liberal', model=self.model, task=task1)
-        a2 = Agent(ideology='conservative', model=self.model, task=task2)
-        a3 = Agent(ideology='moderate', model=self.model, task=task3)
+        a1 = Agent(ideology="liberal", model=self.model, task=task1)
+        a2 = Agent(ideology="conservative", model=self.model, task=task2)
+        a3 = Agent(ideology="moderate", model=self.model, task=task3)
 
         ensemble = Ensemble([a1, a2, a3])
 
-        expected_responses = ["Economic impacts include increased costs for adaptation.",
-                              "Social impacts include displacement of communities.",
-                              "Environmental impacts include loss of biodiversity."]
+        expected_responses = [
+            "Economic impacts include increased costs for adaptation.",
+            "Social impacts include displacement of communities.",
+            "Environmental impacts include loss of biodiversity.",
+        ]
 
-        with patch.object(Agent, '_get_response', side_effect=expected_responses):
+        with patch.object(Agent, "_get_response", side_effect=expected_responses):
             ensemble.process()
 
         self.assertEqual(task1, ensemble.agents[0].original_task_description)
@@ -609,15 +765,25 @@ class TestDebate(unittest.TestCase):
 
     def setUp(self):
         self.task = "How should the US handle gun control? Answer in 100 words."
-        self.model = 'gpt-3.5-turbo'
+        self.model = "gpt-3.5-turbo"
         self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
 
     def test_debate_formatting(self):
-        agents = [Agent(persona="You are a mac fanatic trying to convince a user to switch to Mac.", model=self.model,
-                        kwargs=self.kwargs), Agent(persona="A PC fanatic", model=self.model, kwargs=self.kwargs)]
+        agents = [
+            Agent(
+                persona="You are a mac fanatic trying to convince a user to switch to Mac.",
+                model=self.model,
+                kwargs=self.kwargs,
+            ),
+            Agent(persona="A PC fanatic", model=self.model, kwargs=self.kwargs),
+        ]
 
-        debate_structure = Debate(agents=agents, task="Which computer is better? Mac or PC? Answer in 10 words.",
-                                  moderator=Moderator(), cycles=3)
+        debate_structure = Debate(
+            agents=agents,
+            task="Which computer is better? Mac or PC? Answer in 10 words.",
+            moderator=Moderator(),
+            cycles=3,
+        )
 
         debate_structure.process()
 
@@ -628,15 +794,19 @@ class TestDebate(unittest.TestCase):
 
         # Check that for Debater 2 on the first turn it is the case that Debater 1's answer is in the user prompt
         # and prefixed by "[WHAT OTHER PARTICIPANT SAID]:"
-        user_prompt = agents[1].info['history'][0]['prompts']['user']
+        user_prompt = agents[1].info["history"][0]["prompts"]["user"]
         self.assertIn("[WHAT OTHER PARTICIPANT SAID]:", user_prompt)
-        prev_response = user_prompt.split("[WHAT OTHER PARTICIPANT SAID]:")[1].split("<end>")[0].strip()
-        debater_1_initial_response = agents[0].info['history'][0]['response'].strip()
+        prev_response = (
+            user_prompt.split("[WHAT OTHER PARTICIPANT SAID]:")[1]
+            .split("<end>")[0]
+            .strip()
+        )
+        debater_1_initial_response = agents[0].info["history"][0]["response"].strip()
         self.assertEqual(debater_1_initial_response, prev_response)
 
         # Check that for Debater 1 on the second term it is the case that...
         # Check 1: There is only a single [WHAT YOU SAID] and [WHAT OTHER PARTICIPANT SAID] placeholder
-        user_prompt = agents[0].info['history'][1]['prompts']['user']
+        user_prompt = agents[0].info["history"][1]["prompts"]["user"]
         you_counts = user_prompt.count("[WHAT YOU SAID]:")
         other_counts = user_prompt.count("[WHAT OTHER PARTICIPANT SAID]:")
         self.assertEqual(1, you_counts)
@@ -644,42 +814,68 @@ class TestDebate(unittest.TestCase):
 
         # Check 2: Debater 1's previous response is in the user prompt and
         # prefixed by [WHAT YOU SAID]
-        debater_1_initial_response = agents[0].info['history'][0]['response'].strip()
-        debater_2_initial_response = agents[1].info['history'][0]['response'].strip()
+        debater_1_initial_response = agents[0].info["history"][0]["response"].strip()
+        debater_2_initial_response = agents[1].info["history"][0]["response"].strip()
         self.assertIn("[WHAT YOU SAID]: " + debater_1_initial_response, user_prompt)
-        self.assertIn("[WHAT OTHER PARTICIPANT SAID]: " + debater_2_initial_response, user_prompt)
+        self.assertIn(
+            "[WHAT OTHER PARTICIPANT SAID]: " + debater_2_initial_response, user_prompt
+        )
 
-        correct_strings = ["Response 0: [Debater 1]", "Response 1: [Debater 2]", "Response 2: [Debater 1]",
-                           "Response 3: [Debater 2]", ]
+        correct_strings = [
+            "Response 0: [Debater 1]",
+            "Response 1: [Debater 2]",
+            "Response 2: [Debater 1]",
+            "Response 3: [Debater 2]",
+        ]
 
         # Incorrectly formatted response strings that should not appear in the moderator's task description
-        incorrect_strings = ["Response 0: [Debater 2]", "Response 1: [Debater 1]", "Response 2: [Debater 2]",
-                             "Response 3: Debater [1]"]
+        incorrect_strings = [
+            "Response 0: [Debater 2]",
+            "Response 1: [Debater 1]",
+            "Response 2: [Debater 2]",
+            "Response 3: Debater [1]",
+        ]
 
         # Check for correct strings in the current task description
         for correct_string in correct_strings:
-            self.assertIn(correct_string, debate_structure.moderator._info['current_task_description'],
-                          f"{correct_string} should be in the moderator's current task description.")
+            self.assertIn(
+                correct_string,
+                debate_structure.moderator._info["current_task_description"],
+                f"{correct_string} should be in the moderator's current task description.",
+            )
 
         # Check for incorrect strings not in the current task description
         for incorrect_string in incorrect_strings:
-            self.assertNotIn(incorrect_string, debate_structure.moderator.info['current_task_description'],
-                             f"{incorrect_string} should not be in the moderator's current task description.")
+            self.assertNotIn(
+                incorrect_string,
+                debate_structure.moderator.info["current_task_description"],
+                f"{incorrect_string} should not be in the moderator's current task description.",
+            )
 
     def test_debate_with_different_agent_tasks(self):
         """Test Debate processes Agents with different tasks correctly."""
         task1 = "Argue for stricter gun control laws."
         task2 = "Argue against stricter gun control laws."
 
-        agent1 = Agent(persona="You are a gun control advocate.", model=self.model, task=task1)
-        agent2 = Agent(persona="You are a gun rights advocate.", model=self.model, task=task2)
+        agent1 = Agent(
+            persona="You are a gun control advocate.", model=self.model, task=task1
+        )
+        agent2 = Agent(
+            persona="You are a gun rights advocate.", model=self.model, task=task2
+        )
 
         debate = Debate([agent1, agent2], cycles=2)
 
-        with patch.object(Agent, '_get_response', side_effect=["Stricter laws will reduce gun violence.",
-                                                               "Stricter laws infringe on Second Amendment rights.",
-                                                               "Gun control laws have been effective in other countries.",
-                                                               "Law-abiding citizens need guns for self-defense."]):
+        with patch.object(
+            Agent,
+            "_get_response",
+            side_effect=[
+                "Stricter laws will reduce gun violence.",
+                "Stricter laws infringe on Second Amendment rights.",
+                "Gun control laws have been effective in other countries.",
+                "Law-abiding citizens need guns for self-defense.",
+            ],
+        ):
             debate.process()
 
         self.assertEqual(task1, debate.agents[0].original_task_description)
@@ -692,39 +888,53 @@ class TestDebate(unittest.TestCase):
 
     def test_debate_with_different_combination_instructions(self):
         task = "Debate the pros and cons of artificial intelligence in 10 words."
-        agent1 = Agent(task=task, combination_instructions="Respond to previous argument: ${previous_responses}",
-                       model="gpt-3.5-turbo")
-        agent2 = Agent(task=task, combination_instructions="Counter the previous point: ${previous_responses}",
-                       model="gpt-4")
+        agent1 = Agent(
+            task=task,
+            combination_instructions="Respond to previous argument: ${previous_responses}",
+            model="gpt-3.5-turbo",
+        )
+        agent2 = Agent(
+            task=task,
+            combination_instructions="Counter the previous point: ${previous_responses}",
+            model="gpt-4",
+        )
 
         debate = Debate([agent1, agent2], task=task)
         debate.process()
 
         print(agent1.combination_instructions)
-        self.assertEqual(agent1.combination_instructions, "Respond to previous argument: ${previous_responses}")
-        self.assertEqual(agent2.combination_instructions, "Counter the previous point: ${previous_responses}")
+        self.assertEqual(
+            agent1.combination_instructions,
+            "Respond to previous argument: ${previous_responses}",
+        )
+        self.assertEqual(
+            agent2.combination_instructions,
+            "Counter the previous point: ${previous_responses}",
+        )
 
         self.assertEqual(len(debate.responses), 2)
 
-        self.assertIn("Counter the previous point:", agent2.prompts[0]['user'])
-
-
+        self.assertIn("Counter the previous point:", agent2.prompts[0]["user"])
 
 
 class TestAgentStructures(unittest.TestCase):
 
     def setUp(self):
         self.task = "How should the US handle gun control? Answer in 100 words."
-        self.model = 'gpt-3.5-turbo'
+        self.model = "gpt-3.5-turbo"
         self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
 
     def test_info_method(self):
-        agents = [Agent(task="First task", model=self.model, kwargs=self.kwargs),
-                  Agent(task="Second task", model=self.model, kwargs=self.kwargs)]
+        agents = [
+            Agent(task="First task", model=self.model, kwargs=self.kwargs),
+            Agent(task="Second task", model=self.model, kwargs=self.kwargs),
+        ]
 
         moderator = Moderator(persona="default", model=self.model)
 
-        structure = Chain(agents=agents, task="General task for agents", moderator=moderator)
+        structure = Chain(
+            agents=agents, task="General task for agents", moderator=moderator
+        )
 
         # using mocking with this method
         structure.process = MagicMock(return_value=None)
@@ -735,23 +945,34 @@ class TestAgentStructures(unittest.TestCase):
 
         # validate the dictionary structure and types
         self.assertIsInstance(info, dict)
-        self.assertIn('structure_information', info)
-        self.assertIn('agent_information', info)
+        self.assertIn("structure_information", info)
+        self.assertIn("agent_information", info)
 
         # validate structure_information
-        self.assertEqual("General task for agents", info['structure_information']['task'])
-        self.assertIn('final_response', info['structure_information'])
-        self.assertTrue(isinstance(info['structure_information']['responses'], list))
-        self.assertEqual("Aggregated final response from mock", info['structure_information']['final_response'])
-        self.assertIn("Response from First task", info['structure_information']['responses'])
-        self.assertIn("Response from Second task", info['structure_information']['responses'])
+        self.assertEqual(
+            "General task for agents", info["structure_information"]["task"]
+        )
+        self.assertIn("final_response", info["structure_information"])
+        self.assertTrue(isinstance(info["structure_information"]["responses"], list))
+        self.assertEqual(
+            "Aggregated final response from mock",
+            info["structure_information"]["final_response"],
+        )
+        self.assertIn(
+            "Response from First task", info["structure_information"]["responses"]
+        )
+        self.assertIn(
+            "Response from Second task", info["structure_information"]["responses"]
+        )
 
         # validate agent_information
-        self.assertTrue(isinstance(info['agent_information'], list))
-        self.assertEqual(2, len(info['agent_information']))
-        for agent_info in info['agent_information']:
-            self.assertIn('current_task_description', agent_info)
-            self.assertIn(agent_info['current_task_description'], ["First task", "Second task"])
+        self.assertTrue(isinstance(info["agent_information"], list))
+        self.assertEqual(2, len(info["agent_information"]))
+        for agent_info in info["agent_information"]:
+            self.assertIn("current_task_description", agent_info)
+            self.assertIn(
+                agent_info["current_task_description"], ["First task", "Second task"]
+            )
 
 
 class TestNetworkStructure(unittest.TestCase):
@@ -760,21 +981,42 @@ class TestNetworkStructure(unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.task = "What are your thoughts on the role of government in society?"
-        self.model = 'gpt-3.5-turbo'
+        self.model = "gpt-3.5-turbo"
         self.kwargs = {"temperature": 0.7, "max_tokens": 50, "top_p": 0.9}
 
         self.agents_dict = {
-            'liberal': Agent(system_instructions="you are a liberal", model=self.model, kwargs=self.kwargs),
-            'conservative': Agent(system_instructions="you are a conservative", model=self.model, kwargs=self.kwargs),
-            'libertarian': Agent(system_instructions="you are a libertarian", model=self.model, kwargs=self.kwargs)}
+            "liberal": Agent(
+                system_instructions="you are a liberal",
+                model=self.model,
+                kwargs=self.kwargs,
+            ),
+            "conservative": Agent(
+                system_instructions="you are a conservative",
+                model=self.model,
+                kwargs=self.kwargs,
+            ),
+            "libertarian": Agent(
+                system_instructions="you are a libertarian",
+                model=self.model,
+                kwargs=self.kwargs,
+            ),
+        }
 
         self.agents_list = list(self.agents_dict.values())
-        self.edges = [(self.agents_list.index(self.agents_dict['liberal']),
-                       self.agents_list.index(self.agents_dict['conservative'])), (
-                          self.agents_list.index(self.agents_dict['liberal']),
-                          self.agents_list.index(self.agents_dict['libertarian'])), (
-                          self.agents_list.index(self.agents_dict['conservative']),
-                          self.agents_list.index(self.agents_dict['libertarian']))]
+        self.edges = [
+            (
+                self.agents_list.index(self.agents_dict["liberal"]),
+                self.agents_list.index(self.agents_dict["conservative"]),
+            ),
+            (
+                self.agents_list.index(self.agents_dict["liberal"]),
+                self.agents_list.index(self.agents_dict["libertarian"]),
+            ),
+            (
+                self.agents_list.index(self.agents_dict["conservative"]),
+                self.agents_list.index(self.agents_dict["libertarian"]),
+            ),
+        ]
 
     def test_graph_with_different_agent_tasks(self):
         """Test Graph processes Agents with different tasks correctly."""
@@ -782,18 +1024,30 @@ class TestNetworkStructure(unittest.TestCase):
         task2 = "Discuss social policies."
         task3 = "Summarize policy discussions."
 
-        agent1 = Agent(system_instructions="you are an economist", model=self.model, task=task1)
-        agent2 = Agent(system_instructions="you are a sociologist", model=self.model, task=task2)
-        agent3 = Agent(system_instructions="you are a policy analyst", model=self.model, task=task3)
+        agent1 = Agent(
+            system_instructions="you are an economist", model=self.model, task=task1
+        )
+        agent2 = Agent(
+            system_instructions="you are a sociologist", model=self.model, task=task2
+        )
+        agent3 = Agent(
+            system_instructions="you are a policy analyst", model=self.model, task=task3
+        )
 
         agents = [agent1, agent2, agent3]
         edges = [(0, 2), (1, 2)]
 
         graph = Graph(agents=agents, edges=edges)
 
-        with patch.object(Agent, 'process', side_effect=["Economic policies should focus on growth.",
-                                                         "Social policies should address inequality.",
-                                                         "Both economic growth and social equality are important policy goals."]):
+        with patch.object(
+            Agent,
+            "process",
+            side_effect=[
+                "Economic policies should focus on growth.",
+                "Social policies should address inequality.",
+                "Both economic growth and social equality are important policy goals.",
+            ],
+        ):
             final_response = graph.process()
 
         self.assertEqual(task1, graph.agents[0].original_task_description)
@@ -806,41 +1060,70 @@ class TestNetworkStructure(unittest.TestCase):
 
     def test_graph_with_different_combination_instructions(self):
         task = "Say hello"
-        agent1 = Agent(task=task, combination_instructions="Hello to previous ${previous_responses}",
-                       model="gpt-3.5-turbo")
-        agent2 = Agent(task=task, combination_instructions="Prev2 to previous ${previous_responses}", model="gpt-4")
-        agent3 = Agent(task=task, combination_instructions="Greetings to previous ${previous_responses}",
-                       model="gpt-3.5-turbo")
+        agent1 = Agent(
+            task=task,
+            combination_instructions="Hello to previous ${previous_responses}",
+            model="gpt-3.5-turbo",
+        )
+        agent2 = Agent(
+            task=task,
+            combination_instructions="Prev2 to previous ${previous_responses}",
+            model="gpt-4",
+        )
+        agent3 = Agent(
+            task=task,
+            combination_instructions="Greetings to previous ${previous_responses}",
+            model="gpt-3.5-turbo",
+        )
 
-        agents = {
-            'agent1': agent1,
-            'agent2': agent2,
-            'agent3': agent3
-        }
-        edges = [('agent1', 'agent2'), ('agent1', 'agent3'), ('agent2', 'agent3')]
+        agents = {"agent1": agent1, "agent2": agent2, "agent3": agent3}
+        edges = [("agent1", "agent2"), ("agent1", "agent3"), ("agent2", "agent3")]
 
         graph = Graph(agents=agents, edges=edges, task=task)
         graph.process()
 
         # Check if the combination instructions are preserved for each agent
-        self.assertEqual(agent1.combination_instructions, "Hello to previous ${previous_responses}")
-        self.assertEqual(agent2.combination_instructions, "Prev2 to previous ${previous_responses}")
-        self.assertEqual(agent3.combination_instructions, "Greetings to previous ${previous_responses}")
+        self.assertEqual(
+            agent1.combination_instructions, "Hello to previous ${previous_responses}"
+        )
+        self.assertEqual(
+            agent2.combination_instructions, "Prev2 to previous ${previous_responses}"
+        )
+        self.assertEqual(
+            agent3.combination_instructions,
+            "Greetings to previous ${previous_responses}",
+        )
 
         self.assertEqual(len(graph.responses), 3)
 
         # Check if the combination instructions are used in the prompts
-        self.assertIn("Prev2 to previous", agent2.prompts[0]['user'])
-        self.assertIn("Greetings to previous", agent3.prompts[0]['user'])
+        self.assertIn("Prev2 to previous", agent2.prompts[0]["user"])
+        self.assertIn("Greetings to previous", agent3.prompts[0]["user"])
 
     def test_dict_to_list_conversion(self):
         """Test that the dictionary method (Method 2) correctly converts to the list method (Method 1) internally."""
-        agents_dict = {'liberal': Agent(system_instructions="you are a liberal", model=self.model, kwargs=self.kwargs),
-                       'conservative': Agent(system_instructions="you are a conservative", model=self.model,
-                                             kwargs=self.kwargs),
-                       'libertarian': Agent(system_instructions="you are a libertarian", model=self.model,
-                                            kwargs=self.kwargs)}
-        edges_dict = [('liberal', 'conservative'), ('liberal', 'libertarian'), ('conservative', 'libertarian')]
+        agents_dict = {
+            "liberal": Agent(
+                system_instructions="you are a liberal",
+                model=self.model,
+                kwargs=self.kwargs,
+            ),
+            "conservative": Agent(
+                system_instructions="you are a conservative",
+                model=self.model,
+                kwargs=self.kwargs,
+            ),
+            "libertarian": Agent(
+                system_instructions="you are a libertarian",
+                model=self.model,
+                kwargs=self.kwargs,
+            ),
+        }
+        edges_dict = [
+            ("liberal", "conservative"),
+            ("liberal", "libertarian"),
+            ("conservative", "libertarian"),
+        ]
 
         network_dict = Graph(agents=agents_dict, edges=edges_dict, task=self.task)
 
@@ -851,19 +1134,39 @@ class TestNetworkStructure(unittest.TestCase):
             self.assertIn(agent, network_dict.agents)
 
         # Check that edges are correctly converted to use indices
-        expected_edges = [(list(agents_dict.keys()).index('liberal'), list(agents_dict.keys()).index('conservative')),
-                          (list(agents_dict.keys()).index('liberal'), list(agents_dict.keys()).index('libertarian')), (
-                              list(agents_dict.keys()).index('conservative'),
-                              list(agents_dict.keys()).index('libertarian'))]
+        expected_edges = [
+            (
+                list(agents_dict.keys()).index("liberal"),
+                list(agents_dict.keys()).index("conservative"),
+            ),
+            (
+                list(agents_dict.keys()).index("liberal"),
+                list(agents_dict.keys()).index("libertarian"),
+            ),
+            (
+                list(agents_dict.keys()).index("conservative"),
+                list(agents_dict.keys()).index("libertarian"),
+            ),
+        ]
         self.assertEqual(expected_edges, network_dict.edges)
 
         # Check that the graph is built correctly
-        expected_graph = {agents_dict['liberal']: [agents_dict['conservative'], agents_dict['libertarian']],
-                          agents_dict['conservative']: [agents_dict['libertarian']], agents_dict['libertarian']: []}
+        expected_graph = {
+            agents_dict["liberal"]: [
+                agents_dict["conservative"],
+                agents_dict["libertarian"],
+            ],
+            agents_dict["conservative"]: [agents_dict["libertarian"]],
+            agents_dict["libertarian"]: [],
+        }
         self.assertEqual(expected_graph, network_dict.graph)
 
         # Check that the in-degree is calculated correctly
-        expected_in_degree = {agents_dict['liberal']: 0, agents_dict['conservative']: 1, agents_dict['libertarian']: 2}
+        expected_in_degree = {
+            agents_dict["liberal"]: 0,
+            agents_dict["conservative"]: 1,
+            agents_dict["libertarian"]: 2,
+        }
         self.assertEqual(expected_in_degree, network_dict.in_degree)
 
         # Check that original agents and edges are stored correctly
@@ -872,7 +1175,9 @@ class TestNetworkStructure(unittest.TestCase):
 
         # Check that combination instructions are set correctly for all agents
         for agent in network_dict.agents:
-            self.assertEqual(agent.combination_instructions, network_dict.combination_instructions)
+            self.assertEqual(
+                agent.combination_instructions, network_dict.combination_instructions
+            )
 
     def test_initialization(self):
         """Test that the Graph initializes correctly."""
@@ -885,17 +1190,27 @@ class TestNetworkStructure(unittest.TestCase):
         """Test that the graph and in-degree are built correctly."""
         network = Graph(agents=self.agents_list, edges=self.edges, task=self.task)
         expected_graph = {
-            self.agents_dict['liberal']: [self.agents_dict['conservative'], self.agents_dict['libertarian']],
-            self.agents_dict['conservative']: [self.agents_dict['libertarian']], self.agents_dict['libertarian']: []}
-        expected_in_degree = {self.agents_dict['liberal']: 0, self.agents_dict['conservative']: 1,
-                              self.agents_dict['libertarian']: 2}
+            self.agents_dict["liberal"]: [
+                self.agents_dict["conservative"],
+                self.agents_dict["libertarian"],
+            ],
+            self.agents_dict["conservative"]: [self.agents_dict["libertarian"]],
+            self.agents_dict["libertarian"]: [],
+        }
+        expected_in_degree = {
+            self.agents_dict["liberal"]: 0,
+            self.agents_dict["conservative"]: 1,
+            self.agents_dict["libertarian"]: 2,
+        }
         self.assertEqual(expected_graph, network.graph)
         self.assertEqual(expected_in_degree, network.in_degree)
 
     def test_process(self):
         """Test that the task is processed correctly in topological order."""
         for agent in self.agents_list:
-            agent.process = MagicMock(return_value=f"Response from {agent.system_instructions}")
+            agent.process = MagicMock(
+                return_value=f"Response from {agent.system_instructions}"
+            )
 
         network = Graph(agents=self.agents_list, edges=self.edges, task=self.task)
         final_response = network.process()
@@ -906,27 +1221,47 @@ class TestNetworkStructure(unittest.TestCase):
         libertarian_response = "Response from you are a libertarian"
 
         self.assertEqual(libertarian_response, final_response)
-        self.assertEqual([liberal_response, conservative_response, libertarian_response], network.responses)
+        self.assertEqual(
+            [liberal_response, conservative_response, libertarian_response],
+            network.responses,
+        )
 
     def test_cycle_detection(self):
         """Test that a cycle in the graph raises a ValueError."""
-        cyclic_edges = [(self.agents_list.index(self.agents_dict['liberal']),
-                         self.agents_list.index(self.agents_dict['conservative'])), (
-                            self.agents_list.index(self.agents_dict['conservative']),
-                            self.agents_list.index(self.agents_dict['libertarian'])), (
-                            self.agents_list.index(self.agents_dict['libertarian']),
-                            self.agents_list.index(self.agents_dict['liberal']))]
+        cyclic_edges = [
+            (
+                self.agents_list.index(self.agents_dict["liberal"]),
+                self.agents_list.index(self.agents_dict["conservative"]),
+            ),
+            (
+                self.agents_list.index(self.agents_dict["conservative"]),
+                self.agents_list.index(self.agents_dict["libertarian"]),
+            ),
+            (
+                self.agents_list.index(self.agents_dict["libertarian"]),
+                self.agents_list.index(self.agents_dict["liberal"]),
+            ),
+        ]
         with self.assertRaises(ValueError):
             Graph(agents=self.agents_list, edges=cyclic_edges, task=self.task).process()
 
     def test_moderator_integration(self):
         """Test that the moderator processes the final response correctly."""
         for agent in self.agents_list:
-            agent.process = MagicMock(return_value=f"Response from {agent.system_instructions}")
+            agent.process = MagicMock(
+                return_value=f"Response from {agent.system_instructions}"
+            )
 
         moderator = Moderator(persona="You are a neutral moderator.", model=self.model)
-        network = Graph(agents=self.agents_list, edges=self.edges, task=self.task, moderator=moderator)
-        network.moderator._moderate_responses = MagicMock(return_value="Moderated final response")
+        network = Graph(
+            agents=self.agents_list,
+            edges=self.edges,
+            task=self.task,
+            moderator=moderator,
+        )
+        network.moderator._moderate_responses = MagicMock(
+            return_value="Moderated final response"
+        )
 
         final_response = network.process()
 
@@ -937,16 +1272,24 @@ class TestNetworkStructure(unittest.TestCase):
     def test_current_task_description(self):
         """Test that the current task description is correct for each agent in a simple two-agent network."""
         task = "Describe the impact of social media on society in 50 words."
-        agent1 = Agent(ideology='moderate', task=task, model=self.model, kwargs=self.kwargs)
-        agent2 = Agent(ideology='conservative', task=task, model=self.model, kwargs=self.kwargs)
+        agent1 = Agent(
+            ideology="moderate", task=task, model=self.model, kwargs=self.kwargs
+        )
+        agent2 = Agent(
+            ideology="conservative", task=task, model=self.model, kwargs=self.kwargs
+        )
         network = Graph([agent1, agent2], [(0, 1)], task=task)
 
         # Mock process method to return a predefined response
-        agent1.process = MagicMock(return_value="Social media has both positive and negative impacts on society.")
+        agent1.process = MagicMock(
+            return_value="Social media has both positive and negative impacts on society."
+        )
         network.process()
 
         # Expected formatted previous responses
-        previous_responses = ["Social media has both positive and negative impacts on society."]
+        previous_responses = [
+            "Social media has both positive and negative impacts on society."
+        ]
 
         # Expected current task descriptions
         expected_agent1_task_description = task
@@ -957,8 +1300,12 @@ Here are the previous responses:
  <end>"""
 
         # Assertions
-        self.assertEqual(expected_agent1_task_description, agent1.current_task_description)
-        self.assertEqual(expected_agent2_task_description, agent2.current_task_description)
+        self.assertEqual(
+            expected_agent1_task_description, agent1.current_task_description
+        )
+        self.assertEqual(
+            expected_agent2_task_description, agent2.current_task_description
+        )
 
 
 class TestNetworkStructureValidation(TestNetworkStructure):
@@ -994,27 +1341,49 @@ class TestNetworkStructureValidation(TestNetworkStructure):
 
     def test_invalid_agents_dict_input(self):
         """Test passing incorrectly formatted agent dictionary."""
-        invalid_agents_dict = {'liberal': "Agent(system_instructions='you are a liberal')",  # Not an Agent object
-                               'conservative': Agent(system_instructions="you are a conservative", model=self.model,
-                                                     kwargs=self.kwargs)}
-        edges = [('liberal', 'conservative')]
+        invalid_agents_dict = {
+            "liberal": "Agent(system_instructions='you are a liberal')",  # Not an Agent object
+            "conservative": Agent(
+                system_instructions="you are a conservative",
+                model=self.model,
+                kwargs=self.kwargs,
+            ),
+        }
+        edges = [("liberal", "conservative")]
         with self.assertRaises(ValueError):
             Graph(agents=invalid_agents_dict, edges=edges)
 
     def test_invalid_edge_names_in_dict(self):
         """Test edges with names not matching any keys in the agent dictionary."""
-        agents_dict = {'liberal': Agent(system_instructions="you are a liberal", model=self.model, kwargs=self.kwargs),
-                       'conservative': Agent(system_instructions="you are a conservative", model=self.model,
-                                             kwargs=self.kwargs)}
-        edges = [('liberal', 'conservative'), ('liberal', 'nonexistent')]  # 'nonexistent' is not a valid agent key
+        agents_dict = {
+            "liberal": Agent(
+                system_instructions="you are a liberal",
+                model=self.model,
+                kwargs=self.kwargs,
+            ),
+            "conservative": Agent(
+                system_instructions="you are a conservative",
+                model=self.model,
+                kwargs=self.kwargs,
+            ),
+        }
+        edges = [
+            ("liberal", "conservative"),
+            ("liberal", "nonexistent"),
+        ]  # 'nonexistent' is not a valid agent key
         with self.assertRaises(ValueError):
             Graph(agents=agents_dict, edges=edges)
 
     def test_mixed_type_agents_input(self):
         """Test mixed types in agents input."""
-        mixed_agents = [Agent(system_instructions="you are a liberal", model=self.model, kwargs=self.kwargs),
-                        "conservative"  # Not an Agent object
-                        ]
+        mixed_agents = [
+            Agent(
+                system_instructions="you are a liberal",
+                model=self.model,
+                kwargs=self.kwargs,
+            ),
+            "conservative",  # Not an Agent object
+        ]
         edges = [(0, 1)]
         with self.assertRaises(ValueError):
             Graph(agents=mixed_agents, edges=edges)
@@ -1029,7 +1398,7 @@ class TestStructureTaskDescription(unittest.TestCase):
     """
 
     def setUp(self):
-        self.model = 'gpt-3.5-turbo'
+        self.model = "gpt-3.5-turbo"
 
     def test_set_agent_task_description_case1(self):
         """Test Case 1: Task provided to both Structure and agents."""
@@ -1050,7 +1419,10 @@ class TestStructureTaskDescription(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             TestStructure([agent])
 
-        self.assertTrue("Error: You did not specify a task for agents or chain" in str(context.exception))
+        self.assertTrue(
+            "Error: You did not specify a task for agents or chain"
+            in str(context.exception)
+        )
 
     def test_set_agent_task_description_case3(self):
         """Test Case 3: Task provided to Structure but not agents."""
@@ -1088,7 +1460,7 @@ class TestModeratorTaskDescription(unittest.TestCase):
     """
 
     def setUp(self):
-        self.model = 'gpt-3.5-turbo'
+        self.model = "gpt-3.5-turbo"
 
     def test_set_moderator_task_description_case1(self):
         """Test Case 1: Task provided to both Structure and moderator."""
@@ -1097,7 +1469,9 @@ class TestModeratorTaskDescription(unittest.TestCase):
         moderator = Moderator(task=moderator_task, model=self.model)
 
         with self.assertWarns(UserWarning):
-            structure = TestStructure([Mock()], task=structure_task, moderator=moderator)
+            structure = TestStructure(
+                [Mock()], task=structure_task, moderator=moderator
+            )
 
         self.assertEqual(moderator_task, moderator.task)
 
@@ -1108,7 +1482,10 @@ class TestModeratorTaskDescription(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             TestStructure([Mock()], moderator=moderator)
 
-        self.assertTrue("Error: You did not specify a task for Moderator or Structure" in str(context.exception))
+        self.assertTrue(
+            "Error: You did not specify a task for Moderator or Structure"
+            in str(context.exception)
+        )
 
     def test_set_moderator_task_description_case3(self):
         """Test Case 3: Task provided to Structure but not moderator."""
@@ -1129,15 +1506,20 @@ class TestModeratorTaskDescription(unittest.TestCase):
     def test_set_moderator_task_description_system_instructions(self):
         """Test that system_instructions are updated with the task."""
         structure_task = "Structure task"
-        moderator = Moderator(model=self.model, system_instructions="Instructions: ${task}")
+        moderator = Moderator(
+            model=self.model, system_instructions="Instructions: ${task}"
+        )
         structure = TestStructure([Mock()], task=structure_task, moderator=moderator)
 
-        self.assertEqual(f"Instructions: {structure_task}", moderator.system_instructions)
+        self.assertEqual(
+            f"Instructions: {structure_task}", moderator.system_instructions
+        )
 
 
 #############################################
 # HELPERS
 #############################################
+
 
 class TestStripNestedDict(unittest.TestCase):
     """
@@ -1164,8 +1546,14 @@ class TestStripNestedDict(unittest.TestCase):
 
     def test_deeply_nested(self):
         """Test stripping a deeply nested structure."""
-        input_dict = {"a": " level1 ", "b": {"c": " level2 ", "d": [" level3 ", {"e": " level4 "}]}}
-        expected = {"a": "level1", "b": {"c": "level2", "d": ["level3", {"e": "level4"}]}}
+        input_dict = {
+            "a": " level1 ",
+            "b": {"c": " level2 ", "d": [" level3 ", {"e": " level4 "}]},
+        }
+        expected = {
+            "a": "level1",
+            "b": {"c": "level2", "d": ["level3", {"e": "level4"}]},
+        }
         self.assertEqual(expected, strip_nested_dict(input_dict))
 
     def test_non_string_values(self):
@@ -1181,8 +1569,18 @@ class TestStripNestedDict(unittest.TestCase):
 
     def test_mixed_types(self):
         """Test a dictionary with mixed types."""
-        input_dict = {"a": " string ", "b": 42, "c": [" list_item ", 3.14], "d": {"e": " nested_string ", "f": True}}
-        expected = {"a": "string", "b": 42, "c": ["list_item", 3.14], "d": {"e": "nested_string", "f": True}}
+        input_dict = {
+            "a": " string ",
+            "b": 42,
+            "c": [" list_item ", 3.14],
+            "d": {"e": " nested_string ", "f": True},
+        }
+        expected = {
+            "a": "string",
+            "b": 42,
+            "c": ["list_item", 3.14],
+            "d": {"e": "nested_string", "f": True},
+        }
         self.assertEqual(expected, strip_nested_dict(input_dict))
 
 
@@ -1197,29 +1595,42 @@ class TestSmartString(unittest.TestCase):
     def test_correctly_replaces_placeholders_with_brackets(self):
         """Test that placeholders are correctly replaced when something else uses curly brackets not meant to be
         replaced"""
-        initial_s = "Complete the following task: ${task} in json format like {'answer':answer}"
+        initial_s = (
+            "Complete the following task: ${task} in json format like {'answer':answer}"
+        )
         formatted_string = SmartString(initial_s).format(task="Do the thing")
-        self.assertEqual("Complete the following task: Do the thing in json format like {'answer':answer}",
-                         formatted_string)
+        self.assertEqual(
+            "Complete the following task: Do the thing in json format like {'answer':answer}",
+            formatted_string,
+        )
 
     def test_avoid_double_period(self):
         """Test that double periods are correctly removed."""
         initial_s = "Complete the following task: ${task}."
-        formatted_string = SmartString(initial_s).format(task="Do the thing.", avoid_double_period=True)
+        formatted_string = SmartString(initial_s).format(
+            task="Do the thing.", avoid_double_period=True
+        )
         self.assertEqual("Complete the following task: Do the thing.", formatted_string)
 
     def test_no_change_needed(self):
         """Test that the string is not distorted if no change is needed."""
         initial_s = "Complete the following task: ${task}."
-        formatted_string = SmartString(initial_s).format(task="Do the thing", avoid_double_period=True)
+        formatted_string = SmartString(initial_s).format(
+            task="Do the thing", avoid_double_period=True
+        )
         self.assertEqual("Complete the following task: Do the thing.", formatted_string)
 
     def test_only_remove_double_period(self):
         """Only remove redundant periods induced by the placeholder and not extra ones from user"""
         initial_s = "Think about this task, ${task}."
         task = "respond slowly..."
-        formatted_string = SmartString(initial_s).format(task=task, avoid_double_period=True)
-        self.assertEqual("Think about this task, respond slowly...", formatted_string, )
+        formatted_string = SmartString(initial_s).format(
+            task=task, avoid_double_period=True
+        )
+        self.assertEqual(
+            "Think about this task, respond slowly...",
+            formatted_string,
+        )
 
     def test_none_replacement_in_creation(self):
         """Test that 'None' is replaced with an empty string during string creation."""
@@ -1304,5 +1715,5 @@ class TestStructureRepr(unittest.TestCase):
         self.assertIn("'responses': []", repr_string)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
