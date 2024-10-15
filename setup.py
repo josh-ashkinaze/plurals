@@ -6,7 +6,7 @@ def read_requirements():
 
 setup(
     name="plurals",
-    version="0.2.29.1",
+    version="0.2.29.2",
     description="A package for simulated social ensembles.",
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
