@@ -829,7 +829,6 @@ class Graph(AbstractStructure):
             agents=self.agents, task=task, last_n=last_n, moderator=moderator, combination_instructions=combination_instructions
         )
         self._build_graph()
-        self._set_combination_instructions()
 
     def _build_graph(self):
         """
@@ -902,11 +901,6 @@ class Graph(AbstractStructure):
         # Process agents according to topological order
         response_dict = {}
         for agent in topological_order:
-            agent.combination_instructions = (
-                agent.combination_instructions
-                if agent.combination_instructions
-                else self.combination_instructions
-            )
             # Gather responses from all predecessors to form the input for the current agent
             previous_responses = [
                 response_dict[pred] for pred in self.agents if agent in self.graph[pred]
