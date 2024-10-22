@@ -1,5 +1,6 @@
 import warnings
-from typing import Optional, Dict
+import os
+from typing import Optional, Dict, Any
 
 import pandas as pd
 from litellm import completion
@@ -38,6 +39,148 @@ def _load_global_anes_data():
 
 _load_global_anes_data()
 
+from abc import ABC, abstractmethod
+
+
+# Strategy Interfaces and Implementations
+
+class SystemInstructionStrategy(ABC):
+    @abstractmethod
+    def set_system_instructions(self, agent):
+        pass
+
+
+class DirectSystemInstructionStrategy(SystemInstructionStrategy):
+    def set_system_instructions(self, agent):
+        # System instructions are already provided directly; nothing to do.
+        pass
+
+
+class DefaultSystemInstructionStrategy(SystemInstructionStrategy):
+    def set_system_instructions(self, agent):
+        # No system instructions, personas, or ideologies are provided.
+        agent.system_instructions = None
+
+
+class PersonaBasedSystemInstructionStrategy(SystemInstructionStrategy):
+    def set_system_instructions(self, agent):
+        # Use the persona strategy to generate the persona
+        agent.persona = agent.persona_strategy.generate_persona(agent)
+
+        # Use the persona_template to create system_instructions
+        persona_template_content = agent.defaults['persona_template'].get(
+            agent.persona_template, agent.persona_template).strip()
+        agent.system_instructions = SmartString(
+            persona_template_content).format(
+            persona=agent.persona,
+            task=agent.task_description).strip()
+
+
+class PersonaStrategy(ABC):
+    @abstractmethod
+    def generate_persona(self, agent):
+        pass
+
+
+class DirectPersonaStrategy(PersonaStrategy):
+    def generate_persona(self, agent):
+        # Persona is directly provided by the user
+        return agent.persona
+
+
+class RandomPersonaStrategy(PersonaStrategy):
+    def generate_persona(self, agent):
+        # Generate a random persona from the data
+        selected_row = agent.data.sample(n=1, weights=agent.data['weight']).iloc[0]
+        return agent.persona_generator.row_to_persona(selected_row, agent.persona_mapping)
+
+
+class IdeologyPersonaStrategy(PersonaStrategy):
+    def generate_persona(self, agent):
+        # Filter data based on ideology and generate persona
+        filtered_data = agent.data_filter_strategy.filter_data(agent)
+        if filtered_data.empty:
+            raise AssertionError("No data found satisfying conditions")
+        selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
+        return agent.persona_generator.row_to_persona(selected_row, agent.persona_mapping)
+
+
+class QueryPersonaStrategy(PersonaStrategy):
+    def generate_persona(self, agent):
+        # Filter data based on query string and generate persona
+        filtered_data = agent.data_filter_strategy.filter_data(agent)
+        if filtered_data.empty:
+            raise AssertionError("No data found satisfying conditions")
+        selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
+        return agent.persona_generator.row_to_persona(selected_row, agent.persona_mapping)
+
+
+class PersonaGenerator:
+    @staticmethod
+    def row_to_persona(row: pd.Series, persona_mapping: Dict[str, Any]) -> str:
+        """
+        Converts a dataset row into a persona description string.
+
+        Args:
+            row (pd.Series): The dataset row to convert.
+            persona_mapping (Dict[str, Any]): Mapping to convert dataset rows into persona descriptions.
+
+        Returns:
+            str: Generated persona description.
+        """
+        persona = []
+        for var, details in persona_mapping.items():
+            value = row.get(var)
+
+            if var == "age" and value is not None:
+                value = int(value)
+
+            if value is None or pd.isna(value) or (details.get('bad_vals') and str(value) in details['bad_vals']):
+                continue
+
+            if details.get('recode_vals') and str(value) in details['recode_vals']:
+                value = details['recode_vals'][str(value)]
+
+            clean_name = details['name']
+            persona.append(f"{clean_name} {str(value).lower()}.")
+        return " ".join(persona)
+
+
+class DataFilterStrategy(ABC):
+    @abstractmethod
+    def filter_data(self, agent) -> pd.DataFrame:
+        pass
+
+
+class IdeologyDataFilterStrategy(DataFilterStrategy):
+    def filter_data(self, agent) -> pd.DataFrame:
+        try:
+            ideology = agent.ideology.lower()
+            if ideology == 'liberal':
+                return agent.data[agent.data['ideo5'].isin(['Liberal', 'Very liberal'])]
+            elif ideology == 'conservative':
+                return agent.data[agent.data['ideo5'].isin(['Conservative', 'Very conservative'])]
+            elif ideology == 'moderate':
+                return agent.data[agent.data['ideo5'] == 'Moderate']
+            elif ideology == 'very liberal':
+                return agent.data[agent.data['ideo5'] == 'Very liberal']
+            elif ideology == 'very conservative':
+                return agent.data[agent.data['ideo5'] == 'Very conservative']
+            else:
+                return pd.DataFrame()
+        except Exception as e:
+            raise AssertionError(f"Error filtering data by ideology: {e}")
+
+
+class QueryDataFilterStrategy(DataFilterStrategy):
+    def filter_data(self, agent) -> pd.DataFrame:
+        try:
+            return agent.data.query(agent.query_str)
+        except Exception as e:
+            raise AssertionError(f"Error filtering data by query string: {e}")
+
+
+# Agent Class
 
 class Agent:
     """
@@ -89,132 +232,6 @@ class Agent:
     Notes:
         Note that when used with Structures, the agent-level attribute values will override. Eg: If you set a task
         at an agent level and a Structure-level, the agent-level task will be used.
-
-    **Examples:**
-
-        **Using Agent without a structure**.
-
-        .. code-block:: python
-
-            task = "Say hello"
-
-            a = agent(task=task)
-            ans = a.process()
-
-            pirate_agent = Agent(system_instructions="You are a pirate.", model='gpt-4o', task=task)
-            pirate_hello = pirate_agent.process()
-            pirate_goodybe = pirate_agent.process(task="Now say a heartfelt goodybe.")
-
-        **Manual system instructions**: This allows you to set system instructions to whatever you would like. Also note
-        that you can pass in additional kwargs to the model.
-
-        .. code-block:: python
-
-            agent = Agent(system_instructions="You are a predictable independent", model='gpt-4o',
-                          kwargs={'temperature': 0.1, 'max_tokens': 200})
-
-        **No system instructions**: When no system instructions are inputted, agents will use default system instructions.
-
-        .. code-block:: python
-
-            agent = Agent(model='gpt-4o', kwargs={'temperature': 1, 'max_tokens': 500})
-
-        **Persona Template**: When using a persona method, the full system instructions are a combination of the
-        persona and the `persona_template`---where the latter is a template string that includes a ${persona}
-        placeholder. This gives more instructions to the model of how to enact the persona.
-
-        Here is an example of using the `second_wave` persona template with a persona of "a moderate voter from Michigan".
-        You can see how the full system instructions are a combination of the two.
-
-        .. code-block::
-
-            second_wave_michigan = Agent(persona="a moderate voter from Michigan",
-                persona_template="second_wave")
-            print(second_wave_michigan.system_instructions)
-
-        .. code-block:: text
-
-            INSTRUCTIONS
-            When answering questions or performing tasks, always adopt the following persona.
-
-            PERSONA:
-            a moderate voter from Michigan
-
-            CONSTRAINTS
-            - When answering, do not disclose your partisan or demographic identity in any way.
-            - Think, talk, and write like your persona.
-            - Use plain language.
-            - Adopt the characteristics of your persona.
-            - Be empathetic and compassionate.
-            - Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.
-
-        Here is an example of using your own persona template with the appropriate ${persona} placeholder.
-
-        .. code-block::
-
-            agent = Agent(persona="a moderate voter from Michigan", persona_template="You are ${persona}.")
-            print(agent.system_instructions)
-            # You are a moderate voter from Michigan.
-
-        We support several automatic ways of generating personas from American National Election Studies (ANES).
-
-        **Ideology Matching (ANES Persona Method):** We support an ideology keyword that can be one of
-        ['very liberal', 'liberal', 'moderate', 'conservative', 'very conservative'] where the 'veries' are a
-        subset of the normals. The below example will pick a random row from ANES where
-        the citizen identifies as `very conservative` and use that as the `persona`. We always use appropriate sampling
-        weights, so personas will be nationally representative.
-
-        .. code-block::
-
-            agent = Agent(ideology="very conservative", model='gpt-4o', task=task)
-            print(agent.persona)
-            print(agent.system_instructions)
-
-        .. code-block:: text
-
-            Your age is 57. Your education is high school graduate. Your gender is man. Your race is hispanic. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do have children under 18 living in your household. Your employment status is full-time. Your geographic region is the northeast. You live in a suburban area. You live in the state of new york.
-
-        .. code-block:: text
-
-            INSTRUCTIONS
-            When answering questions or performing tasks, always adopt the following persona.
-
-            PERSONA:
-            Your age is 57. Your education is high school graduate. Your gender is man. Your race is hispanic. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do have children under 18 living in your household. Your employment status is full-time. Your geographic region is the northeast. You live in a suburban area. You live in the state of new york.
-
-            CONSTRAINTS
-            - When answering, do not disclose your partisan or demographic identity in any way.
-            - Think, talk, and write like your persona.
-            - Use plain language.
-            - Adopt the characteristics of your persona.
-            - Do not be overly polite or politically correct.
-
-
-        **Random Nationally Representative Personas (ANES Persona Method)**: If you make persona== 'random' then we will
-        randomly sample a row
-        from ANES and use that as the persona.
-
-        .. code-block:: python
-
-            agent = Agent(persona='random', model='gpt-4o', task=task)
-
-        **Pandas Query String (ANES Persona Method):** If you want to get more specific, you can pass in a query string
-        that will be used to filter the ANES dataset. Again, all ANES methods use sampling weights to ensure national representativeness.
-
-        .. code-block:: python
-
-            agent = Agent(query_str="inputstate=='West Virginia' & ideo5=='Very conservative'", model='gpt-4o', task=task)
-
-
-        **Here is how to inspect exactly what is going on with Agents.** You can view an Agent's responses,
-        the agent's `history` (prompts + responses), and `info`---which is a dictionary of the agent's attributes (such as system instructions).
-
-        .. code-block:: python
-
-            from plurals.agent import Agent
-            a = Agent(ideology="very conservative", model='gpt-4o', task="A task here")
-            a.process()
-
     """
 
     def __init__(self,
@@ -232,94 +249,61 @@ class Agent:
         self.combination_instructions = combination_instructions
         self._history = []
         self.persona_mapping = PERSONA_MAPPING
+        self.data = DATASET
         self.task_description = task
         self.persona = persona
         self.ideology = ideology
-        self.data = DATASET
         self.query_str = query_str
         self.original_task_description = task
         self.current_task_description = task
         self.defaults = DEFAULTS
         self.persona_template = self.handle_default_persona_template() if not persona_template else persona_template
-        self._validate_templates()
-        self._validate_system_instructions()
-        self._set_system_instructions()
         self.kwargs = kwargs if kwargs is not None else {}
 
-    def _set_system_instructions(self):
-        """
-        Users can directly pass in system_instructions. Or, we can generate system instructions by combining a
-        persona_template and a persona.
+        # Initialize strategies
+        self.persona_generator = PersonaGenerator()
+        self.persona_strategy = self._get_persona_strategy()
+        self.data_filter_strategy = self._get_data_filter_strategy()
+        self.system_instruction_strategy = self._get_system_instruction_strategy()
 
-        In these two cases, persona_template does not do anything since system_instructions is set directly or is None.
-        - If system_instructions is already provided, we don't need to do anything since system_instructions is
-        already set.
-        - If neither system_instructions, persona, ideology, nor query_str is provided (default) set
-        system_instructions to None.
+        # Validate inputs
+        self._validate_templates()
+        self._validate_system_instructions()
 
-        Otherwise, we generate system instructions using a persona:
-        - If persona is directly provided, use this.
-        - If persona is "random" generate a random ANES persona
-        - If persona is not already provided, generate it. This can be generated from a `query_str` or from `ideology`.
-        """
-        # If system_instructions is already provided, we don't need to do
-        # anything
-        if self.system_instructions is not None:
-            return
+        # Use strategy to set system instructions
+        self._set_system_instructions()
 
-        # If system_instructions, persona, ideology, nor query_str is provided,
-        # set system_instructions to None
-        if not self.system_instructions and not self.persona and not self.ideology and not self.query_str:
-            self.system_instructions = None
-            return
-
-        # If persona is already provided, use it.
-        if self.persona:
-            self.persona = self.persona
-
-        # If persona is "random" generate a random ANES persona
-        if self.persona == "random":
-            self.persona = self._generate_persona()
-
-        # If persona is not already provided, generate it
-        if not self.persona:
-            self.persona = self._generate_persona()
-
-        # Use the persona_template to create system_instructions
-        self.persona_template = self.defaults['persona_template'].get(
-            self.persona_template, self.persona_template).strip()
-        self.system_instructions = SmartString(
-            self.persona_template).format(
-            persona=self.persona,
-            task=self.task_description).strip()
-
-    # noinspection PyTypeChecker
-    def _generate_persona(self) -> str:
-        """
-        Generates a persona based on the provided data, ideology, or query string.
-
-        Returns:
-            str: Generated persona description.
-
-        Sets:
-            self.persona_template: Uses `anes` persona
-        """
-        if self.persona == "random":
-            return self._get_random_persona(self.data)
-        if self.ideology:
-            filtered_data = self._filter_data_by_ideology(self.ideology)
-            if filtered_data.empty:
-                raise AssertionError("No data found satisfying conditions")
-            selected_row = filtered_data.sample(
-                n=1, weights=filtered_data['weight']).iloc[0]
-            return self._row2persona(selected_row, self.persona_mapping)
+    def _get_persona_strategy(self):
+        if self.persona and self.persona != "random":
+            return DirectPersonaStrategy()
+        elif self.persona == "random":
+            return RandomPersonaStrategy()
+        elif self.ideology:
+            return IdeologyPersonaStrategy()
         elif self.query_str:
-            filtered_data = self.data.query(self.query_str)
-            if filtered_data.empty:
-                raise AssertionError("No data found satisfying conditions")
-            selected_row = filtered_data.sample(
-                n=1, weights=filtered_data['weight']).iloc[0]
-            return self._row2persona(selected_row, self.persona_mapping)
+            return QueryPersonaStrategy()
+        else:
+            return None
+
+    def _get_data_filter_strategy(self):
+        if self.ideology:
+            return IdeologyDataFilterStrategy()
+        elif self.query_str:
+            return QueryDataFilterStrategy()
+        else:
+            return None
+
+    def _get_system_instruction_strategy(self):
+        if self.system_instructions is not None:
+            return DirectSystemInstructionStrategy()
+        elif not self.system_instructions and not self.persona and not self.ideology and not self.query_str:
+            self.system_instructions = None
+            return DefaultSystemInstructionStrategy()
+        else:
+            return PersonaBasedSystemInstructionStrategy()
+
+    def _set_system_instructions(self):
+        self.system_instruction_strategy.set_system_instructions(self)
 
     def process(
             self,
@@ -357,19 +341,6 @@ class Agent:
             self.current_task_description = self.original_task_description.strip()
         return self._get_response(self.current_task_description)
 
-    def _get_random_persona(self, data: pd.DataFrame) -> str:
-        """
-        Generates a random persona description based on the dataset.
-
-        Args:
-            data (pd.DataFrame): The dataset to use for generating persona descriptions.
-
-        Returns:
-            str: Generated persona description.
-        """
-        selected_row = data.sample(n=1, weights=data['weight']).iloc[0]
-        return self._row2persona(selected_row, self.persona_mapping)
-
     def _get_response(self, task: str) -> Optional[str]:
         """
         Internal method to interact with the LLM API and get a response.
@@ -399,62 +370,6 @@ class Agent:
         except Exception as e:
             print(f"Error fetching response from LLM: {e}")
             return None
-
-    @staticmethod
-    def _row2persona(row: pd.Series, persona_mapping: Dict[str, Any]) -> str:
-        """
-        Converts a dataset row into a persona description string.
-
-        Args:
-            row (pd.Series): The dataset row to convert.
-            persona_mapping (Dict[str, Any]): Mapping to convert dataset rows into persona descriptions.
-
-        Returns:
-            str: Generated persona description.
-        """
-        persona = []
-        for var, details in persona_mapping.items():
-            value = row.get(var)
-
-            if var == "age" and value is not None:
-                value = int(value)
-
-            if value is None or pd.isna(value) or (details.get('bad_vals') and str(value) in details['bad_vals']):
-                continue
-
-            if details.get('recode_vals') and str(value) in details['recode_vals']:
-                value = details['recode_vals'][str(value)]
-
-            clean_name = details['name']
-            persona.append(f"{clean_name} {str(value).lower()}.")
-        return " ".join(persona)
-
-    def _filter_data_by_ideology(self, ideology: str) -> pd.DataFrame:
-        """
-        Filters the dataset based on the ideology.
-
-        Args:
-            ideology (str): The ideology to filter by.
-
-        Returns:
-            pd.DataFrame: The filtered dataset.
-        """
-        try:
-            if ideology.lower() == 'liberal':
-                return self.data[self.data['ideo5'].isin(
-                    ['Liberal', 'Very liberal'])]
-            elif ideology.lower() == 'conservative':
-                return self.data[self.data['ideo5'].isin(
-                    ['Conservative', 'Very conservative'])]
-            elif ideology.lower() == 'moderate':
-                return self.data[self.data['ideo5'] == 'Moderate']
-            elif ideology.lower() == "very liberal":
-                return self.data[self.data['ideo5'] == 'Very liberal']
-            elif ideology.lower() == "very conservative":
-                return self.data[self.data['ideo5'] == 'Very conservative']
-            return pd.DataFrame()
-        except Exception as e:
-            raise AssertionError(f"Error filtering data by ideology: {e}")
 
     def _validate_system_instructions(self):
         """
