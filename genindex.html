@@ -15,25 +15,28 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
   
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
     <script src="_static/documentation_options.js?v=9eb32ce0"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
@@ -44,6 +47,7 @@
     <link rel="search" title="Search" href="search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -59,19 +63,8 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="search.html"
       method="get">
@@ -79,7 +72,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search..."
          aria-label="Search..."
          autocomplete="off"
@@ -87,8 +79,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -106,7 +98,8 @@
       
         
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -136,15 +129,11 @@
 </a></div>
         <div class="sidebar-primary-item">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script></div>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
@@ -225,24 +214,16 @@
 
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-  </button>
-`);
-</script>
+</button>
 
 </div></div>
       
@@ -284,6 +265,7 @@ document.write(`
  | <a href="#M"><strong>M</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -328,11 +310,19 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="agent.html#plurals.agent.Agent.data">data (plurals.agent.Agent attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="agent.html#plurals.agent.DataFilterStrategy">DataFilterStrategy (class in plurals.agent)</a>
+</li>
       <li><a href="deliberation.html#plurals.deliberation.Debate">Debate (class in plurals.deliberation)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="deliberation.html#plurals.deliberation.AbstractStructure.defaults">defaults (plurals.deliberation.AbstractStructure attribute)</a>
+</li>
+      <li><a href="agent.html#plurals.agent.DefaultSystemInstructionStrategy">DefaultSystemInstructionStrategy (class in plurals.agent)</a>
+</li>
+      <li><a href="agent.html#plurals.agent.DirectPersonaStrategy">DirectPersonaStrategy (class in plurals.agent)</a>
+</li>
+      <li><a href="agent.html#plurals.agent.DirectSystemInstructionStrategy">DirectSystemInstructionStrategy (class in plurals.agent)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -348,10 +338,18 @@ document.write(`
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="deliberation.html#plurals.deliberation.AbstractStructure.final_response">final_response (plurals.deliberation.AbstractStructure attribute)</a>
+      <li><a href="agent.html#plurals.agent.DataFilterStrategy.filter_data">filter_data() (plurals.agent.DataFilterStrategy method)</a>
+
+      <ul>
+        <li><a href="agent.html#plurals.agent.IdeologyDataFilterStrategy.filter_data">(plurals.agent.IdeologyDataFilterStrategy method)</a>
 </li>
+        <li><a href="agent.html#plurals.agent.QueryDataFilterStrategy.filter_data">(plurals.agent.QueryDataFilterStrategy method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="deliberation.html#plurals.deliberation.AbstractStructure.final_response">final_response (plurals.deliberation.AbstractStructure attribute)</a>
+</li>
       <li><a href="helpers.html#plurals.helpers.SmartString.format">format() (plurals.helpers.SmartString method)</a>
 </li>
       <li><a href="helpers.html#plurals.helpers.format_previous_responses">format_previous_responses() (in module plurals.helpers)</a>
@@ -364,6 +362,18 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="deliberation.html#plurals.deliberation.Moderator.generate_and_set_system_instructions">generate_and_set_system_instructions() (plurals.deliberation.Moderator method)</a>
 </li>
+      <li><a href="agent.html#plurals.agent.DirectPersonaStrategy.generate_persona">generate_persona() (plurals.agent.DirectPersonaStrategy method)</a>
+
+      <ul>
+        <li><a href="agent.html#plurals.agent.IdeologyPersonaStrategy.generate_persona">(plurals.agent.IdeologyPersonaStrategy method)</a>
+</li>
+        <li><a href="agent.html#plurals.agent.PersonaStrategy.generate_persona">(plurals.agent.PersonaStrategy method)</a>
+</li>
+        <li><a href="agent.html#plurals.agent.QueryPersonaStrategy.generate_persona">(plurals.agent.QueryPersonaStrategy method)</a>
+</li>
+        <li><a href="agent.html#plurals.agent.RandomPersonaStrategy.generate_persona">(plurals.agent.RandomPersonaStrategy method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="deliberation.html#plurals.deliberation.Moderator.generate_system_instructions">generate_system_instructions() (plurals.deliberation.Moderator method)</a>
@@ -392,6 +402,10 @@ document.write(`
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="agent.html#plurals.agent.IdeologyDataFilterStrategy">IdeologyDataFilterStrategy (class in plurals.agent)</a>
+</li>
+      <li><a href="agent.html#plurals.agent.IdeologyPersonaStrategy">IdeologyPersonaStrategy (class in plurals.agent)</a>
+</li>
       <li><a href="agent.html#plurals.agent.Agent.info">info (plurals.agent.Agent attribute)</a>
 
       <ul>
@@ -459,6 +473,12 @@ document.write(`
 </li>
       <li><a href="agent.html#plurals.agent.Agent.persona_mapping">persona_mapping (plurals.agent.Agent attribute)</a>
 </li>
+      <li><a href="agent.html#plurals.agent.PersonaBasedSystemInstructionStrategy">PersonaBasedSystemInstructionStrategy (class in plurals.agent)</a>
+</li>
+      <li><a href="agent.html#plurals.agent.PersonaGenerator">PersonaGenerator (class in plurals.agent)</a>
+</li>
+      <li><a href="agent.html#plurals.agent.PersonaStrategy">PersonaStrategy (class in plurals.agent)</a>
+</li>
       <li>
     plurals.agent
 
@@ -507,9 +527,23 @@ document.write(`
   </ul></td>
 </tr></table>
 
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="agent.html#plurals.agent.QueryDataFilterStrategy">QueryDataFilterStrategy (class in plurals.agent)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="agent.html#plurals.agent.QueryPersonaStrategy">QueryPersonaStrategy (class in plurals.agent)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="agent.html#plurals.agent.RandomPersonaStrategy">RandomPersonaStrategy (class in plurals.agent)</a>
+</li>
       <li><a href="agent.html#plurals.agent.Agent.responses">responses (plurals.agent.Agent attribute)</a>
 
       <ul>
@@ -519,19 +553,33 @@ document.write(`
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="agent.html#plurals.agent.PersonaGenerator.row_to_persona">row_to_persona() (plurals.agent.PersonaGenerator static method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="agent.html#plurals.agent.DefaultSystemInstructionStrategy.set_system_instructions">set_system_instructions() (plurals.agent.DefaultSystemInstructionStrategy method)</a>
+
+      <ul>
+        <li><a href="agent.html#plurals.agent.DirectSystemInstructionStrategy.set_system_instructions">(plurals.agent.DirectSystemInstructionStrategy method)</a>
+</li>
+        <li><a href="agent.html#plurals.agent.PersonaBasedSystemInstructionStrategy.set_system_instructions">(plurals.agent.PersonaBasedSystemInstructionStrategy method)</a>
+</li>
+        <li><a href="agent.html#plurals.agent.SystemInstructionStrategy.set_system_instructions">(plurals.agent.SystemInstructionStrategy method)</a>
+</li>
+      </ul></li>
       <li><a href="agent.html#plurals.agent.Agent.set_task">set_task() (plurals.agent.Agent method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="deliberation.html#plurals.deliberation.AbstractStructure.shuffle">shuffle (plurals.deliberation.AbstractStructure attribute)</a>
 </li>
       <li><a href="helpers.html#plurals.helpers.SmartString">SmartString (class in plurals.helpers)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="helpers.html#plurals.helpers.strip_nested_dict">strip_nested_dict() (in module plurals.helpers)</a>
 </li>
       <li><a href="agent.html#plurals.agent.Agent.system_instructions">system_instructions (plurals.agent.Agent attribute)</a>
@@ -540,6 +588,8 @@ document.write(`
         <li><a href="deliberation.html#plurals.deliberation.Moderator.system_instructions">(plurals.deliberation.Moderator attribute)</a>
 </li>
       </ul></li>
+      <li><a href="agent.html#plurals.agent.SystemInstructionStrategy">SystemInstructionStrategy (class in plurals.agent)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -606,8 +656,8 @@ By Joshua Ashkinaze
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
   <footer class="bd-footer">
   </footer>

@@ -16,25 +16,28 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
   
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
     <script src="_static/documentation_options.js?v=9eb32ce0"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
@@ -47,6 +50,7 @@
     <link rel="prev" title="Moderators" href="tutorial_5_moderators.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -62,19 +66,8 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="search.html"
       method="get">
@@ -82,7 +75,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search..."
          aria-label="Search..."
          autocomplete="off"
@@ -90,8 +82,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -107,7 +99,8 @@
       
       
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -137,15 +130,11 @@
 </a></div>
         <div class="sidebar-primary-item">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script></div>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
@@ -274,24 +263,16 @@
 
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-  </button>
-`);
-</script>
+</button>
 <button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <span class="fa-solid fa-list"></span>
 </button>
@@ -333,6 +314,58 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4"><code class="docutils literal notranslate"><span class="pre">Agent.prompts</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5"><code class="docutils literal notranslate"><span class="pre">Agent.responses</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.Agent.set_task"><code class="docutils literal notranslate"><span class="pre">Agent.set_task()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DataFilterStrategy"><code class="docutils literal notranslate"><span class="pre">DataFilterStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DataFilterStrategy.filter_data"><code class="docutils literal notranslate"><span class="pre">DataFilterStrategy.filter_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DefaultSystemInstructionStrategy"><code class="docutils literal notranslate"><span class="pre">DefaultSystemInstructionStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DefaultSystemInstructionStrategy.set_system_instructions"><code class="docutils literal notranslate"><span class="pre">DefaultSystemInstructionStrategy.set_system_instructions()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DirectPersonaStrategy"><code class="docutils literal notranslate"><span class="pre">DirectPersonaStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DirectPersonaStrategy.generate_persona"><code class="docutils literal notranslate"><span class="pre">DirectPersonaStrategy.generate_persona()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DirectSystemInstructionStrategy"><code class="docutils literal notranslate"><span class="pre">DirectSystemInstructionStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DirectSystemInstructionStrategy.set_system_instructions"><code class="docutils literal notranslate"><span class="pre">DirectSystemInstructionStrategy.set_system_instructions()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.IdeologyDataFilterStrategy"><code class="docutils literal notranslate"><span class="pre">IdeologyDataFilterStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.IdeologyDataFilterStrategy.filter_data"><code class="docutils literal notranslate"><span class="pre">IdeologyDataFilterStrategy.filter_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.IdeologyPersonaStrategy"><code class="docutils literal notranslate"><span class="pre">IdeologyPersonaStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.IdeologyPersonaStrategy.generate_persona"><code class="docutils literal notranslate"><span class="pre">IdeologyPersonaStrategy.generate_persona()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.PersonaBasedSystemInstructionStrategy"><code class="docutils literal notranslate"><span class="pre">PersonaBasedSystemInstructionStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.PersonaBasedSystemInstructionStrategy.set_system_instructions"><code class="docutils literal notranslate"><span class="pre">PersonaBasedSystemInstructionStrategy.set_system_instructions()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.PersonaGenerator"><code class="docutils literal notranslate"><span class="pre">PersonaGenerator</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.PersonaGenerator.row_to_persona"><code class="docutils literal notranslate"><span class="pre">PersonaGenerator.row_to_persona()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.PersonaStrategy"><code class="docutils literal notranslate"><span class="pre">PersonaStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.PersonaStrategy.generate_persona"><code class="docutils literal notranslate"><span class="pre">PersonaStrategy.generate_persona()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.QueryDataFilterStrategy"><code class="docutils literal notranslate"><span class="pre">QueryDataFilterStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.QueryDataFilterStrategy.filter_data"><code class="docutils literal notranslate"><span class="pre">QueryDataFilterStrategy.filter_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.QueryPersonaStrategy"><code class="docutils literal notranslate"><span class="pre">QueryPersonaStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.QueryPersonaStrategy.generate_persona"><code class="docutils literal notranslate"><span class="pre">QueryPersonaStrategy.generate_persona()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.RandomPersonaStrategy"><code class="docutils literal notranslate"><span class="pre">RandomPersonaStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.RandomPersonaStrategy.generate_persona"><code class="docutils literal notranslate"><span class="pre">RandomPersonaStrategy.generate_persona()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.SystemInstructionStrategy"><code class="docutils literal notranslate"><span class="pre">SystemInstructionStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.SystemInstructionStrategy.set_system_instructions"><code class="docutils literal notranslate"><span class="pre">SystemInstructionStrategy.set_system_instructions()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -490,107 +523,6 @@ instructions can be set directly or generated from a persona-based method.</p>
 <p class="rubric">Notes</p>
 <p>Note that when used with Structures, the agent-level attribute values will override. Eg: If you set a task
 at an agent level and a Structure-level, the agent-level task will be used.</p>
-<p><strong>Examples:</strong></p>
-<blockquote>
-<div><p><strong>Using Agent without a structure</strong>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;Say hello&quot;</span>
-
-<span class="n">a</span> <span class="o">=</span> <span class="n">agent</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
-<span class="n">ans</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
-
-<span class="n">pirate_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a pirate.&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
-<span class="n">pirate_hello</span> <span class="o">=</span> <span class="n">pirate_agent</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
-<span class="n">pirate_goodybe</span> <span class="o">=</span> <span class="n">pirate_agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;Now say a heartfelt goodybe.&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><strong>Manual system instructions</strong>: This allows you to set system instructions to whatever you would like. Also note
-that you can pass in additional kwargs to the model.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a predictable independent&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span>
-              <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;max_tokens&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">})</span>
-</pre></div>
-</div>
-<p><strong>No system instructions</strong>: When no system instructions are inputted, agents will use default system instructions.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;max_tokens&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">})</span>
-</pre></div>
-</div>
-<p><strong>Persona Template</strong>: When using a persona method, the full system instructions are a combination of the
-persona and the <cite>persona_template</cite>—where the latter is a template string that includes a ${persona}
-placeholder. This gives more instructions to the model of how to enact the persona.</p>
-<p>Here is an example of using the <cite>second_wave</cite> persona template with a persona of “a moderate voter from Michigan”.
-You can see how the full system instructions are a combination of the two.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">second_wave_michigan</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a moderate voter from Michigan&quot;</span><span class="p">,</span>
-    <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;second_wave&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">second_wave_michigan</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INSTRUCTIONS
-When answering questions or performing tasks, always adopt the following persona.
-
-PERSONA:
-a moderate voter from Michigan
-
-CONSTRAINTS
-- When answering, do not disclose your partisan or demographic identity in any way.
-- Think, talk, and write like your persona.
-- Use plain language.
-- Adopt the characteristics of your persona.
-- Be empathetic and compassionate.
-- Use narrative, rhetoric, testimony, storytelling and more emotional forms of communication instead of relying solely on facts. It is okay to deviate from relying solely on facts.
-</pre></div>
-</div>
-<p>Here is an example of using your own persona template with the appropriate ${persona} placeholder.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a moderate voter from Michigan&quot;</span><span class="p">,</span> <span class="n">persona_template</span><span class="o">=</span><span class="s2">&quot;You are $</span><span class="si">{persona}</span><span class="s2">.&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
-<span class="c1"># You are a moderate voter from Michigan.</span>
-</pre></div>
-</div>
-<p>We support several automatic ways of generating personas from American National Election Studies (ANES).</p>
-<p><strong>Ideology Matching (ANES Persona Method):</strong> We support an ideology keyword that can be one of
-[‘very liberal’, ‘liberal’, ‘moderate’, ‘conservative’, ‘very conservative’] where the ‘veries’ are a
-subset of the normals. The below example will pick a random row from ANES where
-the citizen identifies as <cite>very conservative</cite> and use that as the <cite>persona</cite>. We always use appropriate sampling
-weights, so personas will be nationally representative.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">persona</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Your age is 57. Your education is high school graduate. Your gender is man. Your race is hispanic. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do have children under 18 living in your household. Your employment status is full-time. Your geographic region is the northeast. You live in a suburban area. You live in the state of new york.
-</pre></div>
-</div>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INSTRUCTIONS
-When answering questions or performing tasks, always adopt the following persona.
-
-PERSONA:
-Your age is 57. Your education is high school graduate. Your gender is man. Your race is hispanic. Politically, you identify as a(n) republican. Your ideology is very conservative. Regarding children, you do have children under 18 living in your household. Your employment status is full-time. Your geographic region is the northeast. You live in a suburban area. You live in the state of new york.
-
-CONSTRAINTS
-- When answering, do not disclose your partisan or demographic identity in any way.
-- Think, talk, and write like your persona.
-- Use plain language.
-- Adopt the characteristics of your persona.
-- Do not be overly polite or politically correct.
-</pre></div>
-</div>
-<p><strong>Random Nationally Representative Personas (ANES Persona Method)</strong>: If you make persona== ‘random’ then we will
-randomly sample a row
-from ANES and use that as the persona.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><strong>Pandas Query String (ANES Persona Method):</strong> If you want to get more specific, you can pass in a query string
-that will be used to filter the ANES dataset. Again, all ANES methods use sampling weights to ensure national representativeness.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">query_str</span><span class="o">=</span><span class="s2">&quot;inputstate==&#39;West Virginia&#39; &amp; ideo5==&#39;Very conservative&#39;&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><strong>Here is how to inspect exactly what is going on with Agents.</strong> You can view an Agent’s responses,
-the agent’s <cite>history</cite> (prompts + responses), and <cite>info</cite>—which is a dictionary of the agent’s attributes (such as system instructions).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">ideology</span><span class="o">=</span><span class="s2">&quot;very conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">&quot;A task here&quot;</span><span class="p">)</span>
-<span class="n">a</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
-</pre></div>
-</div>
-</div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="plurals.agent.Agent.handle_default_persona_template">
 <span class="sig-name descname"><span class="pre">handle_default_persona_template</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#Agent.handle_default_persona_template"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.Agent.handle_default_persona_template" title="Link to this definition">#</a></dt>
@@ -709,6 +641,164 @@ self.current_task_description: Dynamically updated task description that may inc
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.DataFilterStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">DataFilterStrategy</span></span><a class="reference internal" href="_modules/plurals/agent.html#DataFilterStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.DataFilterStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.DataFilterStrategy.filter_data">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">filter_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#DataFilterStrategy.filter_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.DataFilterStrategy.filter_data" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.DefaultSystemInstructionStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">DefaultSystemInstructionStrategy</span></span><a class="reference internal" href="_modules/plurals/agent.html#DefaultSystemInstructionStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.DefaultSystemInstructionStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#plurals.agent.SystemInstructionStrategy" title="plurals.agent.SystemInstructionStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">SystemInstructionStrategy</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.DefaultSystemInstructionStrategy.set_system_instructions">
+<span class="sig-name descname"><span class="pre">set_system_instructions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#DefaultSystemInstructionStrategy.set_system_instructions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.DefaultSystemInstructionStrategy.set_system_instructions" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.DirectPersonaStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">DirectPersonaStrategy</span></span><a class="reference internal" href="_modules/plurals/agent.html#DirectPersonaStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.DirectPersonaStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#plurals.agent.PersonaStrategy" title="plurals.agent.PersonaStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">PersonaStrategy</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.DirectPersonaStrategy.generate_persona">
+<span class="sig-name descname"><span class="pre">generate_persona</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#DirectPersonaStrategy.generate_persona"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.DirectPersonaStrategy.generate_persona" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.DirectSystemInstructionStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">DirectSystemInstructionStrategy</span></span><a class="reference internal" href="_modules/plurals/agent.html#DirectSystemInstructionStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.DirectSystemInstructionStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#plurals.agent.SystemInstructionStrategy" title="plurals.agent.SystemInstructionStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">SystemInstructionStrategy</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.DirectSystemInstructionStrategy.set_system_instructions">
+<span class="sig-name descname"><span class="pre">set_system_instructions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#DirectSystemInstructionStrategy.set_system_instructions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.DirectSystemInstructionStrategy.set_system_instructions" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.IdeologyDataFilterStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">IdeologyDataFilterStrategy</span></span><a class="reference internal" href="_modules/plurals/agent.html#IdeologyDataFilterStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.IdeologyDataFilterStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#plurals.agent.DataFilterStrategy" title="plurals.agent.DataFilterStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFilterStrategy</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.IdeologyDataFilterStrategy.filter_data">
+<span class="sig-name descname"><span class="pre">filter_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#IdeologyDataFilterStrategy.filter_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.IdeologyDataFilterStrategy.filter_data" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.IdeologyPersonaStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">IdeologyPersonaStrategy</span></span><a class="reference internal" href="_modules/plurals/agent.html#IdeologyPersonaStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.IdeologyPersonaStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#plurals.agent.PersonaStrategy" title="plurals.agent.PersonaStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">PersonaStrategy</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.IdeologyPersonaStrategy.generate_persona">
+<span class="sig-name descname"><span class="pre">generate_persona</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#IdeologyPersonaStrategy.generate_persona"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.IdeologyPersonaStrategy.generate_persona" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.PersonaBasedSystemInstructionStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">PersonaBasedSystemInstructionStrategy</span></span><a class="reference internal" href="_modules/plurals/agent.html#PersonaBasedSystemInstructionStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.PersonaBasedSystemInstructionStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#plurals.agent.SystemInstructionStrategy" title="plurals.agent.SystemInstructionStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">SystemInstructionStrategy</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.PersonaBasedSystemInstructionStrategy.set_system_instructions">
+<span class="sig-name descname"><span class="pre">set_system_instructions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#PersonaBasedSystemInstructionStrategy.set_system_instructions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.PersonaBasedSystemInstructionStrategy.set_system_instructions" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.PersonaGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">PersonaGenerator</span></span><a class="reference internal" href="_modules/plurals/agent.html#PersonaGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.PersonaGenerator" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.PersonaGenerator.row_to_persona">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">row_to_persona</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persona_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#PersonaGenerator.row_to_persona"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.PersonaGenerator.row_to_persona" title="Link to this definition">#</a></dt>
+<dd><p>Converts a dataset row into a persona description string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>row</strong> (<em>pd.Series</em>) – The dataset row to convert.</p></li>
+<li><p><strong>persona_mapping</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Mapping to convert dataset rows into persona descriptions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Generated persona description.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.PersonaStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">PersonaStrategy</span></span><a class="reference internal" href="_modules/plurals/agent.html#PersonaStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.PersonaStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.PersonaStrategy.generate_persona">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_persona</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#PersonaStrategy.generate_persona"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.PersonaStrategy.generate_persona" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.QueryDataFilterStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">QueryDataFilterStrategy</span></span><a class="reference internal" href="_modules/plurals/agent.html#QueryDataFilterStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.QueryDataFilterStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#plurals.agent.DataFilterStrategy" title="plurals.agent.DataFilterStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFilterStrategy</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.QueryDataFilterStrategy.filter_data">
+<span class="sig-name descname"><span class="pre">filter_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/plurals/agent.html#QueryDataFilterStrategy.filter_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.QueryDataFilterStrategy.filter_data" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.QueryPersonaStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">QueryPersonaStrategy</span></span><a class="reference internal" href="_modules/plurals/agent.html#QueryPersonaStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.QueryPersonaStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#plurals.agent.PersonaStrategy" title="plurals.agent.PersonaStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">PersonaStrategy</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.QueryPersonaStrategy.generate_persona">
+<span class="sig-name descname"><span class="pre">generate_persona</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#QueryPersonaStrategy.generate_persona"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.QueryPersonaStrategy.generate_persona" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.RandomPersonaStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">RandomPersonaStrategy</span></span><a class="reference internal" href="_modules/plurals/agent.html#RandomPersonaStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.RandomPersonaStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#plurals.agent.PersonaStrategy" title="plurals.agent.PersonaStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">PersonaStrategy</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.RandomPersonaStrategy.generate_persona">
+<span class="sig-name descname"><span class="pre">generate_persona</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#RandomPersonaStrategy.generate_persona"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.RandomPersonaStrategy.generate_persona" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="plurals.agent.SystemInstructionStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">plurals.agent.</span></span><span class="sig-name descname"><span class="pre">SystemInstructionStrategy</span></span><a class="reference internal" href="_modules/plurals/agent.html#SystemInstructionStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.SystemInstructionStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.agent.SystemInstructionStrategy.set_system_instructions">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_system_instructions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/agent.html#SystemInstructionStrategy.set_system_instructions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.agent.SystemInstructionStrategy.set_system_instructions" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -747,7 +837,8 @@ self.current_task_description: Dynamically updated task description that may inc
             
             
               
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
   <div class="sidebar-secondary-item">
@@ -774,6 +865,58 @@ self.current_task_description: Dynamically updated task description that may inc
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4"><code class="docutils literal notranslate"><span class="pre">Agent.prompts</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5"><code class="docutils literal notranslate"><span class="pre">Agent.responses</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.Agent.set_task"><code class="docutils literal notranslate"><span class="pre">Agent.set_task()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DataFilterStrategy"><code class="docutils literal notranslate"><span class="pre">DataFilterStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DataFilterStrategy.filter_data"><code class="docutils literal notranslate"><span class="pre">DataFilterStrategy.filter_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DefaultSystemInstructionStrategy"><code class="docutils literal notranslate"><span class="pre">DefaultSystemInstructionStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DefaultSystemInstructionStrategy.set_system_instructions"><code class="docutils literal notranslate"><span class="pre">DefaultSystemInstructionStrategy.set_system_instructions()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DirectPersonaStrategy"><code class="docutils literal notranslate"><span class="pre">DirectPersonaStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DirectPersonaStrategy.generate_persona"><code class="docutils literal notranslate"><span class="pre">DirectPersonaStrategy.generate_persona()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DirectSystemInstructionStrategy"><code class="docutils literal notranslate"><span class="pre">DirectSystemInstructionStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.DirectSystemInstructionStrategy.set_system_instructions"><code class="docutils literal notranslate"><span class="pre">DirectSystemInstructionStrategy.set_system_instructions()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.IdeologyDataFilterStrategy"><code class="docutils literal notranslate"><span class="pre">IdeologyDataFilterStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.IdeologyDataFilterStrategy.filter_data"><code class="docutils literal notranslate"><span class="pre">IdeologyDataFilterStrategy.filter_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.IdeologyPersonaStrategy"><code class="docutils literal notranslate"><span class="pre">IdeologyPersonaStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.IdeologyPersonaStrategy.generate_persona"><code class="docutils literal notranslate"><span class="pre">IdeologyPersonaStrategy.generate_persona()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.PersonaBasedSystemInstructionStrategy"><code class="docutils literal notranslate"><span class="pre">PersonaBasedSystemInstructionStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.PersonaBasedSystemInstructionStrategy.set_system_instructions"><code class="docutils literal notranslate"><span class="pre">PersonaBasedSystemInstructionStrategy.set_system_instructions()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.PersonaGenerator"><code class="docutils literal notranslate"><span class="pre">PersonaGenerator</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.PersonaGenerator.row_to_persona"><code class="docutils literal notranslate"><span class="pre">PersonaGenerator.row_to_persona()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.PersonaStrategy"><code class="docutils literal notranslate"><span class="pre">PersonaStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.PersonaStrategy.generate_persona"><code class="docutils literal notranslate"><span class="pre">PersonaStrategy.generate_persona()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.QueryDataFilterStrategy"><code class="docutils literal notranslate"><span class="pre">QueryDataFilterStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.QueryDataFilterStrategy.filter_data"><code class="docutils literal notranslate"><span class="pre">QueryDataFilterStrategy.filter_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.QueryPersonaStrategy"><code class="docutils literal notranslate"><span class="pre">QueryPersonaStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.QueryPersonaStrategy.generate_persona"><code class="docutils literal notranslate"><span class="pre">QueryPersonaStrategy.generate_persona()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.RandomPersonaStrategy"><code class="docutils literal notranslate"><span class="pre">RandomPersonaStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.RandomPersonaStrategy.generate_persona"><code class="docutils literal notranslate"><span class="pre">RandomPersonaStrategy.generate_persona()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.SystemInstructionStrategy"><code class="docutils literal notranslate"><span class="pre">SystemInstructionStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.agent.SystemInstructionStrategy.set_system_instructions"><code class="docutils literal notranslate"><span class="pre">SystemInstructionStrategy.set_system_instructions()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -817,8 +960,8 @@ By Joshua Ashkinaze
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
   <footer class="bd-footer">
   </footer>
