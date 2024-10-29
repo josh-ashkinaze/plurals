@@ -68,10 +68,10 @@ class PersonaBasedSystemInstructionStrategy(SystemInstructionStrategy):
         agent.persona = agent.persona_strategy.generate_persona(agent)
 
         # Use the persona_template to create system_instructions
-        persona_template_content = agent.defaults['persona_template'].get(
+        agent.persona_template = agent.defaults['persona_template'].get(
             agent.persona_template, agent.persona_template).strip()
         agent.system_instructions = SmartString(
-            persona_template_content).format(
+            agent.persona_template).format(
             persona=agent.persona,
             task=agent.task_description).strip()
 
