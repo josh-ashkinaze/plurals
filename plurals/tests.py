@@ -2087,6 +2087,5 @@ class TestStructureRepr(unittest.TestCase):
         print(repr_string)
         self.assertIn("'responses': []", repr_string)
 
-
 if __name__ == "__main__":
     unittest.main()
