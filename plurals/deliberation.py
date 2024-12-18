@@ -554,6 +554,7 @@ class Chain(AbstractStructure):
             moderated_response = self.moderator._moderate_responses(self.responses)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
+        return self.final_response
 
 
 class Ensemble(AbstractStructure):
@@ -597,6 +598,7 @@ class Ensemble(AbstractStructure):
             moderated_response = self.moderator._moderate_responses(self.responses)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
+        return self.final_response
 
 
 class Debate(AbstractStructure):
@@ -723,6 +725,7 @@ class Debate(AbstractStructure):
             moderated_response = self.moderator._moderate_responses(self.responses)
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
+        return self.final_response
 
 
 class Graph(AbstractStructure):
