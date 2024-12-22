@@ -220,26 +220,19 @@ class SmartString(str):
 
 
 def get_resource_path(package: str, resource: str) -> str:
-    """
-    Get the path to a resource file, supporting both pkg_resources and importlib.resources.
+    """Get the path to a resource file, supporting both pkg_resources and importlib.resources.
     Falls back to importlib.resources if pkg_resources is not available.
 
     Problem this solves:
-    - In python 3.12, pkg_resources is being deprecated in favor of importlib.resources, and
-    it no longer comes with pkg_resources. This creates an import error unless user does `pip install setuptools` but it is
-    bad practice to add setuptools as a runtime dependency.
-
-    - If I just switch to importlib, this is limiting since importlib is only for 3.9+.
-
-    - So the solution is to use pkg_resources if available, and if not, use importlib.resources.
-
+        - In python 3.12, pkg_resources is being deprecated in favor of importlib.resources, and
+          it no longer comes with pkg_resources. This creates an import error unless user does
+          `pip install setuptools` but it is bad practice to add setuptools as a runtime dependency.
+        - If I just switch to importlib, this is limiting since importlib is only for 3.9+.
+        - So the solution is to use pkg_resources if available, and if not, use importlib.resources.
 
     Args:
-        package: The package name (just __name__ usually)
-        resource: The resource path relative to the package
-
-    Returns:
-        str: The full path to the resource
+        package (str): The package name (just __name__ usually)
+        resource (str): The resource path relative to the package
     """
     try:
         import pkg_resources
