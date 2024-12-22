@@ -3,7 +3,6 @@ import string
 from typing import List, Dict, Any
 
 import pandas as pd
-import pkg_resources
 import yaml
 
 
@@ -28,8 +27,7 @@ def print_anes_mapping():
 
     """
     mapping = load_yaml('anes-mapping.yaml')
-    df = pd.read_csv(pkg_resources.resource_filename(
-        __name__, 'data/anes_pilot_2024_20240319.csv'))
+    df = pd.read_csv(get_resource_path(__name__, 'data/anes_pilot_2024_20240319.csv'))
     for key in mapping.keys():
         details = mapping[key]
 
@@ -79,7 +77,7 @@ def load_yaml(file_path: str) -> Dict[str, Any]:
     Returns:
         A dictionary containing the contents of the YAML file.
     """
-    full_path = pkg_resources.resource_filename(__name__, file_path)
+    full_path = get_resource_path(__name__, file_path)
     if not os.path.exists(full_path):
         raise FileNotFoundError(
             f"The file {full_path} does not exist. Please ensure the file path is correct.")
@@ -219,3 +217,35 @@ class SmartString(str):
                         f"{value}.", value)
 
         return formatted_string
+
+
+def get_resource_path(package: str, resource: str) -> str:
+    """
+    Get the path to a resource file, supporting both pkg_resources and importlib.resources.
+    Falls back to importlib.resources if pkg_resources is not available.
+
+    Problem this solves:
+    - In python 3.12, pkg_resources is being deprecated in favor of importlib.resources, and
+    it no longer comes with pkg_resources. This creates an import error unless user does `pip install setuptools` but it is
+    bad practice to add setuptools as a runtime dependency.
+
+    - If I just switch to importlib, this is limiting since importlib is only for 3.9+.
+
+    - So the solution is to use pkg_resources if available, and if not, use importlib.resources.
+
+
+    Args:
+        package: The package name (just __name__ usually)
+        resource: The resource path relative to the package
+
+    Returns:
+        str: The full path to the resource
+    """
+    try:
+        import pkg_resources
+        return pkg_resources.resource_filename(package, resource)
+    except ImportError:
+        from importlib import resources
+        root_package = package.split('.')[0]
+        with resources.path(root_package, resource) as path:
+            return str(path)
