@@ -2087,5 +2087,32 @@ class TestStructureRepr(unittest.TestCase):
         print(repr_string)
         self.assertIn("'responses': []", repr_string)
 
+
+from pathlib import Path
+
+
+class TestPathHandling(unittest.TestCase):
+    """Test cases for resource path handling."""
+
+    def test_load_yaml_pkg_resources_paths(self):
+        """Test load_yaml works both with and without pkg_resources."""
+
+        # test we can load stuff with pkg_resources
+        yaml_content_pkg_resources = load_yaml("instructions.yaml")
+        self.assertIsInstance(yaml_content_pkg_resources, dict)
+        self.assertIn("persona_template", yaml_content_pkg_resources)
+        self.assertIn("combination_instructions", yaml_content_pkg_resources)
+
+        # test we can load stuff without pkg_resources
+        with patch("pkg_resources.resource_filename", side_effect=ImportError):
+            yaml_content_pathlib = load_yaml("instructions.yaml")
+            self.assertIsInstance(yaml_content_pathlib, dict)
+            self.assertIn("persona_template", yaml_content_pathlib)
+            self.assertIn("combination_instructions", yaml_content_pathlib)
+
+        # assert equality of the two methods
+        self.assertEqual(yaml_content_pkg_resources, yaml_content_pathlib)
+
+
 if __name__ == "__main__":
     unittest.main()
