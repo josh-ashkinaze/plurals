@@ -260,7 +260,6 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">pkg_resources</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 
 
@@ -287,8 +286,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">mapping</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s1">&#39;anes-mapping.yaml&#39;</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span>
-        <span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;data/anes_pilot_2024_20240319.csv&#39;</span><span class="p">))</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">get_resource_path</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;data/anes_pilot_2024_20240319.csv&#39;</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="n">details</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
@@ -344,7 +342,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A dictionary containing the contents of the YAML file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">full_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+    <span class="n">full_path</span> <span class="o">=</span> <span class="n">get_resource_path</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">full_path</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;The file </span><span class="si">{</span><span class="n">full_path</span><span class="si">}</span><span class="s2"> does not exist. Please ensure the file path is correct.&quot;</span><span class="p">)</span>
@@ -493,6 +491,41 @@
 
         <span class="k">return</span> <span class="n">formatted_string</span></div>
 </div>
+
+
+
+<div class="viewcode-block" id="get_resource_path">
+<a class="viewcode-back" href="../../helpers.html#plurals.helpers.get_resource_path">[docs]</a>
+<span class="k">def</span> <span class="nf">get_resource_path</span><span class="p">(</span><span class="n">package</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the path to a resource file, supporting both pkg_resources and importlib.resources.</span>
+<span class="sd">    Falls back to importlib.resources if pkg_resources is not available.</span>
+
+<span class="sd">    Problem this solves:</span>
+<span class="sd">    - In python 3.12, pkg_resources is being deprecated in favor of importlib.resources, and</span>
+<span class="sd">    it no longer comes with pkg_resources. This creates an import error unless user does `pip install setuptools` but it is</span>
+<span class="sd">    bad practice to add setuptools as a runtime dependency.</span>
+
+<span class="sd">    - If I just switch to importlib, this is limiting since importlib is only for 3.9+.</span>
+
+<span class="sd">    - So the solution is to use pkg_resources if available, and if not, use importlib.resources.</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        package: The package name (just __name__ usually)</span>
+<span class="sd">        resource: The resource path relative to the package</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The full path to the resource</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">pkg_resources</span>
+        <span class="k">return</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">resource</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">resources</span>
+        <span class="n">root_package</span> <span class="o">=</span> <span class="n">package</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">root_package</span><span class="p">,</span> <span class="n">resource</span><span class="p">)</span> <span class="k">as</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
 </pre></div>
 
