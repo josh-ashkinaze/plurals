@@ -2087,10 +2087,6 @@ class TestStructureRepr(unittest.TestCase):
         print(repr_string)
         self.assertIn("'responses': []", repr_string)
 
-
-from pathlib import Path
-
-
 class TestPathHandling(unittest.TestCase):
     """Test cases for resource path handling."""
 
