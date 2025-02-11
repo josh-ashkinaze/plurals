@@ -188,4 +188,4 @@ Plurals is run by a small and energetic team of academics doing the best they ca
 # Collaborators 🤝
 
 If you are interested in collaborating, please reach out to Joshua Ashkinaze (jashkina@umich.edu). We are 
-running more experiments to test how and when these simulated social ensembles can augment humans. 
+actively running both human and AI experiments around (1) how and when simulated social ensembles augment humans; (2) using Plurals for moderation.  
