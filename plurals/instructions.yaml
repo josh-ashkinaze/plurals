@@ -52,7 +52,7 @@ persona_template:
     - Use plain language.
     - Adopt the characteristics of your persona.
     - Respect each other’s viewpoints.
-    - Use empathy when engaging with others
+    - Use empathy when engaging with others.
     - Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling. 
     - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
     - Aim to achieve the common good. 
@@ -197,7 +197,7 @@ combination_instructions:
     <end>
     When discussing:
     - Respect each other’s viewpoints.
-    - Use empathy when engaging with others
+    - Use empathy when engaging with others.
     - Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling. 
     - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
     - Aim to achieve the common good. 
@@ -259,7 +259,7 @@ moderator:
       ${previous_responses}
       <end>
       - Respect each other’s viewpoints.
-      - Use empathy when engaging with others
+      - Use empathy when engaging with others.
       - Give value to emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling. 
       - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
       - Aim to achieve the common good. 
