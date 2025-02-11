@@ -313,7 +313,10 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-3-searching-anes-using-a-pandas-query-string">ANES Option 3: Searching ANES using a Pandas query string</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-different-llms">Using different LLMs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-different-llms">Using different LLMs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-llms-experimental">Local LLMs [Experimental]</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-exact-prompts-that-an-agent-is-doing">Inspecting the exact prompts that an Agent is doing</a></li>
 </ul>
             </nav>
@@ -644,6 +647,42 @@ so you can (e.g) pass in a temperature or max tokens. Here are some examples of 
 <span class="n">gpt3</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-3.5-turbo&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">})</span>
 </pre></div>
 </div>
+<section id="local-llms-experimental">
+<h3>Local LLMs [Experimental]<a class="headerlink" href="#local-llms-experimental" title="Link to this heading">#</a></h3>
+<p>You can use local LLMs via <a class="reference external" href="https://ollama.ai">Ollama</a>. Please note: Support for local LLMs via Ollama is currently experimental and not officially supported. If you use Ollama with Plurals and find any bugs, please
+post a GitHub issue.</p>
+<ol class="arabic">
+<li><p>Install Ollama and start the server:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ollama<span class="w"> </span>start
+</pre></div>
+</div>
+</li>
+<li><p>Pull your desired model:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ollama<span class="w"> </span>pull<span class="w"> </span>gemma:2b
+</pre></div>
+</div>
+</li>
+<li><p>Configure your Agent with the Ollama endpoint:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="c1"># point to local Ollama server</span>
+<span class="n">local_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;ollama/gemma:2b&quot;</span><span class="p">,</span>
+    <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;api_base&#39;</span><span class="p">:</span> <span class="s1">&#39;http://localhost:11434&#39;</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">local_agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="s2">&quot;Say hello&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>First run the model locally with <code class="docutils literal notranslate"><span class="pre">ollama</span> <span class="pre">run</span> <span class="pre">gemma:2b</span></code></p></li>
+<li><p>Full model list: <a class="reference external" href="https://ollama.ai/library">https://ollama.ai/library</a></p></li>
+<li><p>Again: This integration is <em>experimental</em> as of now. In contrast to other documented features, API stability is not currently guaranteed.</p></li>
+</ul>
+</div>
+</section>
 </section>
 <section id="inspecting-the-exact-prompts-that-an-agent-is-doing">
 <h2>Inspecting the exact prompts that an Agent is doing<a class="headerlink" href="#inspecting-the-exact-prompts-that-an-agent-is-doing" title="Link to this heading">#</a></h2>
@@ -731,7 +770,10 @@ so you can (e.g) pass in a temperature or max tokens. Here are some examples of 
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anes-option-3-searching-anes-using-a-pandas-query-string">ANES Option 3: Searching ANES using a Pandas query string</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-different-llms">Using different LLMs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-different-llms">Using different LLMs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-llms-experimental">Local LLMs [Experimental]</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-exact-prompts-that-an-agent-is-doing">Inspecting the exact prompts that an Agent is doing</a></li>
 </ul>
   </nav></div>

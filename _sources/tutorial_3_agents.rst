@@ -381,6 +381,42 @@ so you can (e.g) pass in a temperature or max tokens. Here are some examples of 
 
 
 
+Local LLMs [Experimental]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can use local LLMs via `Ollama <https://ollama.ai>`_. Please note: Support for local LLMs via Ollama is currently experimental and not officially supported. If you use Ollama with Plurals and find any bugs, please
+post a GitHub issue.
+
+1. Install Ollama and start the server:
+
+   .. code-block:: bash
+
+      ollama start
+
+2. Pull your desired model:
+
+   .. code-block:: bash
+
+      ollama pull gemma:2b
+
+3. Configure your Agent with the Ollama endpoint:
+
+.. code-block:: python
+
+   from plurals.agent import Agent
+
+   # point to local Ollama server
+   local_agent = Agent(
+       model="ollama/gemma:2b",
+       kwargs={'api_base': 'http://localhost:11434'}
+   )
+   print(local_agent.process("Say hello"))
+
+.. note::
+   - First run the model locally with ``ollama run gemma:2b``
+   - Full model list: https://ollama.ai/library
+   - Again: This integration is *experimental* as of now. In contrast to other documented features, API stability is not currently guaranteed.
+
+
 Inspecting the exact prompts that an Agent is doing
 ---------------------------------------------------
 
