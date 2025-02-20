@@ -378,6 +378,10 @@ class AbstractStructure(ABC):
         for agent in self.agents:
             if not agent.combination_instructions:
                 agent.combination_instructions = self.combination_instructions
+            else:
+                agent.combination_instructions = self.defaults["combination_instructions"].get(
+                    agent.combination_instructions, agent.combination_instructions
+                )
 
     def _set_agent_task_description(self) -> None:
         """
@@ -825,6 +829,7 @@ class Graph(AbstractStructure):
             agents=self.agents, task=task, last_n=last_n, moderator=moderator, combination_instructions=combination_instructions
         )
         self._build_graph()
+        self._set_combination_instructions()
 
     def _build_graph(self):
         """
