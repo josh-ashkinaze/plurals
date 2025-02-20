@@ -458,7 +458,7 @@ class TestModerator(unittest.TestCase):
         mod = Moderator(
             persona="You are a conservative moderator overseeing a discussion about the following task: ${task}.",
             combination_instructions="- Here are the previous responses: ${previous_responses}- Take only the most "
-            "conservative parts of what was previously said.",
+                                     "conservative parts of what was previously said.",
         )
         mixed = Chain([a2, a3, a4], task=self.task, moderator=mod)
         mixed.process()
@@ -525,16 +525,16 @@ class TestChain(unittest.TestCase):
         chain = Chain([agent1, agent2], task=task, cycles=3)
 
         with patch.object(
-            Agent,
-            "_get_response",
-            side_effect=[
-                "Pros: flexibility, no commute. Cons: isolation.",
-                "Pros: reduced office costs. Cons: difficulty in team building.",
-                "Agree on flexibility, add increased productivity as pro.",
-                "Agree on team building issues, add potential for overwork.",
-                "Emphasize need for balance and hybrid models.",
-                "Suggest importance of clear communication and expectations.",
-            ],
+                Agent,
+                "_get_response",
+                side_effect=[
+                    "Pros: flexibility, no commute. Cons: isolation.",
+                    "Pros: reduced office costs. Cons: difficulty in team building.",
+                    "Agree on flexibility, add increased productivity as pro.",
+                    "Agree on team building issues, add potential for overwork.",
+                    "Emphasize need for balance and hybrid models.",
+                    "Suggest importance of clear communication and expectations.",
+                ],
         ):
             chain.process()
 
@@ -745,9 +745,9 @@ class TestChain(unittest.TestCase):
 
         # Mock ONLY _get_response from `process()`.
         with patch.object(
-            Agent,
-            "_get_response",
-            return_value="Social media has both positive and negative impacts on society.",
+                Agent,
+                "_get_response",
+                return_value="Social media has both positive and negative impacts on society.",
         ):
             chain.process()
 
@@ -786,13 +786,13 @@ Here are the previous responses:
         chain = Chain([agent1, agent2, agent3])
 
         with patch.object(
-            Agent,
-            "_get_response",
-            side_effect=[
-                "Pros: flexibility, no commute.",
-                "Cons: isolation, difficulty in team building.",
-                "Summary: Remote work offers flexibility but poses challenges in collaboration.",
-            ],
+                Agent,
+                "_get_response",
+                side_effect=[
+                    "Pros: flexibility, no commute.",
+                    "Cons: isolation, difficulty in team building.",
+                    "Summary: Remote work offers flexibility but poses challenges in collaboration.",
+                ],
         ):
             chain.process()
 
@@ -974,14 +974,14 @@ class TestDebate(unittest.TestCase):
         debate = Debate([agent1, agent2], cycles=2)
 
         with patch.object(
-            Agent,
-            "_get_response",
-            side_effect=[
-                "Stricter laws will reduce gun violence.",
-                "Stricter laws infringe on Second Amendment rights.",
-                "Gun control laws have been effective in other countries.",
-                "Law-abiding citizens need guns for self-defense.",
-            ],
+                Agent,
+                "_get_response",
+                side_effect=[
+                    "Stricter laws will reduce gun violence.",
+                    "Stricter laws infringe on Second Amendment rights.",
+                    "Gun control laws have been effective in other countries.",
+                    "Law-abiding citizens need guns for self-defense.",
+                ],
         ):
             debate.process()
 
@@ -1251,13 +1251,13 @@ class TestNetworkStructure(unittest.TestCase):
         graph = Graph(agents=agents, edges=edges)
 
         with patch.object(
-            Agent,
-            "process",
-            side_effect=[
-                "Economic policies should focus on growth.",
-                "Social policies should address inequality.",
-                "Both economic growth and social equality are important policy goals.",
-            ],
+                Agent,
+                "process",
+                side_effect=[
+                    "Economic policies should focus on growth.",
+                    "Social policies should address inequality.",
+                    "Both economic growth and social equality are important policy goals.",
+                ],
         ):
             final_response = graph.process()
 
@@ -2087,11 +2087,12 @@ class TestStructureRepr(unittest.TestCase):
         print(repr_string)
         self.assertIn("'responses': []", repr_string)
 
+
 class TestPathHandling(unittest.TestCase):
     """Test cases for resource path handling."""
 
     def test_load_yaml_pkg_resources_paths(self):
-        """Test load_yaml works both with and without pkg_resources."""
+        """Test load_yaml works both with and without pkg_resources. This has to do with different versions of Python"""
 
         # test we can load stuff with pkg_resources
         yaml_content_pkg_resources = load_yaml("instructions.yaml")
@@ -2106,8 +2107,130 @@ class TestPathHandling(unittest.TestCase):
             self.assertIn("persona_template", yaml_content_pathlib)
             self.assertIn("combination_instructions", yaml_content_pathlib)
 
-        # assert equality of the two methods
         self.assertEqual(yaml_content_pkg_resources, yaml_content_pathlib)
+
+
+class CombinationInstructionExpansionTests(unittest.TestCase):
+    """Tests verifying the proper expansion of combination instruction templates across structures
+
+    Notes:
+        - We don't need to test ensemble because it never uses combination instructions
+        - The reason why I am redefining agents a bunch of times is because if you use the same Agents, e.g. in setup,
+        then their combination instructions are already set
+
+    """
+
+    def test_structure_template_expansion(self):
+        """Test that when no agent has combination instructions, they inherit correctly expanded template from structure"""
+        task = "Generate argument for social media in 10 words."
+
+        # Chain
+        chain_agents = [
+            Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30}),
+            Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
+        ]
+        chain = Chain(chain_agents, task=task, combination_instructions="chain")
+        chain.process()
+        chain_template = DEFAULTS["combination_instructions"]["chain"]
+        for agent in chain.agents:
+            self.assertEqual(chain_template, agent.combination_instructions)
+
+        debate_agents = [
+            Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30}),
+            Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
+        ]
+        debate = Debate(debate_agents, task=task, combination_instructions="debate")
+        debate.process()
+        debate_template = DEFAULTS["combination_instructions"]["debate"]
+        for agent in debate.agents:
+            self.assertEqual(debate_template, agent.combination_instructions)
+
+        graph_agents = {
+            "agent1": Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30}),
+            "agent2": Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
+        }
+        graph = Graph(
+            agents=graph_agents,
+            edges=[("agent1", "agent2")],
+            combination_instructions="critique_revise"
+        )
+        graph.process()
+        critique_template = DEFAULTS["combination_instructions"]["critique_revise"]
+        for agent in graph.agents:
+            self.assertEqual(critique_template, agent.combination_instructions)
+
+    def test_agent_template_expansion(self):
+        """Test that agents with template names get their templates properly expanded"""
+        task = "Generate argument for social media in 10 words."
+
+        chain_agents = [
+            Agent(task=task, combination_instructions="default", model="gpt-3.5-turbo", kwargs={"max_tokens": 30}),
+            Agent(task=task, combination_instructions="chain", model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
+        ]
+        chain = Chain(chain_agents, task=task)
+        chain.process()
+        self.assertEqual(DEFAULTS["combination_instructions"]["default"], chain_agents[0].combination_instructions)
+        self.assertEqual(DEFAULTS["combination_instructions"]["chain"], chain_agents[1].combination_instructions)
+
+        debate_agents = [
+            Agent(task=task, combination_instructions="debate", model="gpt-3.5-turbo", kwargs={"max_tokens": 30}),
+            Agent(task=task, combination_instructions="default", model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
+        ]
+        debate = Debate(debate_agents, task=task)
+        debate.process()
+        self.assertEqual(DEFAULTS["combination_instructions"]["debate"], debate_agents[0].combination_instructions)
+        self.assertEqual(DEFAULTS["combination_instructions"]["default"], debate_agents[1].combination_instructions)
+
+        graph_agents = {
+            "agent1": Agent(task=task, combination_instructions="critique_revise", model="gpt-3.5-turbo",
+                            kwargs={"max_tokens": 30}),
+            "agent2": Agent(task=task, combination_instructions="default", model="gpt-3.5-turbo",
+                            kwargs={"max_tokens": 30})
+        }
+        graph = Graph(agents=graph_agents, edges=[("agent1", "agent2")])
+        graph.process()
+        agent_list = list(graph_agents.values())
+        self.assertEqual(DEFAULTS["combination_instructions"]["critique_revise"],
+                         agent_list[0].combination_instructions)
+        self.assertEqual(DEFAULTS["combination_instructions"]["default"], agent_list[1].combination_instructions)
+
+    def test_mixed_template_expansion(self):
+        """Test when some agents have templates and others don't"""
+        task = "Generate argument for social media in 10 words."
+
+        chain_agents = [
+            Agent(task=task, combination_instructions="default", model="gpt-3.5-turbo", kwargs={"max_tokens": 30}),
+            Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
+        ]
+        chain = Chain(chain_agents, task=task, combination_instructions="chain")
+        chain.process()
+        self.assertEqual(DEFAULTS["combination_instructions"]["default"], chain_agents[0].combination_instructions)
+        self.assertEqual(DEFAULTS["combination_instructions"]["chain"], chain_agents[1].combination_instructions)
+
+        debate_agents = [
+            Agent(task=task, combination_instructions="debate", model="gpt-3.5-turbo", kwargs={"max_tokens": 30}),
+            Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
+        ]
+        debate = Debate(debate_agents, task=task, combination_instructions="chain")
+        debate.process()
+        self.assertEqual(DEFAULTS["combination_instructions"]["debate"], debate_agents[0].combination_instructions)
+        self.assertEqual(DEFAULTS["combination_instructions"]["chain"], debate_agents[1].combination_instructions)
+
+        graph_agents = {
+            "agent1": Agent(task=task, combination_instructions="critique_revise", model="gpt-3.5-turbo",
+                            kwargs={"max_tokens": 30}),
+            "agent2": Agent(task=task, model="gpt-3.5-turbo", kwargs={"max_tokens": 30})
+        }
+        graph = Graph(
+            agents=graph_agents,
+            edges=[("agent1", "agent2")],
+            combination_instructions="chain"
+        )
+        graph.process()
+        agent_list = list(graph_agents.values())
+        self.assertEqual(DEFAULTS["combination_instructions"]["critique_revise"],
+                         agent_list[0].combination_instructions)
+        self.assertEqual(DEFAULTS["combination_instructions"]["chain"], agent_list[1].combination_instructions)
 
 
 if __name__ == "__main__":
