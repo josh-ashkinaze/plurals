@@ -38,6 +38,9 @@ _Bibtex:_
 }
 ```
 
+Update: Paper to appear at CHI '25!
+
+
 _APA:_
 ```
 Ashkinaze, J., Fry, E., Edara, N., Gilbert, E., & Budak, C. (2024). Plurals: A System for Guiding LLMs Via Simulated Social Ensembles (No. arXiv:2409.17213). arXiv. https://doi.org/10.48550/arXiv.2409.17213
