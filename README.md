@@ -21,7 +21,7 @@
 
 
 # Cite ℹ️
-If you use Plurals in your research, please cite the following [paper](https://arxiv.org/abs/2409.17213):
+If you use Plurals in your research, please cite the following [paper](https://arxiv.org/abs/2409.17213) for now:
 
 _Bibtex:_
 ```
@@ -38,15 +38,10 @@ _Bibtex:_
 }
 ```
 
-Update: Paper to appear at CHI '25!
-
-
 _APA:_
 ```
 Ashkinaze, J., Fry, E., Edara, N., Gilbert, E., & Budak, C. (2024). Plurals: A System for Guiding LLMs Via Simulated Social Ensembles (No. arXiv:2409.17213). arXiv. https://doi.org/10.48550/arXiv.2409.17213
 ```
-
-
 
 # Overview 🌌
 <img src="https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/figure1.png" alt="System Diagram" width="100%">
@@ -192,3 +187,6 @@ Plurals is run by a small and energetic team of academics doing the best they ca
 
 If you are interested in collaborating, please reach out to Joshua Ashkinaze (jashkina@umich.edu). We are 
 actively running both human and AI experiments around (1) how and when simulated social ensembles augment humans; (2) using Plurals for moderation.  
+
+# Updates 🆕
+- Paper to appear at CHI 2025!
