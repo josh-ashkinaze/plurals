@@ -21,7 +21,7 @@
 
 
 # Cite ℹ️
-If you use Plurals in your research, please cite the following [paper](https://arxiv.org/abs/2409.17213) appearing at CHI 25.:
+If you use Plurals in your research, please cite the following [paper](https://arxiv.org/abs/2409.17213) appearing at CHI 25 (Honrable Mention):
 
 _Bibtex:_
 ```
