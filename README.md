@@ -25,16 +25,20 @@ If you use Plurals in your research, please cite the following [paper](https://a
 
 _Bibtex:_
 ```
-@misc{ashkinaze_plurals_2024,
-	title = {Plurals: {A} {System} for {Guiding} {LLMs} {Via} {Simulated} {Social} {Ensembles}},
-	shorttitle = {Plurals},
-	url = {http://arxiv.org/abs/2409.17213},
-	doi = {10.48550/arXiv.2409.17213},
-	urldate = {2024-09-27},
-	publisher = {arXiv},
-	author = {Ashkinaze, Joshua and Fry, Emily and Edara, Narendra and Gilbert, Eric and Budak, Ceren},
-	month = sep,
-	year = {2024},
+@inproceedings{ashkinaze2025plurals,
+  author = {Ashkinaze, Joshua and Fry, Emily and Edara, Narendra and Gilbert, Eric and Budak, Ceren},
+  title = {Plurals: A System for Guiding LLMs Via Simulated Social Ensembles},
+  booktitle = {CHI Conference on Human Factors in Computing Systems},
+  series = {CHI '25},
+  year = {2025},
+  month = apr,
+  location = {Yokohama, Japan},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  pages = {1--27},
+  numpages = {27},
+  doi = {10.1145/3706598.3713675},
+  url = {https://doi.org/10.1145/3706598.3713675}
 }
 ```
 
