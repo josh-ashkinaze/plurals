@@ -31,7 +31,7 @@ _Bibtex:_
   booktitle = {CHI Conference on Human Factors in Computing Systems},
   series = {CHI '25},
   year = {2025},
-  month = apr,
+  month = may,
   location = {Yokohama, Japan},
   publisher = {Association for Computing Machinery},
   address = {New York, NY, USA},
