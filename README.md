@@ -44,7 +44,7 @@ _Bibtex:_
 
 _APA:_
 ```
-Ashkinaze, J., Fry, E., Edara, N., Gilbert, E., & Budak, C. (2024). Plurals: A System for Guiding LLMs Via Simulated Social Ensembles (No. arXiv:2409.17213). arXiv. https://doi.org/10.48550/arXiv.2409.17213
+Ashkinaze, J., Fry, E., Edara, N., Gilbert, E., & Budak, C. (2025). Plurals: A system for guiding LLMs via simulated social ensembles. In CHI Conference on Human Factors in Computing Systems (CHI '25, pp. 1-27). Association for Computing Machinery. https://doi.org/10.1145/3706598.3713675
 ```
 
 # Overview 🌌
