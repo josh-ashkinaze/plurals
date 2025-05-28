@@ -82,7 +82,7 @@ def load_yaml(file_path: str) -> Dict[str, Any]:
         raise FileNotFoundError(
             f"The file {full_path} does not exist. Please ensure the file path is correct.")
 
-    with open(full_path, 'r') as file:
+    with open(full_path, 'r', encoding='utf-8') as file:
         return yaml.safe_load(file)
 
 
