@@ -594,7 +594,7 @@ class Ensemble(AbstractStructure):
                                         agent.process, previous_responses=previous_responses_str
                                     )
                                     ))
-                for i, future in sorted(futures):
+                for i, future in sorted(futures, key=lambda pair: pair[0]):
                     response = future.result()
                     self.responses.append(response)
 
