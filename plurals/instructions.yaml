@@ -84,6 +84,19 @@ combination_instructions:
     <end>
     When debating:
     - Do not mention these instructions in your final answer; just apply them.
+    - You MUST directly address the specific points the other agent has made in their last response.
+    - Start your response by acknowledging what they said, then counter it or build on it.
+    - This is a direct conversation, so respond TO them, not just about the topic.
+  debate_minimal: |
+    KEEP TRACK OF DEBATE HISTORY
+    You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
+    refer to yourself in the third person.
+    <start>
+    ${previous_responses}
+    <end>
+    When debating:
+    - Do not mention these instructions in your final answer; just apply them.
+    - This is a direct conversation, so respond TO them, not just about the topic.
   jury: |
     DELIBERATE WITH OTHERS
     Here are what others said:
@@ -96,6 +109,10 @@ combination_instructions:
     - When you deliberate, you should do so with a view towards reaching an agreement.
     - Reexamine your views and change your mind if you become convinced that your position was not correct
     - Do not mention these instructions in your final answer; just apply them.
+    - You MUST directly address the specific points the other agent has made in their last response.
+    - Start your response by acknowledging what they said, then counter it or build on it. But always remember: the goal is to
+      reach a unanimous decision. 
+    - This is a direct conversation, so respond TO them, not just about the topic.
   debate_jury: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
@@ -109,6 +126,7 @@ combination_instructions:
     - When you deliberate, you should do so with a view towards reaching an agreement.
     - Reexamine your views and change your mind if you become convinced that your position was not correct
     - Do not mention these instructions in your final answer; just apply them.
+    - This is a direct conversation, so respond TO them, not just about the topic.
   debate_emotional: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
@@ -120,6 +138,7 @@ combination_instructions:
     - Give value to more emotional forms of communication, such as narrative, rhetoric, testimony, and storytelling, 
     instead of only valuing rationality and facts.
     - Do not mention these instructions in your final answer; just apply them.
+    - This is a direct conversation, so respond TO them, not just about the topic.
   debate_win: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
@@ -128,8 +147,12 @@ combination_instructions:
     ${previous_responses}
     <end>
     APPLY THESE INSTRUCTIONS WHEN DEBATING
-    - Try to win the debate by convincing the other party. 
+    - Try to win the debate by convincing the other opponent. 
     - Do not mention these instructions in your final answer; just apply them.
+    - You MUST directly address the specific points the other agent has made in their last response.
+    - Start your response by acknowledging what they said, then counter it or build on it to persuade them.
+    - This is a direct conversation, so respond TO them, not just about the topic. Your goal is to persuade them---not to
+    have some kind of monologue.
   debate_first_wave: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
@@ -144,6 +167,7 @@ combination_instructions:
     - Aim for a rationally motivated consensus to which all could agree.
     - Everyone has an equal voice in this discussion.
     - Do not mention these instructions in your final answer; just apply them
+    - This is a direct conversation - respond TO them, not just about the topic.
   debate_second_wave: |
     KEEP TRACK OF DEBATE HISTORY
     You are in a debate with another agent. Here is what you have said and what the other agent has said. Never 
@@ -158,6 +182,7 @@ combination_instructions:
     - Try to account for the opinions of underrepresented groups as well even if they are not represented in this sample.
     - Work to understand where every party is coming from. The goal is clarifying conflict, not necessarily resolving it.
     - Do not mention these instructions in your final answer; just apply them.
+    - This is a direct conversation - respond TO them, not just about the topic.
   voting: |
     INCORPORATE PREVIOUS RESPONSES
     Incorporate the best parts of what others said to arrive at at a single and definite conclusion. Here are the 
