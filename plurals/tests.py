@@ -2244,7 +2244,7 @@ class TestEnsembleOrdering(unittest.TestCase):
             for i in range(3)
         ]
 
-    def nopatch_order_cycles_moderator(self):
+    def test_nopatch_order_cycles_moderator(self):
         """Test ordering with 10 agents, 3 cycles, and a moderator
 
         Note: This test uses real API calls, so it may occasionally fail if agents
@@ -2255,56 +2255,88 @@ class TestEnsembleOrdering(unittest.TestCase):
             """Check if response contains any expected agent pattern (Agent 0-9)"""
             return any(f"Agent {i}" in response for i in range(10))
 
-        max_attempts = 3
+        max_attempts = 5
 
         for attempt in range(max_attempts):
-            agents = [
-                Agent(
+            print(f"Attempt {attempt + 1}/{max_attempts}")
+
+            try:
+                agents = [
+                    Agent(
+                        model="gpt-3.5-turbo",
+                        system_instructions=f"You must respond with exactly these 2 words: 'Agent {i}'. Do not repeat the question. Do not add any other text. Only respond: Agent {i}",
+                        kwargs={"temperature": 0, "max_tokens": 5}  # Reduce tokens to force short response
+                    )
+                    for i in range(10)
+                ]
+
+                moderator = Moderator(
                     model="gpt-3.5-turbo",
-                    system_instructions=f"You are agent number {i}. Always respond with exactly 'Agent {i}' and nothing else. Follow these instructions VERY carefully. NEVER DEVIATE.",
-                    kwargs={"temperature": 0, "max_tokens": 10}
+                    system_instructions="You must respond with exactly these 2 words: 'Moderator summary'. Do not add any other text.",
+                    kwargs={"temperature": 0, "max_tokens": 5}
                 )
-                for i in range(10)
-            ]
 
-            moderator = Moderator(
-                model="gpt-3.5-turbo",
-                system_instructions="Summarize by saying exactly 'Moderator summary' and nothing else. NEVER DEVIATE.",
-                kwargs={"temperature": 0, "max_tokens": 10}
-            )
+                task = "Respond now."  # Shorter, less likely to be echoed
 
-            task = "What agent number are you?"
-            ensemble = Ensemble(agents=agents, task=task, cycles=3, moderator=moderator)
-            ensemble.process()
+                ensemble = Ensemble(agents=agents, task=task, cycles=3, moderator=moderator)
+                ensemble.process()
 
-            # Validate all agent responses are in expected format
-            agent_responses = ensemble.responses[:-1]  # All except moderator
-            if all(is_valid_agent_response(r) for r in agent_responses) and "Moderator" in ensemble.responses[-1]:
-                break  # Success - proceed with ordering tests
+                # Check response count - this should never be wrong, fail immediately
+                if len(ensemble.responses) != 31:
+                    print(f"Wrong response count: got {len(ensemble.responses)}, expected 31")
+                    self.fail("Response count is wrong - this indicates a bug in the ordering logic")
 
-            if attempt == max_attempts - 1:
-                self.fail("Agents failed to follow instructions after 3 attempts")
+                # Check agent responses - this can fail due to LLM not following instructions, so retry
+                agent_responses = ensemble.responses[:-1]
+                invalid_count = sum(1 for r in agent_responses if not is_valid_agent_response(r))
 
-        # Test ordering - should have 10 agents * 3 cycles + 1 moderator = 31 responses
-        self.assertEqual(len(ensemble.responses), 31)
+                if invalid_count > 0:
+                    print(f"Found {invalid_count} invalid agent responses")
+                    for i, r in enumerate(agent_responses):
+                        if not is_valid_agent_response(r):
+                            print(f"  Position {i}: '{r}'")
+                    if attempt == max_attempts - 1:
+                        self.fail(f"Invalid responses after {max_attempts} attempts")
+                    continue
 
-        # Check responses follow the expected cycle pattern: A0,A1...A9,A0,A1...A9,A0,A1...A9,MOD
+                # Check moderator response - this can fail due to LLM not following instructions, so retry
+                if "Moderator" not in ensemble.responses[-1]:
+                    print(f"Bad moderator response: '{ensemble.responses[-1]}'")
+                    if attempt == max_attempts - 1:
+                        self.fail(f"Bad moderator response after {max_attempts} attempts")
+                    continue
+
+                # All validations passed
+                print("Validation passed")
+                break
+
+            except Exception as e:
+                print(f"Error: {str(e)}")
+                self.fail(f"Unexpected exception: {e}")  # Don't retry on exceptions
+
+        # Test ordering - these should never fail, fail immediately
+        print("Testing ordering...")
         for cycle in range(3):
             for agent_num in range(10):
                 response_index = cycle * 10 + agent_num
                 expected_text = f"Agent {agent_num}"
-                self.assertIn(expected_text, ensemble.responses[response_index],
-                              f"Expected '{expected_text}' at position {response_index}")
+                actual_response = ensemble.responses[response_index]
 
-        # Check moderator response is last
-        self.assertIn("Moderator", ensemble.responses[-1])
+                if expected_text not in actual_response:
+                    print(
+                        f"Ordering failure at position {response_index}: expected '{expected_text}', got '{actual_response}'")
+                    self.fail("Ordering test failed - this indicates a bug in the ordering logic")
+
+        # Test final response
         self.assertEqual(ensemble.final_response, ensemble.responses[-1])
 
-        # Verify each agent has exactly 3 history entries (one per cycle)
+        # Test agent histories
         for i, agent in enumerate(agents):
-            self.assertEqual(len(agent.history), 3)
-            for cycle in range(3):
-                self.assertIn(f"Agent {i}", agent.history[cycle]['response'])
+            if len(agent.history) != 3:
+                print(f"Agent {i} has {len(agent.history)} history entries, expected 3")
+                self.fail("History test failed - this indicates a bug")
+
+        print("All tests passed")
 
     def test_single_cycle_no_moderator(self):
         """Test ordering with single cycle, no moderator"""
