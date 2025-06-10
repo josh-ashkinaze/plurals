@@ -586,15 +586,15 @@ class Ensemble(AbstractStructure):
         for _ in range(self.cycles):
             with ThreadPoolExecutor() as executor:
                 futures = []
-                for agent in self.agents:
+                for i, agent in enumerate(self.agents):
                     previous_responses_str = ""
                     agent.combination_instructions = self.combination_instructions
-                    futures.append(
-                        executor.submit(
-                            agent.process, previous_responses=previous_responses_str
-                        )
-                    )
-                for future in as_completed(futures):
+                    futures.append((i,
+                                    executor.submit(
+                                        agent.process, previous_responses=previous_responses_str
+                                    )
+                                    ))
+                for i, future in sorted(futures, key=lambda pair: pair[0]):
                     response = future.result()
                     self.responses.append(response)
 

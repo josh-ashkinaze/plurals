@@ -2233,5 +2233,167 @@ class CombinationInstructionExpansionTests(unittest.TestCase):
         self.assertEqual(DEFAULTS["combination_instructions"]["chain"], agent_list[1].combination_instructions)
 
 
+class TestEnsembleOrdering(unittest.TestCase):
+    """Minimal tests for Ensemble ordering functionality"""
+
+    def setUp(self):
+        self.task = "Say your number"
+        self.model = "gpt-3.5-turbo"
+        self.agents = [
+            Agent(model=self.model, persona=f"Agent {i}")
+            for i in range(3)
+        ]
+
+    def test_nopatch_order_cycles_moderator(self):
+        """Test ordering with 10 agents, 3 cycles, and a moderator
+
+        Note: This test uses real API calls, so it may occasionally fail if agents
+        don't follow instructions exactly. The test includes retry logic to handle this.
+        """
+
+        def is_valid_agent_response(response):
+            """Check if response contains any expected agent pattern (Agent 0-9)"""
+            return any(f"Agent {i}" in response for i in range(10))
+
+        max_attempts = 5
+
+        for attempt in range(max_attempts):
+            print(f"Attempt {attempt + 1}/{max_attempts}")
+
+            try:
+                agents = [
+                    Agent(
+                        model="gpt-3.5-turbo",
+                        system_instructions=f"You must respond with exactly these 2 words: 'Agent {i}'. Do not repeat the question. Do not add any other text. Only respond: Agent {i}",
+                        kwargs={"temperature": 0, "max_tokens": 5}  # Reduce tokens to force short response
+                    )
+                    for i in range(10)
+                ]
+
+                moderator = Moderator(
+                    model="gpt-3.5-turbo",
+                    system_instructions="You must respond with exactly these 2 words: 'Moderator summary'. Do not add any other text.",
+                    kwargs={"temperature": 0, "max_tokens": 5}
+                )
+
+                task = "Respond now."  # Shorter, less likely to be echoed
+
+                ensemble = Ensemble(agents=agents, task=task, cycles=3, moderator=moderator)
+                ensemble.process()
+
+                # Check response count - this should never be wrong, fail immediately
+                if len(ensemble.responses) != 31:
+                    print(f"Wrong response count: got {len(ensemble.responses)}, expected 31")
+                    self.fail("Response count is wrong - this indicates a bug in the ordering logic")
+
+                # Check agent responses - this can fail due to LLM not following instructions, so retry
+                agent_responses = ensemble.responses[:-1]
+                invalid_count = sum(1 for r in agent_responses if not is_valid_agent_response(r))
+
+                if invalid_count > 0:
+                    print(f"Found {invalid_count} invalid agent responses")
+                    for i, r in enumerate(agent_responses):
+                        if not is_valid_agent_response(r):
+                            print(f"  Position {i}: '{r}'")
+                    if attempt == max_attempts - 1:
+                        self.fail(f"Invalid responses after {max_attempts} attempts")
+                    continue
+
+                # Check moderator response - this can fail due to LLM not following instructions, so retry
+                if "Moderator" not in ensemble.responses[-1]:
+                    print(f"Bad moderator response: '{ensemble.responses[-1]}'")
+                    if attempt == max_attempts - 1:
+                        self.fail(f"Bad moderator response after {max_attempts} attempts")
+                    continue
+
+                # All validations passed
+                print("Validation passed")
+                break
+
+            except Exception as e:
+                print(f"Error: {str(e)}")
+                self.fail(f"Unexpected exception: {e}")  # Don't retry on exceptions
+
+        # Test ordering - these should never fail, fail immediately
+        print("Testing ordering...")
+        for cycle in range(3):
+            for agent_num in range(10):
+                response_index = cycle * 10 + agent_num
+                expected_text = f"Agent {agent_num}"
+                actual_response = ensemble.responses[response_index]
+
+                if expected_text not in actual_response:
+                    print(
+                        f"Ordering failure at position {response_index}: expected '{expected_text}', got '{actual_response}'")
+                    self.fail("Ordering test failed - this indicates a bug in the ordering logic")
+
+        # Test final response
+        self.assertEqual(ensemble.final_response, ensemble.responses[-1])
+
+        # Test agent histories
+        for i, agent in enumerate(agents):
+            if len(agent.history) != 3:
+                print(f"Agent {i} has {len(agent.history)} history entries, expected 3")
+                self.fail("History test failed - this indicates a bug")
+
+        print("All tests passed")
+
+    def test_single_cycle_no_moderator(self):
+        """Test ordering with single cycle, no moderator"""
+        with patch.object(Agent, '_get_response', side_effect=['A0', 'A1', 'A2']):
+            ensemble = Ensemble(agents=self.agents, task=self.task, cycles=1)
+            ensemble.process()
+
+            self.assertEqual(ensemble.responses, ['A0', 'A1', 'A2'])
+            self.assertEqual(ensemble.final_response, 'A2')
+
+    def test_single_cycle_with_moderator(self):
+        """Test ordering with single cycle, with moderator"""
+        moderator = Moderator(model=self.model)
+
+        with patch.object(Agent, '_get_response', side_effect=['A0', 'A1', 'A2', 'MOD']):
+            ensemble = Ensemble(agents=self.agents, task=self.task, cycles=1, moderator=moderator)
+            ensemble.process()
+
+            self.assertEqual(ensemble.responses, ['A0', 'A1', 'A2', 'MOD'])
+            self.assertEqual(ensemble.final_response, 'MOD')
+
+    def test_three_cycles_no_moderator(self):
+        """Test ordering with 3 cycles, no moderator"""
+        # 3 agents * 3 cycles = 9 responses total
+        mock_responses = [f'A{i}-C{c}' for c in range(3) for i in range(3)]
+
+        with patch.object(Agent, '_get_response', side_effect=mock_responses):
+            ensemble = Ensemble(agents=self.agents, task=self.task, cycles=3)
+            ensemble.process()
+
+            expected = ['A0-C0', 'A1-C0', 'A2-C0',  # Cycle 0
+                        'A0-C1', 'A1-C1', 'A2-C1',  # Cycle 1
+                        'A0-C2', 'A1-C2', 'A2-C2']  # Cycle 2
+
+            self.assertEqual(ensemble.responses, expected)
+            self.assertEqual(ensemble.final_response, 'A2-C2')
+
+    def test_three_cycles_with_moderator(self):
+        """Test ordering with 3 cycles, with moderator"""
+        moderator = Moderator(model=self.model)
+
+        # 3 agents * 3 cycles + 1 moderator = 10 responses total
+        mock_responses = [f'A{i}-C{c}' for c in range(3) for i in range(3)] + ['MOD']
+
+        with patch.object(Agent, '_get_response', side_effect=mock_responses):
+            ensemble = Ensemble(agents=self.agents, task=self.task, cycles=3, moderator=moderator)
+            ensemble.process()
+
+            expected = ['A0-C0', 'A1-C0', 'A2-C0',  # Cycle 0
+                        'A0-C1', 'A1-C1', 'A2-C1',  # Cycle 1
+                        'A0-C2', 'A1-C2', 'A2-C2',  # Cycle 2
+                        'MOD']  # Moderator
+
+            self.assertEqual(ensemble.responses, expected)
+            self.assertEqual(ensemble.final_response, 'MOD')
+
+
+
 if __name__ == "__main__":
     unittest.main()
