@@ -21,29 +21,31 @@
 
 
 # Cite ℹ️
-If you use Plurals in your research, please cite the following [paper](https://arxiv.org/abs/2409.17213):
+If you use Plurals in your research, please cite the following [paper](https://arxiv.org/abs/2409.17213) appearing at CHI 25 (Honorable Mention):
 
 _Bibtex:_
 ```
-@misc{ashkinaze_plurals_2024,
-	title = {Plurals: {A} {System} for {Guiding} {LLMs} {Via} {Simulated} {Social} {Ensembles}},
-	shorttitle = {Plurals},
-	url = {http://arxiv.org/abs/2409.17213},
-	doi = {10.48550/arXiv.2409.17213},
-	urldate = {2024-09-27},
-	publisher = {arXiv},
-	author = {Ashkinaze, Joshua and Fry, Emily and Edara, Narendra and Gilbert, Eric and Budak, Ceren},
-	month = sep,
-	year = {2024},
+@inproceedings{ashkinaze2025plurals,
+  author = {Ashkinaze, Joshua and Fry, Emily and Edara, Narendra and Gilbert, Eric and Budak, Ceren},
+  title = {Plurals: A System for Guiding LLMs Via Simulated Social Ensembles},
+  booktitle = {CHI Conference on Human Factors in Computing Systems},
+  series = {CHI '25},
+  year = {2025},
+  month = may,
+  location = {Yokohama, Japan},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  pages = {1--27},
+  numpages = {27},
+  doi = {10.1145/3706598.3713675},
+  url = {https://doi.org/10.1145/3706598.3713675}
 }
 ```
 
 _APA:_
 ```
-Ashkinaze, J., Fry, E., Edara, N., Gilbert, E., & Budak, C. (2024). Plurals: A System for Guiding LLMs Via Simulated Social Ensembles (No. arXiv:2409.17213). arXiv. https://doi.org/10.48550/arXiv.2409.17213
+Ashkinaze, J., Fry, E., Edara, N., Gilbert, E., & Budak, C. (2025). Plurals: A system for guiding LLMs via simulated social ensembles. In CHI Conference on Human Factors in Computing Systems (CHI '25, pp. 1-27). Association for Computing Machinery. https://doi.org/10.1145/3706598.3713675
 ```
-
-
 
 # Overview 🌌
 <img src="https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/figure1.png" alt="System Diagram" width="100%">
@@ -189,3 +191,6 @@ Plurals is run by a small and energetic team of academics doing the best they ca
 
 If you are interested in collaborating, please reach out to Joshua Ashkinaze (jashkina@umich.edu). We are 
 actively running both human and AI experiments around (1) how and when simulated social ensembles augment humans; (2) using Plurals for moderation.  
+
+# Updates 🆕
+- Paper to appear at CHI 2025!
