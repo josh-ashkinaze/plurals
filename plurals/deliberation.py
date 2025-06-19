@@ -791,7 +791,6 @@ class Graph(AbstractStructure):
         agents: List[Agent],
         edges: List[tuple],
         task: Optional[str] = None,
-        last_n: int = 1000,
         combination_instructions: Optional[str] = "default",
         moderator: Optional[Moderator] = None,
     ):
@@ -826,7 +825,7 @@ class Graph(AbstractStructure):
             self.edges = edges
 
         super().__init__(
-            agents=self.agents, task=task, last_n=last_n, moderator=moderator, combination_instructions=combination_instructions
+            agents=self.agents, task=task, last_n=1, moderator=moderator, combination_instructions=combination_instructions
         )
         self._build_graph()
         self._set_combination_instructions()
