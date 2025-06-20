@@ -9,6 +9,7 @@ from plurals.helpers import SmartString, strip_nested_dict
 import re
 import collections
 from pprint import pformat
+import plurals.helpers as helpers
 
 DEFAULTS = load_yaml("instructions.yaml")
 DEFAULTS = strip_nested_dict(DEFAULTS)
@@ -815,6 +816,8 @@ class Graph(AbstractStructure):
             self.agents = list(agents.values())
             self.edges = []
             name2idx = {name: idx for idx, name in enumerate(agents.keys())}
+            self.agent_names = {self.agents[idx]: name for name, idx in name2idx.items()}
+
             for src_agent_name, dst_agent_name in edges:
                 src_idx = name2idx[src_agent_name]
                 dst_idx = name2idx[dst_agent_name]
@@ -823,12 +826,20 @@ class Graph(AbstractStructure):
         else:
             self.agents = agents
             self.edges = edges
+            self.agent_names = {agent: f"Agent {i}" for i, agent in enumerate(self.agents)}
 
         super().__init__(
             agents=self.agents, task=task, last_n=1, moderator=moderator, combination_instructions=combination_instructions
         )
         self._build_graph()
         self._set_combination_instructions()
+
+    def _format_agent_responses(self, responses: List[str], agents: List[Agent]) -> str:
+        formatted = []
+        for response, agent in zip(responses, agents):
+            agent_name = self.agent_names.get(agent, f"Agent {id(agent)}")
+            formatted.append(f"{agent_name}: {response}")
+        return "\n".join(formatted)
 
     def _build_graph(self):
         """
@@ -902,23 +913,35 @@ class Graph(AbstractStructure):
         response_dict = {}
         for agent in topological_order:
             # Gather responses from all predecessors to form the input for the current agent
-            previous_responses = [
-                response_dict[pred] for pred in self.agents if agent in self.graph[pred]
-            ]
-            previous_responses_str = format_previous_responses(previous_responses)
+            predecessor_agents = []
+            previous_responses = []
+
+            for pred in self.agents:
+                if agent in self.graph[pred]:
+                    predecessor_agents.append(pred)
+                    previous_responses.append(response_dict[pred])
+
+            previous_responses_str = self._format_agent_responses(previous_responses, predecessor_agents)
             response = agent.process(previous_responses=previous_responses_str)
             response_dict[agent] = response
             self.responses.append(response)
 
         # Handle the moderator if present
         if self.moderated and self.moderator:
-            original_task = self.agents[0].original_task_description
-            moderated_response = self.moderator._moderate_responses(
-                list(response_dict.values())
-            )
-            self.responses.append(moderated_response)
-            self.final_response = moderated_response
-        self.final_response = self.responses[-1]
+            # Temporarily override format function for moderator
+            original_format = helpers.format_previous_responses
+            agents_in_order = [agent for agent in topological_order]
+            helpers.format_previous_responses = lambda responses: self._format_agent_responses(responses,
+                                                                                               agents_in_order)
+
+            try:
+                moderated_response = self.moderator._moderate_responses(self.responses)
+                self.responses.append(moderated_response)
+                self.final_response = moderated_response
+            finally:
+                helpers.format_previous_responses = original_format
+        else:
+            self.final_response = self.responses[-1]
         return self.final_response
 
     @staticmethod
