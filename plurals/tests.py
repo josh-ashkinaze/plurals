@@ -1636,6 +1636,10 @@ class TestNetworkStructure(unittest.TestCase):
             return_value="Moderated final response"
         )
 
+        network.moderator.process = MagicMock(
+            return_value="Moderated final response"
+        )
+
         final_response = network.process()
 
         self.assertEqual("Moderated final response", final_response)
@@ -1669,7 +1673,7 @@ class TestNetworkStructure(unittest.TestCase):
         expected_agent2_task_description = """Describe the impact of social media on society in 50 words.\nUSE PREVIOUS RESPONSES TO COMPLETE THE TASK
 Here are the previous responses: 
  <start>
- Response 0: Social media has both positive and negative impacts on society.
+ Agent 0: Social media has both positive and negative impacts on society.
  <end>"""
 
         # Assertions
