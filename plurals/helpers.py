@@ -252,3 +252,42 @@ def get_resource_path(package: str, resource: str) -> str:
         root_package = package.split('.')[0]
         with resources.path(root_package, resource) as path:
             return str(path)
+
+
+def create_agent_name_mapping(agents) -> Dict:
+    """
+    Create a mapping from Agent objects to their display names.
+
+    This is used by structures that support both list and dictionary initialization
+    to provide consistent agent naming in responses.
+
+    Args:
+        agents (Union[List[Agent], Dict[str, Agent]]): The agents as passed by user.
+            Can be either a list of Agents or a dictionary mapping names to Agents.
+
+    Returns:
+        Dict[Agent, str]: Mapping of agents to display names.
+            - If agents is a dict: uses dictionary keys as names
+            - If agents is a list: uses "Agent 0", "Agent 1", etc.
+
+    Example:
+        >>> agents_dict = {'alice': Agent(...), 'bob': Agent(...)}
+        >>> mapping = create_agent_name_mapping(agents_dict)
+        >>> # mapping will be {<Agent object>: 'alice', <Agent object>: 'bob'}
+
+        >>> agents_list = [Agent(...), Agent(...)]
+        >>> mapping = create_agent_name_mapping(agents_list)
+        >>> # mapping will be {<Agent object>: 'Agent 0', <Agent object>: 'Agent 1'}
+    """
+    agent_to_name = {}
+
+    if isinstance(agents, dict):
+        # Use dictionary keys as names
+        for name, agent in agents.items():
+            agent_to_name[agent] = name
+    else:
+        # Use indexed names for list
+        for idx, agent in enumerate(agents):
+            agent_to_name[agent] = f"Agent {idx}"
+
+    return agent_to_name

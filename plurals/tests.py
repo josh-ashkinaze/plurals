@@ -15,6 +15,7 @@ from plurals.helpers import (
     format_previous_responses,
     SmartString,
     strip_nested_dict,
+    create_agent_name_mapping
 )
 import json
 
@@ -2501,7 +2502,7 @@ class TestGraphAgentNaming(unittest.TestCase):
         graph = Graph(agents=agents, edges=edges, task=self.task)
 
         # Get the mapping
-        agent_to_name = graph._create_agent_name_mapping()
+        agent_to_name = create_agent_name_mapping(agents)
 
         # Verify mapping is correct
         self.assertEqual(agent_to_name[agents['first']], 'first')
@@ -2521,7 +2522,7 @@ class TestGraphAgentNaming(unittest.TestCase):
         graph = Graph(agents=agents, edges=edges, task=self.task)
 
         # Get the mapping
-        agent_to_name = graph._create_agent_name_mapping()
+        agent_to_name = create_agent_name_mapping(agents)
 
         # Verify mapping uses indices
         self.assertEqual(agent_to_name[agents[0]], 'Agent 0')

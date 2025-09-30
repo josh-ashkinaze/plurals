@@ -2,7 +2,7 @@ from typing import List, Optional, Dict, Any
 import random
 import warnings
 from plurals.agent import Agent
-from plurals.helpers import load_yaml, format_previous_responses
+from plurals.helpers import load_yaml, format_previous_responses, create_agent_name_mapping
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from plurals.helpers import SmartString, strip_nested_dict
@@ -512,10 +512,20 @@ class AbstractStructure(ABC):
 class Chain(AbstractStructure):
     """
     A chain structure for processing tasks through a sequence of agents. In a chain,
-    each agent processes the task after seeing a prior agent's response.
+    each agent processes the task after seeing prior agents' responses.
+
+    Chain supports two initialization methods:
+
+    **Method 1 (List):**
+    - ``agents`` is a list of Agent objects
+    - Agent names will be ``Agent 0``, ``Agent 1``, etc.
+
+    **Method 2 (Dictionary):**
+    - ``agents`` is a dictionary with agent names as keys
+    - Agent names will be the dictionary keys
 
     **Examples:**
-        **Using Chain to create a panel of agents that process tasks in a sequence:**
+        **Using Chain with list of agents (Method 1):**
 
         .. code-block:: python
 
@@ -528,7 +538,90 @@ class Chain(AbstractStructure):
               combination_instructions="chain")
            chain.process()
            print(chain.final_response)
+
+        Agent 2 will see:
+
+        .. code-block:: text
+
+            Agent 0: [agent1's response]
+            Agent 1: [agent2's response]
+
+        **Using Chain with dictionary of agents (Method 2):**
+
+        .. code-block:: python
+
+           agents = {
+               'economist': Agent(persona='an economist', model='gpt-4o'),
+               'scientist': Agent(persona='a climate scientist', model='gpt-4o'),
+               'activist': Agent(persona='an environmental activist', model='gpt-4o')
+           }
+
+           chain = Chain(agents,
+              task="How should we combat climate change?",
+              combination_instructions="chain")
+           chain.process()
+           print(chain.final_response)
+
+        The scientist will see:
+
+        .. code-block:: text
+
+            economist: [economist's response]
+
+        And the activist will see:
+
+        .. code-block:: text
+
+            economist: [economist's response]
+            scientist: [scientist's response]
+
+        **Chain with moderator:**
+
+        .. code-block:: python
+
+           moderator = Moderator(persona='default', model='gpt-4o')
+           chain = Chain(agents, task=task, moderator=moderator)
+           chain.process()
+
+        The moderator will see all responses with agent names attached.
     """
+
+    def __init__(
+            self,
+            agents,
+            task: Optional[str] = None,
+            shuffle: bool = False,
+            cycles: int = 1,
+            last_n: int = 1000,
+            combination_instructions: Optional[str] = "default",
+            moderator: Optional[Moderator] = None,
+    ):
+        """
+        Args:
+            agents (Union[List[Agent], Dict[str, Agent]]): List or dictionary of agents in the chain.
+            task (Optional[str]): The task description for agents to process.
+            shuffle (bool): Whether to shuffle agent order each cycle. Default is False.
+            cycles (int): Number of times to repeat the chain. Default is 1.
+            last_n (int): Maximum number of previous responses each agent sees. Default is 1000.
+            combination_instructions (Optional[str]): Instructions for combining responses. Default is 'default'.
+            moderator (Optional[Moderator]): Optional moderator to synthesize responses. Default is None.
+        """
+        # Store original agents
+        self.original_agents = agents
+
+        # Convert dict to list if needed
+        if isinstance(agents, dict):
+            agents = list(agents.values())
+
+        super().__init__(
+            agents=agents,
+            task=task,
+            shuffle=shuffle,
+            cycles=cycles,
+            last_n=last_n,
+            combination_instructions=combination_instructions,
+            moderator=moderator,
+        )
 
     def process(self):
         """
@@ -536,16 +629,27 @@ class Chain(AbstractStructure):
         `AbstractStructure` to control how the chain operates (e.g: ``last_n`` for how many previous responses to include
         in the `previous_responses` string)
         """
+        agent_to_name = create_agent_name_mapping(self.original_agents)
         previous_responses = []
+        agent_order = []  # Track which agent gave which response
+
         for _ in range(self.cycles):
             if self.shuffle:
                 self.agents = random.sample(self.agents, len(self.agents))
+
             for agent in self.agents:
                 agent.current_task_description = None
-                previous_responses_slice = previous_responses[-self.last_n :]
+                previous_responses_slice = previous_responses[-self.last_n:]
+                agent_order_slice = agent_order[-self.last_n:]
+
+                # Get agent names for the responses in the slice
+                previous_agent_names = [agent_to_name[a] for a in agent_order_slice]
+
                 previous_responses_str = format_previous_responses(
-                    previous_responses_slice
+                    previous_responses_slice,
+                    agent_names=previous_agent_names
                 )
+
                 agent.combination_instructions = (
                     agent.combination_instructions
                     if agent.combination_instructions
@@ -553,14 +657,19 @@ class Chain(AbstractStructure):
                 )
                 response = agent.process(previous_responses=previous_responses_str)
                 previous_responses.append(response)
+                agent_order.append(agent)
                 self.responses.append(response)
 
         if self.moderated and self.moderator:
-            moderated_response = self.moderator._moderate_responses(self.responses)
+            # Get agent names for all responses
+            all_agent_names = [agent_to_name[a] for a in agent_order]
+            moderated_response = self.moderator._moderate_responses(
+                self.responses,
+                agent_names=all_agent_names
+            )
             self.responses.append(moderated_response)
         self.final_response = self.responses[-1]
         return self.final_response
-
 
 class Ensemble(AbstractStructure):
     """
@@ -854,6 +963,8 @@ class Graph(AbstractStructure):
 
         self._validate_input_format(agents, edges)
 
+        self.agent_to_name = create_agent_name_mapping(agents)
+
         # Method 2: Convert the dictionary to a list of agents and a list of edges (src_idx, dest_idx) so it is
         # consistent with Method 1
         if isinstance(agents, dict):
@@ -946,12 +1057,11 @@ class Graph(AbstractStructure):
         # Process agents according to topological order
         response_dict = {}
 
-        agent_to_name = self._create_agent_name_mapping()
         for agent in topological_order:
             # Gather responses from all predecessors to form the input for the current agent
             predecessors = [pred for pred in self.agents if agent in self.graph[pred]]
             previous_responses = [response_dict[pred] for pred in predecessors]
-            previous_agent_names = [agent_to_name[pred] for pred in predecessors]
+            previous_agent_names = [self.agent_to_name[pred] for pred in predecessors]
             previous_responses_str = format_previous_responses(
                 previous_responses,
                 agent_names=previous_agent_names
@@ -964,7 +1074,7 @@ class Graph(AbstractStructure):
         if self.moderated and self.moderator:
             original_task = self.agents[0].original_task_description
             # Get all agent names in the order of responses
-            all_agent_names = [agent_to_name[agent] for agent in topological_order]
+            all_agent_names = [self.agent_to_name[agent] for agent in topological_order]
             moderated_response = self.moderator._moderate_responses(
                 list(response_dict.values()),
                 agent_names=all_agent_names
@@ -974,30 +1084,6 @@ class Graph(AbstractStructure):
         self.final_response = self.responses[-1]
         return self.final_response
 
-    def _create_agent_name_mapping(self) -> Dict[Agent, str]:
-        """
-        Create a mapping from Agent objects to their names.
-
-        Returns:
-            Dict[Agent, str]: Mapping of agents to display names
-        """
-        agent_to_name = {}
-
-        # If original_agents was a dict (Method 2), use those names
-        if isinstance(self.original_agents, dict):
-            name_to_agent = {name: agent for name, agent in self.original_agents.items()}
-            for agent in self.agents:
-                # Find the corresponding name
-                for name, orig_agent in name_to_agent.items():
-                    if orig_agent is agent:
-                        agent_to_name[agent] = name
-                        break
-        else:
-            # Method 1: Use simple Agent numbering
-            for idx, agent in enumerate(self.agents):
-                agent_to_name[agent] = f"Agent {idx}"
-
-        return agent_to_name
 
     @staticmethod
     def _validate_input_format(agents, edges):
