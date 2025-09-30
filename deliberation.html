@@ -655,6 +655,39 @@ Then the output of the conservative is fed to the libertarian.</p>
 </pre></div>
 </div>
 </div></blockquote>
+<p><strong>Note:</strong></p>
+<p>In a DAG, each Agent (and the Moderator) sees the responses of previous Agents with their names attached to them.
+So let’s take the code block above:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agents</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;liberal&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a liberal&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">),</span>
+    <span class="s1">&#39;conservative&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">),</span>
+    <span class="s1">&#39;libertarian&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a libertarian&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;liberal&#39;</span><span class="p">,</span> <span class="s1">&#39;conservative&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;liberal&#39;</span><span class="p">,</span> <span class="s1">&#39;libertarian&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;conservative&#39;</span><span class="p">,</span> <span class="s1">&#39;libertarian&#39;</span><span class="p">)]</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;What are your thoughts on the role of government in society?&quot;</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="n">agents</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The libertarian will see the responses of both the liberal and conservative agents, with their names prefixed.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>liberal: [liberal&#39;s response]
+conservative: [conservative&#39;s response]
+</pre></div>
+</div>
+<p>This makes it clearer which agent said what, especially in complex DAG structures. Similarly, if a Moderator is present,
+it will see all responses with agent names:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="n">agents</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">)</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The moderator will see:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>liberal: [liberal&#39;s response]
+conservative: [conservative&#39;s response]
+libertarian: [libertarian&#39;s response]
+</pre></div>
+</div>
+<p>If you use the list-of-agents method, the agents will be ‘named’ “Agent 1”, “Agent 2”, etc. based on their order in the list.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="plurals.deliberation.Graph.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#Graph.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Graph.process" title="Link to this definition">#</a></dt>

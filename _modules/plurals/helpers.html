@@ -257,7 +257,7 @@
   <h1>Source code for plurals.helpers</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">string</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
@@ -354,12 +354,13 @@
 
 <div class="viewcode-block" id="format_previous_responses">
 <a class="viewcode-back" href="../../helpers.html#plurals.helpers.format_previous_responses">[docs]</a>
-<span class="k">def</span> <span class="nf">format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">agent_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Format the previous responses for inclusion in the next task description.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        responses (List[str]): A list of previous responses.</span>
+<span class="sd">        agent_names (Optional[List[str]]): Optional list of agent names/identifiers corresponding to each response.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: A formatted string of the previous responses.</span>
@@ -368,14 +369,23 @@
 <span class="sd">        &gt;&gt;&gt; responses = [&quot;First response&quot;, &quot;Second response&quot;]</span>
 <span class="sd">        &gt;&gt;&gt; format_previous_responses(responses)</span>
 <span class="sd">        &#39;Response 0: First response\\nResponse 1: Second response&#39;</span>
+
+<span class="sd">        &gt;&gt;&gt; format_previous_responses(responses, agent_names=[&quot;Agent A&quot;, &quot;Agent B&quot;])</span>
+<span class="sd">        &#39;Agent A: First response\\nAgent B: Second response&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">responses</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">resp_list</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;Response </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">responses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">))</span>
-        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">agent_names</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">agent_names</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">):</span>
+            <span class="n">resp_list</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">agent_names</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">responses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">))</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">resp_list</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;Response </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">responses</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">))</span>
+            <span class="p">]</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resp_list</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
 
 

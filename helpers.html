@@ -423,11 +423,14 @@ the thing</cite>. In this case, the default output would have an extra period: <
 
 <dl class="py function">
 <dt class="sig sig-object py" id="plurals.helpers.format_previous_responses">
-<span class="sig-prename descclassname"><span class="pre">plurals.helpers.</span></span><span class="sig-name descname"><span class="pre">format_previous_responses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/plurals/helpers.html#format_previous_responses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.helpers.format_previous_responses" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">plurals.helpers.</span></span><span class="sig-name descname"><span class="pre">format_previous_responses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/plurals/helpers.html#format_previous_responses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.helpers.format_previous_responses" title="Link to this definition">#</a></dt>
 <dd><p>Format the previous responses for inclusion in the next task description.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>responses</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – A list of previous responses.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>responses</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – A list of previous responses.</p></li>
+<li><p><strong>agent_names</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Optional list of agent names/identifiers corresponding to each response.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A formatted string of the previous responses.</p>
@@ -440,6 +443,10 @@ the thing</cite>. In this case, the default output would have an extra period: <
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">responses</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;First response&quot;</span><span class="p">,</span> <span class="s2">&quot;Second response&quot;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
 <span class="go">&#39;Response 0: First response\nResponse 1: Second response&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">agent_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Agent A&quot;</span><span class="p">,</span> <span class="s2">&quot;Agent B&quot;</span><span class="p">])</span>
+<span class="go">&#39;Agent A: First response\nAgent B: Second response&#39;</span>
 </pre></div>
 </div>
 </dd></dl>

@@ -619,6 +619,26 @@ in addition to system instructions.</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">story_dag</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>In a DAG, each Agent (and the Moderator) sees the responses of previous Agents with their names attached to them.
+So let’s take a code block:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">agents</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;liberal&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a liberal&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">),</span>
+    <span class="s1">&#39;conservative&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">),</span>
+    <span class="s1">&#39;libertarian&#39;</span><span class="p">:</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;you are a libertarian&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;liberal&#39;</span><span class="p">,</span> <span class="s1">&#39;conservative&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;liberal&#39;</span><span class="p">,</span> <span class="s1">&#39;libertarian&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;conservative&#39;</span><span class="p">,</span> <span class="s1">&#39;libertarian&#39;</span><span class="p">)]</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;What are your thoughts on the role of government in society? Answer in 3 words.&quot;</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">agents</span><span class="o">=</span><span class="n">agents</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The libertarian will see the responses of both the liberal and conservative agents, with their names prefixed.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>liberal: [liberal&#39;s response]
+conservative: [conservative&#39;s response]
+</pre></div>
+</div>
+<p>This makes it clearer which agent said what, especially in complex DAG structures.</p>
+<p>If you use the list-of-agents method, the agents will be ‘named’ “Agent 1”, “Agent 2”, etc. based on their order in the list.</p>
 </section>
 <section id="tracing-what-is-going-on-in-structures">
 <h2>Tracing what is going on in Structures<a class="headerlink" href="#tracing-what-is-going-on-in-structures" title="Link to this heading">#</a></h2>

@@ -350,9 +350,31 @@ in addition to system instructions.
 
 
 
+In a DAG, each Agent (and the Moderator) sees the responses of previous Agents with their names attached to them.
+So let's take a code block:
 
+.. code-block:: python
 
+    agents = {
+        'liberal': Agent(system_instructions="you are a liberal", model="gpt-3.5-turbo"),
+        'conservative': Agent(system_instructions="you are a conservative", model="gpt-3.5-turbo"),
+        'libertarian': Agent(system_instructions="you are a libertarian", model="gpt-3.5-turbo")
+    }
+    edges = [('liberal', 'conservative'), ('liberal', 'libertarian'), ('conservative', 'libertarian')]
+    task = "What are your thoughts on the role of government in society? Answer in 3 words."
+    graph = Graph(agents=agents, edges=edges, task=task)
+    graph.process()
 
+The libertarian will see the responses of both the liberal and conservative agents, with their names prefixed.
+
+.. code-block:: text
+
+    liberal: [liberal's response]
+    conservative: [conservative's response]
+
+This makes it clearer which agent said what, especially in complex DAG structures.
+
+If you use the list-of-agents method, the agents will be 'named' "Agent 1", "Agent 2", etc. based on their order in the list.
 
 
 Tracing what is going on in Structures

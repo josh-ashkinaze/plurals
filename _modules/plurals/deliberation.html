@@ -513,17 +513,18 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">agent_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Combine responses using the moderator persona and instructions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            responses (List[str]): List of responses from agents to combine.</span>
+<span class="sd">            agent_names (Optional[List[str]]): Optional list of agent names corresponding to responses.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: A combined response based on the moderator&#39;s instructions</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">combined_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+        <span class="n">combined_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">agent_names</span><span class="o">=</span><span class="n">agent_names</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">SmartString</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
         <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -1076,6 +1077,50 @@
 <span class="sd">            task = &quot;What are your thoughts on the role of government in society?&quot;</span>
 <span class="sd">            graph = Graph(agents=agents, edges=edges, task=task)</span>
 <span class="sd">            graph.process()</span>
+
+<span class="sd">    **Note:**</span>
+
+<span class="sd">    In a DAG, each Agent (and the Moderator) sees the responses of previous Agents with their names attached to them.</span>
+<span class="sd">    So let&#39;s take the code block above:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        agents = {</span>
+<span class="sd">            &#39;liberal&#39;: Agent(system_instructions=&quot;you are a liberal&quot;, model=&quot;gpt-3.5-turbo&quot;),</span>
+<span class="sd">            &#39;conservative&#39;: Agent(system_instructions=&quot;you are a conservative&quot;, model=&quot;gpt-3.5-turbo&quot;),</span>
+<span class="sd">            &#39;libertarian&#39;: Agent(system_instructions=&quot;you are a libertarian&quot;, model=&quot;gpt-3.5-turbo&quot;)</span>
+<span class="sd">        }</span>
+<span class="sd">        edges = [(&#39;liberal&#39;, &#39;conservative&#39;), (&#39;liberal&#39;, &#39;libertarian&#39;), (&#39;conservative&#39;, &#39;libertarian&#39;)]</span>
+<span class="sd">        task = &quot;What are your thoughts on the role of government in society?&quot;</span>
+<span class="sd">        graph = Graph(agents=agents, edges=edges, task=task)</span>
+<span class="sd">        graph.process()</span>
+
+<span class="sd">    The libertarian will see the responses of both the liberal and conservative agents, with their names prefixed.</span>
+
+<span class="sd">    .. code-block:: text</span>
+
+<span class="sd">        liberal: [liberal&#39;s response]</span>
+<span class="sd">        conservative: [conservative&#39;s response]</span>
+
+<span class="sd">    This makes it clearer which agent said what, especially in complex DAG structures. Similarly, if a Moderator is present,</span>
+<span class="sd">    it will see all responses with agent names:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        moderator = Moderator(persona=&#39;default&#39;, model=&#39;gpt-4o&#39;)</span>
+<span class="sd">        graph = Graph(agents=agents, edges=edges, task=task, moderator=moderator)</span>
+<span class="sd">        graph.process()</span>
+
+<span class="sd">    The moderator will see:</span>
+
+<span class="sd">    .. code-block:: text</span>
+
+<span class="sd">        liberal: [liberal&#39;s response]</span>
+<span class="sd">        conservative: [conservative&#39;s response]</span>
+<span class="sd">        libertarian: [libertarian&#39;s response]</span>
+
+<span class="sd">    If you use the list-of-agents method, the agents will be &#39;named&#39; &quot;Agent 1&quot;, &quot;Agent 2&quot;, etc. based on their order in the list.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -1194,12 +1239,17 @@
 
         <span class="c1"># Process agents according to topological order</span>
         <span class="n">response_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">agent_to_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_agent_name_mapping</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">topological_order</span><span class="p">:</span>
             <span class="c1"># Gather responses from all predecessors to form the input for the current agent</span>
-            <span class="n">previous_responses</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">response_dict</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="k">if</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span>
-            <span class="p">]</span>
-            <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span><span class="n">previous_responses</span><span class="p">)</span>
+            <span class="n">predecessors</span> <span class="o">=</span> <span class="p">[</span><span class="n">pred</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="k">if</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">pred</span><span class="p">]]</span>
+            <span class="n">previous_responses</span> <span class="o">=</span> <span class="p">[</span><span class="n">response_dict</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predecessors</span><span class="p">]</span>
+            <span class="n">previous_agent_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">agent_to_name</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predecessors</span><span class="p">]</span>
+            <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span>
+                <span class="n">previous_responses</span><span class="p">,</span>
+                <span class="n">agent_names</span><span class="o">=</span><span class="n">previous_agent_names</span>
+            <span class="p">)</span>
             <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
             <span class="n">response_dict</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="o">=</span> <span class="n">response</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
@@ -1207,14 +1257,42 @@
         <span class="c1"># Handle the moderator if present</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
             <span class="n">original_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">original_task_description</span>
+            <span class="c1"># Get all agent names in the order of responses</span>
+            <span class="n">all_agent_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">agent_to_name</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">topological_order</span><span class="p">]</span>
             <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span>
-                <span class="nb">list</span><span class="p">(</span><span class="n">response_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">response_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+                <span class="n">agent_names</span><span class="o">=</span><span class="n">all_agent_names</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="n">moderated_response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span></div>
 
+
+    <span class="k">def</span> <span class="nf">_create_agent_name_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Agent</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a mapping from Agent objects to their names.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[Agent, str]: Mapping of agents to display names</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">agent_to_name</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># If original_agents was a dict (Method 2), use those names</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_agents</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">name_to_agent</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">agent</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_agents</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
+                <span class="c1"># Find the corresponding name</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">orig_agent</span> <span class="ow">in</span> <span class="n">name_to_agent</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">orig_agent</span> <span class="ow">is</span> <span class="n">agent</span><span class="p">:</span>
+                        <span class="n">agent_to_name</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+                        <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Method 1: Use simple Agent numbering</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">agent</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">):</span>
+                <span class="n">agent_to_name</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Agent </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="n">agent_to_name</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_validate_input_format</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="n">edges</span><span class="p">):</span>
@@ -1260,6 +1338,8 @@
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s2">&quot;Agent names in edges must be keys in the agent dictionary.&quot;</span>
                     <span class="p">)</span></div>
+
+
 
 </pre></div>
 
