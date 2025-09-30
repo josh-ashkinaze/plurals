@@ -1669,7 +1669,7 @@ class TestNetworkStructure(unittest.TestCase):
         expected_agent2_task_description = """Describe the impact of social media on society in 50 words.\nUSE PREVIOUS RESPONSES TO COMPLETE THE TASK
 Here are the previous responses: 
  <start>
- Response 0: Social media has both positive and negative impacts on society.
+ Agent 0: Social media has both positive and negative impacts on society.
  <end>"""
 
         # Assertions
@@ -2392,6 +2392,158 @@ class TestEnsembleOrdering(unittest.TestCase):
 
             self.assertEqual(ensemble.responses, expected)
             self.assertEqual(ensemble.final_response, 'MOD')
+
+
+class TestGraphAgentNaming(unittest.TestCase):
+    """Test that agent names appear correctly in Graph structure for both agents and moderators"""
+
+    def setUp(self):
+        self.task = "What are your thoughts on government? answer in 1 word only"
+        self.model = "gpt-4o-mini"
+
+    def test_graph_dict_method_agent_names_in_responses(self):
+        """Test that when using dict method, agent names appear in previous_responses for agents"""
+        agents = {
+            'liberal': Agent(system_instructions="you are a liberal", model=self.model),
+            'conservative': Agent(system_instructions="you are a conservative", model=self.model),
+            'libertarian': Agent(system_instructions="you are a libertarian", model=self.model)
+        }
+        edges = [('liberal', 'conservative'), ('liberal', 'libertarian'), ('conservative', 'libertarian')]
+
+        graph = Graph(agents=agents, edges=edges, task=self.task)
+        graph.process()
+
+        # Check that libertarian agent saw named responses
+        libertarian_prompt = agents['libertarian'].prompts[0]['user']
+        self.assertIn('liberal:', libertarian_prompt)
+        self.assertIn('conservative:', libertarian_prompt)
+
+    def test_graph_list_method_agent_names_in_responses(self):
+        """Test that when using list method, agent indices appear in previous_responses for agents"""
+        agents = [
+            Agent(system_instructions="you are a liberal", model=self.model),
+            Agent(system_instructions="you are a conservative", model=self.model),
+            Agent(system_instructions="you are a libertarian", model=self.model)
+        ]
+        edges = [(0, 1), (0, 2), (1, 2)]
+
+        graph = Graph(agents=agents, edges=edges, task=self.task)
+        graph.process()
+
+        # Check that libertarian agent (index 2) saw numbered agent responses
+        libertarian_prompt = agents[2].prompts[0]['user']
+        self.assertIn('Agent 0:', libertarian_prompt)
+        self.assertIn('Agent 1:', libertarian_prompt)
+
+    def test_graph_dict_method_moderator_sees_agent_names(self):
+        """Test that moderator sees agent names when using dict method"""
+        agents = {
+            'liberal': Agent(system_instructions="you are a liberal", model=self.model),
+            'conservative': Agent(system_instructions="you are a conservative", model=self.model),
+        }
+        edges = [('liberal', 'conservative')]
+
+        moderator = Moderator(persona='default', model=self.model)
+        graph = Graph(agents=agents, edges=edges, task=self.task, moderator=moderator)
+        graph.process()
+
+        # Check that moderator saw named responses
+        moderator_prompt = moderator.prompts[0]['user']
+        self.assertIn('liberal:', moderator_prompt)
+        self.assertIn('conservative:', moderator_prompt)
+
+    def test_graph_list_method_moderator_sees_agent_indices(self):
+        """Test that moderator sees agent indices when using list method"""
+        agents = [
+            Agent(system_instructions="you are a liberal", model=self.model),
+            Agent(system_instructions="you are a conservative", model=self.model),
+        ]
+        edges = [(0, 1)]
+
+        moderator = Moderator(persona='default', model=self.model)
+        graph = Graph(agents=agents, edges=edges, task=self.task, moderator=moderator)
+        graph.process()
+
+        # Check that moderator saw numbered agent responses
+        moderator_prompt = moderator.prompts[0]['user']
+        self.assertIn('Agent 0:', moderator_prompt)
+        self.assertIn('Agent 1:', moderator_prompt)
+
+    def test_graph_complex_dag_agent_names(self):
+        """Test agent names in a more complex DAG structure"""
+        agents = {
+            'A': Agent(system_instructions="Agent A", model=self.model),
+            'B': Agent(system_instructions="Agent B", model=self.model),
+            'C': Agent(system_instructions="Agent C", model=self.model),
+            'D': Agent(system_instructions="Agent D", model=self.model),
+        }
+        # A -> B, A -> C, B -> D, C -> D
+        edges = [('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D')]
+
+        graph = Graph(agents=agents, edges=edges, task=self.task)
+        graph.process()
+
+        # Agent D should see responses from B and C
+        agent_d_prompt = agents['D'].prompts[0]['user']
+        self.assertIn('B:', agent_d_prompt)
+        self.assertIn('C:', agent_d_prompt)
+        self.assertNotIn('A:', agent_d_prompt)  # D doesn't directly receive from A
+
+    def test_graph_agent_name_mapping_consistency(self):
+        """Test that agent name mapping is consistent throughout processing"""
+        agents = {
+            'first': Agent(system_instructions="first agent", model=self.model),
+            'second': Agent(system_instructions="second agent", model=self.model),
+            'third': Agent(system_instructions="third agent", model=self.model),
+        }
+        edges = [('first', 'second'), ('second', 'third')]
+
+        graph = Graph(agents=agents, edges=edges, task=self.task)
+
+        # Get the mapping
+        agent_to_name = graph._create_agent_name_mapping()
+
+        # Verify mapping is correct
+        self.assertEqual(agent_to_name[agents['first']], 'first')
+        self.assertEqual(agent_to_name[agents['second']], 'second')
+        self.assertEqual(agent_to_name[agents['third']], 'third')
+        self.assertEqual(len(agent_to_name), 3)
+
+    def test_graph_list_agent_name_mapping_consistency(self):
+        """Test that agent name mapping is consistent for list method"""
+        agents = [
+            Agent(system_instructions="first agent", model=self.model),
+            Agent(system_instructions="second agent", model=self.model),
+            Agent(system_instructions="third agent", model=self.model),
+        ]
+        edges = [(0, 1), (1, 2)]
+
+        graph = Graph(agents=agents, edges=edges, task=self.task)
+
+        # Get the mapping
+        agent_to_name = graph._create_agent_name_mapping()
+
+        # Verify mapping uses indices
+        self.assertEqual(agent_to_name[agents[0]], 'Agent 0')
+        self.assertEqual(agent_to_name[agents[1]], 'Agent 1')
+        self.assertEqual(agent_to_name[agents[2]], 'Agent 2')
+        self.assertEqual(len(agent_to_name), 3)
+
+    def test_graph_no_moderator_agent_names_still_work(self):
+        """Test that agent names work correctly even without a moderator"""
+        agents = {
+            'alice': Agent(system_instructions="alice", model=self.model),
+            'bob': Agent(system_instructions="bob", model=self.model),
+        }
+        edges = [('alice', 'bob')]
+
+        graph = Graph(agents=agents, edges=edges, task=self.task)
+        graph.process()
+
+        # Bob should see Alice's response with name
+        bob_prompt = agents['bob'].prompts[0]['user']
+        self.assertIn('alice:', bob_prompt)
+        self.assertNotIn('Response 0:', bob_prompt)
 
 
 
