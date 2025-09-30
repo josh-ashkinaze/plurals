@@ -361,7 +361,7 @@ So let's take a code block:
         'libertarian': Agent(system_instructions="you are a libertarian", model="gpt-3.5-turbo")
     }
     edges = [('liberal', 'conservative'), ('liberal', 'libertarian'), ('conservative', 'libertarian')]
-    task = "What are your thoughts on the role of government in society?"
+    task = "What are your thoughts on the role of government in society? Answer in 3 words."
     graph = Graph(agents=agents, edges=edges, task=task)
     graph.process()
 
