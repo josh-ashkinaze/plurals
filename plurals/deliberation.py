@@ -248,17 +248,18 @@ class Moderator(Agent):
         self.system_instructions = self.generate_system_instructions(task, max_tries)
         return self.system_instructions
 
-    def _moderate_responses(self, responses: List[str]) -> str:
+    def _moderate_responses(self, responses: List[str], agent_names: Optional[List[str]] = None) -> str:
         """
         Combine responses using the moderator persona and instructions.
 
         Args:
             responses (List[str]): List of responses from agents to combine.
+            agent_names (Optional[List[str]]): Optional list of agent names corresponding to responses.
 
         Returns:
             str: A combined response based on the moderator's instructions
         """
-        combined_responses_str = format_previous_responses(responses)
+        combined_responses_str = format_previous_responses(responses, agent_names=agent_names)
         self.combination_instructions = SmartString(
             self.combination_instructions
         ).format(
@@ -900,12 +901,17 @@ class Graph(AbstractStructure):
 
         # Process agents according to topological order
         response_dict = {}
+
+        agent_to_name = self._create_agent_name_mapping()
         for agent in topological_order:
             # Gather responses from all predecessors to form the input for the current agent
-            previous_responses = [
-                response_dict[pred] for pred in self.agents if agent in self.graph[pred]
-            ]
-            previous_responses_str = format_previous_responses(previous_responses)
+            predecessors = [pred for pred in self.agents if agent in self.graph[pred]]
+            previous_responses = [response_dict[pred] for pred in predecessors]
+            previous_agent_names = [agent_to_name[pred] for pred in predecessors]
+            previous_responses_str = format_previous_responses(
+                previous_responses,
+                agent_names=previous_agent_names
+            )
             response = agent.process(previous_responses=previous_responses_str)
             response_dict[agent] = response
             self.responses.append(response)
@@ -913,13 +919,41 @@ class Graph(AbstractStructure):
         # Handle the moderator if present
         if self.moderated and self.moderator:
             original_task = self.agents[0].original_task_description
+            # Get all agent names in the order of responses
+            all_agent_names = [agent_to_name[agent] for agent in topological_order]
             moderated_response = self.moderator._moderate_responses(
-                list(response_dict.values())
+                list(response_dict.values()),
+                agent_names=all_agent_names
             )
             self.responses.append(moderated_response)
             self.final_response = moderated_response
         self.final_response = self.responses[-1]
         return self.final_response
+
+    def _create_agent_name_mapping(self) -> Dict[Agent, str]:
+        """
+        Create a mapping from Agent objects to their names.
+
+        Returns:
+            Dict[Agent, str]: Mapping of agents to display names
+        """
+        agent_to_name = {}
+
+        # If original_agents was a dict (Method 2), use those names
+        if isinstance(self.original_agents, dict):
+            name_to_agent = {name: agent for name, agent in self.original_agents.items()}
+            for agent in self.agents:
+                # Find the corresponding name
+                for name, orig_agent in name_to_agent.items():
+                    if orig_agent is agent:
+                        agent_to_name[agent] = name
+                        break
+        else:
+            # Method 1: Use simple Agent numbering
+            for idx, agent in enumerate(self.agents):
+                agent_to_name[agent] = f"Agent {idx}"
+
+        return agent_to_name
 
     @staticmethod
     def _validate_input_format(agents, edges):
@@ -965,3 +999,5 @@ class Graph(AbstractStructure):
                     raise ValueError(
                         "Agent names in edges must be keys in the agent dictionary."
                     )
+
+
