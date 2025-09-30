@@ -193,4 +193,6 @@ If you are interested in collaborating, please reach out to Joshua Ashkinaze (ja
 actively running both human and AI experiments around (1) how and when simulated social ensembles augment humans; (2) using Plurals for moderation.  
 
 # Updates 🆕
-- Paper to appear at CHI 2025!
+- Paper to appear at CHI 2025 with Honorable Mention!
+- Changes to debate to decrease sycophancy
+- Names of Agents in DAG are visible to other Agents (i.e., instead of "Response 0: Resp0", "Response 1: Resp1", etc., Agents see "PlotAgent: Resp", "CharacterAgent: Resp", etc.)
