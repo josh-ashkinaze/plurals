@@ -1,6 +1,6 @@
 import os
 import string
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 import pandas as pd
 import yaml
@@ -86,12 +86,13 @@ def load_yaml(file_path: str) -> Dict[str, Any]:
         return yaml.safe_load(file)
 
 
-def format_previous_responses(responses: List[str]) -> str:
+def format_previous_responses(responses: List[str], agent_names: Optional[List[str]] = None) -> str:
     """
     Format the previous responses for inclusion in the next task description.
 
     Args:
         responses (List[str]): A list of previous responses.
+        agent_names (Optional[List[str]]): Optional list of agent names/identifiers corresponding to each response.
 
     Returns:
         str: A formatted string of the previous responses.
@@ -100,14 +101,23 @@ def format_previous_responses(responses: List[str]) -> str:
         >>> responses = ["First response", "Second response"]
         >>> format_previous_responses(responses)
         'Response 0: First response\\nResponse 1: Second response'
+
+        >>> format_previous_responses(responses, agent_names=["Agent A", "Agent B"])
+        'Agent A: First response\\nAgent B: Second response'
     """
     if not responses:
         return ""
     else:
-        resp_list = [
-            "Response {}: {}\n".format(i, responses[i])
-            for i in range(len(responses))
-        ]
+        if agent_names and len(agent_names) == len(responses):
+            resp_list = [
+                "{}: {}\n".format(agent_names[i], responses[i])
+                for i in range(len(responses))
+            ]
+        else:
+            resp_list = [
+                "Response {}: {}\n".format(i, responses[i])
+                for i in range(len(responses))
+            ]
         return "".join(resp_list).strip()
 
 
