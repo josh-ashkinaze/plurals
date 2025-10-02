@@ -2,13 +2,15 @@ from typing import List, Optional, Dict, Any
 import random
 import warnings
 from plurals.agent import Agent
-from plurals.helpers import load_yaml, format_previous_responses
+from plurals.helpers import load_yaml, format_previous_responses, count_input_tokens_tiktoken
+
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from plurals.helpers import SmartString, strip_nested_dict
 import re
 import collections
 from pprint import pformat
+import time
 
 DEFAULTS = load_yaml("instructions.yaml")
 DEFAULTS = strip_nested_dict(DEFAULTS)
@@ -580,30 +582,89 @@ class Ensemble(AbstractStructure):
             print(ensemble.final_response)
     """
 
-    def process(self):
+    def process(self, itpm_limit: int = 90_000, threshold_ratio: float = 0.9):
         """
-        Requests are sent to all agents simultaneously.
-        """
-        for _ in range(self.cycles):
-            with ThreadPoolExecutor() as executor:
-                futures = []
-                for i, agent in enumerate(self.agents):
-                    previous_responses_str = ""
-                    agent.combination_instructions = self.combination_instructions
-                    futures.append((i,
-                                    executor.submit(
-                                        agent.process, previous_responses=previous_responses_str
-                                    )
-                                    ))
-                for i, future in sorted(futures, key=lambda pair: pair[0]):
-                    response = future.result()
-                    self.responses.append(response)
+        Process all agents but throttle by Input Tokens Per Minute (ITPM) using a simple batch-per-minute plan.
 
+        Args:
+            itpm_limit: Your org/workspace Input Tokens Per Minute limit (integer).
+            threshold_ratio: Safety headroom (default 0.9 → use 90% of the limit).
+
+        Returns:
+            list of responses from all agents, in order.
+        """
+        # --- 0) compute the working per-minute threshold ---
+        if itpm_limit <= 0:
+            raise ValueError("itpm_limit must be a positive integer.")
+        tpm_threshold = int(itpm_limit * threshold_ratio)
+
+        # --- 1) pre-count input tokens for the exact messages we will send ---
+        # For Ensemble we pass previous_responses="", so the user message is the agent task.
+        # Messages mirror Agent._get_response: optional system + user task.
+        items = []  # (agent, input_tokens)
+        for agent in self.agents:
+            messages = []
+            if agent.system_instructions:
+                messages.append({"role": "system", "content": agent.system_instructions})
+            # AbstractStructure already set agent.task_description from Structure task
+            user_task = agent.task_description or agent.original_task_description or ""
+            messages.append({"role": "user", "content": user_task})
+            input_tokens = count_input_tokens_tiktoken(messages, model=agent.model)
+            print(f"Agent {agent.persona} will use {input_tokens} input tokens")
+            items.append((agent, input_tokens))
+
+        # --- 2) greedily pack into minute-sized batches (preserve order) ---
+        batches = []                # List[List[(agent, tokens)]]
+        current_batch, current_sum = [], 0
+        for agent, toks in items:
+            # If a single request exceeds the threshold, run it as a solo batch and continue.
+            if toks > tpm_threshold:
+                if current_batch:
+                    batches.append(current_batch)
+                    current_batch, current_sum = [], 0
+                batches.append([(agent, toks)])
+                continue
+
+            if current_sum + toks > tpm_threshold and current_batch:
+                batches.append(current_batch)
+                current_batch, current_sum = [(agent, toks)], toks
+            else:
+                current_batch.append((agent, toks))
+                current_sum += toks
+        if current_batch:
+            batches.append(current_batch)
+
+        # --- 3) execute batches; sleep 60s spacing with headroom ---
+        self.responses = []
+        t0 = time.monotonic()
+
+        for cycle in range(self.cycles):
+            for batch_idx, batch in enumerate(batches):
+                # Respect minute boundary: launch batch k at t0 + k*60
+                target = t0 + batch_idx * 60.0
+                now = time.monotonic()
+                if now < target:
+                    time.sleep(target - now)
+
+                # Submit this batch concurrently (no previous_responses in Ensemble)
+                with ThreadPoolExecutor() as executor:
+                    futures = []
+                    for (agent, _) in batch:
+                        agent.combination_instructions = self.combination_instructions
+                        futures.append(executor.submit(agent.process, previous_responses=""))
+
+                    # Collect in the same order we submitted
+                    for fut in futures:
+                        response = fut.result()
+                        self.responses.append(response)
+
+        # --- 4) Moderator ---
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(self.responses)
             self.responses.append(moderated_response)
-        self.final_response = self.responses[-1]
-        return self.final_response
+
+        # self.final_response = self.responses[-1]
+        return self.responses
 
 
 class Debate(AbstractStructure):

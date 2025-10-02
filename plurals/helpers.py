@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Optional
 
 import pandas as pd
 import yaml
-
+import tiktoken
 
 def print_anes_mapping():
     """
@@ -252,3 +252,60 @@ def get_resource_path(package: str, resource: str) -> str:
         root_package = package.split('.')[0]
         with resources.path(root_package, resource) as path:
             return str(path)
+
+def count_input_tokens_tiktoken(messages: List[Dict[str, Any]], model: str = "gpt-4o-2024-08-06") -> int:
+    """
+    Return the number of *prompt/input* tokens for a list of Chat API messages.
+    Uses tiktoken and the per-message overhead rules from the OpenAI Cookbook.
+    - messages: list of {"role": "...", "content": "..."} (optionally with "name")
+    - model: OpenAI model name (fallbacks handled for family names)
+    """
+    try:
+        encoding = tiktoken.encoding_for_model(model)
+    except KeyError:
+        # Fallback to a modern encoding that covers current OpenAI chat models
+        encoding = tiktoken.get_encoding("o200k_base")
+
+    # Models with known overhead settings (from the OpenAI Cookbook)
+    known = {
+        "gpt-3.5-turbo-0125",
+        "gpt-4-0314",
+        "gpt-4-32k-0314",
+        "gpt-4-0613",
+        "gpt-4-32k-0613",
+        "gpt-4o-mini-2024-07-18",
+        "gpt-4o-2024-08-06",
+    }
+
+    if model in known:
+        tokens_per_message = 3
+        tokens_per_name = 1
+    elif "gpt-3.5-turbo" in model:
+        # Defer to the pinned version for stable counting
+        return count_input_tokens_tiktoken(messages, model="gpt-3.5-turbo-0125")
+    elif "gpt-4o-mini" in model:
+        return count_input_tokens_tiktoken(messages, model="gpt-4o-mini-2024-07-18")
+    elif "gpt-4o" in model:
+        return count_input_tokens_tiktoken(messages, model="gpt-4o-2024-08-06")
+    elif "gpt-4" in model:
+        return count_input_tokens_tiktoken(messages, model="gpt-4-0613")
+    else:
+        # Conservative default; keeps things lean while staying close to Cookbook behavior
+        tokens_per_message = 3
+        tokens_per_name = 1
+
+    num_tokens = 0
+    for message in messages:
+        num_tokens += tokens_per_message
+        for key, value in message.items():
+            if value is None:
+                continue
+            if not isinstance(value, str):
+                value = str(value)
+            num_tokens += len(encoding.encode(value))
+            if key == "name":
+                num_tokens += tokens_per_name
+
+    # Every reply is "primed" with assistant tokens
+    num_tokens += 3
+    return num_tokens
