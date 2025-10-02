@@ -2,13 +2,15 @@ from typing import List, Optional, Dict, Any
 import random
 import warnings
 from plurals.agent import Agent
-from plurals.helpers import load_yaml, format_previous_responses
+from plurals.helpers import load_yaml, format_previous_responses, count_input_tokens_tiktoken
+
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from plurals.helpers import SmartString, strip_nested_dict
 import re
 import collections
 from pprint import pformat
+import time
 
 DEFAULTS = load_yaml("instructions.yaml")
 DEFAULTS = strip_nested_dict(DEFAULTS)
@@ -579,32 +581,117 @@ class Ensemble(AbstractStructure):
             ensemble.process()
             print(ensemble.final_response)
     """
-
-    def process(self):
+    def process(self, itpm_limit: int = 90_000, threshold_ratio: float = 0.9):
         """
-        Requests are sent to all agents simultaneously.
-        """
-        for _ in range(self.cycles):
-            with ThreadPoolExecutor() as executor:
-                futures = []
-                for i, agent in enumerate(self.agents):
-                    previous_responses_str = ""
-                    agent.combination_instructions = self.combination_instructions
-                    futures.append((i,
-                                    executor.submit(
-                                        agent.process, previous_responses=previous_responses_str
-                                    )
-                                    ))
-                for i, future in sorted(futures, key=lambda pair: pair[0]):
-                    response = future.result()
-                    self.responses.append(response)
+        Process all agents but throttle by Input Tokens Per Minute (ITPM) using a simple batch-per-minute plan.
 
+        Args:
+            itpm_limit: Your org/workspace Input Tokens Per Minute limit (integer).
+            threshold_ratio: Safety headroom (default 0.9 → use 90% of the limit).
+
+        Returns:
+            list of responses from all agents, in order.
+        """
+        if itpm_limit <= 0:
+            raise ValueError("itpm_limit must be a positive integer.")
+        tpm_threshold = int(itpm_limit * threshold_ratio)
+
+        # Pre-count input tokens per agent (system+user content)
+        items = []  # List[(agent, input_tokens)]
+        for agent in self.agents:
+            messages = []
+            if agent.system_instructions:
+                messages.append({"role": "system", "content": agent.system_instructions})
+            user_task = agent.task_description or agent.original_task_description or ""
+            messages.append({"role": "user", "content": user_task})
+            toks = count_input_tokens_tiktoken(messages, model=agent.model)
+            items.append((agent, toks))
+
+        total_tokens = sum(t for _, t in items)
+        self.responses = []
+
+        print(f"Total input tokens across all agents: {total_tokens}")
+
+        # 2.1) FAST PATH: multithreaded behavior
+        if total_tokens <= tpm_threshold:
+            for _ in range(self.cycles):
+                # submit all agents concurrently (no previous_responses in Ensemble)
+                with ThreadPoolExecutor() as executor:
+                    future_to_index = {}
+                    for i, agent in enumerate(self.agents):
+                        agent.combination_instructions = self.combination_instructions
+                        fut = executor.submit(agent.process, previous_responses="")
+                        future_to_index[fut] = i
+
+                    # collect all results (unordered), tagging each with its original index
+                    collected = []
+                    for fut in as_completed(future_to_index):
+                        idx = future_to_index[fut]
+                        try:
+                            res = fut.result()
+                        except Exception as e:
+                            # keep going; optionally log/attach error string
+                            res = f"[ERROR from agent {idx}: {e}]"
+                        collected.append((idx, res))
+                # reorder strictly by original index to preserve agent ordering
+                ordered_cycle = [res for idx, res in sorted(collected, key=lambda x: x[0])]
+                # extend structure responses in preserved order
+                self.responses.extend(ordered_cycle)
+
+        # 2.2) FAST PATH (no throttling needed): sequential behavior with ordered collect
+            # for _ in range(self.cycles):
+            #     for i, agent in enumerate(self.agents):
+            #         agent.combination_instructions = self.combination_instructions
+            #         response = agent.process(previous_responses="")
+            #         self.responses.append(response)
+
+        # 3) BATCHED PATH (rate-limit protection)
+        else:
+            # Greedy packing into batches under tpm_threshold (preserve order)
+            batches = []
+            cur, s = [], 0
+            for agent, toks in items:
+                if toks > tpm_threshold:
+                    if cur:
+                        batches.append(cur)
+                        cur, s = [], 0
+                    batches.append([(agent, toks)])  # solo batch if too large
+                    continue
+                if cur and s + toks > tpm_threshold:
+                    batches.append(cur)
+                    cur, s = [(agent, toks)], toks
+                else:
+                    cur.append((agent, toks))
+                    s += toks
+            if cur:
+                batches.append(cur)
+
+            # Execute batches spaced by minute boundary
+            t0 = time.monotonic()
+            for _ in range(self.cycles):
+                for b_idx, batch in enumerate(batches):
+                    target = t0 + b_idx * 60.0
+                    now = time.monotonic()
+                    if now < target:
+                        time.sleep(target - now)
+
+                    # Parallel within a batch; preserve order via executor.map
+                    batch_agents = [a for (a, _) in batch]
+                    for a in batch_agents:
+                        a.combination_instructions = self.combination_instructions
+                    with ThreadPoolExecutor() as executor:
+                        # map preserves the input order → responses come back ordered
+                        results = list(executor.map(lambda ag: ag.process(previous_responses=""),
+                                                    batch_agents))
+                    self.responses.extend(results)
+
+        # 4) Moderator (unchanged)
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(self.responses)
             self.responses.append(moderated_response)
-        self.final_response = self.responses[-1]
-        return self.final_response
 
+        self.final_response = self.responses[-1] if self.responses else None
+        return self.final_response
 
 class Debate(AbstractStructure):
     """
