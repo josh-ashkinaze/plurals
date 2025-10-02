@@ -610,7 +610,7 @@ class Ensemble(AbstractStructure):
             user_task = agent.task_description or agent.original_task_description or ""
             messages.append({"role": "user", "content": user_task})
             input_tokens = count_input_tokens_tiktoken(messages, model=agent.model)
-            print(f"Agent {agent.persona} will use {input_tokens} input tokens")
+            # print(f"Agent {agent.persona} will use {input_tokens} input tokens")
             items.append((agent, input_tokens))
 
         # --- 2) greedily pack into minute-sized batches (preserve order) ---
