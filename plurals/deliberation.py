@@ -581,7 +581,6 @@ class Ensemble(AbstractStructure):
             ensemble.process()
             print(ensemble.final_response)
     """
-
     def process(self, itpm_limit: int = 90_000, threshold_ratio: float = 0.9):
         """
         Process all agents but throttle by Input Tokens Per Minute (ITPM) using a simple batch-per-minute plan.
@@ -593,79 +592,106 @@ class Ensemble(AbstractStructure):
         Returns:
             list of responses from all agents, in order.
         """
-        # --- 0) compute the working per-minute threshold ---
         if itpm_limit <= 0:
             raise ValueError("itpm_limit must be a positive integer.")
         tpm_threshold = int(itpm_limit * threshold_ratio)
 
-        # --- 1) pre-count input tokens for the exact messages we will send ---
-        # For Ensemble we pass previous_responses="", so the user message is the agent task.
-        # Messages mirror Agent._get_response: optional system + user task.
-        items = []  # (agent, input_tokens)
+        # Pre-count input tokens per agent (system+user content)
+        items = []  # List[(agent, input_tokens)]
         for agent in self.agents:
             messages = []
             if agent.system_instructions:
                 messages.append({"role": "system", "content": agent.system_instructions})
-            # AbstractStructure already set agent.task_description from Structure task
             user_task = agent.task_description or agent.original_task_description or ""
             messages.append({"role": "user", "content": user_task})
-            input_tokens = count_input_tokens_tiktoken(messages, model=agent.model)
-            # print(f"Agent {agent.persona} will use {input_tokens} input tokens")
-            items.append((agent, input_tokens))
+            toks = count_input_tokens_tiktoken(messages, model=agent.model)
+            items.append((agent, toks))
 
-        # --- 2) greedily pack into minute-sized batches (preserve order) ---
-        batches = []                # List[List[(agent, tokens)]]
-        current_batch, current_sum = [], 0
-        for agent, toks in items:
-            # If a single request exceeds the threshold, run it as a solo batch and continue.
-            if toks > tpm_threshold:
-                if current_batch:
-                    batches.append(current_batch)
-                    current_batch, current_sum = [], 0
-                batches.append([(agent, toks)])
-                continue
-
-            if current_sum + toks > tpm_threshold and current_batch:
-                batches.append(current_batch)
-                current_batch, current_sum = [(agent, toks)], toks
-            else:
-                current_batch.append((agent, toks))
-                current_sum += toks
-        if current_batch:
-            batches.append(current_batch)
-
-        # --- 3) execute batches; sleep 60s spacing with headroom ---
+        total_tokens = sum(t for _, t in items)
         self.responses = []
-        t0 = time.monotonic()
 
-        for cycle in range(self.cycles):
-            for batch_idx, batch in enumerate(batches):
-                # Respect minute boundary: launch batch k at t0 + k*60
-                target = t0 + batch_idx * 60.0
-                now = time.monotonic()
-                if now < target:
-                    time.sleep(target - now)
+        print(f"Total input tokens across all agents: {total_tokens}")
 
-                # Submit this batch concurrently (no previous_responses in Ensemble)
+        # 2.1) FAST PATH: multithreaded behavior
+        if total_tokens <= tpm_threshold:
+            for _ in range(self.cycles):
+                # submit all agents concurrently (no previous_responses in Ensemble)
                 with ThreadPoolExecutor() as executor:
-                    futures = []
-                    for (agent, _) in batch:
+                    future_to_index = {}
+                    for i, agent in enumerate(self.agents):
                         agent.combination_instructions = self.combination_instructions
-                        futures.append(executor.submit(agent.process, previous_responses=""))
+                        fut = executor.submit(agent.process, previous_responses="")
+                        future_to_index[fut] = i
 
-                    # Collect in the same order we submitted
-                    for fut in futures:
-                        response = fut.result()
-                        self.responses.append(response)
+                    # collect all results (unordered), tagging each with its original index
+                    collected = []
+                    for fut in as_completed(future_to_index):
+                        idx = future_to_index[fut]
+                        try:
+                            res = fut.result()
+                        except Exception as e:
+                            # keep going; optionally log/attach error string
+                            res = f"[ERROR from agent {idx}: {e}]"
+                        collected.append((idx, res))
+                # reorder strictly by original index to preserve agent ordering
+                ordered_cycle = [res for idx, res in sorted(collected, key=lambda x: x[0])]
+                # extend structure responses in preserved order
+                self.responses.extend(ordered_cycle)
 
-        # --- 4) Moderator ---
+        # 2.2) FAST PATH (no throttling needed): sequential behavior with ordered collect
+            # for _ in range(self.cycles):
+            #     for i, agent in enumerate(self.agents):
+            #         agent.combination_instructions = self.combination_instructions
+            #         response = agent.process(previous_responses="")
+            #         self.responses.append(response)
+
+        # 3) BATCHED PATH (rate-limit protection)
+        else:
+            # Greedy packing into batches under tpm_threshold (preserve order)
+            batches = []
+            cur, s = [], 0
+            for agent, toks in items:
+                if toks > tpm_threshold:
+                    if cur:
+                        batches.append(cur)
+                        cur, s = [], 0
+                    batches.append([(agent, toks)])  # solo batch if too large
+                    continue
+                if cur and s + toks > tpm_threshold:
+                    batches.append(cur)
+                    cur, s = [(agent, toks)], toks
+                else:
+                    cur.append((agent, toks))
+                    s += toks
+            if cur:
+                batches.append(cur)
+
+            # Execute batches spaced by minute boundary
+            t0 = time.monotonic()
+            for _ in range(self.cycles):
+                for b_idx, batch in enumerate(batches):
+                    target = t0 + b_idx * 60.0
+                    now = time.monotonic()
+                    if now < target:
+                        time.sleep(target - now)
+
+                    # Parallel within a batch; preserve order via executor.map
+                    batch_agents = [a for (a, _) in batch]
+                    for a in batch_agents:
+                        a.combination_instructions = self.combination_instructions
+                    with ThreadPoolExecutor() as executor:
+                        # map preserves the input order → responses come back ordered
+                        results = list(executor.map(lambda ag: ag.process(previous_responses=""),
+                                                    batch_agents))
+                    self.responses.extend(results)
+
+        # 4) Moderator (unchanged)
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(self.responses)
             self.responses.append(moderated_response)
 
-        # self.final_response = self.responses[-1]
-        return self.responses
-
+        self.final_response = self.responses[-1] if self.responses else None
+        return self.final_response
 
 class Debate(AbstractStructure):
     """
