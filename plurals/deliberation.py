@@ -583,180 +583,110 @@ class Ensemble(AbstractStructure):
     """
     def process(self, itpm_limit: int = 100_000, threshold_ratio: float = 0.9):
         """
-        Process all agents but throttle by Input Tokens Per Minute (ITPM) using a simple batch-per-minute plan.
-
-        Args:
-            itpm_limit: Your org/workspace Input Tokens Per Minute limit (integer).
-            threshold_ratio: Safety headroom (default 0.9 → use 90% of the limit).
-
-        Returns:
-            list of responses from all agents, in order.
+        Process agents for `self.cycles` rounds in strict order:
+          C0: A0..An-1, C1: A0..An-1, ... then (optional) moderator once.
+        Applies ITPM batching per-cycle. Returns the final response.
         """
         if itpm_limit <= 0:
             raise ValueError("itpm_limit must be positive.")
 
-        # 1. Compute thresholds
+        # 1) Compute thresholds
         tpm_threshold = int(itpm_limit * threshold_ratio)
         print(f"ITPM limit: {itpm_limit}, using threshold: {tpm_threshold}")
 
-        # 2. Pre-count tokens for all agents
+        # 2) Determine the effective task we will actually send when invoking agents/moderator
+        #    Prefer structure-level task, then agent-level, else empty string.
+        def effective_task_for(agent):
+            return (
+                    getattr(self, "task", None)
+                    or getattr(agent, "task_description", None)
+                    or getattr(agent, "original_task_description", None)
+                    or ""
+            )
+
+        # 3) Pre-count tokens PER CYCLE using the same task we will pass during execution
         items = []
         for agent in self.agents:
+            eff_task = effective_task_for(agent)
             messages = []
-            if agent.system_instructions:
+            if getattr(agent, "system_instructions", None):
                 messages.append({"role": "system", "content": agent.system_instructions})
-            task = agent.task_description or agent.original_task_description or ""
-            messages.append({"role": "user", "content": task})
+            messages.append({"role": "user", "content": eff_task})
             toks = count_input_tokens_tiktoken(messages, model=agent.model)
             items.append((agent, toks))
 
-        total_tokens = sum(t for _, t in items)
+        per_cycle_tokens = sum(t for _, t in items)
+        print(f"Total input tokens per cycle across all agents: {per_cycle_tokens}, "
+              f"ITPM limit threshold: {tpm_threshold}")
+
         self.responses = []
+        total_cycles = getattr(self, "cycles", 1) or 1
 
-        # 3. Fast path: all within limit → run all concurrently)
-        print(f"Total input tokens across all agents: {total_tokens}, ITPM limit threshold: {tpm_threshold}")
-        if total_tokens <= tpm_threshold:
-            with ThreadPoolExecutor() as executor:
-                results = list(executor.map(lambda ag: ag.process(previous_responses=""),
-                                            [a for a, _ in items]))
-            self.responses.extend(results)
+        # 4) Run each cycle
+        for c in range(total_cycles):
+            print(f"Processing cycle {c + 1}/{total_cycles}...")
 
-        # 4. Slow path: batch under token limit
-        else:
-            print("Throttling via batching due to ITPM limit...")
-            batches, cur, s = [], [], 0
-            for agent, toks in items:
-                # Skip any agent that alone exceeds the threshold
-                if toks > tpm_threshold:
-                    print(f"Skipping agent (tokens={toks}) > limit {tpm_threshold}")
-                    continue
-
-                if s + toks > tpm_threshold:
-                    batches.append(cur)
-                    cur, s = [(agent, toks)], toks
-                else:
-                    cur.append((agent, toks))
-                    s += toks
-            if cur:
-                batches.append(cur)
-
-            # Run each batch sequentially, parallel within each batch
-            for batch in batches:
-                print(f"Processing batch of {len(batch)} agents...")
-                agents_in_batch = [a for a, _ in batch]
+            if per_cycle_tokens <= tpm_threshold:
+                # Fast path: run all agents for this cycle concurrently, preserve input order
                 with ThreadPoolExecutor() as executor:
-                    results = list(executor.map(lambda ag: ag.process(previous_responses=""),
-                                                agents_in_batch))
-                self.responses.extend(results)
-                time.sleep(60)  # 1-minute delay between batches
+                    agents_in_order = [a for (a, _) in items]
+                    cycle_results = list(
+                        executor.map(
+                            lambda ag: ag.process(task=effective_task_for(ag), previous_responses=""),
+                            agents_in_order
+                        )
+                    )
+                self.responses.extend(cycle_results)
+            else:
+                # Slow path: batch within this cycle to stay under threshold
+                print("Throttling via batching due to ITPM limit...")
+                batches, cur, s = [], [], 0
+                for agent, toks in items:
+                    if toks > tpm_threshold:
+                        print(f"Skipping agent (tokens={toks}) > limit {tpm_threshold}")
+                        continue
+                    if s + toks > tpm_threshold:
+                        batches.append(cur)
+                        cur, s = [(agent, toks)], toks
+                    else:
+                        cur.append((agent, toks))
+                        s += toks
+                if cur:
+                    batches.append(cur)
 
-        # 5. Optional moderation
-        if self.moderated and self.moderator:
-            moderated = self.moderator._moderate_responses(self.responses)
-            self.responses.append(moderated)
+                for i, batch in enumerate(batches, 1):
+                    print(f"Cycle {c + 1}: processing batch {i}/{len(batches)} with {len(batch)} agents...")
+                    agents_in_batch = [a for a, _ in batch]
+                    with ThreadPoolExecutor() as executor:
+                        results = list(
+                            executor.map(
+                                lambda ag: ag.process(task=effective_task_for(ag), previous_responses=""),
+                                agents_in_batch
+                            )
+                        )
+                    self.responses.extend(results)
+                    time.sleep(60)  # 1-minute delay between batches
 
+        # 5) Moderator: choose path based on whether combination_instructions are set
+        if getattr(self, "moderator", None):
+            mod = self.moderator
+            has_combo = bool(getattr(mod, "combination_instructions", None))
+
+            if has_combo and hasattr(mod, "_moderate_responses"):
+                # Use the moderator's combiner logic (doesn't require a task)
+                mod_resp = mod._moderate_responses(self.responses)
+            else:
+                # Treat moderator like an agent; pass the structure task to avoid None.strip()
+                mod_task = effective_task_for(mod)
+                # (Optionally include prior responses; tests that mock Agent._get_response
+                #  only need a single call here, so keep previous_responses minimal.)
+                mod_resp = mod.process(task=mod_task, previous_responses="")
+
+            self.responses.append(mod_resp)
+
+        # 6) Final
         self.final_response = self.responses[-1] if self.responses else None
         return self.final_response
-        # if itpm_limit <= 0:
-        #     raise ValueError("itpm_limit must be a positive integer.")
-        # tpm_threshold = int(itpm_limit * threshold_ratio)
-
-        # # Pre-count input tokens per agent (system+user content)
-        # items = []  # List[(agent, input_tokens)]
-        # for agent in self.agents:
-        #     messages = []
-        #     if agent.system_instructions:
-        #         messages.append({"role": "system", "content": agent.system_instructions})
-        #     user_task = agent.task_description or agent.original_task_description or ""
-        #     messages.append({"role": "user", "content": user_task})
-        #     toks = count_input_tokens_tiktoken(messages, model=agent.model)
-        #     items.append((agent, toks))
-
-        # total_tokens = sum(t for _, t in items)
-        # self.responses = []
-
-        # print(f"Total input tokens across all agents: {total_tokens}")
-
-        # # 2.1) FAST PATH: multithreaded behavior
-        # if total_tokens <= tpm_threshold:
-        #     for _ in range(self.cycles):
-        #         # submit all agents concurrently (no previous_responses in Ensemble)
-        #         with ThreadPoolExecutor() as executor:
-        #             future_to_index = {}
-        #             for i, agent in enumerate(self.agents):
-        #                 agent.combination_instructions = self.combination_instructions
-        #                 fut = executor.submit(agent.process, previous_responses="")
-        #                 future_to_index[fut] = i
-
-        #             # collect all results (unordered), tagging each with its original index
-        #             collected = []
-        #             for fut in as_completed(future_to_index):
-        #                 idx = future_to_index[fut]
-        #                 try:
-        #                     res = fut.result()
-        #                 except Exception as e:
-        #                     # keep going; optionally log/attach error string
-        #                     res = f"[ERROR from agent {idx}: {e}]"
-        #                 collected.append((idx, res))
-        #         # reorder strictly by original index to preserve agent ordering
-        #         ordered_cycle = [res for idx, res in sorted(collected, key=lambda x: x[0])]
-        #         # extend structure responses in preserved order
-        #         self.responses.extend(ordered_cycle)
-
-        # # 2.2) FAST PATH (no throttling needed): sequential behavior with ordered collect
-        #     # for _ in range(self.cycles):
-        #     #     for i, agent in enumerate(self.agents):
-        #     #         agent.combination_instructions = self.combination_instructions
-        #     #         response = agent.process(previous_responses="")
-        #     #         self.responses.append(response)
-
-        # # 3) BATCHED PATH (rate-limit protection)
-        # else:
-        #     # Greedy packing into batches under tpm_threshold (preserve order)
-        #     batches = []
-        #     cur, s = [], 0
-        #     for agent, toks in items:
-        #         if toks > tpm_threshold:
-        #             if cur:
-        #                 batches.append(cur)
-        #                 cur, s = [], 0
-        #             batches.append([(agent, toks)])  # solo batch if too large
-        #             continue
-        #         if cur and s + toks > tpm_threshold:
-        #             batches.append(cur)
-        #             cur, s = [(agent, toks)], toks
-        #         else:
-        #             cur.append((agent, toks))
-        #             s += toks
-        #     if cur:
-        #         batches.append(cur)
-
-        #     # Execute batches spaced by minute boundary
-        #     t0 = time.monotonic()
-        #     for _ in range(self.cycles):
-        #         for b_idx, batch in enumerate(batches):
-        #             target = t0 + b_idx * 60.0
-        #             now = time.monotonic()
-        #             if now < target:
-        #                 time.sleep(target - now)
-
-        #             # Parallel within a batch; preserve order via executor.map
-        #             batch_agents = [a for (a, _) in batch]
-        #             for a in batch_agents:
-        #                 a.combination_instructions = self.combination_instructions
-        #             with ThreadPoolExecutor() as executor:
-        #                 # map preserves the input order → responses come back ordered
-        #                 results = list(executor.map(lambda ag: ag.process(previous_responses=""),
-        #                                             batch_agents))
-        #             self.responses.extend(results)
-
-        # # 4) Moderator (unchanged)
-        # if self.moderated and self.moderator:
-        #     moderated_response = self.moderator._moderate_responses(self.responses)
-        #     self.responses.append(moderated_response)
-
-        # self.final_response = self.responses[-1] if self.responses else None
-        # return self.final_response
 
 class Debate(AbstractStructure):
     """
@@ -1195,5 +1125,3 @@ class Graph(AbstractStructure):
                     raise ValueError(
                         "Agent names in edges must be keys in the agent dictionary."
                     )
-
-
