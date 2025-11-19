@@ -582,7 +582,7 @@ class Ensemble(AbstractStructure):
             print(ensemble.final_response)
     """
 
-    def process(self, itpm_limit: int = 90_000, threshold_ratio: float = 0.9):
+    def process(self, itpm_limit: int = 90_000, threshold_ratio: float = 0.9, sleep_between_batches: float = 60) -> str:
         """
         Process agents in parallel with automatic rate limiting to handle input token/minute limits.
 
@@ -591,7 +591,7 @@ class Ensemble(AbstractStructure):
         1. Pre-count tokens for all agents once using :func:`count_tokens`.
         2. Pack agents into batches that fit under the ITPM limit. If adding
            an agent would exceed the limit, start a new batch.
-        3. Process each batch in parallel, waiting 60 seconds between batches
+        3. Process each batch in parallel, waiting ``sleep_between_batches`` seconds between batches
            to respect rate limits.
         4. Repeat for the specified number of cycles (``self.cycles``).
         5. Collect results in order to preserve the original agent sequence.
@@ -608,6 +608,8 @@ class Ensemble(AbstractStructure):
             threshold_ratio (float): Safety margin applied to the rate limit.
                 For example, ``0.9`` means use at most 90% of ``itpm_limit``
                 when constructing batches. Defaults to ``0.9``.
+            sleep_between_batches (float): Time to wait between processing batches
+                to respect rate limits. Defaults to ``60`` seconds.
 
         Returns:
             str: The final response after all agents have been processed, and potentially moderated.
@@ -643,7 +645,7 @@ class Ensemble(AbstractStructure):
         for cycle in range(self.cycles):
             for batch_idx, batch in enumerate(batches):
                 if batch_idx > 0:
-                    time.sleep(60)
+                    time.sleep(sleep_between_batches)
 
                 # Submit all agents in batch concurrently
                 with ThreadPoolExecutor() as executor:
