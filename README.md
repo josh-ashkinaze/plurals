@@ -46,7 +46,6 @@ _APA:_
 ```
 Ashkinaze, J., Fry, E., Edara, N., Gilbert, E., & Budak, C. (2025). Plurals: A system for guiding LLMs via simulated social ensembles. In CHI Conference on Human Factors in Computing Systems (CHI '25, pp. 1-27). Association for Computing Machinery. https://doi.org/10.1145/3706598.3713675
 ```
-
 # Overview 🌌
 <img src="https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/figure1.png" alt="System Diagram" width="100%">
 
@@ -196,3 +195,4 @@ actively running both human and AI experiments around (1) how and when simulated
 - Paper to appear at CHI 2025 with Honorable Mention!
 - Changes to debate to decrease sycophancy
 - Names of Agents in DAG are visible to other Agents (i.e., instead of "Response 0: Resp0", "Response 1: Resp1", etc., Agents see "PlotAgent: Resp", "CharacterAgent: Resp", etc.)
+- Plurals has been downloaded over 1k times!
