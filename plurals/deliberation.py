@@ -586,6 +586,9 @@ class Ensemble(AbstractStructure):
         """
         Process agents in parallel with automatic rate limiting to handle input token/minute limits.
 
+        However, concurrent requests may exceed the input token per minute (ITPM) limits of your model or API endpoint, so
+        we implement a simple rate limiting algorithm to batch requests accordingly (only if necessary).
+
         Algorithm for rate limiting (simple greedy bin-packing):
 
         1. Pre-count tokens for all agents once using :func:`count_tokens`.
