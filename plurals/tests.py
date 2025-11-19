@@ -2441,7 +2441,7 @@ class TestEnsembleOrdering(unittest.TestCase):
                     mock_sleep.assert_called_with(60)
 
     def test_batching_with_multiple_cycles(self):
-        """Test batching with multiple cycles - should sleep between batches across cycles"""
+        """Test batching with multiple cycles should sleep between batches"""
         moderator = Moderator(model=self.model)
 
         # Each agent uses 40k tokens -> 2 agents per batch
