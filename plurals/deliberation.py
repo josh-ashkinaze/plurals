@@ -582,23 +582,35 @@ class Ensemble(AbstractStructure):
             print(ensemble.final_response)
     """
 
-    def process(self, itpm_limit: int = 100_000, threshold_ratio: float = 0.9):
+    def process(self, itpm_limit: int = 90_000, threshold_ratio: float = 0.9):
         """
-        Process agents in parallel with rate limiting while preserving order. This process function differs from others
-        because it uses parallelism and also depending on input tokens per minute (itpm) limits,
-        it batches agents to respect this.
+        Process agents in parallel with automatic rate limiting to handle input token/minute limits.
 
-        Algorithm logic (simple greedy bin-packing)
-        1. Pre-count tokens for all agents once
-        2. Pack agents into batches that fit under the rate limit. If adding this agent would exceed the limit,
-            then start a new batch.
-        3. Process each batch in parallel, waiting 60s between batches to respect rate limits.
-        4. Repeat for specified number of cycles.
-        5. Collect results in order to preserve agent sequence.
+        Algorithm for rate limiting (simple greedy bin-packing):
+
+        1. Pre-count tokens for all agents once using :func:`count_tokens`.
+        2. Pack agents into batches that fit under the ITPM limit. If adding
+           an agent would exceed the limit, start a new batch.
+        3. Process each batch in parallel, waiting 60 seconds between batches
+           to respect rate limits.
+        4. Repeat for the specified number of cycles (``self.cycles``).
+        5. Collect results in order to preserve the original agent sequence.
+           Optionally, pass all responses to the moderator (if present) and
+           store the final result.
+
+        This rate limiting should mostly only kick in with a very large number of Agents (hundreds or thousands),
+        and you can choose to be more or less conservative with the ``threshold_ratio`` parameter and the ``itpm_limit``
+        parameter (since the actual ITPM limit may vary based on your model endpoint and even account status).
 
         Args:
-            itpm_limit: Input Tokens Per Minute limit
-            threshold_ratio: Safety margin (0.9 = use 90% of limit)
+            itpm_limit (int): Input tokens-per-minute limit for the model or
+                API endpoint. Defaults to ``90_000``.
+            threshold_ratio (float): Safety margin applied to the rate limit.
+                For example, ``0.9`` means use at most 90% of ``itpm_limit``
+                when constructing batches. Defaults to ``0.9``.
+
+        Returns:
+            str: The final response after all agents have been processed, and potentially moderated.
         """
 
         # 1. Pre-count tokens for all agents once
@@ -648,6 +660,7 @@ class Ensemble(AbstractStructure):
 
         self.final_response = self.responses[-1]
         return self.final_response
+
 
 
 class Debate(AbstractStructure):
