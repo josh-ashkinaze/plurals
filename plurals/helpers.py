@@ -253,12 +253,29 @@ def get_resource_path(package: str, resource: str) -> str:
         with resources.path(root_package, resource) as path:
             return str(path)
 
-def count_input_tokens_tiktoken(messages: List[Dict[str, Any]], model: str = "gpt-4o-2024-08-06") -> int:
+def count_input_tokens_tiktoken(
+    messages: List[Dict[str, Any]],
+    model: str = "gpt-4o-2024-08-06",
+) -> int:
     """
-    Return the number of *prompt/input* tokens for a list of Chat API messages.
-    Uses tiktoken and the per-message overhead rules from the OpenAI Cookbook.
-    - messages: list of {"role": "...", "content": "..."} (optionally with "name")
-    - model: OpenAI model name (fallbacks handled for family names)
+    Count the number of input tokens for a chat completion request.
+
+    This function is based on OpenAI's example in the tiktoken cookbook:
+    https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken#6-counting-tokens-for-chat-completions-api-calls
+
+    The API adds some overhead tokens per message and per reply. We approximate
+    that overhead here so you can batch parallel calls and stay within
+    token-per-minute limits. The estimate is intentionally conservative, so
+    small amounts of estimation noise are acceptable.
+
+    Args:
+        messages (List[Dict[str, Any]]): A list of chat messages, each as a
+            dictionary with keys like ``"role"`` and ``"content"``.
+        model (str): Name of the model whose tokenizer and overhead behavior
+            to emulate.
+
+    Returns:
+        int: The estimated number of input tokens.
     """
     try:
         encoding = tiktoken.encoding_for_model(model)
@@ -281,7 +298,6 @@ def count_input_tokens_tiktoken(messages: List[Dict[str, Any]], model: str = "gp
         tokens_per_message = 3
         tokens_per_name = 1
     elif "gpt-3.5-turbo" in model:
-        # Defer to the pinned version for stable counting
         return count_input_tokens_tiktoken(messages, model="gpt-3.5-turbo-0125")
     elif "gpt-4o-mini" in model:
         return count_input_tokens_tiktoken(messages, model="gpt-4o-mini-2024-07-18")
@@ -309,3 +325,21 @@ def count_input_tokens_tiktoken(messages: List[Dict[str, Any]], model: str = "gp
     # Every reply is "primed" with assistant tokens
     num_tokens += 3
     return num_tokens
+
+def count_tokens(agent):
+    """
+     Count input tokens for a single agent's request.
+
+     Args:
+         agent: An agent object with ``system_instructions``, ``task_description``,
+             and ``model`` attributes.
+
+     Returns:
+         int: The estimated number of input tokens for this agent.
+     """
+    task = agent.current_task_description if agent.current_task_description else agent.original_task_description
+    messages = []
+    if agent.system_instructions:
+        messages.append({"role": "system", "content": agent.system_instructions})
+    messages.append({"role": "user", "content": task})
+    return count_input_tokens_tiktoken(messages, model=agent.model)

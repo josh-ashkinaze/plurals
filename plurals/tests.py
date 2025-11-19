@@ -868,6 +868,7 @@ class TestEnsemble(unittest.TestCase):
             self.assertIn(response, ensemble.responses)
 
 
+
 class TestDebate(unittest.TestCase):
 
     def setUp(self):
@@ -2390,8 +2391,77 @@ class TestEnsembleOrdering(unittest.TestCase):
                         'A0-C2', 'A1-C2', 'A2-C2',  # Cycle 2
                         'MOD']  # Moderator
 
-            self.assertEqual(ensemble.responses, expected)
-            self.assertEqual(ensemble.final_response, 'MOD')
+            self.assertEqual(expected, ensemble.responses)
+            self.assertEqual('MOD', ensemble.final_response)
+
+    def test_all_agents_fit_one_batch(self):
+        """Test that when all agents fit in one batch, no sleeping occurs"""
+        moderator = Moderator(model=self.model)
+
+        # Each agent uses only 100 tokens - all fit in one batch
+        mock_token_counts = [100, 100, 100]
+        mock_responses = ['A0', 'A1', 'A2', 'MOD']
+
+        with patch.object(Agent, '_get_response', side_effect=mock_responses):
+            with patch('plurals.helpers.count_input_tokens_tiktoken', side_effect=mock_token_counts):
+                with patch('time.sleep') as mock_sleep:
+                    ensemble = Ensemble(agents=self.agents, task=self.task, cycles=1, moderator=moderator)
+                    ensemble.process(itpm_limit=100_000, threshold_ratio=0.9)
+
+                    expected = ['A0', 'A1', 'A2', 'MOD']
+                    self.assertEqual(expected, ensemble.responses)
+
+                    # All fit in one batch, no sleep needed
+                    self.assertEqual(0, mock_sleep.call_count)
+
+    def test_batching_with_token_limit(self):
+        """Test that agents are batched correctly when they exceed token limit"""
+        moderator = Moderator(model=self.model)
+
+        # Mock token counts: each agent uses 40k tokens
+        # With 90k limit (90% of 100k), we can fit 2 agents per batch
+        # 3 agents = 2 batches: [A0, A1], [A2]
+        mock_token_counts = [40_000, 40_000, 40_000]
+
+        # 3 agents * 1 cycle + 1 moderator = 4 responses
+        mock_responses = ['A0', 'A1', 'A2', 'MOD']
+
+        with patch.object(Agent, '_get_response', side_effect=mock_responses):
+            with patch('plurals.helpers.count_input_tokens_tiktoken', side_effect=mock_token_counts):
+                with patch('time.sleep') as mock_sleep:
+                    ensemble = Ensemble(agents=self.agents, task=self.task, cycles=1, moderator=moderator)
+                    ensemble.process()
+
+                    # Expected: [A0, A1] in batch 1, [A2] in batch 2
+                    expected = ['A0', 'A1', 'A2', 'MOD']
+                    self.assertEqual(expected, ensemble.responses)
+
+                    # Should sleep once (between batch 1 and batch 2)
+                    self.assertEqual(1, mock_sleep.call_count)
+                    mock_sleep.assert_called_with(60)
+
+    def test_batching_with_multiple_cycles(self):
+        """Test batching with multiple cycles - should sleep between batches across cycles"""
+        moderator = Moderator(model=self.model)
+
+        # Each agent uses 40k tokens -> 2 agents per batch
+        # 3 agents * 2 cycles = 6 responses, organized as:
+        # Cycle 0: Batch 0 [A0-C0, A1-C0] (THEN SLEEP) Batch 1 [A2-C0]
+        # Cycle 1: Batch 0 [A0-C1, A1-C1] (THEN SLEEP), Batch 1 [A2-C1]
+        mock_token_counts = [40_000, 40_000, 40_000, 40_000, 40_000, 40_000]
+        mock_responses = [f'A{i}-C{c}' for c in range(2) for i in range(3)] + ['MOD']
+
+        with patch.object(Agent, '_get_response', side_effect=mock_responses):
+            with patch('plurals.helpers.count_input_tokens_tiktoken', side_effect=mock_token_counts):
+                with patch('time.sleep') as mock_sleep:
+                    ensemble = Ensemble(agents=self.agents, task=self.task, cycles=2, moderator=moderator)
+                    ensemble.process(itpm_limit=100_000, threshold_ratio=0.9)
+
+                    expected = ['A0-C0', 'A1-C0', 'A2-C0',  # Cycle 0
+                                'A0-C1', 'A1-C1', 'A2-C1',  # Cycle 1
+                                'MOD']
+                    self.assertEqual(expected, ensemble.responses)
+                    self.assertEqual(2, mock_sleep.call_count)
 
 
 class TestGraphAgentNaming(unittest.TestCase):
