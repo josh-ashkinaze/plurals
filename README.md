@@ -195,4 +195,3 @@ actively running both human and AI experiments around (1) how and when simulated
 - Paper to appear at CHI 2025 with Honorable Mention!
 - Changes to debate to decrease sycophancy
 - Names of Agents in DAG are visible to other Agents (i.e., instead of "Response 0: Resp0", "Response 1: Resp1", etc., Agents see "PlotAgent: Resp", "CharacterAgent: Resp", etc.)
-- Plurals has been downloaded over 1k times!
