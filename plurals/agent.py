@@ -1,5 +1,6 @@
 import warnings
-from typing import Optional, Dict
+from typing import Optional, Dict, Any
+from abc import ABC, abstractmethod
 
 import pandas as pd
 from litellm import completion
@@ -37,6 +38,85 @@ def _load_global_anes_data():
 
 
 _load_global_anes_data()
+
+class _PersonaStrategy(ABC):
+    """Base class for persona generation strategies"""
+
+    @abstractmethod
+    def generate(self, data: pd.DataFrame, persona_mapping: Dict[str, Any]) -> str:
+        """Generate a persona description"""
+        pass
+
+    @staticmethod
+    def _row2persona(row: pd.Series, persona_mapping: Dict[str, Any]) -> str:
+        """Convert a dataset row into a persona description string"""
+        persona = []
+        for var, details in persona_mapping.items():
+            value = row.get(var)
+
+            if var == "age" and value is not None:
+                value = int(value)
+
+            if value is None or pd.isna(value) or (details.get('bad_vals') and str(value) in details['bad_vals']):
+                continue
+
+            if details.get('recode_vals') and str(value) in details['recode_vals']:
+                value = details['recode_vals'][str(value)]
+
+            clean_name = details['name']
+            persona.append(f"{clean_name} {str(value).lower()}.")
+        return " ".join(persona)
+
+
+class _RandomPersonaStrategy(_PersonaStrategy):
+    """Strategy for generating random personas from ANES"""
+
+    def generate(self, data: pd.DataFrame, persona_mapping: Dict[str, Any]) -> str:
+        selected_row = data.sample(n=1, weights=data['weight']).iloc[0]
+        return self._row2persona(selected_row, persona_mapping)
+
+
+class _IdeologyPersonaStrategy(_PersonaStrategy):
+    """Strategy for generating personas based on ideology"""
+
+    def __init__(self, ideology: str):
+        self.ideology = ideology
+
+    def generate(self, data: pd.DataFrame, persona_mapping: Dict[str, Any]) -> str:
+        filtered_data = self._filter_data_by_ideology(data, self.ideology)
+        if filtered_data.empty:
+            raise AssertionError("No data found satisfying conditions")
+        selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
+        return self._row2persona(selected_row, persona_mapping)
+
+    @staticmethod
+    def _filter_data_by_ideology(data: pd.DataFrame, ideology: str) -> pd.DataFrame:
+        """Filter the dataset based on ideology"""
+        if ideology.lower() == 'liberal':
+            return data[data['ideo5'].isin(['Liberal', 'Very liberal'])]
+        elif ideology.lower() == 'conservative':
+            return data[data['ideo5'].isin(['Conservative', 'Very conservative'])]
+        elif ideology.lower() == 'moderate':
+            return data[data['ideo5'] == 'Moderate']
+        elif ideology.lower() == "very liberal":
+            return data[data['ideo5'] == 'Very liberal']
+        elif ideology.lower() == "very conservative":
+            return data[data['ideo5'] == 'Very conservative']
+        return pd.DataFrame()
+
+
+class _QueryPersonaStrategy(_PersonaStrategy):
+    """Strategy for generating personas based on query string"""
+
+    def __init__(self, query_str: str):
+        self.query_str = query_str
+
+    def generate(self, data: pd.DataFrame, persona_mapping: Dict[str, Any]) -> str:
+        filtered_data = data.query(self.query_str)
+        if filtered_data.empty:
+            raise AssertionError("No data found satisfying conditions")
+        selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
+        return self._row2persona(selected_row, persona_mapping)
 
 
 class Agent:
@@ -293,33 +373,19 @@ class Agent:
             persona=self.persona,
             task=self.task_description).strip()
 
-    # noinspection PyTypeChecker
     def _generate_persona(self) -> str:
-        """
-        Generates a persona based on the provided data, ideology, or query string.
+        """Generate a persona using the appropriate strategy"""
+        strategy = self._get_persona_strategy()
+        return strategy.generate(self.data, self.persona_mapping)
 
-        Returns:
-            str: Generated persona description.
-
-        Sets:
-            self.persona_template: Uses `anes` persona
-        """
+    def _get_persona_strategy(self) -> _PersonaStrategy:
+        """Get the appropriate persona generation strategy"""
         if self.persona == "random":
-            return self._get_random_persona(self.data)
-        if self.ideology:
-            filtered_data = self._filter_data_by_ideology(self.ideology)
-            if filtered_data.empty:
-                raise AssertionError("No data found satisfying conditions")
-            selected_row = filtered_data.sample(
-                n=1, weights=filtered_data['weight']).iloc[0]
-            return self._row2persona(selected_row, self.persona_mapping)
+            return _RandomPersonaStrategy()
+        elif self.ideology:
+            return _IdeologyPersonaStrategy(self.ideology)
         elif self.query_str:
-            filtered_data = self.data.query(self.query_str)
-            if filtered_data.empty:
-                raise AssertionError("No data found satisfying conditions")
-            selected_row = filtered_data.sample(
-                n=1, weights=filtered_data['weight']).iloc[0]
-            return self._row2persona(selected_row, self.persona_mapping)
+            return _QueryPersonaStrategy(self.query_str)
 
     def process(
             self,
@@ -357,19 +423,6 @@ class Agent:
             self.current_task_description = self.original_task_description.strip()
         return self._get_response(self.current_task_description)
 
-    def _get_random_persona(self, data: pd.DataFrame) -> str:
-        """
-        Generates a random persona description based on the dataset.
-
-        Args:
-            data (pd.DataFrame): The dataset to use for generating persona descriptions.
-
-        Returns:
-            str: Generated persona description.
-        """
-        selected_row = data.sample(n=1, weights=data['weight']).iloc[0]
-        return self._row2persona(selected_row, self.persona_mapping)
-
     def _get_response(self, task: str) -> Optional[str]:
         """
         Internal method to interact with the LLM API and get a response.
@@ -399,62 +452,6 @@ class Agent:
         except Exception as e:
             print(f"Error fetching response from LLM: {e}")
             return None
-
-    @staticmethod
-    def _row2persona(row: pd.Series, persona_mapping: Dict[str, Any]) -> str:
-        """
-        Converts a dataset row into a persona description string.
-
-        Args:
-            row (pd.Series): The dataset row to convert.
-            persona_mapping (Dict[str, Any]): Mapping to convert dataset rows into persona descriptions.
-
-        Returns:
-            str: Generated persona description.
-        """
-        persona = []
-        for var, details in persona_mapping.items():
-            value = row.get(var)
-
-            if var == "age" and value is not None:
-                value = int(value)
-
-            if value is None or pd.isna(value) or (details.get('bad_vals') and str(value) in details['bad_vals']):
-                continue
-
-            if details.get('recode_vals') and str(value) in details['recode_vals']:
-                value = details['recode_vals'][str(value)]
-
-            clean_name = details['name']
-            persona.append(f"{clean_name} {str(value).lower()}.")
-        return " ".join(persona)
-
-    def _filter_data_by_ideology(self, ideology: str) -> pd.DataFrame:
-        """
-        Filters the dataset based on the ideology.
-
-        Args:
-            ideology (str): The ideology to filter by.
-
-        Returns:
-            pd.DataFrame: The filtered dataset.
-        """
-        try:
-            if ideology.lower() == 'liberal':
-                return self.data[self.data['ideo5'].isin(
-                    ['Liberal', 'Very liberal'])]
-            elif ideology.lower() == 'conservative':
-                return self.data[self.data['ideo5'].isin(
-                    ['Conservative', 'Very conservative'])]
-            elif ideology.lower() == 'moderate':
-                return self.data[self.data['ideo5'] == 'Moderate']
-            elif ideology.lower() == "very liberal":
-                return self.data[self.data['ideo5'] == 'Very liberal']
-            elif ideology.lower() == "very conservative":
-                return self.data[self.data['ideo5'] == 'Very conservative']
-            return pd.DataFrame()
-        except Exception as e:
-            raise AssertionError(f"Error filtering data by ideology: {e}")
 
     def _validate_system_instructions(self):
         """
