@@ -73,6 +73,8 @@ class Agent:
             Otherwise, the `default` template will be used. Current templates: https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml
         persona (Optional[str]): Direct specification of a persona description.
         kwargs (Optional[dict]): Additional keyword arguments for the model's completion function. These are provided by LiteLLM. Enter `help(litellm.completion)` for details. LiteLLM completion function: https://litellm.vercel.app/docs/completion/input#input-params-1
+        num_responses (int): Number of responses to generate for each task. Currently not implemented.
+        response_selector (Optional[callable]): Function to select the best response from multiple generated responses. Currently not implemented.
 
     Attributes:
         persona_mapping (Optional[Dict[str, Any]]): Dictionary to map dataset rows to persona descriptions.
@@ -226,7 +228,9 @@ class Agent:
                  system_instructions: Optional[str] = None,
                  persona_template: Optional[str] = None,
                  persona: Optional[str] = None,
-                 kwargs: Optional[Dict[str, Any]] = None):
+                 kwargs: Optional[Dict[str, Any]] = None,
+                 num_responses: int = 1,
+                 response_selector: Optional[callable] = None):
         self.model = model
         self.system_instructions = system_instructions
         self.combination_instructions = combination_instructions
@@ -245,6 +249,11 @@ class Agent:
         self._validate_system_instructions()
         self._set_system_instructions()
         self.kwargs = kwargs if kwargs is not None else {}
+        self.kwargs = kwargs if kwargs is not None else {}
+        self.num_responses = num_responses
+        self.response_selector = response_selector
+        self._validate_best_response_selector()
+
 
     def _set_system_instructions(self):
         """
@@ -374,28 +383,51 @@ class Agent:
         """
         Internal method to interact with the LLM API and get a response.
 
+        If num_responses > 1, generates multiple responses and uses response_selector to pick one.
+
         Args:
             task (str): The task description to send to the LLM.
 
         Returns:
-            Optional[str]: The response from the LLM.
+            Optional[str]: The selected response from the LLM.
         """
         if self.system_instructions:
             messages = [{"role": "system", "content": self.system_instructions}, {"role": "user", "content": task}]
         else:
             messages = [{"role": "user", "content": task}]
+
         try:
-            response = completion(
-                model=self.model,
-                messages=messages,
-                **self.kwargs)
-            content = response.choices[0].message.content
+            all_responses = []
+            for _ in range(self.num_responses):
+                response = completion(
+                    model=self.model,
+                    messages=messages,
+                    **self.kwargs)
+                content = response.choices[0].message.content
+                all_responses.append(content)
+
+            if self.num_responses > 1:
+                selected_response = self.response_selector(all_responses)
+            else:
+                selected_response = all_responses[0]
+
             prompts = {
                 'system': next((msg['content'] for msg in messages if msg['role'] == 'system'), None),
-                'user': next((msg['content'] for msg in messages if msg['role'] == 'user'), None)}
-            self._history.append(
-                {'prompts': prompts, 'response': content, 'model': self.model})
-            return content
+                'user': next((msg['content'] for msg in messages if msg['role'] == 'user'), None)
+            }
+
+            history_entry = {
+                'prompts': prompts,
+                'response': selected_response,
+                'model': self.model
+            }
+
+            if self.num_responses > 1:
+                history_entry['all_responses'] = all_responses
+
+            self._history.append(history_entry)
+            return selected_response
+
         except Exception as e:
             print(f"Error fetching response from LLM: {e}")
             return None
@@ -498,6 +530,19 @@ class Agent:
             assert '${persona}' in self.persona_template or self.persona_template in default_templates, (
                     "If you pass in a custom persona_template, it must contain a ${persona} placeholder or be one of the default templates:" + str(
                 default_templates))
+
+    def _validate_best_response_selector(self):
+        """
+        Validates the best response selector function.
+
+        Errors raised if:
+        - response_selector is not callable when provided
+        """
+        if self.num_responses > 1 and self.response_selector is None:
+            raise ValueError("If num_responses > 1, you must provide a response_selector function")
+        if self.num_responses < 1:
+            raise ValueError("num_responses must be at least 1")
+
 
     @property
     def history(self):
