@@ -11,6 +11,7 @@
 
 [![Build](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml)
 ![PyPI](https://img.shields.io/pypi/v/plurals)
+[![Push to pypy](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml)
 
 **Paper 📜** [(Click here!)](https://arxiv.org/abs/2409.17213)
 
