@@ -1,6 +1,4 @@
 
-
-
 # Plurals: A System for Guiding LLMs Via Simulated Social Ensembles
     
 **Package Stats 📊**
