@@ -196,4 +196,4 @@ actively running both human and AI experiments around (1) how and when simulated
 2. Changes to debate to decrease sycophancy
 3. Names of Agents in DAG are visible to other Agents (i.e., instead of "Response 0: Resp0", "Response 1: Resp1", etc., Agents see "PlotAgent: Resp", "CharacterAgent: Resp", etc.). This was done to cut down on response bias from seeing "Response 0" etc.
 4. Big update: Added a best-of-n feature for Agents. This supports things like verifiable rewards and LLM as a Judge. Best-of-n can be used 
-inside of Structures, where different Agents have different optimizing objectives. See the tutorial on this for details.  
+inside of Structures, where different Agents have different optimizing objectives. See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_6_best_of_n.html) on this for details.  
