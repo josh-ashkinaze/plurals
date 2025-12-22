@@ -213,7 +213,7 @@ Strategy A: Minimize Edit Distance
     4. (dist=58) He was a competent photographer who attended school, where he received some positive feedback from his teachers.
     5. (dist=72) He was a photographer who demonstrated competence in his craft. He attended school, where he received feedback from his teachers.
 
-    So in some cases you can imagine an LLM making a bunch of edits like Example 5.
+So in some cases you can imagine an LLM making a bunch of edits like Example 5.
 
 Strategy B: Maximize Semantic Similarity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
