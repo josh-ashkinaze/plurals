@@ -143,16 +143,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial_3_agents.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial_4_structures.html">Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial_5_moderators.html">Moderators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial_6_best_of_n.html">Best-of-N Response Selection</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../agent.html">Agent Module</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../agent.html">Agent Module</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../deliberation.html">Deliberation Module</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../deliberation.html">Deliberation Module</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../helpers.html">Helpers Module</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../helpers.html">Helpers Module</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
 </ul>
 </details></li>
 </ul>
@@ -412,6 +413,8 @@
 <span class="sd">            Otherwise, the `default` template will be used. Current templates: https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml</span>
 <span class="sd">        persona (Optional[str]): Direct specification of a persona description.</span>
 <span class="sd">        kwargs (Optional[dict]): Additional keyword arguments for the model&#39;s completion function. These are provided by LiteLLM. Enter `help(litellm.completion)` for details. LiteLLM completion function: https://litellm.vercel.app/docs/completion/input#input-params-1</span>
+<span class="sd">        num_responses (int): Number of responses to generate for each task. Currently not implemented.</span>
+<span class="sd">        response_selector (Optional[callable]): Function to select the best response from multiple generated responses. Currently not implemented.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        persona_mapping (Optional[Dict[str, Any]]): Dictionary to map dataset rows to persona descriptions.</span>
@@ -565,7 +568,9 @@
                  <span class="n">system_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">persona_template</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">persona</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+                 <span class="n">kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">num_responses</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                 <span class="n">response_selector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span> <span class="o">=</span> <span class="n">system_instructions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="n">combination_instructions</span>
@@ -584,6 +589,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_system_instructions</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_system_instructions</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span> <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span> <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_responses</span> <span class="o">=</span> <span class="n">num_responses</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response_selector</span> <span class="o">=</span> <span class="n">response_selector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_best_response_selector</span><span class="p">()</span>
+
 
     <span class="k">def</span> <span class="nf">_set_system_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -689,28 +699,51 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Internal method to interact with the LLM API and get a response.</span>
 
+<span class="sd">        If num_responses &gt; 1, generates multiple responses and uses response_selector to pick one.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            task (str): The task description to send to the LLM.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Optional[str]: The response from the LLM.</span>
+<span class="sd">            Optional[str]: The selected response from the LLM.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">:</span>
             <span class="n">messages</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_instructions</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">task</span><span class="p">}]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">messages</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">task</span><span class="p">}]</span>
+
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="n">completion</span><span class="p">(</span>
-                <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
-                <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
-                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="n">content</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
+            <span class="n">all_responses</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_responses</span><span class="p">):</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">completion</span><span class="p">(</span>
+                    <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+                    <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+                    <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
+                <span class="n">all_responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_responses</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">selected_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_selector</span><span class="p">(</span><span class="n">all_responses</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">selected_response</span> <span class="o">=</span> <span class="n">all_responses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
             <span class="n">prompts</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s1">&#39;system&#39;</span><span class="p">:</span> <span class="nb">next</span><span class="p">((</span><span class="n">msg</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">messages</span> <span class="k">if</span> <span class="n">msg</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;system&#39;</span><span class="p">),</span> <span class="kc">None</span><span class="p">),</span>
-                <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="nb">next</span><span class="p">((</span><span class="n">msg</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">messages</span> <span class="k">if</span> <span class="n">msg</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;user&#39;</span><span class="p">),</span> <span class="kc">None</span><span class="p">)}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span><span class="s1">&#39;prompts&#39;</span><span class="p">:</span> <span class="n">prompts</span><span class="p">,</span> <span class="s1">&#39;response&#39;</span><span class="p">:</span> <span class="n">content</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">})</span>
-            <span class="k">return</span> <span class="n">content</span>
+                <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="nb">next</span><span class="p">((</span><span class="n">msg</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">messages</span> <span class="k">if</span> <span class="n">msg</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;user&#39;</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="p">}</span>
+
+            <span class="n">history_entry</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;prompts&#39;</span><span class="p">:</span> <span class="n">prompts</span><span class="p">,</span>
+                <span class="s1">&#39;response&#39;</span><span class="p">:</span> <span class="n">selected_response</span><span class="p">,</span>
+                <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+            <span class="p">}</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_responses</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">history_entry</span><span class="p">[</span><span class="s1">&#39;all_responses&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_responses</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">history_entry</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">selected_response</span>
+
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching response from LLM: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -757,6 +790,19 @@
             <span class="k">assert</span> <span class="s1">&#39;$</span><span class="si">{persona}</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">persona_template</span> <span class="ow">in</span> <span class="n">default_templates</span><span class="p">,</span> <span class="p">(</span>
                     <span class="s2">&quot;If you pass in a custom persona_template, it must contain a $</span><span class="si">{persona}</span><span class="s2"> placeholder or be one of the default templates:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
                 <span class="n">default_templates</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_validate_best_response_selector</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates the best response selector function.</span>
+
+<span class="sd">        Errors raised if:</span>
+<span class="sd">        - response_selector is not callable when provided</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_responses</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_selector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If num_responses &gt; 1, you must provide a response_selector function&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_responses</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;num_responses must be at least 1&quot;</span><span class="p">)</span>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

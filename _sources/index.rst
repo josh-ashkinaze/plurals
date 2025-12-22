@@ -19,6 +19,7 @@ Contents
    tutorial_3_agents
    tutorial_4_structures
    tutorial_5_moderators
+   tutorial_6_best_of_n
 
 .. toctree::
    :caption: API Documentation
