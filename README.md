@@ -12,7 +12,6 @@
 **Package Build (Tests/Doc Creation/PyPi Releases) 👌**
 
 [![Build](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/ci.yml)
-[![Push to pypy](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml/badge.svg)](https://github.com/josh-ashkinaze/plurals/actions/workflows/python-publish.yml)
 ![PyPI](https://img.shields.io/pypi/v/plurals)
 
 **Paper 📜** [(Click here!)](https://arxiv.org/abs/2409.17213)
