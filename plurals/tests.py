@@ -2546,6 +2546,260 @@ class TestGraphAgentNaming(unittest.TestCase):
         self.assertNotIn('Response 0:', bob_prompt)
 
 
+class TestMultipleResponses(unittest.TestCase):
+    """Test multiple response generation and selection functionality"""
+
+    def setUp(self):
+        self.task = "Write a haiku"
+        self.model = "gpt-4o"
+
+    @patch.object(Agent, '_get_response')
+    def test_single_response_default(self, mock_get_response):
+        """Test default behavior with num_responses=1"""
+        mock_get_response.return_value = "Response 1"
+        agent = Agent(task=self.task, model=self.model, num_responses=1)
+        response = agent.process()
+        self.assertEqual("Response 1", response)
+        self.assertEqual(1, mock_get_response.call_count)
+
+    def test_multiple_responses_without_selector_raises_error(self):
+        """Test that num_responses > 1 without selector raises ValueError"""
+        with self.assertRaises(ValueError) as context:
+            Agent(task=self.task, model=self.model, num_responses=5)
+
+        self.assertIn("response_selector", str(context.exception))
+
+    def test_invalid_num_responses_raises_error(self):
+        """Test that num_responses < 1 raises ValueError"""
+        with self.assertRaises(ValueError) as context:
+            Agent(task=self.task, model=self.model, num_responses=0)
+
+        self.assertIn("num_responses must be at least 1", str(context.exception))
+
+    @patch('plurals.agent.completion')
+    def test_multiple_responses_generated(self, mock_completion):
+        """Test that multiple responses are generated when num_responses > 1"""
+        # Mock 5 different responses
+        mock_responses = [
+            MagicMock(choices=[MagicMock(message=MagicMock(content=f"Response {i}"))])
+            for i in range(5)
+        ]
+        mock_completion.side_effect = mock_responses
+
+        def pick_first(responses):
+            return responses[0]
+
+        agent = Agent(
+            task=self.task,
+            model=self.model,
+            num_responses=5,
+            response_selector=pick_first
+        )
+
+        response = agent.process()
+
+        # Verify completion was called 5 times
+        self.assertEqual(5, mock_completion.call_count)
+
+        # Verify the first response was selected
+        self.assertEqual("Response 0", response)
+
+    @patch('plurals.agent.completion')
+    def test_response_selector_picks_longest(self, mock_completion):
+        """Test that response_selector correctly picks the longest response"""
+        mock_responses = [
+            MagicMock(choices=[MagicMock(message=MagicMock(content="Short"))]),
+            MagicMock(choices=[MagicMock(message=MagicMock(content="This is a much longer response"))]),
+            MagicMock(choices=[MagicMock(message=MagicMock(content="Medium length"))])
+        ]
+        mock_completion.side_effect = mock_responses
+
+        def pick_longest(responses):
+            return max(responses, key=len)
+
+        agent = Agent(
+            task=self.task,
+            model=self.model,
+            num_responses=3,
+            response_selector=pick_longest
+        )
+
+        response = agent.process()
+
+        self.assertEqual("This is a much longer response", response)
+
+    @patch('plurals.agent.completion')
+    def test_response_selector_with_keyword_filter(self, mock_completion):
+        """Test response_selector that filters by keyword"""
+        mock_responses = [
+            MagicMock(choices=[MagicMock(message=MagicMock(content="Roses are red"))]),
+            MagicMock(choices=[MagicMock(message=MagicMock(content="Climate change is real"))]),
+            MagicMock(choices=[MagicMock(message=MagicMock(content="The sky is blue"))])
+        ]
+        mock_completion.side_effect = mock_responses
+
+        def pick_climate_mention(responses):
+            for r in responses:
+                if "climate" in r.lower():
+                    return r
+            return responses[0]
+
+        agent = Agent(
+            task=self.task,
+            model=self.model,
+            num_responses=3,
+            response_selector=pick_climate_mention
+        )
+
+        response = agent.process()
+
+        self.assertEqual("Climate change is real", response)
+
+    @patch('plurals.agent.completion')
+    def test_history_contains_all_responses(self, mock_completion):
+        """Test that history contains all_responses field when num_responses > 1"""
+        mock_responses = [
+            MagicMock(choices=[MagicMock(message=MagicMock(content=f"Response {i}"))])
+            for i in range(3)
+        ]
+        mock_completion.side_effect = mock_responses
+
+        def pick_first(responses):
+            return responses[0]
+
+        agent = Agent(
+            task=self.task,
+            model=self.model,
+            num_responses=3,
+            response_selector=pick_first
+        )
+
+        agent.process()
+
+        # Check that all_responses field exists in history
+        self.assertIn('all_responses', agent.history[-1])
+
+        # Check that all 3 responses are stored
+        all_responses = agent.history[-1]['all_responses']
+        self.assertEqual(3, len(all_responses))
+        self.assertEqual(["Response 0", "Response 1", "Response 2"], all_responses)
+
+    @patch('plurals.agent.completion')
+    def test_history_no_all_responses_for_single_response(self, mock_completion):
+        """Test that history does not contain all_responses when num_responses=1"""
+        mock_completion.return_value = MagicMock(
+            choices=[MagicMock(message=MagicMock(content="Single response"))]
+        )
+
+        agent = Agent(task=self.task, model=self.model, num_responses=1)
+        agent.process()
+
+        # Check that all_responses field does not exist for single response
+        self.assertNotIn('all_responses', agent.history[-1])
+
+    @patch('plurals.agent.completion')
+    def test_response_selector_with_lambda_and_kwargs(self, mock_completion):
+        """Test response_selector using lambda with additional kwargs"""
+        mock_responses = [
+            MagicMock(choices=[MagicMock(message=MagicMock(content="Short"))]),
+            MagicMock(choices=[MagicMock(message=MagicMock(content="This is longer"))]),
+            MagicMock(choices=[MagicMock(message=MagicMock(content="Medium"))])
+        ]
+        mock_completion.side_effect = mock_responses
+
+        def pick_by_length(responses, reverse=False):
+            if reverse:
+                return min(responses, key=len)
+            return max(responses, key=len)
+
+        agent = Agent(
+            task=self.task,
+            model=self.model,
+            num_responses=3,
+            response_selector=lambda r: pick_by_length(r, reverse=True)
+        )
+
+        response = agent.process()
+
+        # Should pick the shortest since reverse=True
+        self.assertEqual("Short", response)
+
+    @patch('plurals.agent.completion')
+    def test_multiple_process_calls_with_multiple_responses(self, mock_completion):
+        """Test that multiple process calls work correctly with num_responses > 1"""
+        # First batch of responses
+        first_batch = [
+            MagicMock(choices=[MagicMock(message=MagicMock(content=f"Batch1-{i}"))])
+            for i in range(2)
+        ]
+        # Second batch of responses
+        second_batch = [
+            MagicMock(choices=[MagicMock(message=MagicMock(content=f"Batch2-{i}"))])
+            for i in range(2)
+        ]
+        mock_completion.side_effect = first_batch + second_batch
+
+        def pick_first(responses):
+            return responses[0]
+
+        agent = Agent(
+            task=self.task,
+            model=self.model,
+            num_responses=2,
+            response_selector=pick_first
+        )
+
+        # First process call
+        response1 = agent.process()
+        self.assertEqual("Batch1-0", response1)
+
+        # Second process call
+        response2 = agent.process()
+        self.assertEqual("Batch2-0", response2)
+
+        # Verify history has 2 entries
+        self.assertEqual(2, len(agent.history))
+
+        # Verify both entries have all_responses
+        self.assertIn('all_responses', agent.history[0])
+        self.assertIn('all_responses', agent.history[1])
+
+
+class TestMultipleResponsesIntegration(unittest.TestCase):
+    def test_pick_shortest_response_integration(self):
+        """Integration test: Generate 3 responses and pick the shortest"""
+
+        def pick_shortest(responses):
+            return min(responses, key=len)
+
+        agent = Agent(
+            task="Say hello",
+            model="gpt-4o-mini",
+            num_responses=3,
+            response_selector=pick_shortest,
+            kwargs={"max_tokens": 20}
+        )
+
+        response = agent.process()
+
+        # Verify we got a response
+        self.assertIsNotNone(response)
+        self.assertIsInstance(response, str)
+        self.assertGreater(len(response), 0)
+
+        # Verify history has all_responses
+        self.assertIn('all_responses', agent.history[-1])
+        all_responses = agent.history[-1]['all_responses']
+
+        # Verify we have 3 responses
+        self.assertEqual(3, len(all_responses))
+
+        # Verify the selected response is the shortest
+        shortest = min(all_responses, key=len)
+        self.assertEqual(shortest, response)
+
+        print(f"\nGenerated responses: {all_responses}")
+        print(f"Selected (shortest): {response}")
 
 if __name__ == "__main__":
     unittest.main()
