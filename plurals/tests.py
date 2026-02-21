@@ -2827,7 +2827,7 @@ class TestInterview(unittest.TestCase):
         """Default questions are loaded from instructions.yaml"""
         interviewer = Interview(seed=self.seed, model=self.model)
         self.assertIsInstance(interviewer._questions, list)
-        self.assertEqual(10, len(interviewer._questions))
+        self.assertEqual(9, len(interviewer._questions))
         for q in interviewer._questions:
             self.assertIsInstance(q, str)
 
