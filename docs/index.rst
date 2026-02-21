@@ -29,6 +29,7 @@ Contents
    agent
    deliberation
    helpers
+   interview
 
 Indices
 =======
