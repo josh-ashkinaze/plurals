@@ -59,7 +59,6 @@ Following [1] and [2], we currently use the American Voices Project to build out
 7. At what kind of job or jobs do you work, and when do you work? Answer in 250 words.
 8. Some people say they vote in every election, some tell us they don't vote at all. How about you? Answer in 250 words.
 9. How would you describe your political views? Answer in 250 words.
-10. Now we'd like to learn more about your health. First, tell me all about your health. Answer in 250 words.
 
 
 Example 1: The Seed Shapes the Whole Story
