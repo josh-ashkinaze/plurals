@@ -20,6 +20,7 @@ Contents
    tutorial_4_structures
    tutorial_5_moderators
    tutorial_6_best_of_n
+   tutorial_7_interview
 
 .. toctree::
    :caption: API Documentation
