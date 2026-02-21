@@ -53,6 +53,13 @@ The building block is Agents, which are large language models (LLMs) that have s
 
 Plurals includes support for multiple information-sharing structures (e.g., chains, graphs, debates, ensembles) and [templates](https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml) for customizing LLM deliberation within these.
 
+# Updates 🆕
+1. Paper to appear at CHI 2025 with Honorable Mention!
+2. Changes to debate to decrease sycophancy
+3. Names of Agents in DAG are visible to other Agents 
+4. Feature update: Added a best-of-n feature for Agents. This supports things like verifiable rewards and LLM as a Judge. Best-of-n can be used inside of Structures, where different Agents have different optimizing objectives. See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_6_best_of_n.html) on this for details.
+5. Feature update: Added `Interview` class for building rich, story-based personas via simulated interviews. An Agent can also automatically generate task-specific interview questions (returned as structured JSON), which are then used to conduct a targeted interview. See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_7_interview.html) for details.
+
 # Detailed Documentation 📋
 
 https://josh-ashkinaze.github.io/plurals/
@@ -189,9 +196,3 @@ Plurals is run by a small and energetic team of academics doing the best they ca
 If you are interested in collaborating, please reach out to Joshua Ashkinaze (jashkina@umich.edu). We are 
 actively running both human and AI experiments around (1) how and when simulated social ensembles augment humans; (2) using Plurals for moderation.  
 
-# Updates 🆕
-1. Paper to appear at CHI 2025 with Honorable Mention!
-2. Changes to debate to decrease sycophancy
-3. Names of Agents in DAG are visible to other Agents (i.e., instead of "Response 0: Resp0", "Response 1: Resp1", etc., Agents see "PlotAgent: Resp", "CharacterAgent: Resp", etc.). This was done to cut down on response bias from seeing "Response 0" etc.
-4. Big update: Added a best-of-n feature for Agents. This supports things like verifiable rewards and LLM as a Judge. Best-of-n can be used 
-inside of Structures, where different Agents have different optimizing objectives. See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_6_best_of_n.html) on this for details.  
