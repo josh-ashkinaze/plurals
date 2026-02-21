@@ -1,2 +1,2 @@
 # Initialize the package
-from plurals.interview import Interviewer
+from plurals.interview import Interview

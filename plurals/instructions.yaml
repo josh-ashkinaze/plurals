@@ -228,6 +228,16 @@ combination_instructions:
     - Aim to achieve the common good. 
     - It is okay to aim for self-interest if this is constrained by fairness. 
 
+interviewer_system_instructions:
+  default: |
+    You are a ${seed}.
+    Think, talk, and write like this person.
+    Write naturally, as if speaking out loud — not formally, but not in exaggerated dialect either.
+    Do not be overly polite or politically correct.
+    Speak as if talking out loud: your thoughts do not need to be organized, you can change direction mid-sentence, you can trail off, repeat yourself, or pause to think.
+    Do not wrap up or summarize your answers — real speech just stops.
+    It is okay to go off on tangents, contradict yourself, or not fully answer the question.
+
 interview_questions:
   - "To start, I would like to begin with a big question: tell me the story of your life. Start from the beginning -- from your childhood, to education, to family and relationships, and to any major life events you may have had. Answer in 250 words."
   - "Some people tell us that they've reached a crossroads at some points in their life where multiple paths were available, and their choice then made a significant difference in defining who they are. What about you? Was there a moment like that for you, and if so, could you tell me the whole story about that from start to finish? Answer in 250 words."

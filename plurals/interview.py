@@ -3,12 +3,12 @@ from typing import Any, Dict, List, Optional, Union
 
 from litellm import completion
 
-from plurals.helpers import load_yaml
+from plurals.helpers import load_yaml, SmartString
 
 _SEPARATOR = "---SEP---"
 
 
-class Interviewer:
+class Interview:
     """
     Conducts a batched interview with an LLM to build out a persona's life story.
 
@@ -18,15 +18,21 @@ class Interviewer:
     for use as an ``Agent`` persona.
 
     Args:
-        seed (str): Description of the persona to interview (e.g., "utah voter").
+        seed (str): Description of the persona being interviewed (e.g., "utah voter").
         model (str): LiteLLM model name (e.g., "gpt-4o").
         questions (str or list[str]): ``'default'`` to use the built-in question bank
             from ``instructions.yaml`` (word budgets already embedded), or a plain
             list of question strings.
+        interviewee_instructions (str): Controls the voice and style of the interviewee.
+            Pass ``'default'`` to use the built-in template from ``instructions.yaml``
+            (which includes plain language, conversational tone, and guidance to speak
+            naturally rather than in essay form), or pass any raw string. The placeholder
+            ``${seed}`` will be substituted with the seed value.
         **kwargs: Additional keyword arguments forwarded to ``litellm.completion``
             (e.g., ``temperature``, ``max_tokens``).
 
     Attributes:
+        interviewee_instructions (str): The resolved system prompt used in the interview.
         responses (list[str] or None): Per-question answers after ``run_interview()``.
         combined_response (str or None): Full Q&A string after ``run_interview()``,
             ready to pass as ``persona`` to an ``Agent``.
@@ -37,10 +43,10 @@ class Interviewer:
 
         .. code-block:: python
 
-            from plurals.interview import Interviewer
+            from plurals.interview import Interview
             from plurals.agent import Agent
 
-            interview = Interviewer(seed="utah voter", model="gpt-4o")
+            interview = Interview(seed="utah voter", model="gpt-4o")
             interview.run_interview()
 
             agent = Agent(persona=interview.combined_response, model="gpt-4o-mini")
@@ -52,15 +58,15 @@ class Interviewer:
         .. code-block:: python
 
             # A broad demographic seed
-            interview = Interviewer(seed="retired teacher from rural Georgia", model="gpt-4o")
+            interview = Interview(seed="retired teacher from rural Georgia", model="gpt-4o")
             interview.run_interview()
 
             # A more specific seed
-            interview2 = Interviewer(seed="first-generation college student from the Bronx", model="gpt-4o")
+            interview2 = Interview(seed="first-generation college student from the Bronx", model="gpt-4o")
             interview2.run_interview()
 
             # A role-based seed
-            interview3 = Interviewer(seed="small business owner in the midwest", model="gpt-4o")
+            interview3 = Interview(seed="small business owner in the midwest", model="gpt-4o")
             interview3.run_interview()
 
         **Custom questions**: Pass your own list of question strings. No word budget
@@ -74,15 +80,33 @@ class Interviewer:
                 "What does financial security mean to you? Answer in 150 words.",
             ]
 
-            interview = Interviewer(seed="suburban parent", model="gpt-4o", questions=my_questions)
+            interview = Interview(seed="suburban parent", model="gpt-4o", questions=my_questions)
             interview.run_interview()
+
+        **Custom interviewee instructions**: Override the default voice/style prompt.
+        The ``${seed}`` placeholder is substituted with the seed value.
+
+        .. code-block:: python
+
+            # Use a named template from instructions.yaml (currently only 'default')
+            interview = Interview(seed="utah voter", model="gpt-4o", interviewee_instructions='default')
+
+            # Or pass a raw string — ${seed} will be substituted
+            interview = Interview(
+                seed="retired steelworker from Pittsburgh",
+                model="gpt-4o",
+                interviewee_instructions="You are a ${seed}. Be blunt and use working-class language.",
+            )
+            interview.run_interview()
+            print(interview.interviewee_instructions)
+            # You are a retired steelworker from Pittsburgh. Be blunt and use working-class language.
 
         **Passing model kwargs**: Control model behavior with any LiteLLM-supported
         keyword arguments.
 
         .. code-block:: python
 
-            interview = Interviewer(
+            interview = Interview(
                 seed="progressive activist from Seattle",
                 model="gpt-4o",
                 temperature=0.9,
@@ -95,7 +119,7 @@ class Interviewer:
 
         .. code-block:: python
 
-            interview = Interviewer(seed="utah voter", model="gpt-4o")
+            interview = Interview(seed="utah voter", model="gpt-4o")
             interview.run_interview()
 
             # List of answers, one per question
@@ -112,6 +136,7 @@ class Interviewer:
             {
                 'seed': 'utah voter',
                 'model': 'gpt-4o',
+                'interviewee_instructions': 'You are a utah voter...',
                 'questions': ['To start, I would like to begin...', ...],
                 'responses': ['I grew up in Salt Lake City...', ...],
                 'combined_response': 'Q: To start...\\nA: I grew up...',
@@ -122,15 +147,15 @@ class Interviewer:
 
         .. code-block:: python
 
-            from plurals.interview import Interviewer
+            from plurals.interview import Interview
             from plurals.agent import Agent
             from plurals.deliberation import Ensemble
 
             # Build two persona-rich agents via interview
-            interview1 = Interviewer(seed="conservative farmer from Iowa", model="gpt-4o")
+            interview1 = Interview(seed="conservative farmer from Iowa", model="gpt-4o")
             interview1.run_interview()
 
-            interview2 = Interviewer(seed="liberal professor from Boston", model="gpt-4o")
+            interview2 = Interview(seed="liberal professor from Boston", model="gpt-4o")
             interview2.run_interview()
 
             agent1 = Agent(persona=interview1.combined_response, model="gpt-4o-mini")
@@ -146,6 +171,7 @@ class Interviewer:
         seed: str,
         model: str,
         questions: Union[str, List[str]] = 'default',
+        interviewee_instructions: str = 'default',
         **kwargs,
     ):
         self.seed = seed
@@ -154,16 +180,26 @@ class Interviewer:
         self._responses: Optional[List[str]] = None
         self._combined_response: Optional[str] = None
 
+        data = load_yaml('instructions.yaml')
+
         if questions == 'default':
-            data = load_yaml('instructions.yaml')
             self._questions: List[str] = data['interview_questions']
         else:
             self._questions = list(questions)
 
+        templates = data.get('interviewer_system_instructions', {})
+        raw_template = templates.get(interviewee_instructions, interviewee_instructions)
+        self.interviewee_instructions: str = SmartString(raw_template).format(seed=seed)
+
     def _build_prompt(self) -> str:
         header = (
-            f"Answer each of the following interview questions as a {self.seed}. Be as specific as possible since we want to learn about your specific life."
-            f"Separate each answer with {_SEPARATOR} on its own line, in the same order as the questions.\n"
+            f"Answer each of the following interview questions as a {self.seed}.\n\n"
+            f"INSTRUCTIONS\n"
+            f"- Be very specific. Use concrete names, places, dates, and experiences rather than generic descriptions. "
+            f"For example, name the actual town, the actual job title, the actual people.\n"
+            f"- It is okay for your answers to be contradictory, incomplete, or uncertain — real people are.\n"
+            f"- Do not repeat the question number or question text in your answer — just give the answer directly.\n"
+            f"- Separate each answer with {_SEPARATOR} on its own line, in the same order as the questions.\n"
         )
         lines = [header]
         for i, question in enumerate(self._questions, 1):
@@ -173,7 +209,7 @@ class Interviewer:
     def run_interview(self) -> None:
         """Make a single LLM call with all questions and parse the response."""
         messages = [
-            {"role": "system", "content": f"You are a {self.seed}."},
+            {"role": "system", "content": self.interviewee_instructions},
             {"role": "user", "content": self._build_prompt()},
         ]
 
@@ -204,12 +240,13 @@ class Interviewer:
 
     @property
     def info(self) -> Dict[str, Any]:
-        """Return the full state of the Interviewer."""
+        """Return the full state of the Interview."""
         if self._combined_response is None:
             warnings.warn("The interview has not been run yet. Call run_interview() first.")
         return {
             "seed": self.seed,
             "model": self.model,
+            "interviewee_instructions": self.interviewee_instructions,
             "questions": self._questions,
             "responses": self._responses,
             "combined_response": self._combined_response,

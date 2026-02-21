@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import MagicMock, patch, Mock
 
 from plurals.agent import Agent
+from plurals.interview import Interview
 from plurals.deliberation import (
     Chain,
     Moderator,
@@ -2800,6 +2801,255 @@ class TestMultipleResponsesIntegration(unittest.TestCase):
 
         print(f"\nGenerated responses: {all_responses}")
         print(f"Selected (shortest): {response}")
+
+#############################################
+# INTERVIEWER
+#############################################
+class TestInterview(unittest.TestCase):
+
+    def setUp(self):
+        self.seed = "utah voter"
+        self.model = "gpt-4o"
+        self.custom_questions = [
+            "What is your relationship with technology and social media?",
+            "How has your community changed over the past decade?",
+            "What does financial security mean to you?",
+        ]
+
+    def _make_mock_completion(self, answers):
+        """Build a mock completion response from a list of answer strings."""
+        content = "\n---SEP---\n".join(answers)
+        return MagicMock(choices=[MagicMock(message=MagicMock(content=content))])
+
+    # --- Initialization ---
+
+    def test_default_questions_loaded(self):
+        """Default questions are loaded from instructions.yaml"""
+        interviewer = Interview(seed=self.seed, model=self.model)
+        self.assertIsInstance(interviewer._questions, list)
+        self.assertEqual(10, len(interviewer._questions))
+        for q in interviewer._questions:
+            self.assertIsInstance(q, str)
+
+    def test_default_questions_contain_word_budget(self):
+        """Each default question includes the 250-word budget"""
+        interviewer = Interview(seed=self.seed, model=self.model)
+        for q in interviewer._questions:
+            self.assertIn("250 words", q)
+
+    def test_custom_questions_stored(self):
+        """Custom question list is stored as-is"""
+        interviewer = Interview(seed=self.seed, model=self.model, questions=self.custom_questions)
+        self.assertEqual(self.custom_questions, interviewer._questions)
+
+    def test_seed_and_model_stored(self):
+        """Seed and model are stored on init"""
+        interviewer = Interview(seed=self.seed, model=self.model)
+        self.assertEqual(self.seed, interviewer.seed)
+        self.assertEqual(self.model, interviewer.model)
+
+    def test_kwargs_stored(self):
+        """Extra kwargs are stored for forwarding to completion"""
+        interviewer = Interview(seed=self.seed, model=self.model, temperature=0.5, max_tokens=100)
+        self.assertEqual(0.5, interviewer.kwargs["temperature"])
+        self.assertEqual(100, interviewer.kwargs["max_tokens"])
+
+    def test_responses_none_before_run(self):
+        """responses is None before run_interview is called"""
+        interviewer = Interview(seed=self.seed, model=self.model)
+        self.assertIsNone(interviewer.responses)
+
+    def test_combined_response_none_before_run(self):
+        """combined_response is None before run_interview is called"""
+        interviewer = Interview(seed=self.seed, model=self.model)
+        self.assertIsNone(interviewer.combined_response)
+
+    # --- Prompt building ---
+
+    def test_build_prompt_contains_separator_instruction(self):
+        """Prompt instructs the model to use the separator"""
+        interviewer = Interview(seed=self.seed, model=self.model)
+        prompt = interviewer._build_prompt()
+        self.assertIn("---SEP---", prompt)
+
+    def test_build_prompt_contains_seed(self):
+        """Prompt references the seed"""
+        interviewer = Interview(seed=self.seed, model=self.model)
+        prompt = interviewer._build_prompt()
+        self.assertIn(self.seed, prompt)
+
+    def test_build_prompt_numbers_questions(self):
+        """Prompt numbers each question"""
+        interviewer = Interview(seed=self.seed, model=self.model, questions=self.custom_questions)
+        prompt = interviewer._build_prompt()
+        self.assertIn("Question 1:", prompt)
+        self.assertIn("Question 2:", prompt)
+        self.assertIn("Question 3:", prompt)
+
+    def test_build_prompt_includes_all_questions(self):
+        """All questions appear in the prompt"""
+        interviewer = Interview(seed=self.seed, model=self.model, questions=self.custom_questions)
+        prompt = interviewer._build_prompt()
+        for q in self.custom_questions:
+            self.assertIn(q, prompt)
+
+    # --- run_interview ---
+
+    @patch('plurals.interview.completion')
+    def test_run_interview_sets_responses(self, mock_completion):
+        """run_interview sets responses to a list of strings"""
+        answers = ["Answer one", "Answer two", "Answer three"]
+        mock_completion.return_value = self._make_mock_completion(answers)
+        interviewer = Interview(seed=self.seed, model=self.model, questions=self.custom_questions)
+        interviewer.run_interview()
+        self.assertIsInstance(interviewer.responses, list)
+        self.assertEqual(3, len(interviewer.responses))
+
+    @patch('plurals.interview.completion')
+    def test_run_interview_response_content(self, mock_completion):
+        """Parsed responses match the answers returned by the model"""
+        answers = ["Answer one", "Answer two", "Answer three"]
+        mock_completion.return_value = self._make_mock_completion(answers)
+        interviewer = Interview(seed=self.seed, model=self.model, questions=self.custom_questions)
+        interviewer.run_interview()
+        self.assertEqual(answers, interviewer.responses)
+
+    @patch('plurals.interview.completion')
+    def test_run_interview_sets_combined_response(self, mock_completion):
+        """run_interview sets combined_response to a non-empty string"""
+        answers = ["Answer one", "Answer two", "Answer three"]
+        mock_completion.return_value = self._make_mock_completion(answers)
+        interviewer = Interview(seed=self.seed, model=self.model, questions=self.custom_questions)
+        interviewer.run_interview()
+        self.assertIsInstance(interviewer.combined_response, str)
+        self.assertGreater(len(interviewer.combined_response), 0)
+
+    @patch('plurals.interview.completion')
+    def test_combined_response_format(self, mock_completion):
+        """combined_response contains Q:/A: pairs for each question and answer"""
+        answers = ["Answer one", "Answer two", "Answer three"]
+        mock_completion.return_value = self._make_mock_completion(answers)
+        interviewer = Interview(seed=self.seed, model=self.model, questions=self.custom_questions)
+        interviewer.run_interview()
+        for q, a in zip(self.custom_questions, answers):
+            self.assertIn(f"Q: {q}", interviewer.combined_response)
+            self.assertIn(f"A: {a}", interviewer.combined_response)
+
+    @patch('plurals.interview.completion')
+    def test_run_interview_warns_on_mismatch(self, mock_completion):
+        """run_interview warns when parsed answer count doesn't match question count"""
+        mock_completion.return_value = self._make_mock_completion(["Answer one", "Answer two"])
+        interviewer = Interview(seed=self.seed, model=self.model, questions=self.custom_questions)
+        with self.assertWarns(UserWarning):
+            interviewer.run_interview()
+
+    @patch('plurals.interview.completion')
+    def test_kwargs_forwarded_to_completion(self, mock_completion):
+        """kwargs passed to Interviewer are forwarded to completion"""
+        answers = ["Answer one", "Answer two", "Answer three"]
+        mock_completion.return_value = self._make_mock_completion(answers)
+        interviewer = Interview(
+            seed=self.seed, model=self.model, questions=self.custom_questions,
+            temperature=0.9, max_tokens=500
+        )
+        interviewer.run_interview()
+        call_kwargs = mock_completion.call_args[1]
+        self.assertEqual(0.9, call_kwargs["temperature"])
+        self.assertEqual(500, call_kwargs["max_tokens"])
+
+    @patch('plurals.interview.completion')
+    def test_system_prompt_contains_seed(self, mock_completion):
+        """System message passed to completion contains the seed"""
+        answers = ["Answer one", "Answer two", "Answer three"]
+        mock_completion.return_value = self._make_mock_completion(answers)
+        interviewer = Interview(seed=self.seed, model=self.model, questions=self.custom_questions)
+        interviewer.run_interview()
+        messages = mock_completion.call_args[1]["messages"]
+        system_message = next(m for m in messages if m["role"] == "system")
+        self.assertIn(self.seed, system_message["content"])
+
+    # --- interviewee_instructions ---
+
+    def test_default_interviewee_instructions_loaded(self):
+        """Default interviewee instructions are loaded from instructions.yaml"""
+        interviewer = Interview(seed=self.seed, model=self.model)
+        self.assertIsNotNone(interviewer.interviewee_instructions)
+        self.assertIsInstance(interviewer.interviewee_instructions, str)
+        self.assertGreater(len(interviewer.interviewee_instructions), 0)
+
+    def test_default_interviewee_instructions_seed_substituted(self):
+        """${seed} placeholder is substituted in the default template"""
+        interviewer = Interview(seed=self.seed, model=self.model)
+        self.assertIn(self.seed, interviewer.interviewee_instructions)
+        self.assertNotIn("${seed}", interviewer.interviewee_instructions)
+
+    def test_custom_interviewee_instructions_raw_string(self):
+        """A raw string is used directly as interviewee_instructions with seed substituted"""
+        custom = "You are a ${seed}. Be blunt."
+        interviewer = Interview(seed=self.seed, model=self.model, interviewee_instructions=custom)
+        self.assertIn(self.seed, interviewer.interviewee_instructions)
+        self.assertNotIn("${seed}", interviewer.interviewee_instructions)
+        self.assertIn("Be blunt.", interviewer.interviewee_instructions)
+
+    def test_interviewee_instructions_in_info(self):
+        """info dict contains interviewee_instructions key"""
+        interviewer = Interview(seed=self.seed, model=self.model)
+        with self.assertWarns(UserWarning):
+            info = interviewer.info
+        self.assertIn("interviewee_instructions", info)
+        self.assertEqual(interviewer.interviewee_instructions, info["interviewee_instructions"])
+
+    @patch('plurals.interview.completion')
+    def test_correct_model_passed_to_completion(self, mock_completion):
+        """Model name is correctly passed to completion"""
+        answers = ["Answer one", "Answer two", "Answer three"]
+        mock_completion.return_value = self._make_mock_completion(answers)
+        interviewer = Interview(seed=self.seed, model=self.model, questions=self.custom_questions)
+        interviewer.run_interview()
+        self.assertEqual(self.model, mock_completion.call_args[1]["model"])
+
+    @patch('plurals.interview.completion')
+    def test_single_completion_call(self, mock_completion):
+        """run_interview makes exactly one completion call regardless of question count"""
+        answers = ["Answer one", "Answer two", "Answer three"]
+        mock_completion.return_value = self._make_mock_completion(answers)
+        interviewer = Interview(seed=self.seed, model=self.model, questions=self.custom_questions)
+        interviewer.run_interview()
+        self.assertEqual(1, mock_completion.call_count)
+
+    # --- info ---
+
+    def test_info_warns_before_run(self):
+        """info warns when called before run_interview"""
+        interviewer = Interview(seed=self.seed, model=self.model)
+        with self.assertWarns(UserWarning):
+            _ = interviewer.info
+
+    @patch('plurals.interview.completion')
+    def test_info_keys(self, mock_completion):
+        """info dict contains all expected keys"""
+        answers = ["Answer one", "Answer two", "Answer three"]
+        mock_completion.return_value = self._make_mock_completion(answers)
+        interviewer = Interview(seed=self.seed, model=self.model, questions=self.custom_questions)
+        interviewer.run_interview()
+        info = interviewer.info
+        for key in ["seed", "model", "interviewee_instructions", "questions", "responses", "combined_response", "kwargs"]:
+            self.assertIn(key, info)
+
+    @patch('plurals.interview.completion')
+    def test_info_after_run(self, mock_completion):
+        """info reflects populated state after run_interview"""
+        answers = ["Answer one", "Answer two", "Answer three"]
+        mock_completion.return_value = self._make_mock_completion(answers)
+        interviewer = Interview(seed=self.seed, model=self.model, questions=self.custom_questions)
+        interviewer.run_interview()
+        info = interviewer.info
+        self.assertEqual(answers, info["responses"])
+        self.assertIsNotNone(info["combined_response"])
+        self.assertEqual(self.seed, info["seed"])
+        self.assertEqual(self.model, info["model"])
+        self.assertEqual(self.custom_questions, info["questions"])
+
 
 if __name__ == "__main__":
     unittest.main()
