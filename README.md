@@ -187,9 +187,9 @@ Plurals is run by a small and energetic team of academics doing the best they ca
 
 - Steerable guardrails (Ex: Can LLM deliberation steer abstentions?)
 
-- Persuasive mMssaging (Use many LLMs to collaboratively brainstorm and refine persuasive messaging for different audiences; Experiment with simulated focus groups)
+- Persuasive messaging (Use many LLMs to collaboratively brainstorm and refine persuasive messaging for different audiences; Experiment with simulated focus groups)
 
-- Viewpoint Augmentation (Provide varied perspectives and information from multiple agents)
+- Viewpoint augmentation (Provide varied perspectives and information from multiple agents)
 
 - Creative ideation (e.g., get ideas from multiple LLMs with different perspectives/roles for hypothesis generation, creative ideas, or product design)
 
