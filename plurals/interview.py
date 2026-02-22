@@ -109,8 +109,10 @@ class Interview:
             interview = Interview(
                 seed="progressive activist from Seattle",
                 model="gpt-4o",
-                temperature=0.9,
-                max_tokens=4000,
+                kwargs = {
+                    "temperature": 0.7,
+                    "max_tokens": 2000,
+                },
             )
             interview.run_interview()
 
