@@ -365,8 +365,10 @@
 <span class="sd">            interview = Interview(</span>
 <span class="sd">                seed=&quot;progressive activist from Seattle&quot;,</span>
 <span class="sd">                model=&quot;gpt-4o&quot;,</span>
-<span class="sd">                temperature=0.9,</span>
-<span class="sd">                max_tokens=4000,</span>
+<span class="sd">                kwargs = {</span>
+<span class="sd">                    &quot;temperature&quot;: 0.7,</span>
+<span class="sd">                    &quot;max_tokens&quot;: 2000,</span>
+<span class="sd">                },</span>
 <span class="sd">            )</span>
 <span class="sd">            interview.run_interview()</span>
 
