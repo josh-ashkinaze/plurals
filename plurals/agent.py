@@ -6,6 +6,7 @@ import pandas as pd
 from litellm import completion
 
 from plurals.helpers import *
+from plurals.errors import PersonaError, ConfigurationError, LLMError
 
 from pprint import pformat
 
@@ -85,7 +86,7 @@ class _IdeologyPersonaStrategy(_PersonaStrategy):
     def generate(self, data: pd.DataFrame, persona_mapping: Dict[str, Any]) -> str:
         filtered_data = self._filter_data_by_ideology(data, self.ideology)
         if filtered_data.empty:
-            raise AssertionError("No data found satisfying conditions")
+            raise PersonaError(f"No ANES data found for ideology='{self.ideology}'")
         selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
         return self._row2persona(selected_row, persona_mapping)
 
@@ -114,7 +115,7 @@ class _QueryPersonaStrategy(_PersonaStrategy):
     def generate(self, data: pd.DataFrame, persona_mapping: Dict[str, Any]) -> str:
         filtered_data = data.query(self.query_str)
         if filtered_data.empty:
-            raise AssertionError("No data found satisfying conditions")
+            raise PersonaError(f"No ANES data found for query_str='{self.query_str}'")
         selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
         return self._row2persona(selected_row, persona_mapping)
 
@@ -432,7 +433,7 @@ class Agent:
             self.current_task_description = self.original_task_description.strip()
         return self._get_response(self.current_task_description)
 
-    def _get_response(self, task: str) -> Optional[str]:
+    def _get_response(self, task: str) -> str:
         """
         Internal method to interact with the LLM API and get a response.
 
@@ -442,7 +443,10 @@ class Agent:
             task (str): The task description to send to the LLM.
 
         Returns:
-            Optional[str]: The selected response from the LLM.
+            str: The selected response from the LLM.
+
+        Raises:
+            LLMError: If the LLM call fails for any reason.
         """
         if self.system_instructions:
             messages = [{"role": "system", "content": self.system_instructions}, {"role": "user", "content": task}]
@@ -482,8 +486,7 @@ class Agent:
             return selected_response
 
         except Exception as e:
-            print(f"Error fetching response from LLM: {e}")
-            return None
+            raise LLMError(f"Error fetching response from LLM: {e}") from e
 
     def _validate_system_instructions(self):
         """
@@ -497,14 +500,15 @@ class Agent:
         'very conservative']
         """
         if self.ideology or self.query_str:
-            assert self.data is not None and self.persona_mapping is not None, ("If you use either `ideology` or "
-                                                                                "`query_str` you need to provide both "
-                                                                                "a dataframe and a persona mapping to "
-                                                                                "process rows of the dataframe.")
+            if self.data is None or self.persona_mapping is None:
+                raise ConfigurationError(
+                    "If you use either `ideology` or `query_str` you need to provide both "
+                    "a dataframe and a persona mapping to process rows of the dataframe."
+                )
 
         if (sum([bool(self.ideology), bool(self.query_str), bool(self.persona),
                  bool(self.system_instructions)]) > 1):
-            raise AssertionError("You can only pass in one of ideology, query_str, system_instructions, or persona")
+            raise ConfigurationError("You can only pass in one of ideology, query_str, system_instructions, or persona")
 
         if self.ideology:
             allowed_vals = [
@@ -513,7 +517,8 @@ class Agent:
                 'moderate',
                 'very liberal',
                 'very conservative']
-            assert self.ideology in allowed_vals, f"Ideology has to be one of: {str(allowed_vals)}"
+            if self.ideology not in allowed_vals:
+                raise ConfigurationError(f"Ideology has to be one of: {str(allowed_vals)}")
 
     def _validate_templates(self):
         """
@@ -524,9 +529,11 @@ class Agent:
         if self.persona_template:
             default_templates = list(self.defaults['persona_template'].keys())
 
-            assert '${persona}' in self.persona_template or self.persona_template in default_templates, (
-                    "If you pass in a custom persona_template, it must contain a ${persona} placeholder or be one of the default templates:" + str(
-                default_templates))
+            if '${persona}' not in self.persona_template and self.persona_template not in default_templates:
+                raise ConfigurationError(
+                    "If you pass in a custom persona_template, it must contain a ${persona} placeholder or be one of "
+                    "the default templates: " + str(default_templates)
+                )
 
     def _validate_best_response_selector(self):
         """

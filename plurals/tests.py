@@ -11,6 +11,7 @@ from plurals.deliberation import (
     Graph,
     AbstractStructure,
 )
+from plurals.errors import PersonaError, ConfigurationError, LLMError
 from plurals.helpers import (
     load_yaml,
     format_previous_responses,
@@ -193,7 +194,7 @@ class TestAgent(unittest.TestCase):
 
     def test_agent_with_nonexistent_ideology(self):
         """Test whether the agent raises an error or handles gracefully when no matching ideology is found"""
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ConfigurationError):
             Agent(
                 task=self.task,
                 ideology="nonexistent",
@@ -203,7 +204,7 @@ class TestAgent(unittest.TestCase):
 
     def test_agent_with_invalid_query_str(self):
         """Test whether the agent raises an error or handles gracefully when query_str results in no data"""
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(PersonaError):
             Agent(
                 task=self.task,
                 query_str="inputstate=='Atlantis'",

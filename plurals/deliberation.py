@@ -3,6 +3,7 @@ import random
 import warnings
 from plurals.agent import Agent
 from plurals.helpers import load_yaml, format_previous_responses
+from plurals.errors import LLMError
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from plurals.helpers import SmartString, strip_nested_dict
@@ -221,8 +222,8 @@ class Moderator(Agent):
                         flags=re.IGNORECASE,
                     ).strip()
                     return system_instructions
-            except Exception as e:
-                print(f"Attempt failed with error: {e}")
+            except LLMError as e:
+                warnings.warn(f"Attempt to generate system instructions failed: {e}")
 
         raise ValueError(
             "Failed to generate valid system instructions after max tries."
