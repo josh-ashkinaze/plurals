@@ -305,7 +305,10 @@
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ensemble">Ensemble</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chain">Chain</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chain">Chain</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-round-conversations-with-shuffle-true">Multi-round conversations with <code class="docutils literal notranslate"><span class="pre">shuffle=True</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#debate">Debate</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph">Graph</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tracing-what-is-going-on-in-structures">Tracing what is going on in Structures</a></li>
@@ -333,6 +336,11 @@ see the documentation on each structure in the <a class="reference external" hre
 - Graph: Agents interact in a directed acyclic graph (DAG) structure</p>
 <p>Every Structure can be moderated, which means that a Moderator Agent will oversee the task and potentially combine the responses of the Agents.
 Structures will return <code class="docutils literal notranslate"><span class="pre">responses</span></code> as a list or you can access the final response by calling the <code class="docutils literal notranslate"><span class="pre">final_response</span></code> attribute.</p>
+<p>All Structures support a <code class="docutils literal notranslate"><span class="pre">verbose=True</span></code> parameter that displays a tqdm progress bar while agents are processing — useful for longer runs with many agents or cycles.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">cycles</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>  <span class="c1"># shows a progress bar</span>
+</pre></div>
+</div>
 </section>
 <section id="combination-instructions">
 <h2>Combination instructions<a class="headerlink" href="#combination-instructions" title="Link to this heading">#</a></h2>
@@ -516,6 +524,39 @@ The available parameters are <code class="docutils literal notranslate"><span cl
 <span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
 </pre></div>
 </div>
+<section id="multi-round-conversations-with-shuffle-true">
+<h3>Multi-round conversations with <code class="docutils literal notranslate"><span class="pre">shuffle=True</span></code><a class="headerlink" href="#multi-round-conversations-with-shuffle-true" title="Link to this heading">#</a></h3>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">cycles</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> with <code class="docutils literal notranslate"><span class="pre">shuffle=True</span></code> turns a Chain into a multi-round group
+discussion where the speaking order is randomized each round. Each agent still builds on
+whoever spoke before them, but over multiple cycles every agent will tend to see responses
+from all other agents — in different orders each time. This prevents any single agent from
+always having the “last word” and introduces diversity in how ideas accumulate.</p>
+<p><strong>Network equivalent:</strong> Within a single cycle, a Chain is a directed path graph (A → B → C).
+With <code class="docutils literal notranslate"><span class="pre">shuffle=True</span></code>, each cycle creates a new random directed path, so over many cycles the
+accumulated edges approximate a fully connected directed graph. This is distinct from <code class="docutils literal notranslate"><span class="pre">Graph</span></code>,
+which has a fixed DAG topology defined upfront.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Chain</span>
+
+<span class="n">agent1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a software engineer&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a product manager&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent3</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a UX designer&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+<span class="n">agent4</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s1">&#39;a data scientist&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;gpt-4o&#39;</span><span class="p">)</span>
+
+<span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">agent1</span><span class="p">,</span> <span class="n">agent2</span><span class="p">,</span> <span class="n">agent3</span><span class="p">,</span> <span class="n">agent4</span><span class="p">],</span>
+    <span class="n">task</span><span class="o">=</span><span class="s2">&quot;What features should a new productivity app prioritize? Answer in 50 words.&quot;</span><span class="p">,</span>
+    <span class="n">combination_instructions</span><span class="o">=</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span>
+    <span class="n">cycles</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">last_n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="debate">
 <h2>Debate<a class="headerlink" href="#debate" title="Link to this heading">#</a></h2>
@@ -639,7 +680,13 @@ conservative: [conservative&#39;s response]
 </section>
 <section id="tracing-what-is-going-on-in-structures">
 <h2>Tracing what is going on in Structures<a class="headerlink" href="#tracing-what-is-going-on-in-structures" title="Link to this heading">#</a></h2>
-<p>To get a better sense of what is going on, we can access information of
+<p>To get a better sense of what is going on in real time, pass <code class="docutils literal notranslate"><span class="pre">verbose=True</span></code> to any Structure to display a tqdm progress bar during processing:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">chain</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">(</span><span class="n">agents</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">cycles</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="c1"># Chain: Cycle 2/2 ██████████ 3/3 [00:12&lt;00:00]</span>
+</pre></div>
+</div>
+<p>For a full picture after the run, we can access information of
 both structures and agents by calling a structure’s <code class="docutils literal notranslate"><span class="pre">info</span></code> property. This will give us a dictionary of information
 about both the agents (<code class="docutils literal notranslate"><span class="pre">structure.info['agent_information']</span></code>) and the Structure (<code class="docutils literal notranslate"><span class="pre">structure.info['structure_information']</span></code>)</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
@@ -712,7 +759,10 @@ about both the agents (<code class="docutils literal notranslate"><span class="p
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ensemble">Ensemble</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chain">Chain</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chain">Chain</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-round-conversations-with-shuffle-true">Multi-round conversations with <code class="docutils literal notranslate"><span class="pre">shuffle=True</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#debate">Debate</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph">Graph</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tracing-what-is-going-on-in-structures">Tracing what is going on in Structures</a></li>
