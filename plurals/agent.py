@@ -1,6 +1,7 @@
 import warnings
 from typing import Optional, Dict, Any
 from abc import ABC, abstractmethod
+from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
 from litellm import completion
@@ -450,17 +451,19 @@ class Agent:
             messages = [{"role": "user", "content": task}]
 
         try:
-            all_responses = []
-            for _ in range(self.num_responses):
-                response = completion(
-                    model=self.model,
-                    messages=messages,
-                    **self.kwargs)
-                content = response.choices[0].message.content
-                all_responses.append(content)
+            def _call():
+                return completion(model=self.model, messages=messages, **self.kwargs).choices[0].message.content
+
+            with ThreadPoolExecutor(max_workers=self.num_responses) as executor:
+                futures = [executor.submit(_call) for _ in range(self.num_responses)]
+                all_responses = [f.result() for f in futures]
 
             if self.num_responses > 1:
                 selected_response = self.response_selector(all_responses)
+                if not isinstance(selected_response, str):
+                    raise ValueError(
+                        f"response_selector must return a single string, got {type(selected_response).__name__}"
+                    )
             else:
                 selected_response = all_responses[0]
 
@@ -481,6 +484,8 @@ class Agent:
             self._history.append(history_entry)
             return selected_response
 
+        except ValueError:
+            raise
         except Exception as e:
             print(f"Error fetching response from LLM: {e}")
             return None

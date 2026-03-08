@@ -2578,6 +2578,18 @@ class TestMultipleResponses(unittest.TestCase):
         self.assertIn("num_responses must be at least 1", str(context.exception))
 
     @patch('plurals.agent.completion')
+    def test_response_selector_bad_return_type_raises_error(self, mock_completion):
+        """Test that a response_selector returning a non-string raises ValueError"""
+        mock_completion.return_value = MagicMock(
+            choices=[MagicMock(message=MagicMock(content="some response"))]
+        )
+        for bad_selector in [lambda r: r, lambda r: None]:
+            agent = Agent(task=self.task, model=self.model, num_responses=2, response_selector=bad_selector)
+            with self.assertRaises(ValueError) as context:
+                agent.process()
+            self.assertIn("response_selector must return a single string", str(context.exception))
+
+    @patch('plurals.agent.completion')
     def test_multiple_responses_generated(self, mock_completion):
         """Test that multiple responses are generated when num_responses > 1"""
         # Mock 5 different responses
