@@ -5,11 +5,12 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Optional, Dict, Any
 
 import pandas as pd
+import litellm
 from litellm import completion
 from pprint import pformat
 
 from plurals.helpers import SmartString, load_yaml, strip_nested_dict
-from plurals.errors import PersonaError, ConfigurationError
+from plurals.errors import PersonaError, ConfigurationError, LLMError
 
 DEFAULTS = load_yaml("instructions.yaml")
 DEFAULTS = strip_nested_dict(DEFAULTS)
@@ -474,6 +475,18 @@ class Agent:
 
         except ValueError:
             raise
+        except litellm.AuthenticationError as e:
+            raise LLMError(
+                f"Authentication failed for model '{self.model}'. "
+                f"Check that your API key is set (e.g. OPENAI_API_KEY, ANTHROPIC_API_KEY). "
+                f"Original error: {e}"
+            ) from e
+        except litellm.BadRequestError as e:
+            raise LLMError(
+                f"Bad request for model '{self.model}'. "
+                f"If the model name is wrong, check https://docs.litellm.ai/docs/providers for the correct name. "
+                f"Original error: {e}"
+            ) from e
         except Exception as e:
             print(f"Error fetching response from LLM: {e}")
             return None

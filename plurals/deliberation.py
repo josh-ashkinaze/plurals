@@ -725,6 +725,8 @@ class Debate(AbstractStructure):
         Strip placeholders from the response. These placeholders are used to indicate the speaker in the debate, but
         sometimes LLMs add them to the response. This function removes them.
         """
+        if response is None:
+            return None
         return response.replace("[WHAT YOU SAID]: ", "").replace(
             "[WHAT OTHER PARTICIPANT SAID]: ", ""
         )
@@ -748,38 +750,39 @@ class Debate(AbstractStructure):
         original_task = self.agents[0].original_task_description
 
         pbar = tqdm(total=self.cycles * len(self.agents), desc="Debate") if self.verbose else None
-        for cycle in range(self.cycles):
-            for i, agent in enumerate(self.agents):
-                if pbar:
-                    pbar.set_description(f"Cycle {cycle + 1}/{self.cycles}")
-                agent.current_task_description = None
-                if i == 0:
-                    previous_responses_str = self._format_previous_responses(
-                        previous_responses_agent1[-self.last_n :]
-                    )
-                else:
-                    previous_responses_str = self._format_previous_responses(
-                        previous_responses_agent2[-self.last_n :]
-                    )
-                response = agent.process(previous_responses=previous_responses_str)
-                response = self._strip_placeholders(response)
-                self.responses.append("[Debater {}] ".format(i + 1) + response)
+        try:
+            for cycle in range(self.cycles):
+                for i, agent in enumerate(self.agents):
+                    if pbar:
+                        pbar.set_description(f"Cycle {cycle + 1}/{self.cycles}")
+                    agent.current_task_description = None
+                    if i == 0:
+                        previous_responses_str = self._format_previous_responses(
+                            previous_responses_agent1[-self.last_n :]
+                        )
+                    else:
+                        previous_responses_str = self._format_previous_responses(
+                            previous_responses_agent2[-self.last_n :]
+                        )
+                    response = agent.process(previous_responses=previous_responses_str)
+                    response = self._strip_placeholders(response)
+                    self.responses.append("[Debater {}] ".format(i + 1) + response)
 
-                if i == 0:
-                    previous_responses_agent1.append(f"[WHAT YOU SAID]: {response}")
-                    previous_responses_agent2.append(
-                        f"[WHAT OTHER PARTICIPANT SAID]: {response}"
-                    )
-                else:
-                    previous_responses_agent2.append(f"[WHAT YOU SAID]: {response}")
-                    previous_responses_agent1.append(
-                        f"[WHAT OTHER PARTICIPANT SAID]: {response}"
-                    )
-                if pbar:
-                    pbar.update(1)
-
-        if pbar:
-            pbar.close()
+                    if i == 0:
+                        previous_responses_agent1.append(f"[WHAT YOU SAID]: {response}")
+                        previous_responses_agent2.append(
+                            f"[WHAT OTHER PARTICIPANT SAID]: {response}"
+                        )
+                    else:
+                        previous_responses_agent2.append(f"[WHAT YOU SAID]: {response}")
+                        previous_responses_agent1.append(
+                            f"[WHAT OTHER PARTICIPANT SAID]: {response}"
+                        )
+                    if pbar:
+                        pbar.update(1)
+        finally:
+            if pbar:
+                pbar.close()
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(self.responses)
             self.responses.append(moderated_response)
