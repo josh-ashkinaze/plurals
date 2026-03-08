@@ -9,6 +9,7 @@ from plurals.helpers import SmartString, strip_nested_dict
 import re
 import collections
 from pprint import pformat
+from tqdm.auto import tqdm
 
 DEFAULTS = load_yaml("instructions.yaml")
 DEFAULTS = strip_nested_dict(DEFAULTS)
@@ -295,6 +296,7 @@ class AbstractStructure(ABC):
         `default`
         template.
         moderator (Optional[Moderator]): A moderator to moderate the responses. The default is None.
+        verbose (bool): If True, displays a tqdm progress bar while the structure is processing. Default is False.
 
     Attributes:
         defaults (Dict[str, Any]): A dict corresponding the YAML file of templates.
@@ -308,6 +310,7 @@ class AbstractStructure(ABC):
         final_response (Optional[str]): The final response from the agents.
         moderator (Optional[Moderator]): A moderator to moderate the responses.
         moderated (bool): Whether the structure is moderated.
+        verbose (bool): Whether to display a tqdm progress bar during processing.
     """
 
     def __init__(
@@ -319,6 +322,7 @@ class AbstractStructure(ABC):
         last_n: int = 1000,
         combination_instructions: Optional[str] = "default",
         moderator: Optional[Moderator] = None,
+        verbose: bool = False,
     ):
 
         self.defaults = DEFAULTS
@@ -348,6 +352,7 @@ class AbstractStructure(ABC):
         self.final_response = None
         self.moderator = moderator
         self.moderated = True if moderator else False
+        self.verbose = verbose
 
         # If we have a moderator we assign a task description and then we
         # populate the templates
@@ -528,6 +533,40 @@ class Chain(AbstractStructure):
               combination_instructions="chain")
            chain.process()
            print(chain.final_response)
+
+        **Using Chain with multiple cycles and shuffle to simulate a multi-round conversation:**
+
+        Setting ``cycles > 1`` with ``shuffle=True`` turns a Chain into something like a
+        multi-round group discussion where the speaking order is randomized each round.
+        Each agent still builds on whoever spoke before them, but over multiple cycles
+        every agent will tend to see responses from all other agents — in different orders
+        each time. This prevents any single agent from always having the "last word" and
+        introduces diversity in how ideas accumulate.
+
+        *Network equivalent:* Within a single cycle, the Chain is a directed path graph
+        (A → B → C). With ``shuffle=True``, each cycle creates a new random directed path,
+        so over many cycles the accumulated edges approximate a fully connected directed
+        graph. This is distinct from ``Graph``, which has a fixed DAG topology defined
+        upfront.
+
+        .. code-block:: python
+
+           agent1 = Agent(persona='a software engineer', model='gpt-4o')
+           agent2 = Agent(persona='a product manager', model='gpt-4o')
+           agent3 = Agent(persona='a UX designer', model='gpt-4o')
+           agent4 = Agent(persona='a data scientist', model='gpt-4o')
+
+           chain = Chain(
+               [agent1, agent2, agent3, agent4],
+               task="What features should a new productivity app prioritize?",
+               combination_instructions="chain",
+               cycles=3,
+               shuffle=True,
+               last_n=2,
+               verbose=True,
+           )
+           chain.process()
+           print(chain.final_response)
     """
 
     def process(self):
@@ -537,10 +576,14 @@ class Chain(AbstractStructure):
         in the `previous_responses` string)
         """
         previous_responses = []
-        for _ in range(self.cycles):
+        pbar = tqdm(total=self.cycles * len(self.agents), desc="Chain") if self.verbose else None
+        for cycle in range(self.cycles):
             if self.shuffle:
                 self.agents = random.sample(self.agents, len(self.agents))
             for agent in self.agents:
+                if pbar:
+                    pbar.set_description(f"Cycle {cycle + 1}/{self.cycles}")
+
                 agent.current_task_description = None
                 previous_responses_slice = previous_responses[-self.last_n :]
                 previous_responses_str = format_previous_responses(
@@ -554,7 +597,11 @@ class Chain(AbstractStructure):
                 response = agent.process(previous_responses=previous_responses_str)
                 previous_responses.append(response)
                 self.responses.append(response)
+                if pbar:
+                    pbar.update(1)
 
+        if pbar:
+            pbar.close()
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(self.responses)
             self.responses.append(moderated_response)
@@ -584,10 +631,11 @@ class Ensemble(AbstractStructure):
         """
         Requests are sent to all agents simultaneously.
         """
-        for _ in range(self.cycles):
+        cycles_iter = tqdm(range(self.cycles), desc="Cycles") if self.verbose else range(self.cycles)
+        for _ in cycles_iter:
             with ThreadPoolExecutor() as executor:
                 futures = []
-                for i, agent in enumerate(self.agents):
+                for i, agent in enumerate(tqdm(self.agents, desc="Agents", leave=False) if self.verbose else self.agents):
                     previous_responses_str = ""
                     agent.combination_instructions = self.combination_instructions
                     futures.append((i,
@@ -641,6 +689,7 @@ class Debate(AbstractStructure):
         last_n: int = 1000,
         combination_instructions: Optional[str] = "debate",
         moderator: Optional[Moderator] = None,
+        verbose: bool = False,
     ):
         if len(agents) != 2:
             raise ValueError("Debate requires exactly two agents.")
@@ -652,6 +701,7 @@ class Debate(AbstractStructure):
             cycles=cycles,
             last_n=last_n,
             moderator=moderator,
+            verbose=verbose,
         )
 
     @staticmethod
@@ -675,6 +725,8 @@ class Debate(AbstractStructure):
         Strip placeholders from the response. These placeholders are used to indicate the speaker in the debate, but
         sometimes LLMs add them to the response. This function removes them.
         """
+        if response is None:
+            return None
         return response.replace("[WHAT YOU SAID]: ", "").replace(
             "[WHAT OTHER PARTICIPANT SAID]: ", ""
         )
@@ -697,35 +749,40 @@ class Debate(AbstractStructure):
         previous_responses_agent2 = []
         original_task = self.agents[0].original_task_description
 
-        for cycle in range(self.cycles):
-            for i, agent in enumerate(self.agents):
-                agent.current_task_description = None
-                # Choose the appropriate response history based on the agent
-                # index
-                if i == 0:
-                    previous_responses_str = self._format_previous_responses(
-                        previous_responses_agent1[-self.last_n :]
-                    )
-                else:
-                    previous_responses_str = self._format_previous_responses(
-                        previous_responses_agent2[-self.last_n :]
-                    )
-                response = agent.process(previous_responses=previous_responses_str)
-                response = self._strip_placeholders(response)
-                self.responses.append("[Debater {}] ".format(i + 1) + response)
+        pbar = tqdm(total=self.cycles * len(self.agents), desc="Debate") if self.verbose else None
+        try:
+            for cycle in range(self.cycles):
+                for i, agent in enumerate(self.agents):
+                    if pbar:
+                        pbar.set_description(f"Cycle {cycle + 1}/{self.cycles}")
+                    agent.current_task_description = None
+                    if i == 0:
+                        previous_responses_str = self._format_previous_responses(
+                            previous_responses_agent1[-self.last_n :]
+                        )
+                    else:
+                        previous_responses_str = self._format_previous_responses(
+                            previous_responses_agent2[-self.last_n :]
+                        )
+                    response = agent.process(previous_responses=previous_responses_str)
+                    response = self._strip_placeholders(response)
+                    self.responses.append("[Debater {}] ".format(i + 1) + response)
 
-                # Apply the correct prefix and update both lists
-                if i == 0:
-                    previous_responses_agent1.append(f"[WHAT YOU SAID]: {response}")
-                    previous_responses_agent2.append(
-                        f"[WHAT OTHER PARTICIPANT SAID]: {response}"
-                    )
-                else:
-                    previous_responses_agent2.append(f"[WHAT YOU SAID]: {response}")
-                    previous_responses_agent1.append(
-                        f"[WHAT OTHER PARTICIPANT SAID]: {response}"
-                    )
-
+                    if i == 0:
+                        previous_responses_agent1.append(f"[WHAT YOU SAID]: {response}")
+                        previous_responses_agent2.append(
+                            f"[WHAT OTHER PARTICIPANT SAID]: {response}"
+                        )
+                    else:
+                        previous_responses_agent2.append(f"[WHAT YOU SAID]: {response}")
+                        previous_responses_agent1.append(
+                            f"[WHAT OTHER PARTICIPANT SAID]: {response}"
+                        )
+                    if pbar:
+                        pbar.update(1)
+        finally:
+            if pbar:
+                pbar.close()
         if self.moderated and self.moderator:
             moderated_response = self.moderator._moderate_responses(self.responses)
             self.responses.append(moderated_response)
@@ -838,6 +895,7 @@ class Graph(AbstractStructure):
         task: Optional[str] = None,
         combination_instructions: Optional[str] = "default",
         moderator: Optional[Moderator] = None,
+        verbose: bool = False,
     ):
         """
         Args:
@@ -870,7 +928,7 @@ class Graph(AbstractStructure):
             self.edges = edges
 
         super().__init__(
-            agents=self.agents, task=task, last_n=1, moderator=moderator, combination_instructions=combination_instructions
+            agents=self.agents, task=task, last_n=1, moderator=moderator, combination_instructions=combination_instructions, verbose=verbose,
         )
         self._build_graph()
         self._set_combination_instructions()
@@ -947,7 +1005,8 @@ class Graph(AbstractStructure):
         response_dict = {}
 
         agent_to_name = self._create_agent_name_mapping()
-        for agent in topological_order:
+        agents_iter = tqdm(topological_order, desc="Agents") if self.verbose else topological_order
+        for agent in agents_iter:
             # Gather responses from all predecessors to form the input for the current agent
             predecessors = [pred for pred in self.agents if agent in self.graph[pred]]
             previous_responses = [response_dict[pred] for pred in predecessors]

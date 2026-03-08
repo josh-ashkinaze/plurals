@@ -17,6 +17,13 @@ Each Structure offers different ways for Agents to interact with each other:
 Every Structure can be moderated, which means that a Moderator Agent will oversee the task and potentially combine the responses of the Agents.
 Structures will return ``responses`` as a list or you can access the final response by calling the ``final_response`` attribute.
 
+All Structures support a ``verbose=True`` parameter that displays a tqdm progress bar while agents are processing — useful for longer runs with many agents or cycles.
+
+.. code-block:: python
+
+    chain = Chain(agents, task=task, cycles=3, verbose=True)
+    chain.process()  # shows a progress bar
+
 
 Combination instructions
 ------------------------
@@ -232,6 +239,44 @@ Here is a Chain with multiple ``cycles`` and the ``last_n==1``, meaning each Age
     chain.process()
     print(chain.final_response)
 
+
+Multi-round conversations with ``shuffle=True``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Setting ``cycles > 1`` with ``shuffle=True`` turns a Chain into a multi-round group
+discussion where the speaking order is randomized each round. Each agent still builds on
+whoever spoke before them, but over multiple cycles every agent will tend to see responses
+from all other agents — in different orders each time. This prevents any single agent from
+always having the "last word" and introduces diversity in how ideas accumulate.
+
+**Network equivalent:** Within a single cycle, a Chain is a directed path graph (A → B → C).
+With ``shuffle=True``, each cycle creates a new random directed path, so over many cycles the
+accumulated edges approximate a fully connected directed graph. This is distinct from ``Graph``,
+which has a fixed DAG topology defined upfront.
+
+.. code-block:: python
+
+    from plurals.agent import Agent
+    from plurals.deliberation import Chain
+
+    agent1 = Agent(persona='a software engineer', model='gpt-4o')
+    agent2 = Agent(persona='a product manager', model='gpt-4o')
+    agent3 = Agent(persona='a UX designer', model='gpt-4o')
+    agent4 = Agent(persona='a data scientist', model='gpt-4o')
+
+    chain = Chain(
+        [agent1, agent2, agent3, agent4],
+        task="What features should a new productivity app prioritize? Answer in 50 words.",
+        combination_instructions="chain",
+        cycles=3,
+        shuffle=True,
+        last_n=2,
+        verbose=True,
+    )
+    chain.process()
+    print(chain.final_response)
+
+
 Debate
 ------
 
@@ -380,7 +425,15 @@ If you use the list-of-agents method, the agents will be 'named' "Agent 1", "Age
 Tracing what is going on in Structures
 --------------------------------------
 
-To get a better sense of what is going on, we can access information of
+To get a better sense of what is going on in real time, pass ``verbose=True`` to any Structure to display a tqdm progress bar during processing:
+
+.. code-block:: python
+
+    chain = Chain(agents, task=task, cycles=2, verbose=True)
+    chain.process()
+    # Chain: Cycle 2/2 ██████████ 3/3 [00:12<00:00]
+
+For a full picture after the run, we can access information of
 both structures and agents by calling a structure's ``info`` property. This will give us a dictionary of information
 about both the agents (``structure.info['agent_information']``) and the Structure (``structure.info['structure_information']``)
 

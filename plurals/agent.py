@@ -1,14 +1,16 @@
+import os
 import warnings
-from typing import Optional, Dict, Any
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
+from typing import Optional, Dict, Any
 
 import pandas as pd
+import litellm
 from litellm import completion
-
-from plurals.helpers import *
-
 from pprint import pformat
+
+from plurals.helpers import SmartString, load_yaml, strip_nested_dict
+from plurals.errors import PersonaError, ConfigurationError, LLMError
 
 DEFAULTS = load_yaml("instructions.yaml")
 DEFAULTS = strip_nested_dict(DEFAULTS)
@@ -86,24 +88,22 @@ class _IdeologyPersonaStrategy(_PersonaStrategy):
     def generate(self, data: pd.DataFrame, persona_mapping: Dict[str, Any]) -> str:
         filtered_data = self._filter_data_by_ideology(data, self.ideology)
         if filtered_data.empty:
-            raise AssertionError("No data found satisfying conditions")
+            raise PersonaError(f"No ANES data found for ideology='{self.ideology}'")
         selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
         return self._row2persona(selected_row, persona_mapping)
 
     @staticmethod
     def _filter_data_by_ideology(data: pd.DataFrame, ideology: str) -> pd.DataFrame:
         """Filter the dataset based on ideology"""
-        if ideology.lower() == 'liberal':
-            return data[data['ideo5'].isin(['Liberal', 'Very liberal'])]
-        elif ideology.lower() == 'conservative':
-            return data[data['ideo5'].isin(['Conservative', 'Very conservative'])]
-        elif ideology.lower() == 'moderate':
-            return data[data['ideo5'] == 'Moderate']
-        elif ideology.lower() == "very liberal":
-            return data[data['ideo5'] == 'Very liberal']
-        elif ideology.lower() == "very conservative":
-            return data[data['ideo5'] == 'Very conservative']
-        return pd.DataFrame()
+        filters = {
+            'liberal':           data['ideo5'].isin(['Liberal', 'Very liberal']),
+            'conservative':      data['ideo5'].isin(['Conservative', 'Very conservative']),
+            'moderate':          data['ideo5'] == 'Moderate',
+            'very liberal':      data['ideo5'] == 'Very liberal',
+            'very conservative': data['ideo5'] == 'Very conservative',
+        }
+        mask = filters.get(ideology.lower())
+        return data[mask] if mask is not None else pd.DataFrame()
 
 
 class _QueryPersonaStrategy(_PersonaStrategy):
@@ -115,7 +115,7 @@ class _QueryPersonaStrategy(_PersonaStrategy):
     def generate(self, data: pd.DataFrame, persona_mapping: Dict[str, Any]) -> str:
         filtered_data = data.query(self.query_str)
         if filtered_data.empty:
-            raise AssertionError("No data found satisfying conditions")
+            raise PersonaError(f"No ANES data found for query_str='{self.query_str}'")
         selected_row = filtered_data.sample(n=1, weights=filtered_data['weight']).iloc[0]
         return self._row2persona(selected_row, persona_mapping)
 
@@ -330,7 +330,6 @@ class Agent:
         self._validate_system_instructions()
         self._set_system_instructions()
         self.kwargs = kwargs if kwargs is not None else {}
-        self.kwargs = kwargs if kwargs is not None else {}
         self.num_responses = num_responses
         self.response_selector = response_selector
         self._validate_best_response_selector()
@@ -352,22 +351,12 @@ class Agent:
         - If persona is "random" generate a random ANES persona
         - If persona is not already provided, generate it. This can be generated from a `query_str` or from `ideology`.
         """
-        # If system_instructions is already provided, we don't need to do
-        # anything
         if self.system_instructions is not None:
             return
 
-        # If system_instructions, persona, ideology, nor query_str is provided,
-        # set system_instructions to None
-        if not self.system_instructions and not self.persona and not self.ideology and not self.query_str:
-            self.system_instructions = None
+        if not any([self.persona, self.ideology, self.query_str]):
             return
 
-        # If persona is already provided, use it.
-        if self.persona:
-            self.persona = self.persona
-
-        # If persona is "random" generate a random ANES persona
         if self.persona == "random":
             self.persona = self._generate_persona()
 
@@ -486,6 +475,18 @@ class Agent:
 
         except ValueError:
             raise
+        except litellm.AuthenticationError as e:
+            raise LLMError(
+                f"Authentication failed for model '{self.model}'. "
+                f"Check that your API key is set (e.g. OPENAI_API_KEY, ANTHROPIC_API_KEY). "
+                f"Original error: {e}"
+            ) from e
+        except litellm.BadRequestError as e:
+            raise LLMError(
+                f"Bad request for model '{self.model}'. "
+                f"If the model name is wrong, check https://docs.litellm.ai/docs/providers for the correct name. "
+                f"Original error: {e}"
+            ) from e
         except Exception as e:
             print(f"Error fetching response from LLM: {e}")
             return None
@@ -502,23 +503,19 @@ class Agent:
         'very conservative']
         """
         if self.ideology or self.query_str:
-            assert self.data is not None and self.persona_mapping is not None, ("If you use either `ideology` or "
-                                                                                "`query_str` you need to provide both "
-                                                                                "a dataframe and a persona mapping to "
-                                                                                "process rows of the dataframe.")
+            if self.data is None or self.persona_mapping is None:
+                raise ConfigurationError(
+                    "If you use either `ideology` or `query_str` you need to provide both "
+                    "a dataframe and a persona mapping to process rows of the dataframe."
+                )
 
-        if (sum([bool(self.ideology), bool(self.query_str), bool(self.persona),
-                 bool(self.system_instructions)]) > 1):
-            raise AssertionError("You can only pass in one of ideology, query_str, system_instructions, or persona")
+        if sum([bool(self.ideology), bool(self.query_str), bool(self.persona), bool(self.system_instructions)]) > 1:
+            raise ConfigurationError("You can only pass in one of ideology, query_str, system_instructions, or persona")
 
         if self.ideology:
-            allowed_vals = [
-                'liberal',
-                'conservative',
-                'moderate',
-                'very liberal',
-                'very conservative']
-            assert self.ideology in allowed_vals, f"Ideology has to be one of: {str(allowed_vals)}"
+            allowed_vals = ['liberal', 'conservative', 'moderate', 'very liberal', 'very conservative']
+            if self.ideology not in allowed_vals:
+                raise ConfigurationError(f"Ideology has to be one of: {allowed_vals}")
 
     def _validate_templates(self):
         """
@@ -529,9 +526,11 @@ class Agent:
         if self.persona_template:
             default_templates = list(self.defaults['persona_template'].keys())
 
-            assert '${persona}' in self.persona_template or self.persona_template in default_templates, (
-                    "If you pass in a custom persona_template, it must contain a ${persona} placeholder or be one of the default templates:" + str(
-                default_templates))
+            if '${persona}' not in self.persona_template and self.persona_template not in default_templates:
+                raise ConfigurationError(
+                    "If you pass in a custom persona_template, it must contain a ${persona} placeholder "
+                    "or be one of the default templates: " + str(default_templates)
+                )
 
     def _validate_best_response_selector(self):
         """
@@ -557,8 +556,7 @@ class Agent:
         if not self._history:
             warnings.warn("Be aware: No Agent history was found since tasks have not been processed yet.")
             return None
-        else:
-            return self._history
+        return self._history
 
     @property
     def _info(self):
@@ -606,10 +604,7 @@ class Agent:
             list: List of responses generated by the agent
         """
         history = self.history
-        if not history:
-            warnings.warn("Be aware: No Agent history was found since tasks have not been processed yet.")
-            return None
-        return [history[i]['response'] for i in range(len(history))]
+        return [h['response'] for h in history] if history else None
 
     @property
     def prompts(self):
@@ -620,10 +615,7 @@ class Agent:
             list: List of prompts that generated the responses.
         """
         history = self.history
-        if not history:
-            warnings.warn("Be aware: No Agent history was found since tasks have not been processed yet.")
-            return None
-        return [history[i]['prompts'] for i in range(len(history))]
+        return [h['prompts'] for h in history] if history else None
 
     def __repr__(self):
         return pformat(self.info, indent=2)
@@ -650,16 +642,8 @@ class Agent:
         Returns:
             bool: Whether the persona is an ANES-generated persona.
         """
-        if self.ideology or self.query_str:
-            return True
-        if self.persona == "random":
-            return True
-        else:
-            return False
+        return bool(self.ideology or self.query_str or self.persona == "random")
 
-    def handle_default_persona_template(self):
+    def handle_default_persona_template(self) -> str:
         """The default persona template should be `default' if not ANES persona else 'anes'"""
-        if self.is_anes_persona():
-            return "anes"
-        else:
-            return "default"
+        return "anes" if self.is_anes_persona() else "default"
