@@ -58,15 +58,14 @@ Plurals includes support for multiple information-sharing structures (e.g., chai
 1. 📖 Early version of the paper appeared in the **NeurIPS Pluralistic Alignment Workshop**
 2. 🏆 **Paper appeared at CHI 2025 with Honorable Mention!**
 3. 📖 Tutorial given at **ICWSM** by Ceren Budak
-4. 🔧 **Improvement:** Changes to debate to decrease sycophancy
-5. ✨ **Feature update:** Names of Agents in DAG are now visible to other Agents
-6. ✨ **Feature update:** Added a **best-of-n feature** for Agents. This supports things like verifiable rewards and LLM-as-a-Judge. Best-of-n can be used inside of Structures, where different Agents have different optimizing objectives. See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_6_best_of_n.html) for details.
-7. ✨ **Feature update:** Added `Interview` class for building rich, story-based personas via simulated interviews, inspired by [1](https://arxiv.org/abs/2504.11673). Agents can also automatically generate task-specific interview questions (returned as structured JSON), which are then used to conduct targeted interviews. See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_7_interview.html) for details.
-8. ⚡ **Performance improvement:** Best-of-N generation is now parallelized.
-9. 🔧 **Improvement:** Added methods for exporting and viewing structures —  
+4. 🔧 Improvement: Changes to debate to decrease sycophancy
+5. ✨ Feature update: Names of Agents in DAG are now visible to other Agents
+6. ✨ Feature update: Added a **best-of-n feature** for Agents. This supports things like verifiable rewards and LLM-as-a-Judge. Best-of-n can be used inside of Structures, where different Agents have different optimizing objectives. See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_6_best_of_n.html) for details.
+7. ✨ Feature update: Added `Interview` class for building rich, story-based personas via simulated interviews, inspired by [1](https://arxiv.org/abs/2504.11673). Agents can also automatically generate task-specific interview questions (returned as structured JSON), which are then used to conduct targeted interviews. See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_7_interview.html) for details.
+8. ⚡ Performance improvement: Best-of-N generation is now parallelized.
+9. 🔧 Improvement: Added methods for exporting and viewing structures —  
 `structure.to_dataframe()`, `structure.to_json()`, `structure.print_responses()` — which make it much easier to inspect what's happening internally. The structure tutorial now documents these features (see [this section](https://josh-ashkinaze.github.io/plurals/tutorial_4_structures.html#viewing-and-exporting-results)).
-10. 🔧 **Improvement:** Structures now support **TQDM progress bars**. When initializing a structure, just add `verbose=True`.
-11. 🔧 **Improvement:** More informative error handling.
+10. 🔧 Improvement: Structures now support **TQDM progress bars**. When initializing a structure, just add `verbose=True`.
 
 # Detailed Documentation 📋
 
