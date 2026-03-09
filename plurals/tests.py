@@ -3065,5 +3065,146 @@ class TestInterview(unittest.TestCase):
         self.assertEqual(self.custom_questions, info["questions"])
 
 
+class TestStructureOutputMethods(unittest.TestCase):
+    """Tests for to_json(), to_dataframe(), and print_responses()."""
+
+    def setUp(self):
+        self.agent1 = Agent(persona="a liberal", model="gpt-3.5-turbo")
+        self.agent2 = Agent(persona="a conservative", model="gpt-3.5-turbo")
+        self.chain = Chain([self.agent1, self.agent2], task="Discuss climate policy.")
+
+    def _make_mock_completion(self, content):
+        return MagicMock(choices=[MagicMock(message=MagicMock(content=content))])
+
+    def _run_chain(self, responses):
+        side_effects = [self._make_mock_completion(r) for r in responses]
+        with patch("plurals.agent.completion", side_effect=side_effects):
+            self.chain.process()
+
+    # --- to_json ---
+
+    def test_to_json_returns_string(self):
+        self._run_chain(["Response A", "Response B"])
+        result = self.chain.to_json()
+        self.assertIsInstance(result, str)
+
+    def test_to_json_is_valid_json(self):
+        import json
+        self._run_chain(["Response A", "Response B"])
+        result = self.chain.to_json()
+        parsed = json.loads(result)
+        self.assertIn("structure_information", parsed)
+        self.assertIn("agent_information", parsed)
+
+    def test_to_json_saves_file(self):
+        import json
+        import tempfile, os
+        self._run_chain(["Response A", "Response B"])
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            tmp = f.name
+        try:
+            self.chain.to_json(fn=tmp)
+            self.assertTrue(os.path.exists(tmp))
+            with open(tmp) as f:
+                parsed = json.load(f)
+            self.assertIn("structure_information", parsed)
+        finally:
+            os.unlink(tmp)
+
+    def test_to_json_no_file_by_default(self):
+        """Calling to_json() without fn should not create any file."""
+        import os, glob
+        self._run_chain(["Response A", "Response B"])
+        before = set(glob.glob("*.json"))
+        self.chain.to_json()
+        after = set(glob.glob("*.json"))
+        self.assertEqual(before, after)
+
+    # --- to_dataframe ---
+
+    def test_to_dataframe_returns_dataframe(self):
+        import pandas as pd
+        self._run_chain(["Response A", "Response B"])
+        df = self.chain.to_dataframe()
+        self.assertIsInstance(df, pd.DataFrame)
+
+    def test_to_dataframe_columns(self):
+        self._run_chain(["Response A", "Response B"])
+        df = self.chain.to_dataframe()
+        for col in ["response_index", "agent_index", "persona", "model", "turn", "response"]:
+            self.assertIn(col, df.columns)
+
+    def test_to_dataframe_row_count(self):
+        """2 agents × 1 cycle = 2 rows."""
+        self._run_chain(["Response A", "Response B"])
+        df = self.chain.to_dataframe()
+        self.assertEqual(len(df), 2)
+
+    def test_to_dataframe_conversation_order(self):
+        """Rows should be interleaved by cycle, not grouped by agent."""
+        chain = Chain(
+            [Agent(persona="a liberal", model="gpt-3.5-turbo"),
+             Agent(persona="a conservative", model="gpt-3.5-turbo")],
+            task="Discuss climate policy.",
+            cycles=2,
+        )
+        side_effects = [self._make_mock_completion(r) for r in ["L1", "C1", "L2", "C2"]]
+        with patch("plurals.agent.completion", side_effect=side_effects):
+            chain.process()
+        df = chain.to_dataframe()
+        self.assertEqual(len(df), 4)
+        # First two rows should be turn 1, last two turn 2
+        self.assertEqual(list(df["turn"]), [1, 1, 2, 2])
+        # Agent indices should alternate 0, 1, 0, 1
+        self.assertEqual(list(df["agent_index"]), [0, 1, 0, 1])
+
+    def test_to_dataframe_saves_csv(self):
+        import tempfile, os
+        self._run_chain(["Response A", "Response B"])
+        with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as f:
+            tmp = f.name
+        try:
+            df = self.chain.to_dataframe(fn=tmp)
+            self.assertTrue(os.path.exists(tmp))
+        finally:
+            os.unlink(tmp)
+
+    # --- print_responses ---
+
+    def test_print_responses_runs_without_error(self):
+        self._run_chain(["Response A", "Response B"])
+        try:
+            self.chain.print_responses()
+        except Exception as e:
+            self.fail(f"print_responses() raised {e}")
+
+    def test_print_responses_output_contains_responses(self):
+        import io
+        self._run_chain(["Response A", "Response B"])
+        with patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            self.chain.print_responses()
+            output = mock_stdout.getvalue()
+        self.assertIn("Response A", output)
+        self.assertIn("Response B", output)
+
+    def test_print_responses_includes_moderator(self):
+        import io
+        moderator = Moderator(persona="default", model="gpt-3.5-turbo", combination_instructions="default")
+        chain = Chain(
+            [Agent(persona="a liberal", model="gpt-3.5-turbo"),
+             Agent(persona="a conservative", model="gpt-3.5-turbo")],
+            task="Discuss climate policy.",
+            moderator=moderator,
+        )
+        side_effects = [self._make_mock_completion(r) for r in ["Response A", "Response B", "Moderated response"]]
+        with patch("plurals.agent.completion", side_effect=side_effects):
+            chain.process()
+        with patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            chain.print_responses()
+            output = mock_stdout.getvalue()
+        self.assertIn("MODERATOR", output)
+        self.assertIn("Moderated response", output)
+
+
 if __name__ == "__main__":
     unittest.main()
