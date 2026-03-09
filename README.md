@@ -55,9 +55,9 @@ Plurals includes support for multiple information-sharing structures (e.g., chai
 
 # Updates 🆕
 
-1. 📖 Early version of the paper appeared in the **NeurIPS Pluralistic Alignment Workshop**
+1. 📖 Early version of the paper appeared in the NeurIPS Pluralistic Alignment Workshop and International Conference on Computational Social Science (resource nomination 🏆, research impact nomination 🏆) 
 2. 🏆 **Paper appeared at CHI 2025 with Honorable Mention!**
-3. 📖 Tutorial given at **ICWSM** by Ceren Budak
+3. 📖 Tutorial given at ICWSM
 4. 🔧 Improvement: Changes to debate to decrease sycophancy
 5. ✨ Feature update: Names of Agents in DAG are now visible to other Agents
 6. ✨ Feature update: Added a **best-of-n feature** for Agents. This supports things like verifiable rewards and LLM-as-a-Judge. Best-of-n can be used inside of Structures, where different Agents have different optimizing objectives. See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_6_best_of_n.html) for details.
