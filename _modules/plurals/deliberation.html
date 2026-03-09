@@ -255,6 +255,9 @@
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
 <span class="kn">from</span> <span class="nn">plurals.helpers</span> <span class="kn">import</span> <span class="n">load_yaml</span><span class="p">,</span> <span class="n">format_previous_responses</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
@@ -764,6 +767,110 @@
             <span class="s2">&quot;agent_information&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">agent</span><span class="o">.</span><span class="n">info</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">],</span>
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">result</span>
+
+<div class="viewcode-block" id="AbstractStructure.to_json">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.AbstractStructure.to_json">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serialise the structure&#39;s ``info`` dict to a JSON string, optionally saving to a file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fn (Optional[str]): If provided, save the JSON to this filename. Default is None</span>
+<span class="sd">                (return string only, no file saved).</span>
+<span class="sd">            indent (int): Indentation level for pretty-printing. Default is 2.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: JSON representation of the structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="AbstractStructure.to_dataframe">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.AbstractStructure.to_dataframe">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a tidy DataFrame with one row per agent turn, optionally saving to a CSV.</span>
+
+<span class="sd">        Columns:</span>
+<span class="sd">            - ``agent_index``: Position of the agent in the agents list (0-based).</span>
+<span class="sd">            - ``persona``: The agent&#39;s persona string.</span>
+<span class="sd">            - ``model``: The model used by the agent.</span>
+<span class="sd">            - ``turn``: Which turn this was for this agent (1-based).</span>
+<span class="sd">            - ``system_prompt``: The system prompt sent for this turn.</span>
+<span class="sd">            - ``user_prompt``: The user prompt sent for this turn.</span>
+<span class="sd">            - ``response``: The agent&#39;s response.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fn (Optional[str]): If provided, save the DataFrame to this CSV filename. Default is None</span>
+<span class="sd">                (return DataFrame only, no file saved).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: Tidy DataFrame of all agent turns.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">max_turns</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">history</span> <span class="ow">or</span> <span class="p">[])</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">turn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_turns</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">agent</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">):</span>
+                <span class="n">history</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">history</span> <span class="ow">or</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="n">turn</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">history</span><span class="p">):</span>
+                    <span class="n">entry</span> <span class="o">=</span> <span class="n">history</span><span class="p">[</span><span class="n">turn</span><span class="p">]</span>
+                    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                        <span class="s2">&quot;response_index&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span>
+                        <span class="s2">&quot;agent_index&quot;</span><span class="p">:</span> <span class="n">idx</span><span class="p">,</span>
+                        <span class="s2">&quot;persona&quot;</span><span class="p">:</span> <span class="n">agent</span><span class="o">.</span><span class="n">persona</span><span class="p">,</span>
+                        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">agent</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+                        <span class="s2">&quot;turn&quot;</span><span class="p">:</span> <span class="n">turn</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="s2">&quot;system_prompt&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prompts&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;system&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;user_prompt&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prompts&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;response&quot;</span><span class="p">),</span>
+                    <span class="p">})</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="AbstractStructure.print_responses">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.AbstractStructure.print_responses">[docs]</a>
+    <span class="k">def</span> <span class="nf">print_responses</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pretty-print all agent responses to the console, with a header per turn that</span>
+<span class="sd">        fills the terminal width.</span>
+
+<span class="sd">        Format::</span>
+
+<span class="sd">            ─── Agent 1 · a liberal woman from Missouri (gpt-4o) · Turn 1 ──────────</span>
+<span class="sd">            Response text...</span>
+
+<span class="sd">            ─── Agent 2 · an economist (gpt-4o) · Turn 1 ──────────────────────────</span>
+<span class="sd">            Response text...</span>
+
+<span class="sd">            ══ MODERATOR · default (gpt-4o) ════════════════════════════════════════</span>
+<span class="sd">            Moderated response...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">get_terminal_size</span><span class="p">(</span><span class="n">fallback</span><span class="o">=</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">24</span><span class="p">))</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">persona</span> <span class="o">=</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;persona&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="mi">50</span><span class="p">]</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; Agent </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;agent_index&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> · </span><span class="si">{</span><span class="n">persona</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">) · Turn </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;turn&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;─── </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="s2">&quot;─&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span><span class="p">:</span>
+            <span class="n">persona</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">persona</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="mi">50</span><span class="p">]</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; MODERATOR · </span><span class="si">{</span><span class="n">persona</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">model</span><span class="si">}</span><span class="s2">) &quot;</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;══ </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="s2">&quot;═&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="AbstractStructure.process">
 <a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.AbstractStructure.process">[docs]</a>

@@ -312,6 +312,12 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#debate">Debate</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph">Graph</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tracing-what-is-going-on-in-structures">Tracing what is going on in Structures</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#viewing-and-exporting-results">Viewing and exporting results</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#print-responses"><code class="docutils literal notranslate"><span class="pre">print_responses()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#to-dataframe"><code class="docutils literal notranslate"><span class="pre">to_dataframe()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#to-json"><code class="docutils literal notranslate"><span class="pre">to_json()</span></code></a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -704,6 +710,58 @@ about both the agents (<code class="docutils literal notranslate"><span class="p
 </pre></div>
 </div>
 </section>
+<section id="viewing-and-exporting-results">
+<h2>Viewing and exporting results<a class="headerlink" href="#viewing-and-exporting-results" title="Link to this heading">#</a></h2>
+<p>All structures provide three convenience methods for working with results after processing.</p>
+<section id="print-responses">
+<h3><code class="docutils literal notranslate"><span class="pre">print_responses()</span></code><a class="headerlink" href="#print-responses" title="Link to this heading">#</a></h3>
+<p>Prints all agent responses to the console in conversation order, with a header per turn
+that fills the terminal width. For multi-cycle runs, responses are interleaved by cycle
+so you can read the conversation linearly rather than seeing all of one agent’s turns
+grouped together. A visually distinct header marks the moderator’s final response.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">chain</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">print_responses</span><span class="p">()</span>
+
+<span class="c1"># ─── Agent 1 · a liberal woman from Missouri (gpt-4o) · Turn 1 ─────────────</span>
+<span class="c1"># Nuclear energy offers low carbon emissions and reliable baseload power...</span>
+<span class="c1">#</span>
+<span class="c1"># ─── Agent 2 · an economist (gpt-4o) · Turn 1 ──────────────────────────────</span>
+<span class="c1"># While upfront capital costs are high, the long-run cost per kWh...</span>
+<span class="c1">#</span>
+<span class="c1"># ─── Agent 1 · a liberal woman from Missouri (gpt-4o) · Turn 2 ─────────────</span>
+<span class="c1"># Building on the economic point, we must also weigh the waste storage...</span>
+<span class="c1">#</span>
+<span class="c1"># ══ MODERATOR · default (gpt-4o) ════════════════════════════════════════════</span>
+<span class="c1"># Both perspectives highlight a genuine tension between...</span>
+</pre></div>
+</div>
+</section>
+<section id="to-dataframe">
+<h3><code class="docutils literal notranslate"><span class="pre">to_dataframe()</span></code><a class="headerlink" href="#to-dataframe" title="Link to this heading">#</a></h3>
+<p>Returns a tidy <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> with one row per agent turn, in conversation order.
+Optionally saves to a CSV by passing <code class="docutils literal notranslate"><span class="pre">fn</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
+<span class="c1"># Columns: response_index, agent_index, persona, model, turn,</span>
+<span class="c1">#          system_prompt, user_prompt, response</span>
+
+<span class="c1"># Save to CSV</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="s2">&quot;chain_results.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="to-json">
+<h3><code class="docutils literal notranslate"><span class="pre">to_json()</span></code><a class="headerlink" href="#to-json" title="Link to this heading">#</a></h3>
+<p>Returns the structure’s full <code class="docutils literal notranslate"><span class="pre">info</span></code> dict as a JSON string. Optionally saves to a file
+by passing <code class="docutils literal notranslate"><span class="pre">fn</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Just get the string</span>
+<span class="n">json_str</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span>
+
+<span class="c1"># Save to file</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="s2">&quot;chain_results.json&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
 </section>
 
 
@@ -766,6 +824,12 @@ about both the agents (<code class="docutils literal notranslate"><span class="p
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#debate">Debate</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph">Graph</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tracing-what-is-going-on-in-structures">Tracing what is going on in Structures</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#viewing-and-exporting-results">Viewing and exporting results</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#print-responses"><code class="docutils literal notranslate"><span class="pre">print_responses()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#to-dataframe"><code class="docutils literal notranslate"><span class="pre">to_dataframe()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#to-json"><code class="docutils literal notranslate"><span class="pre">to_json()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

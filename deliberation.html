@@ -312,7 +312,10 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.moderated"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.moderated</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.verbose"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.verbose</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.info"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.info</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.print_responses"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.print_responses()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.process"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.process()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.to_dataframe"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.to_dataframe()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.to_json"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.Chain"><code class="docutils literal notranslate"><span class="pre">Chain</span></code></a><ul class="nav section-nav flex-column">
@@ -514,9 +517,78 @@ all the concrete structures share the same attributes and methods, so this class
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.print_responses">
+<span class="sig-name descname"><span class="pre">print_responses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/plurals/deliberation.html#AbstractStructure.print_responses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.AbstractStructure.print_responses" title="Link to this definition">#</a></dt>
+<dd><p>Pretty-print all agent responses to the console, with a header per turn that
+fills the terminal width.</p>
+<p>Format:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>─── Agent 1 · a liberal woman from Missouri (gpt-4o) · Turn 1 ──────────
+Response text...
+
+─── Agent 2 · an economist (gpt-4o) · Turn 1 ──────────────────────────
+Response text...
+
+══ MODERATOR · default (gpt-4o) ════════════════════════════════════════
+Moderated response...
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.process">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/plurals/deliberation.html#AbstractStructure.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.AbstractStructure.process" title="Link to this definition">#</a></dt>
 <dd><p>Abstract method for processing agents. Must be implemented in a subclass.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.to_dataframe">
+<span class="sig-name descname"><span class="pre">to_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/plurals/deliberation.html#AbstractStructure.to_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.AbstractStructure.to_dataframe" title="Link to this definition">#</a></dt>
+<dd><p>Return a tidy DataFrame with one row per agent turn, optionally saving to a CSV.</p>
+<dl class="simple">
+<dt>Columns:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">agent_index</span></code>: Position of the agent in the agents list (0-based).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">persona</span></code>: The agent’s persona string.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model</span></code>: The model used by the agent.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">turn</span></code>: Which turn this was for this agent (1-based).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">system_prompt</span></code>: The system prompt sent for this turn.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">user_prompt</span></code>: The user prompt sent for this turn.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">response</span></code>: The agent’s response.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fn</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – If provided, save the DataFrame to this CSV filename. Default is None
+(return DataFrame only, no file saved).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tidy DataFrame of all agent turns.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="plurals.deliberation.AbstractStructure.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/plurals/deliberation.html#AbstractStructure.to_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.AbstractStructure.to_json" title="Link to this definition">#</a></dt>
+<dd><p>Serialise the structure’s <code class="docutils literal notranslate"><span class="pre">info</span></code> dict to a JSON string, optionally saving to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fn</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – If provided, save the JSON to this filename. Default is None
+(return string only, no file saved).</p></li>
+<li><p><strong>indent</strong> (<em>int</em>) – Indentation level for pretty-printing. Default is 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON representation of the structure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -993,7 +1065,10 @@ Then you can set system instructions using the <code class="docutils literal not
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.moderated"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.moderated</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.verbose"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.verbose</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.info"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.info</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.print_responses"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.print_responses()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.process"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.process()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.to_dataframe"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.to_dataframe()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.AbstractStructure.to_json"><code class="docutils literal notranslate"><span class="pre">AbstractStructure.to_json()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plurals.deliberation.Chain"><code class="docutils literal notranslate"><span class="pre">Chain</span></code></a><ul class="nav section-nav flex-column">
