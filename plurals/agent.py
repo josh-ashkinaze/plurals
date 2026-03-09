@@ -443,9 +443,12 @@ class Agent:
             def _call():
                 return completion(model=self.model, messages=messages, **self.kwargs).choices[0].message.content
 
-            with ThreadPoolExecutor(max_workers=self.num_responses) as executor:
-                futures = [executor.submit(_call) for _ in range(self.num_responses)]
-                all_responses = [f.result() for f in futures]
+            if self.num_responses == 1:
+                all_responses = [_call()]
+            else:
+                with ThreadPoolExecutor(max_workers=self.num_responses) as executor:
+                    futures = [executor.submit(_call) for _ in range(self.num_responses)]
+                    all_responses = [f.result() for f in futures]
 
             if self.num_responses > 1:
                 selected_response = self.response_selector(all_responses)
