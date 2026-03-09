@@ -60,7 +60,10 @@ Plurals includes support for multiple information-sharing structures (e.g., chai
 4. Feature update: Added a best-of-n feature for Agents. This supports things like verifiable rewards and LLM as a Judge. Best-of-n can be used inside of Structures, where different Agents have different optimizing objectives. See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_6_best_of_n.html) on this for details.
 5. Feature update: Added `Interview` class for building rich, story-based personas via simulated interviews, inspired by [1](https://arxiv.org/abs/2504.11673). Also, an Agent can also automatically generate task-specific interview questions (returned as structured JSON), which are then used to conduct a targeted interview. See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_7_interview.html) for details.
 6. Improvement: Best-of-N generation is parallelized.
+7. Improvement: Added some useful methods for exporting and viewing structures --- `structure.to_dataframe()`, `structure.to_json()`, `structure.print_responses()` --- they really help understanding what's going on! The structure tutorial now documents there (see [this section](https://josh-ashkinaze.github.io/plurals/tutorial_4_structures.html#viewing-and-exporting-results))
+8. Improvement: Structures now support TQDM progress bars. When initializing the structure, just add `verbose=True`.
    
+
 # Detailed Documentation 📋
 
 https://josh-ashkinaze.github.io/plurals/
