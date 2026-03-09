@@ -2,6 +2,7 @@ from typing import List, Optional, Dict, Any
 import random
 import warnings
 import json
+import shutil
 import pandas as pd
 from plurals.agent import Agent
 from plurals.helpers import load_yaml, format_previous_responses
@@ -541,22 +542,61 @@ class AbstractStructure(ABC):
             pd.DataFrame: Tidy DataFrame of all agent turns.
         """
         rows = []
-        for idx, agent in enumerate(self.agents):
-            history = agent.history or []
-            for turn, entry in enumerate(history, start=1):
-                rows.append({
-                    "agent_index": idx,
-                    "persona": agent.persona,
-                    "model": agent.model,
-                    "turn": turn,
-                    "system_prompt": entry.get("prompts", {}).get("system"),
-                    "user_prompt": entry.get("prompts", {}).get("user"),
-                    "response": entry.get("response"),
-                })
+        max_turns = max((len(agent.history or []) for agent in self.agents), default=0)
+        for turn in range(max_turns):
+            for idx, agent in enumerate(self.agents):
+                history = agent.history or []
+                if turn < len(history):
+                    entry = history[turn]
+                    rows.append({
+                        "response_index": len(rows),
+                        "agent_index": idx,
+                        "persona": agent.persona,
+                        "model": agent.model,
+                        "turn": turn + 1,
+                        "system_prompt": entry.get("prompts", {}).get("system"),
+                        "user_prompt": entry.get("prompts", {}).get("user"),
+                        "response": entry.get("response"),
+                    })
         df = pd.DataFrame(rows)
         if fn is not None:
             df.to_csv(fn, index=False)
         return df
+
+    def print_responses(self) -> None:
+        """
+        Pretty-print all agent responses to the console, with a header per turn that
+        fills the terminal width.
+
+        Format::
+
+            ─── Agent 1 · a liberal woman from Missouri (gpt-4o) · Turn 1 ──────────
+            Response text...
+
+            ─── Agent 2 · an economist (gpt-4o) · Turn 1 ──────────────────────────
+            Response text...
+
+            ══ MODERATOR · default (gpt-4o) ════════════════════════════════════════
+            Moderated response...
+        """
+        width = shutil.get_terminal_size(fallback=(80, 24)).columns
+        df = self.to_dataframe()
+
+        for _, row in df.iterrows():
+            persona = (row["persona"] or "")[:50]
+            label = f" Agent {row['agent_index'] + 1} · {persona} ({row['model']}) · Turn {row['turn']} "
+            line = f"─── {label} ".ljust(width, "─")
+            print(line)
+            print(row["response"])
+            print()
+
+        if self.moderated and self.moderator and self.final_response:
+            persona = (self.moderator.persona or "")[:50]
+            label = f" MODERATOR · {persona} ({self.moderator.model}) "
+            line = f"══ {label} ".ljust(width, "═")
+            print(line)
+            print(self.final_response)
+            print()
 
     @abstractmethod
     def process(self) -> None:
