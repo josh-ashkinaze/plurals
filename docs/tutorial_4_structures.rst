@@ -451,3 +451,66 @@ about both the agents (``structure.info['agent_information']``) and the Structur
    ensemble.info
    # ensemble.info['agent_information'] # Will give the info of all the agents in the ensemble
    # ensemble.info['structure_information'] # Will give the info of Structure
+
+
+Viewing and exporting results
+------------------------------
+
+All structures provide three convenience methods for working with results after processing.
+
+
+``print_responses()``
+~~~~~~~~~~~~~~~~~~~~~
+
+Prints all agent responses to the console in conversation order, with a header per turn
+that fills the terminal width. For multi-cycle runs, responses are interleaved by cycle
+so you can read the conversation linearly rather than seeing all of one agent's turns
+grouped together. A visually distinct header marks the moderator's final response.
+
+.. code-block:: python
+
+    chain.process()
+    chain.print_responses()
+
+    # ─── Agent 1 · a liberal woman from Missouri (gpt-4o) · Turn 1 ─────────────
+    # Nuclear energy offers low carbon emissions and reliable baseload power...
+    #
+    # ─── Agent 2 · an economist (gpt-4o) · Turn 1 ──────────────────────────────
+    # While upfront capital costs are high, the long-run cost per kWh...
+    #
+    # ─── Agent 1 · a liberal woman from Missouri (gpt-4o) · Turn 2 ─────────────
+    # Building on the economic point, we must also weigh the waste storage...
+    #
+    # ══ MODERATOR · default (gpt-4o) ════════════════════════════════════════════
+    # Both perspectives highlight a genuine tension between...
+
+
+``to_dataframe()``
+~~~~~~~~~~~~~~~~~~
+
+Returns a tidy ``pandas.DataFrame`` with one row per agent turn, in conversation order.
+Optionally saves to a CSV by passing ``fn``.
+
+.. code-block:: python
+
+    df = chain.to_dataframe()
+    # Columns: response_index, agent_index, persona, model, turn,
+    #          system_prompt, user_prompt, response
+
+    # Save to CSV
+    df = chain.to_dataframe(fn="chain_results.csv")
+
+
+``to_json()``
+~~~~~~~~~~~~~
+
+Returns the structure's full ``info`` dict as a JSON string. Optionally saves to a file
+by passing ``fn``.
+
+.. code-block:: python
+
+    # Just get the string
+    json_str = chain.to_json()
+
+    # Save to file
+    chain.to_json(fn="chain_results.json")

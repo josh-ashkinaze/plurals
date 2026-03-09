@@ -1,6 +1,9 @@
 from typing import List, Optional, Dict, Any
 import random
 import warnings
+import json
+import shutil
+import pandas as pd
 from plurals.agent import Agent
 from plurals.helpers import load_yaml, format_previous_responses
 from abc import ABC, abstractmethod
@@ -499,6 +502,101 @@ class AbstractStructure(ABC):
             "agent_information": [agent.info for agent in self.agents],
         }
         return result
+
+    def to_json(self, fn: Optional[str] = None, indent: int = 2) -> str:
+        """
+        Serialise the structure's ``info`` dict to a JSON string, optionally saving to a file.
+
+        Args:
+            fn (Optional[str]): If provided, save the JSON to this filename. Default is None
+                (return string only, no file saved).
+            indent (int): Indentation level for pretty-printing. Default is 2.
+
+        Returns:
+            str: JSON representation of the structure.
+        """
+        result = json.dumps(self.info, indent=indent, default=str)
+        if fn is not None:
+            with open(fn, "w") as f:
+                f.write(result)
+        return result
+
+    def to_dataframe(self, fn: Optional[str] = None) -> pd.DataFrame:
+        """
+        Return a tidy DataFrame with one row per agent turn, optionally saving to a CSV.
+
+        Columns:
+            - ``agent_index``: Position of the agent in the agents list (0-based).
+            - ``persona``: The agent's persona string.
+            - ``model``: The model used by the agent.
+            - ``turn``: Which turn this was for this agent (1-based).
+            - ``system_prompt``: The system prompt sent for this turn.
+            - ``user_prompt``: The user prompt sent for this turn.
+            - ``response``: The agent's response.
+
+        Args:
+            fn (Optional[str]): If provided, save the DataFrame to this CSV filename. Default is None
+                (return DataFrame only, no file saved).
+
+        Returns:
+            pd.DataFrame: Tidy DataFrame of all agent turns.
+        """
+        rows = []
+        max_turns = max((len(agent.history or []) for agent in self.agents), default=0)
+        for turn in range(max_turns):
+            for idx, agent in enumerate(self.agents):
+                history = agent.history or []
+                if turn < len(history):
+                    entry = history[turn]
+                    rows.append({
+                        "response_index": len(rows),
+                        "agent_index": idx,
+                        "persona": agent.persona,
+                        "model": agent.model,
+                        "turn": turn + 1,
+                        "system_prompt": entry.get("prompts", {}).get("system"),
+                        "user_prompt": entry.get("prompts", {}).get("user"),
+                        "response": entry.get("response"),
+                    })
+        df = pd.DataFrame(rows)
+        if fn is not None:
+            df.to_csv(fn, index=False)
+        return df
+
+    def print_responses(self) -> None:
+        """
+        Pretty-print all agent responses to the console, with a header per turn that
+        fills the terminal width.
+
+        Format::
+
+            ─── Agent 1 · a liberal woman from Missouri (gpt-4o) · Turn 1 ──────────
+            Response text...
+
+            ─── Agent 2 · an economist (gpt-4o) · Turn 1 ──────────────────────────
+            Response text...
+
+            ══ MODERATOR · default (gpt-4o) ════════════════════════════════════════
+            Moderated response...
+        """
+        width = shutil.get_terminal_size(fallback=(80, 24)).columns
+        df = self.to_dataframe()
+
+        for _, row in df.iterrows():
+            persona = (row["persona"] or "")[:50]
+            label = f" Agent {row['agent_index'] + 1} · {persona} ({row['model']}) · Turn {row['turn']} "
+            line = f"─── {label} ".ljust(width, "─")
+            print(line)
+            print(row["response"])
+            print()
+
+        if self.moderated and self.moderator and self.final_response:
+            persona = (self.moderator.persona or "")[:50]
+            label = f" MODERATOR · {persona} ({self.moderator.model}) "
+            line = f"══ {label} ".ljust(width, "═")
+            print(line)
+            print(self.final_response)
+            print()
 
     @abstractmethod
     def process(self) -> None:
