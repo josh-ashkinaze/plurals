@@ -225,10 +225,11 @@ ensemble.process()
 print(ensemble.final_response)
 ```
 
-## Constitutional AI-style convergence via shuffled cycles
+## Random network deliberation and "Critique-Revise" combination instructions
 
 A `Chain` with `combination_instructions='critique_revise'`, `shuffle=True`, and multiple `cycles` approximates random-network deliberation: over rounds each agent has likely critiqued every other agent's work, without any single voice anchoring the result.
-See the Structures [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_4_structures.html) for more details on how to customize combination instructions and structure parameters.
+See the Structures [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_4_structures.html) for more details on how to customize combination instructions and structure parameters. In general, 
+the `Chain` class with multiple cycles and Shuffling is surprisingly powerful!
 
 ```python
 from plurals.agent import Agent
