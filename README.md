@@ -75,7 +75,7 @@ https://josh-ashkinaze.github.io/plurals/
 
 ## Installation
 
-```markddown
+```bash
 pip install plurals
 ```
 
@@ -160,12 +160,13 @@ for r in ensemble.responses:
 ## Best-of-N with verifiable rewards: Wikipedia NPOV
 
 LLMs neutralizing biased text tend to rewrite entire sentences but human Wikipedia editors remove just a few words [1]. 
-So how about the LLM generates 5 neutralization and select the one closest to the original by edit distance, 
+So how about the LLM generates 5 neutralizations and selects the one closest to the original by edit distance,
 a verifiable reward with no judge LLM needed. (Best-of-N can also be used inside Structures.)
 
 See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_6_best_of_n.html) on best-of-N and verifiable rewards.
 
 [1] Ashkinaze, J., Guan, R., Kurek, L., Adar, E., Budak, C., & Gilbert, E. (2024). Seeing like an ai: How llms apply (and misapply) wikipedia neutrality norms. arXiv preprint arXiv:2407.04183.
+
 ```python
 # pip install editdistance
 import editdistance
@@ -190,7 +191,7 @@ print(f"Neutralized:   {response}")
 print(f"Edit distance: {editdistance.eval(original, response)}")
 ```
 
-## Interview-based simulated focus groups w
+## Interview-based simulated focus groups
 
 `Interview` expands a seed into a full life-story by conducting a virtual interview with the Agent. 
 See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_7_interview.html) for more details on how to use `Interview` and how to generate interview questions from user input.
