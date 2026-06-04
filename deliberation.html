@@ -801,24 +801,9 @@ libertarian: [libertarian&#39;s response]
 <dl class="py method">
 <dt class="sig sig-object py" id="plurals.deliberation.Graph.process">
 <span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plurals/deliberation.html#Graph.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#plurals.deliberation.Graph.process" title="Link to this definition">#</a></dt>
-<dd><p>Processes the tasks within the network of agents, respecting the directed acyclic graph (DAG) structure. The order
-of agent deliberation is determined using Kahn’s algorithm for topological sorting.</p>
-<p>Kahn’s Algorithm:</p>
-<ol class="arabic simple">
-<li><p>Initialize a queue with agents that have an in-degree of 0 (no dependencies).</p></li>
-<li><p>While the queue is not empty:</p>
-<ol class="loweralpha simple">
-<li><p>Remove an agent from the queue and add this agent to the topological order.</p></li>
-<li><p>For each successor of this agent:</p>
-<ol class="lowerroman simple">
-<li><p>Decrease the successor’s in-degree by 1.</p></li>
-<li><p>If the successor’s in-degree becomes 0, add it to the queue.</p></li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-<p>This method ensures that agents are processed in an order where each agent’s dependencies are processed before the agent itself.</p>
+<dd><p>Processes the tasks within the network of agents, respecting the directed acyclic graph (DAG) structure.
+Agents within the same topological wave (no dependencies on each other) run in parallel via
+ThreadPoolExecutor. Wave ordering follows Kahn’s algorithm.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The final response after all agents have been processed, and potentially moderated.</p>

@@ -1346,24 +1346,9 @@
 <a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Graph.process">[docs]</a>
     <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Processes the tasks within the network of agents, respecting the directed acyclic graph (DAG) structure. The order</span>
-<span class="sd">        of agent deliberation is determined using Kahn&#39;s algorithm for topological sorting.</span>
-
-<span class="sd">        Kahn&#39;s Algorithm:</span>
-
-<span class="sd">        1. Initialize a queue with agents that have an in-degree of 0 (no dependencies).</span>
-
-<span class="sd">        2. While the queue is not empty:</span>
-
-<span class="sd">           a. Remove an agent from the queue and add this agent to the topological order.</span>
-
-<span class="sd">           b. For each successor of this agent:</span>
-
-<span class="sd">              i. Decrease the successor&#39;s in-degree by 1.</span>
-
-<span class="sd">              ii. If the successor&#39;s in-degree becomes 0, add it to the queue.</span>
-
-<span class="sd">        This method ensures that agents are processed in an order where each agent&#39;s dependencies are processed before the agent itself.</span>
+<span class="sd">        Processes the tasks within the network of agents, respecting the directed acyclic graph (DAG) structure.</span>
+<span class="sd">        Agents within the same topological wave (no dependencies on each other) run in parallel via</span>
+<span class="sd">        ThreadPoolExecutor. Wave ordering follows Kahn&#39;s algorithm.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: The final response after all agents have been processed, and potentially moderated.</span>
@@ -1371,63 +1356,62 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If a cycle is detected in the DAG, as this prevents valid topological sorting.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c1"># Initialize the queue with agents that have in-degree 0</span>
-        <span class="n">zero_in_degree_queue</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">agent</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
-        <span class="p">)</span>
+        <span class="n">agent_to_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_agent_name_mapping</span><span class="p">()</span>
+        <span class="n">response_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">topological_order</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">predecessors_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">agent</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">predecessor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">successor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">predecessor</span><span class="p">]:</span>
+                <span class="n">predecessors_map</span><span class="p">[</span><span class="n">successor</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">predecessor</span><span class="p">)</span>
 
-        <span class="c1"># Kahn&#39;s Algorithm</span>
-        <span class="k">while</span> <span class="n">zero_in_degree_queue</span><span class="p">:</span>
+        <span class="n">in_degree</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">)</span>
+        <span class="n">current_wave</span> <span class="o">=</span> <span class="p">[</span><span class="n">agent</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="k">if</span> <span class="n">in_degree</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
 
-            <span class="c1"># Pop the agent with in-degree 0</span>
-            <span class="n">current_agent</span> <span class="o">=</span> <span class="n">zero_in_degree_queue</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+        <span class="n">pbar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Graph&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span>
 
-            <span class="c1"># Add the agent to the topological order</span>
-            <span class="n">topological_order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_agent</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">current_wave</span><span class="p">:</span>
+            <span class="n">wave_results</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">()</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+                <span class="n">future_to_agent</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">current_wave</span><span class="p">:</span>
+                    <span class="n">predecessors</span> <span class="o">=</span> <span class="n">predecessors_map</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span>
+                    <span class="n">previous_responses</span> <span class="o">=</span> <span class="p">[</span><span class="n">response_dict</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predecessors</span><span class="p">]</span>
+                    <span class="n">previous_agent_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">agent_to_name</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predecessors</span><span class="p">]</span>
+                    <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span>
+                        <span class="n">previous_responses</span><span class="p">,</span> <span class="n">agent_names</span><span class="o">=</span><span class="n">previous_agent_names</span>
+                    <span class="p">)</span>
+                    <span class="n">future_to_agent</span><span class="p">[</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)]</span> <span class="o">=</span> <span class="n">agent</span>
+                <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">future_to_agent</span><span class="p">):</span>
+                    <span class="n">wave_results</span><span class="p">[</span><span class="n">future_to_agent</span><span class="p">[</span><span class="n">future</span><span class="p">]]</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
 
-            <span class="c1"># Decrease the in-degree of the popped Agent&#39;s successors</span>
-            <span class="c1"># If the in-degree of a successor becomes 0, add it to the queue</span>
-            <span class="k">for</span> <span class="n">successor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">current_agent</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">[</span><span class="n">successor</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">[</span><span class="n">successor</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">zero_in_degree_queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">successor</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">current_wave</span><span class="p">:</span>
+                <span class="n">response_dict</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="o">=</span> <span class="n">wave_results</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span>
+                <span class="n">topological_order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">agent</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wave_results</span><span class="p">[</span><span class="n">agent</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">pbar</span><span class="p">:</span>
+                    <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">next_wave</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">current_wave</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">successor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">agent</span><span class="p">]:</span>
+                    <span class="n">in_degree</span><span class="p">[</span><span class="n">successor</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">in_degree</span><span class="p">[</span><span class="n">successor</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">next_wave</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">successor</span><span class="p">)</span>
+            <span class="n">current_wave</span> <span class="o">=</span> <span class="n">next_wave</span>
+
+        <span class="k">if</span> <span class="n">pbar</span><span class="p">:</span>
+            <span class="n">pbar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">topological_order</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;There is a cycle in the graph!!! This is not allowed in a DAG.&quot;</span>
-            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;There is a cycle in the graph!!! This is not allowed in a DAG.&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Process agents according to topological order</span>
-        <span class="n">response_dict</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="n">agent_to_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_agent_name_mapping</span><span class="p">()</span>
-        <span class="n">agents_iter</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">topological_order</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Agents&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">topological_order</span>
-        <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">agents_iter</span><span class="p">:</span>
-            <span class="c1"># Gather responses from all predecessors to form the input for the current agent</span>
-            <span class="n">predecessors</span> <span class="o">=</span> <span class="p">[</span><span class="n">pred</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="k">if</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">pred</span><span class="p">]]</span>
-            <span class="n">previous_responses</span> <span class="o">=</span> <span class="p">[</span><span class="n">response_dict</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predecessors</span><span class="p">]</span>
-            <span class="n">previous_agent_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">agent_to_name</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predecessors</span><span class="p">]</span>
-            <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span>
-                <span class="n">previous_responses</span><span class="p">,</span>
-                <span class="n">agent_names</span><span class="o">=</span><span class="n">previous_agent_names</span>
-            <span class="p">)</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
-            <span class="n">response_dict</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="o">=</span> <span class="n">response</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-
-        <span class="c1"># Handle the moderator if present</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
-            <span class="n">original_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">original_task_description</span>
-            <span class="c1"># Get all agent names in the order of responses</span>
             <span class="n">all_agent_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">agent_to_name</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">topological_order</span><span class="p">]</span>
             <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span>
-                <span class="nb">list</span><span class="p">(</span><span class="n">response_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+                <span class="p">[</span><span class="n">response_dict</span><span class="p">[</span><span class="n">agent</span><span class="p">]</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">topological_order</span><span class="p">],</span>
                 <span class="n">agent_names</span><span class="o">=</span><span class="n">all_agent_names</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="n">moderated_response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span></div>
 
@@ -1501,7 +1485,6 @@
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s2">&quot;Agent names in edges must be keys in the agent dictionary.&quot;</span>
                     <span class="p">)</span></div>
-
 
 
 </pre></div>
