@@ -1046,24 +1046,9 @@ class Graph(AbstractStructure):
 
     def process(self):
         """
-        Processes the tasks within the network of agents, respecting the directed acyclic graph (DAG) structure. The order
-        of agent deliberation is determined using Kahn's algorithm for topological sorting.
-
-        Kahn's Algorithm:
-
-        1. Initialize a queue with agents that have an in-degree of 0 (no dependencies).
-
-        2. While the queue is not empty:
-
-           a. Remove an agent from the queue and add this agent to the topological order.
-
-           b. For each successor of this agent:
-
-              i. Decrease the successor's in-degree by 1.
-
-              ii. If the successor's in-degree becomes 0, add it to the queue.
-
-        This method ensures that agents are processed in an order where each agent's dependencies are processed before the agent itself.
+        Processes the tasks within the network of agents, respecting the directed acyclic graph (DAG) structure.
+        Agents within the same topological wave (no dependencies on each other) run in parallel via
+        ThreadPoolExecutor. Wave ordering follows Kahn's algorithm.
 
         Returns:
             str: The final response after all agents have been processed, and potentially moderated.
@@ -1071,63 +1056,58 @@ class Graph(AbstractStructure):
         Raises:
             ValueError: If a cycle is detected in the DAG, as this prevents valid topological sorting.
         """
-
-        # Initialize the queue with agents that have in-degree 0
-        zero_in_degree_queue = collections.deque(
-            [agent for agent in self.agents if self.in_degree[agent] == 0]
-        )
+        agent_to_name = self._create_agent_name_mapping()
+        response_dict = {}
         topological_order = []
 
-        # Kahn's Algorithm
-        while zero_in_degree_queue:
+        in_degree = dict(self.in_degree)
+        current_wave = [agent for agent in self.agents if in_degree[agent] == 0]
 
-            # Pop the agent with in-degree 0
-            current_agent = zero_in_degree_queue.popleft()
+        pbar = tqdm(total=len(self.agents), desc="Graph") if self.verbose else None
 
-            # Add the agent to the topological order
-            topological_order.append(current_agent)
+        while current_wave:
+            wave_results = {}
+            with ThreadPoolExecutor() as executor:
+                future_to_agent = {}
+                for agent in current_wave:
+                    predecessors = [pred for pred in self.agents if agent in self.graph[pred]]
+                    previous_responses = [response_dict[pred] for pred in predecessors]
+                    previous_agent_names = [agent_to_name[pred] for pred in predecessors]
+                    previous_responses_str = format_previous_responses(
+                        previous_responses, agent_names=previous_agent_names
+                    )
+                    future_to_agent[executor.submit(agent.process, previous_responses=previous_responses_str)] = agent
+                for future in as_completed(future_to_agent):
+                    wave_results[future_to_agent[future]] = future.result()
 
-            # Decrease the in-degree of the popped Agent's successors
-            # If the in-degree of a successor becomes 0, add it to the queue
-            for successor in self.graph[current_agent]:
-                self.in_degree[successor] -= 1
-                if self.in_degree[successor] == 0:
-                    zero_in_degree_queue.append(successor)
+            for agent in current_wave:
+                response_dict[agent] = wave_results[agent]
+                topological_order.append(agent)
+                self.responses.append(wave_results[agent])
+                if pbar:
+                    pbar.update(1)
+
+            next_wave = []
+            for agent in current_wave:
+                for successor in self.graph[agent]:
+                    in_degree[successor] -= 1
+                    if in_degree[successor] == 0:
+                        next_wave.append(successor)
+            current_wave = next_wave
+
+        if pbar:
+            pbar.close()
 
         if len(topological_order) != len(self.agents):
-            raise ValueError(
-                "There is a cycle in the graph!!! This is not allowed in a DAG."
-            )
+            raise ValueError("There is a cycle in the graph!!! This is not allowed in a DAG.")
 
-        # Process agents according to topological order
-        response_dict = {}
-
-        agent_to_name = self._create_agent_name_mapping()
-        agents_iter = tqdm(topological_order, desc="Agents") if self.verbose else topological_order
-        for agent in agents_iter:
-            # Gather responses from all predecessors to form the input for the current agent
-            predecessors = [pred for pred in self.agents if agent in self.graph[pred]]
-            previous_responses = [response_dict[pred] for pred in predecessors]
-            previous_agent_names = [agent_to_name[pred] for pred in predecessors]
-            previous_responses_str = format_previous_responses(
-                previous_responses,
-                agent_names=previous_agent_names
-            )
-            response = agent.process(previous_responses=previous_responses_str)
-            response_dict[agent] = response
-            self.responses.append(response)
-
-        # Handle the moderator if present
         if self.moderated and self.moderator:
-            original_task = self.agents[0].original_task_description
-            # Get all agent names in the order of responses
             all_agent_names = [agent_to_name[agent] for agent in topological_order]
             moderated_response = self.moderator._moderate_responses(
-                list(response_dict.values()),
+                [response_dict[agent] for agent in topological_order],
                 agent_names=all_agent_names
             )
             self.responses.append(moderated_response)
-            self.final_response = moderated_response
         self.final_response = self.responses[-1]
         return self.final_response
 
