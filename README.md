@@ -75,7 +75,7 @@ https://josh-ashkinaze.github.io/plurals/
 
 ## Installation
 
-```bash
+```markddown
 pip install plurals
 ```
 
@@ -88,62 +88,9 @@ os.environ["OPENAI_API_KEY"] = 'your_openai_key'
 os.environ["ANTHROPIC_API_KEY"] = 'your_anthropic_key'
 ```
 
-## Directed acyclic graph of Agents for story development
-
-See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_4_structures.html) for more details on how to build and customize structures.
-
-<div style="text-align: center;">
-    <img src="https://raw.githubusercontent.com/josh-ashkinaze/plurals/main/assets/mermaid_diagram.svg" alt="System Diagram" width="80%">
-</div>
-
-```python
-from plurals.agent import Agent
-from plurals.deliberation import Graph, Moderator
-
-story_prompt = """
-Craft a mystery story set in 1920s Paris.
-The story should revolve around the theft of a famous artwork from the Louvre.
-"""
-
-agents = {
-    'plot': Agent(
-        system_instructions="You are a bestselling author specializing in mystery plots",
-        model="gpt-4o",
-        combination_instructions="Develop the plot based on character and setting inputs: <start>${previous_responses}</end>"
-    ),
-    'character': Agent(
-        system_instructions="You are a character development expert with a background in psychology",
-        model="gpt-4o",
-        combination_instructions="Create compelling characters that fit the plot and setting: <start>${previous_responses}</end>"
-    ),
-    'setting': Agent(
-        system_instructions="You are a world-building expert with a focus on historical accuracy",
-        model="gpt-4o",
-        combination_instructions="Design a rich, historically accurate setting that enhances the plot: <start>${previous_responses}</end>"
-    )
-}
-
-moderator = Moderator(
-    persona="an experienced editor specializing in mystery novels",
-    model="gpt-4o",
-    combination_instructions="Synthesize the plot, character, and setting elements into a cohesive story outline: <start>${previous_responses}</end>"
-)
-
-edges = [
-    ('setting', 'character'),
-    ('setting', 'plot'),
-    ('character', 'plot')
-]
-
-story_dag = Graph(agents=agents, edges=edges, task=story_prompt, moderator=moderator)
-story_dag.process()
-print(story_dag.final_response)
-```
-
 ## Nationally representative focus group
 
-Sample 20 Americans from ANES survey data---each a real demographic profile, weighted for national representativeness---and run them as a parallel ensemble.
-See the [Agents](https://josh-ashkinaze.github.io/plurals/tutorial_3_agents.html) tutorial for an explanation of ANES personas. 
+Sample 20 Americans from ANES survey data—each a real demographic profile, weighted for national representativeness—and run them as a parallel ensemble.
 
 ```python
 from plurals.agent import Agent
@@ -159,13 +106,7 @@ for r in ensemble.responses:
 
 ## Best-of-N with verifiable rewards: Wikipedia NPOV
 
-LLMs neutralizing biased text tend to rewrite entire sentences but human Wikipedia editors remove just a few words [1]. 
-So how about the LLM generates 5 neutralizations and selects the one closest to the original by edit distance,
-a verifiable reward with no judge LLM needed. (Best-of-N can also be used inside Structures.)
-
-See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_6_best_of_n.html) on best-of-N and verifiable rewards.
-
-[1] Ashkinaze, J., Guan, R., Kurek, L., Adar, E., Budak, C., & Gilbert, E. (2024). Seeing like an ai: How llms apply (and misapply) wikipedia neutrality norms. arXiv preprint arXiv:2407.04183.
+LLMs neutralizing biased text tend to rewrite entire sentences; human Wikipedia editors remove one or two charged words. Generate 5 neutralizations and select the one closest to the original by edit distance—a verifiable reward with no judge LLM needed.
 
 ```python
 # pip install editdistance
@@ -191,13 +132,10 @@ print(f"Neutralized:   {response}")
 print(f"Edit distance: {editdistance.eval(original, response)}")
 ```
 
-## Interview-based simulated focus groups
+## Interview-based focus group with life-story personas
 
-`Interview` expands a seed into a full life-story by conducting a virtual interview with the Agent. 
-See the [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_7_interview.html) for more details on how to use `Interview` and how to generate interview questions from user input.
+`Interview` expands a seed into a full life-story Q&A transcript before it ever touches a task. Agents grounded in a specific life narrative give far less generic answers than agents with a one-line demographic sketch.
 
-More broadly, simulated focus groups are a useful design pattern---where we construct either ANES or interview-based personas and then run them in an ensemble to give input, 
-with a Moderator optionally summarizing the ensemble's responses. 
 ```python
 from tqdm import tqdm
 from plurals.agent import Agent
@@ -220,17 +158,15 @@ for seed in tqdm(seeds, desc="Running interviews"):
 moderator = Moderator(persona="default", model="gpt-4o")
 ensemble = Ensemble(
     agents=agents, moderator=moderator,
-    task="What would you want in a healthcare app? Answer in 200 words from your own, specific perspective."
+    task="What should U.S. healthcare policy prioritize? Answer in 75 words from your own perspective."
 )
 ensemble.process()
 print(ensemble.final_response)
 ```
 
-## Random network deliberation and "Critique-Revise" combination instructions
+## Constitutional AI-style convergence via shuffled cycles
 
 A `Chain` with `combination_instructions='critique_revise'`, `shuffle=True`, and multiple `cycles` approximates random-network deliberation: over rounds each agent has likely critiqued every other agent's work, without any single voice anchoring the result.
-See the Structures [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_4_structures.html) for more details on how to customize combination instructions and structure parameters. In general, 
-the `Chain` class with multiple cycles and Shuffling is surprisingly powerful!
 
 ```python
 from plurals.agent import Agent
@@ -253,12 +189,8 @@ print(chain.final_response)
 ```
 
 ## Diamond DAG: NSF abstract reviewed by two independent panels
-This is a design pattern I call "diamond DAG":
-- One agent produces an output. 
-- The initial output is critiqued from N orthogonal perspectives.
-- The output is then re-written based on the critiques.  
 
-See the Structures [tutorial](https://josh-ashkinaze.github.io/plurals/tutorial_4_structures.html) for more details on DAGs. 
+NSF scores proposals on exactly two criteria—Intellectual Merit and Broader Impacts—assessed independently. The diamond topology mirrors that structure: neither reviewer sees the other's critique, and the rewriter sees both.
 
 ```python
 from plurals.agent import Agent
@@ -302,7 +234,7 @@ edges = [
     ('impact_critic','rewriter'),
 ]
 
-graph = Graph(agents=agents, edges=edges, task=task, verbose=True)
+graph = Graph(agents=agents, edges=edges, task=task)
 graph.process()
 graph.print_responses()
 ```
