@@ -1059,6 +1059,10 @@ class Graph(AbstractStructure):
         agent_to_name = self._create_agent_name_mapping()
         response_dict = {}
         topological_order = []
+        predecessors_map = {agent: [] for agent in self.agents}
+        for predecessor in self.agents:
+            for successor in self.graph[predecessor]:
+                predecessors_map[successor].append(predecessor)
 
         in_degree = dict(self.in_degree)
         current_wave = [agent for agent in self.agents if in_degree[agent] == 0]
@@ -1070,7 +1074,7 @@ class Graph(AbstractStructure):
             with ThreadPoolExecutor() as executor:
                 future_to_agent = {}
                 for agent in current_wave:
-                    predecessors = [pred for pred in self.agents if agent in self.graph[pred]]
+                    predecessors = predecessors_map[agent]
                     previous_responses = [response_dict[pred] for pred in predecessors]
                     previous_agent_names = [agent_to_name[pred] for pred in predecessors]
                     previous_responses_str = format_previous_responses(
@@ -1180,5 +1184,4 @@ class Graph(AbstractStructure):
                     raise ValueError(
                         "Agent names in edges must be keys in the agent dictionary."
                     )
-
 
