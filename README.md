@@ -66,6 +66,8 @@ Plurals includes support for multiple information-sharing structures (e.g., chai
 9. 🔧 Improvement: Added methods for exporting and viewing structures —  
 `structure.to_dataframe()`, `structure.to_json()`, `structure.print_responses()` — which make it much easier to inspect what's happening internally. The structure tutorial now documents these features (see [this section](https://josh-ashkinaze.github.io/plurals/tutorial_4_structures.html#viewing-and-exporting-results)).
 10. 🔧 Improvement: Structures now support **TQDM progress bars**. When initializing a structure, just add `verbose=True`.
+11. ⚡ Performance improvement: DAGs are going to run much faster, batching nodes when possible. 
+
 
 # Detailed Documentation 📋
 
