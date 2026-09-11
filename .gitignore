@@ -187,3 +187,4 @@ cython_debug/
 /docs/_build/doctrees/using_moderators.doctree
 /docs/_build/doctrees/using_structures.doctree
 /my_tests.ipynb
+/examples/loop_examples.ipynb

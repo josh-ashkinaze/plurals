@@ -192,8 +192,14 @@ combination_instructions:
     <end>
   critique_revise: |
     USE PREVIOUS RESPONSES TO COMPLETE THE TASK
-    Critique previous responses based on the task, and then create one response incorporating revisions. Here are the 
+    Critique previous responses based on the task, and then create one response incorporating revisions. Here are the
     previous responses:
+    <start>
+    ${previous_responses}
+    <end>
+  loop: |
+    USE PREVIOUS RESPONSES TO COMPLETE THE TASK
+    You are operating in an iterative loop. Here are the previous responses:
     <start>
     ${previous_responses}
     <end>

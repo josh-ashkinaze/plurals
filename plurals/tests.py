@@ -9,6 +9,7 @@ from plurals.deliberation import (
     Ensemble,
     Debate,
     Graph,
+    Loop,
     AbstractStructure,
 )
 from plurals.helpers import (
@@ -1129,6 +1130,159 @@ class TestDebate(unittest.TestCase):
 
         self.assertEqual(len(debate.responses), 2)
         self.assertIn("third person", agent2.prompts[0]["user"])
+
+
+class TestLoop(unittest.TestCase):
+
+    def setUp(self):
+        self.task = "Write a one-paragraph pitch for a productivity app."
+        self.model = "gpt-4.1-mini"
+
+    def _make_agents(self, n=2):
+        return [Agent(model=self.model, task=self.task) for _ in range(n)]
+
+    def test_loop_default_combination_instructions(self):
+        agents = self._make_agents()
+        loop = Loop(agents, task=self.task, stop_condition=lambda r: True)
+
+        self.assertEqual(
+            DEFAULTS["combination_instructions"]["loop"],
+            loop.combination_instructions,
+        )
+        self.assertEqual(
+            "USE PREVIOUS RESPONSES TO COMPLETE THE TASK\n"
+            "You are operating in an iterative loop. Here are the previous responses:\n"
+            "<start>\n${previous_responses}\n<end>",
+            loop.combination_instructions,
+        )
+
+    def test_loop_requires_at_least_two_agents(self):
+        with self.assertRaises(ValueError):
+            Loop(self._make_agents(1), task=self.task, stop_condition=lambda r: True)
+
+    def test_loop_stop_condition_must_be_callable(self):
+        with self.assertRaises(ValueError):
+            Loop(self._make_agents(), task=self.task, stop_condition="not callable")
+
+    def test_loop_min_cycles_cannot_exceed_cycles(self):
+        with self.assertRaises(ValueError):
+            Loop(
+                self._make_agents(),
+                task=self.task,
+                stop_condition=lambda r: True,
+                min_cycles=3,
+                cycles=2,
+            )
+
+    def test_loop_warns_when_no_stop_condition(self):
+        with self.assertWarns(UserWarning):
+            Loop(self._make_agents(), task=self.task)
+
+    def test_loop_stops_early_via_stop_condition(self):
+        agents = self._make_agents()
+        loop = Loop(
+            agents,
+            task=self.task,
+            stop_condition=lambda responses: "APPROVED" in responses[-1],
+            cycles=4,
+        )
+        with patch.object(
+                Agent,
+                "_get_response",
+                side_effect=[
+                    "draft v1",
+                    "REVISE: needs more detail",
+                    "draft v2",
+                    "APPROVED",
+                ],
+        ):
+            loop.process()
+
+        self.assertEqual(loop.stop_reason, "stop_condition")
+        self.assertEqual(loop.cycles_completed, 2)
+        self.assertEqual(len(loop.responses), 4)
+        self.assertEqual(loop.final_response, "APPROVED")
+
+    def test_loop_stops_at_max_cycles_when_condition_never_met(self):
+        agents = self._make_agents()
+        loop = Loop(
+            agents,
+            task=self.task,
+            stop_condition=lambda responses: False,
+            cycles=2,
+        )
+        with patch.object(
+                Agent,
+                "_get_response",
+                side_effect=["r1", "r2", "r3", "r4"],
+        ):
+            loop.process()
+
+        self.assertEqual(loop.stop_reason, "max_cycles")
+        self.assertEqual(loop.cycles_completed, 2)
+        self.assertEqual(len(loop.responses), 4)
+
+    def test_loop_min_cycles_gates_stop_condition(self):
+        agents = self._make_agents()
+        loop = Loop(
+            agents,
+            task=self.task,
+            stop_condition=lambda responses: True,
+            min_cycles=2,
+            cycles=5,
+        )
+        with patch.object(
+                Agent,
+                "_get_response",
+                side_effect=["r1", "r2", "r3", "r4"],
+        ):
+            loop.process()
+
+        # stop_condition is always True, but shouldn't be honored until min_cycles=2 rounds complete
+        self.assertEqual(loop.cycles_completed, 2)
+        self.assertEqual(loop.stop_reason, "stop_condition")
+        self.assertEqual(len(loop.responses), 4)
+
+    def test_loop_with_moderator(self):
+        agents = self._make_agents()
+        moderator = Moderator(task=self.task)
+        loop = Loop(
+            agents,
+            task=self.task,
+            stop_condition=lambda responses: True,
+            cycles=3,
+            moderator=moderator,
+        )
+        with patch.object(
+                Agent,
+                "_get_response",
+                side_effect=["r1", "r2", "mod_response"],
+        ):
+            loop.process()
+
+        self.assertEqual(loop.cycles_completed, 1)
+        self.assertEqual(len(loop.responses), 3)
+        self.assertEqual(loop.final_response, "mod_response")
+
+    def test_loop_info_contains_stop_metadata(self):
+        agents = self._make_agents()
+        loop = Loop(
+            agents,
+            task=self.task,
+            stop_condition=lambda responses: "APPROVED" in responses[-1],
+            cycles=4,
+        )
+        with patch.object(
+                Agent,
+                "_get_response",
+                side_effect=["draft v1", "APPROVED"],
+        ):
+            loop.process()
+
+        info = loop.info
+        self.assertEqual(info["structure_information"]["stop_reason"], "stop_condition")
+        self.assertEqual(info["structure_information"]["cycles_completed"], 1)
+        self.assertEqual(info["structure_information"]["max_cycles"], 4)
 
 
 class TestAgentStructures(unittest.TestCase):

@@ -13,6 +13,7 @@ Each Structure offers different ways for Agents to interact with each other:
 - Chain: Agents process tasks sequentially, each building on the previous Agent's output
 - Debate: Two Agents engage in a back-and-forth discussion
 - Graph: Agents interact in a directed acyclic graph (DAG) structure
+- Loop: Agents process tasks round-robin, repeating until a ``stop_condition`` is met or a cycle cap is hit
 
 Every Structure can be moderated, which means that a Moderator Agent will oversee the task and potentially combine the responses of the Agents.
 Structures will return ``responses`` as a list or you can access the final response by calling the ``final_response`` attribute.
@@ -41,6 +42,7 @@ We offer a list of templates which can be used via keywords. Options include thi
 - ``critique_revise``: A critique and revise template based on constitutional AI
 - ``voting``: A template meant for making final decisions
 - ``jury``: A template based on instructions given to New York state jurors
+- ``loop``: The default template for ``Loop``, which frames the task as an ongoing iterative process
 
 
 These templates can be found in `instructions.yaml <https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml>`_.
@@ -420,6 +422,151 @@ The libertarian will see the responses of both the liberal and conservative agen
 This makes it clearer which agent said what, especially in complex DAG structures.
 
 If you use the list-of-agents method, the agents will be 'named' "Agent 1", "Agent 2", etc. based on their order in the list.
+
+
+Loop
+----
+
+``Loop`` runs two or more Agents round-robin — the same rotation as ``Chain`` — but instead of a
+fixed number of rounds, it checks a ``stop_condition`` after every full cycle and halts the moment
+that returns ``True``. ``cycles`` still acts as a hard safety cap, so a ``stop_condition`` that
+never fires can't loop forever. This is the natural shape for producer/critic refinement,
+convergence between opposing Agents, or any pattern where the "right" number of rounds isn't known
+ahead of time.
+
+.. note::
+
+    ``Loop`` requires at least two Agents. ``stop_condition`` is a plain Python function over the
+    accumulated ``responses`` list — there is no special API for an LLM-as-judge; you just write a
+    closure that calls an ``Agent`` internally (shown below).
+
+**Writer/critic loop that stops as soon as the critic approves:**
+
+.. code-block:: python
+
+    from plurals.agent import Agent
+    from plurals.deliberation import Loop
+
+    def stop_when_approved(responses):
+        return "APPROVED" in responses[-1]
+
+    writer = Agent(system_instructions="You are a writer. Revise the draft based on feedback.", model="gpt-4o")
+    critic = Agent(
+        system_instructions="You are a critic. If the draft is good, respond with exactly 'APPROVED'. "
+                             "Otherwise, give specific feedback.",
+        model="gpt-4o",
+    )
+
+    loop = Loop(
+        [writer, critic],
+        task="Write a one-paragraph pitch for a productivity app.",
+        stop_condition=stop_when_approved,
+        cycles=6,  # safety cap
+    )
+    loop.process()
+    print(loop.final_response)
+    print(loop.stop_reason, loop.cycles_completed)  # e.g. "stop_condition" 2
+
+If ``stop_condition`` never returns ``True``, ``Loop`` behaves like ``Chain`` with a fixed cycle
+count: it runs for ``cycles`` rounds and stops, with ``stop_reason`` set to ``"max_cycles"``.
+
+**Convergence between two Agents with opposing personas:**
+
+``stop_condition`` doesn't need to look for a keyword — it can compare responses directly, letting
+two Agents iterate toward common ground.
+
+.. code-block:: python
+
+    def responses_converged(responses, threshold=0.6):
+        if len(responses) < 4:
+            return False
+        a, b = responses[-2].lower().split(), responses[-1].lower().split()
+        if not a or not b:
+            return False
+        shared = set(a) & set(b)
+        return len(shared) / min(len(set(a)), len(set(b))) > threshold
+
+    liberal = Agent(persona="a liberal", model="gpt-4o")
+    conservative = Agent(persona="a conservative", model="gpt-4o")
+
+    policy_loop = Loop(
+        [liberal, conservative],
+        task="Propose a federal policy on renewable energy subsidies. Answer in 40 words.",
+        stop_condition=responses_converged,
+        cycles=8,
+    )
+    policy_loop.process()
+
+**Panels of 3+ Agents, with a Moderator for the final summary:**
+
+``Loop`` isn't limited to two Agents — any number round-robin the same way ``Chain`` does.
+
+.. code-block:: python
+
+    from plurals.deliberation import Moderator
+
+    def someone_agreed(responses):
+        return "AGREED" in responses[-1].upper()
+
+    engineer = Agent(persona="a transportation engineer", model="gpt-4o")
+    economist = Agent(persona="an urban economist", model="gpt-4o")
+    resident = Agent(persona="a longtime city resident", model="gpt-4o")
+    moderator = Moderator(persona="default", model="gpt-4o")
+
+    panel_loop = Loop(
+        [engineer, economist, resident],
+        task="What is the single most impactful change a mid-sized city could make to reduce traffic congestion?",
+        combination_instructions=(
+            "USE PREVIOUS RESPONSES TO COMPLETE THE TASK\n"
+            "Here are previous responses: ${previous_responses}\n"
+            "If you agree with the emerging consensus, end your response with the word AGREED."
+        ),
+        stop_condition=someone_agreed,
+        cycles=4,
+        moderator=moderator,
+    )
+    panel_loop.process()
+    print(panel_loop.final_response)
+
+**Using an LLM as the judge behind stop_condition:**
+
+Since ``stop_condition`` is just a callable, an LLM-as-judge pattern is a closure you write
+yourself — no special ``Loop`` API for it:
+
+.. code-block:: python
+
+    def llm_judge_stop(criteria, model="gpt-4o"):
+        def stop_condition(responses):
+            judge = Agent(
+                system_instructions=(
+                    f"You are a judge. Given the latest response below, answer with exactly 'YES' if it "
+                    f"satisfies this criteria: {criteria}. Otherwise answer 'NO'. Respond with one word only."
+                ),
+                model=model,
+            )
+            verdict = judge.process(task=responses[-1])
+            return verdict is not None and verdict.strip().upper().startswith("YES")
+        return stop_condition
+
+    loop = Loop(
+        [writer, critic],
+        task="Write a one-paragraph pitch for a productivity app.",
+        stop_condition=llm_judge_stop("the draft avoids marketing cliches and names a specific, concrete feature"),
+        cycles=5,
+    )
+    loop.process()
+
+Inspecting why (and when) a loop stopped
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``Loop`` exposes two extra attributes beyond the other Structures: ``stop_reason`` (either
+``"stop_condition"`` or ``"max_cycles"``) and ``cycles_completed``. Both are also included in
+``loop.info['structure_information']``.
+
+.. code-block:: python
+
+    loop.info["structure_information"]
+    # {'stop_reason': 'stop_condition', 'cycles_completed': 2, 'max_cycles': 6, ...}
 
 
 Tracing what is going on in Structures
