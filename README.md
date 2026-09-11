@@ -77,7 +77,7 @@ https://josh-ashkinaze.github.io/plurals/
 
 ## Installation
 
-```markddown
+```markdown
 pip install plurals
 ```
 
