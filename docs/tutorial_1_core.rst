@@ -55,7 +55,7 @@ Structures govern how information is shared between Agents completing a task. Ke
   Chains support a ``shuffle`` parameter that, if set to ``True``, will rewire the order of Agents on each cycle. This introduces a degree of randomness in information-sharing.
 
 * **Repetition**:
-  Chains, Debates, and Ensembles support a ``cycle`` parameter which will repeat the process. Loops
+  Chains, Debates, and Ensembles support a ``cycles`` parameter which will repeat the process. Loops
   also repeat via ``cycles``, but treat it as a safety cap: a ``stop_condition`` function is checked
   after every cycle and can end the loop early.
 
