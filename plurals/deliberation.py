@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Callable
 import random
 import warnings
 import json
@@ -1184,4 +1184,197 @@ class Graph(AbstractStructure):
                     raise ValueError(
                         "Agent names in edges must be keys in the agent dictionary."
                     )
+
+
+class Loop(AbstractStructure):
+    """
+    A loop structure for iterative refinement between agents. Agents take turns processing the task in a
+    round-robin, round after round, the same way ``Chain`` does---except instead of running for a fixed
+    number of cycles, a ``stop_condition`` is checked after every full round and the loop halts as soon as
+    it returns ``True``. This is the natural shape for producer/critic patterns: a writer drafts, a critic
+    reviews, and the loop stops the moment the critic is satisfied instead of always running for a preset
+    number of rounds.
+
+    ``cycles`` still acts as a hard cap so a ``stop_condition`` that never fires (or a missing one) can't
+    loop forever.
+
+    Args:
+        agents (List[Agent]): A list of agents to include in the loop. Requires at least two agents.
+        task (Optional[str]): The task description for the agents to process.
+        stop_condition (Optional[Callable[[List[str]], bool]]): A function that takes the accumulated list
+            of responses so far (``structure.responses``) and returns ``True`` if the loop should stop.
+            Checked once per full cycle, after every agent has responded. If ``None``, the loop always runs
+            for ``cycles`` rounds, behaving like ``Chain``.
+        cycles (int): The maximum number of cycles to run before stopping regardless of ``stop_condition``.
+            Default is 5.
+        min_cycles (int): The minimum number of cycles to run before ``stop_condition`` is even checked.
+            Useful for preventing a trivial, premature stop. Default is 1.
+        last_n (int): The maximum number of previous responses each Agent has access to. Default is 1000.
+        combination_instructions (Optional[str]): The instructions for combining responses. Default is
+            `loop`.
+        moderator (Optional[Moderator]): A moderator to moderate the responses. Default is None.
+        shuffle (bool): Whether to shuffle the order of the agents each cycle. Default is False.
+        verbose (bool): If True, displays a tqdm progress bar while the structure is processing. Default is False.
+
+    Attributes:
+        stop_reason (Optional[str]): Why the loop stopped---either ``"stop_condition"`` or ``"max_cycles"``.
+            ``None`` until ``process()`` has run.
+        cycles_completed (int): The number of full cycles actually run.
+
+    **Examples**
+
+        **Using Loop for a writer/critic pattern that stops as soon as the critic approves:**
+
+        .. code-block:: python
+
+            def stop_condition(responses):
+                return "APPROVED" in responses[-1]
+
+            writer = Agent(system_instructions="You are a writer. Revise the draft based on feedback.", model="gpt-4o")
+            critic = Agent(
+                system_instructions="You are a critic. If the draft is good, respond with exactly 'APPROVED'. "
+                                     "Otherwise, give specific feedback.",
+                model="gpt-4o",
+            )
+
+            loop = Loop(
+                [writer, critic],
+                task="Write a one-paragraph pitch for a productivity app.",
+                stop_condition=stop_condition,
+                cycles=6,  # safety cap
+            )
+            loop.process()
+            print(loop.final_response)
+            print(loop.stop_reason, loop.cycles_completed)
+
+        **Using Loop to iterate until two agents converge on similar answers:**
+
+        .. code-block:: python
+
+            def responses_converged(responses):
+                if len(responses) < 4:
+                    return False
+                a, b = responses[-2], responses[-1]
+                shared_words = set(a.lower().split()) & set(b.lower().split())
+                return len(shared_words) / max(len(set(a.lower().split())), 1) > 0.8
+
+            agent1 = Agent(persona="a liberal", model="gpt-4o")
+            agent2 = Agent(persona="a conservative", model="gpt-4o")
+
+            loop = Loop(
+                [agent1, agent2],
+                task="Propose a federal policy on renewable energy subsidies.",
+                stop_condition=responses_converged,
+                cycles=8,
+            )
+            loop.process()
+    """
+
+    def __init__(
+        self,
+        agents: List[Agent],
+        task: Optional[str] = None,
+        stop_condition: Optional[Callable[[List[str]], bool]] = None,
+        cycles: int = 5,
+        min_cycles: int = 1,
+        last_n: int = 1000,
+        combination_instructions: Optional[str] = "loop",
+        moderator: Optional[Moderator] = None,
+        shuffle: bool = False,
+        verbose: bool = False,
+    ):
+        if len(agents) < 2:
+            raise ValueError("Loop requires at least two agents.")
+
+        if stop_condition is not None and not callable(stop_condition):
+            raise ValueError("stop_condition must be callable.")
+
+        if not isinstance(min_cycles, int) or min_cycles < 1:
+            raise ValueError("min_cycles must be a positive integer.")
+
+        if min_cycles > cycles:
+            raise ValueError("min_cycles cannot be greater than cycles.")
+
+        if stop_condition is None:
+            warnings.warn(
+                "No stop_condition was provided, so Loop will always run for the full number of cycles "
+                "(like Chain with a fixed cycle count). Pass a stop_condition to make the loop stop early."
+            )
+
+        self.stop_condition = stop_condition
+        self.min_cycles = min_cycles
+        self.stop_reason = None
+        self.cycles_completed = 0
+
+        super().__init__(
+            agents=agents,
+            task=task,
+            shuffle=shuffle,
+            cycles=cycles,
+            last_n=last_n,
+            combination_instructions=combination_instructions,
+            moderator=moderator,
+            verbose=verbose,
+        )
+
+    def process(self):
+        """
+        Process the task through a loop of agents, each building upon the last, stopping early once
+        ``stop_condition`` returns ``True`` (after at least ``min_cycles`` full rounds) or once ``cycles``
+        is reached, whichever comes first.
+        """
+        previous_responses = []
+        self.stop_reason = None
+        self.cycles_completed = 0
+        pbar = tqdm(total=self.cycles * len(self.agents), desc="Loop") if self.verbose else None
+        try:
+            for cycle in range(self.cycles):
+                if self.shuffle:
+                    self.agents = random.sample(self.agents, len(self.agents))
+                for agent in self.agents:
+                    if pbar:
+                        pbar.set_description(f"Cycle {cycle + 1}/{self.cycles}")
+
+                    agent.current_task_description = None
+                    previous_responses_slice = previous_responses[-self.last_n:]
+                    previous_responses_str = format_previous_responses(
+                        previous_responses_slice
+                    )
+                    agent.combination_instructions = (
+                        agent.combination_instructions
+                        if agent.combination_instructions
+                        else self.combination_instructions
+                    )
+                    response = agent.process(previous_responses=previous_responses_str)
+                    previous_responses.append(response)
+                    self.responses.append(response)
+                    if pbar:
+                        pbar.update(1)
+
+                self.cycles_completed = cycle + 1
+                if self.cycles_completed >= self.min_cycles and self.stop_condition and self.stop_condition(self.responses):
+                    self.stop_reason = "stop_condition"
+                    break
+            else:
+                self.stop_reason = "max_cycles"
+        finally:
+            if pbar:
+                pbar.close()
+
+        if self.moderated and self.moderator:
+            moderated_response = self.moderator._moderate_responses(self.responses)
+            self.responses.append(moderated_response)
+        self.final_response = self.responses[-1]
+        return self.final_response
+
+    @property
+    def info(self) -> Dict[str, Any]:
+        """
+        Return information about the structure and its agents, including why (and when) the loop stopped.
+        """
+        result = super().info
+        result["structure_information"]["stop_reason"] = self.stop_reason
+        result["structure_information"]["cycles_completed"] = self.cycles_completed
+        result["structure_information"]["max_cycles"] = self.cycles
+        return result
 
