@@ -353,7 +353,9 @@ A “Chain” of Agents is a linear chain of the form <code class="docutils lite
 <li><p><strong>Randomness</strong>:
 Chains support a <code class="docutils literal notranslate"><span class="pre">shuffle</span></code> parameter that, if set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, will rewire the order of Agents on each cycle. This introduces a degree of randomness in information-sharing.</p></li>
 <li><p><strong>Repetition</strong>:
-Chains, Debates, and Ensembles support a <code class="docutils literal notranslate"><span class="pre">cycle</span></code> parameter which will repeat the process.</p></li>
+Chains, Debates, and Ensembles support a <code class="docutils literal notranslate"><span class="pre">cycles</span></code> parameter which will repeat the process. Loops
+also repeat via <code class="docutils literal notranslate"><span class="pre">cycles</span></code>, but treat it as a safety cap: a <code class="docutils literal notranslate"><span class="pre">stop_condition</span></code> function is checked
+after every cycle and can end the loop early.</p></li>
 </ul>
 <p>Structures we currently support:</p>
 <ul class="simple">
@@ -361,6 +363,7 @@ Chains, Debates, and Ensembles support a <code class="docutils literal notransla
 <li><p>Chain: Agents process tasks sequentially, each building on the previous Agent’s output</p></li>
 <li><p>Debate: Two Agents engage in a back-and-forth discussion</p></li>
 <li><p>Graph: Agents interact in a directed acyclic graph (DAG) structure</p></li>
+<li><p>Loop: Agents process tasks round-robin, repeating until a <code class="docutils literal notranslate"><span class="pre">stop_condition</span></code> is met or a cycle cap is hit</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

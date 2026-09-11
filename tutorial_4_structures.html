@@ -311,6 +311,10 @@
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#debate">Debate</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph">Graph</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loop">Loop</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-why-and-when-a-loop-stopped">Inspecting why (and when) a loop stopped</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tracing-what-is-going-on-in-structures">Tracing what is going on in Structures</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#viewing-and-exporting-results">Viewing and exporting results</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#print-responses"><code class="docutils literal notranslate"><span class="pre">print_responses()</span></code></a></li>
@@ -339,7 +343,8 @@ see the documentation on each structure in the <a class="reference external" hre
 - Ensemble: Agents process tasks in parallel without information sharing
 - Chain: Agents process tasks sequentially, each building on the previous Agent’s output
 - Debate: Two Agents engage in a back-and-forth discussion
-- Graph: Agents interact in a directed acyclic graph (DAG) structure</p>
+- Graph: Agents interact in a directed acyclic graph (DAG) structure
+- Loop: Agents process tasks round-robin, repeating until a <code class="docutils literal notranslate"><span class="pre">stop_condition</span></code> is met or a cycle cap is hit</p>
 <p>Every Structure can be moderated, which means that a Moderator Agent will oversee the task and potentially combine the responses of the Agents.
 Structures will return <code class="docutils literal notranslate"><span class="pre">responses</span></code> as a list or you can access the final response by calling the <code class="docutils literal notranslate"><span class="pre">final_response</span></code> attribute.</p>
 <p>All Structures support a <code class="docutils literal notranslate"><span class="pre">verbose=True</span></code> parameter that displays a tqdm progress bar while agents are processing — useful for longer runs with many agents or cycles.</p>
@@ -360,6 +365,7 @@ Structures will return <code class="docutils literal notranslate"><span class="p
 <li><p><code class="docutils literal notranslate"><span class="pre">critique_revise</span></code>: A critique and revise template based on constitutional AI</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">voting</span></code>: A template meant for making final decisions</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">jury</span></code>: A template based on instructions given to New York state jurors</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">loop</span></code>: The default template for <code class="docutils literal notranslate"><span class="pre">Loop</span></code>, which frames the task as an ongoing iterative process</p></li>
 </ul>
 <p>These templates can be found in <a class="reference external" href="https://github.com/josh-ashkinaze/plurals/blob/main/plurals/instructions.yaml">instructions.yaml</a>.</p>
 </section>
@@ -684,6 +690,135 @@ conservative: [conservative&#39;s response]
 <p>This makes it clearer which agent said what, especially in complex DAG structures.</p>
 <p>If you use the list-of-agents method, the agents will be ‘named’ “Agent 1”, “Agent 2”, etc. based on their order in the list.</p>
 </section>
+<section id="loop">
+<h2>Loop<a class="headerlink" href="#loop" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Loop</span></code> runs two or more Agents round-robin — the same rotation as <code class="docutils literal notranslate"><span class="pre">Chain</span></code> — but instead of a
+fixed number of rounds, it checks a <code class="docutils literal notranslate"><span class="pre">stop_condition</span></code> after every full cycle and halts the moment
+that returns <code class="docutils literal notranslate"><span class="pre">True</span></code>. <code class="docutils literal notranslate"><span class="pre">cycles</span></code> still acts as a hard safety cap, so a <code class="docutils literal notranslate"><span class="pre">stop_condition</span></code> that
+never fires can’t loop forever. This is the natural shape for producer/critic refinement,
+convergence between opposing Agents, or any pattern where the “right” number of rounds isn’t known
+ahead of time.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">Loop</span></code> requires at least two Agents. <code class="docutils literal notranslate"><span class="pre">stop_condition</span></code> is a plain Python function over the
+accumulated <code class="docutils literal notranslate"><span class="pre">responses</span></code> list — there is no special API for an LLM-as-judge; you just write a
+closure that calls an <code class="docutils literal notranslate"><span class="pre">Agent</span></code> internally (shown below).</p>
+</div>
+<p><strong>Writer/critic loop that stops as soon as the critic approves:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.agent</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Loop</span>
+
+<span class="k">def</span> <span class="nf">stop_when_approved</span><span class="p">(</span><span class="n">responses</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;APPROVED&quot;</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">writer</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a writer. Revise the draft based on feedback.&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+<span class="n">critic</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">system_instructions</span><span class="o">=</span><span class="s2">&quot;You are a critic. If the draft is good, respond with exactly &#39;APPROVED&#39;. &quot;</span>
+                         <span class="s2">&quot;Otherwise, give specific feedback.&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">loop</span> <span class="o">=</span> <span class="n">Loop</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">writer</span><span class="p">,</span> <span class="n">critic</span><span class="p">],</span>
+    <span class="n">task</span><span class="o">=</span><span class="s2">&quot;Write a one-paragraph pitch for a productivity app.&quot;</span><span class="p">,</span>
+    <span class="n">stop_condition</span><span class="o">=</span><span class="n">stop_when_approved</span><span class="p">,</span>
+    <span class="n">cycles</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>  <span class="c1"># safety cap</span>
+<span class="p">)</span>
+<span class="n">loop</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">loop</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">loop</span><span class="o">.</span><span class="n">stop_reason</span><span class="p">,</span> <span class="n">loop</span><span class="o">.</span><span class="n">cycles_completed</span><span class="p">)</span>  <span class="c1"># e.g. &quot;stop_condition&quot; 2</span>
+</pre></div>
+</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">stop_condition</span></code> never returns <code class="docutils literal notranslate"><span class="pre">True</span></code>, <code class="docutils literal notranslate"><span class="pre">Loop</span></code> behaves like <code class="docutils literal notranslate"><span class="pre">Chain</span></code> with a fixed cycle
+count: it runs for <code class="docutils literal notranslate"><span class="pre">cycles</span></code> rounds and stops, with <code class="docutils literal notranslate"><span class="pre">stop_reason</span></code> set to <code class="docutils literal notranslate"><span class="pre">&quot;max_cycles&quot;</span></code>.</p>
+<p><strong>Convergence between two Agents with opposing personas:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">stop_condition</span></code> doesn’t need to look for a keyword — it can compare responses directly, letting
+two Agents iterate toward common ground.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">responses_converged</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.6</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">a</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">b</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">shared</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">shared</span><span class="p">)</span> <span class="o">/</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="p">)),</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">b</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="n">threshold</span>
+
+<span class="n">liberal</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a liberal&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+<span class="n">conservative</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a conservative&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+
+<span class="n">policy_loop</span> <span class="o">=</span> <span class="n">Loop</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">liberal</span><span class="p">,</span> <span class="n">conservative</span><span class="p">],</span>
+    <span class="n">task</span><span class="o">=</span><span class="s2">&quot;Propose a federal policy on renewable energy subsidies. Answer in 40 words.&quot;</span><span class="p">,</span>
+    <span class="n">stop_condition</span><span class="o">=</span><span class="n">responses_converged</span><span class="p">,</span>
+    <span class="n">cycles</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">policy_loop</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Panels of 3+ Agents, with a Moderator for the final summary:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">Loop</span></code> isn’t limited to two Agents — any number round-robin the same way <code class="docutils literal notranslate"><span class="pre">Chain</span></code> does.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plurals.deliberation</span> <span class="kn">import</span> <span class="n">Moderator</span>
+
+<span class="k">def</span> <span class="nf">someone_agreed</span><span class="p">(</span><span class="n">responses</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;AGREED&quot;</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+<span class="n">engineer</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a transportation engineer&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+<span class="n">economist</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;an urban economist&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+<span class="n">resident</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;a longtime city resident&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+<span class="n">moderator</span> <span class="o">=</span> <span class="n">Moderator</span><span class="p">(</span><span class="n">persona</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+
+<span class="n">panel_loop</span> <span class="o">=</span> <span class="n">Loop</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">engineer</span><span class="p">,</span> <span class="n">economist</span><span class="p">,</span> <span class="n">resident</span><span class="p">],</span>
+    <span class="n">task</span><span class="o">=</span><span class="s2">&quot;What is the single most impactful change a mid-sized city could make to reduce traffic congestion?&quot;</span><span class="p">,</span>
+    <span class="n">combination_instructions</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;USE PREVIOUS RESPONSES TO COMPLETE THE TASK</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Here are previous responses: $</span><span class="si">{previous_responses}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;If you agree with the emerging consensus, end your response with the word AGREED.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">stop_condition</span><span class="o">=</span><span class="n">someone_agreed</span><span class="p">,</span>
+    <span class="n">cycles</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">panel_loop</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">panel_loop</span><span class="o">.</span><span class="n">final_response</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Using an LLM as the judge behind stop_condition:</strong></p>
+<p>Since <code class="docutils literal notranslate"><span class="pre">stop_condition</span></code> is just a callable, an LLM-as-judge pattern is a closure you write
+yourself — no special <code class="docutils literal notranslate"><span class="pre">Loop</span></code> API for it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">llm_judge_stop</span><span class="p">(</span><span class="n">criteria</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">stop_condition</span><span class="p">(</span><span class="n">responses</span><span class="p">):</span>
+        <span class="n">judge</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+            <span class="n">system_instructions</span><span class="o">=</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;You are a judge. Given the latest response below, answer with exactly &#39;YES&#39; if it &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;satisfies this criteria: </span><span class="si">{</span><span class="n">criteria</span><span class="si">}</span><span class="s2">. Otherwise answer &#39;NO&#39;. Respond with one word only.&quot;</span>
+            <span class="p">),</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">verdict</span> <span class="o">=</span> <span class="n">judge</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">verdict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">verdict</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;YES&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">stop_condition</span>
+
+<span class="n">loop</span> <span class="o">=</span> <span class="n">Loop</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">writer</span><span class="p">,</span> <span class="n">critic</span><span class="p">],</span>
+    <span class="n">task</span><span class="o">=</span><span class="s2">&quot;Write a one-paragraph pitch for a productivity app.&quot;</span><span class="p">,</span>
+    <span class="n">stop_condition</span><span class="o">=</span><span class="n">llm_judge_stop</span><span class="p">(</span><span class="s2">&quot;the draft avoids marketing cliches and names a specific, concrete feature&quot;</span><span class="p">),</span>
+    <span class="n">cycles</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">loop</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+<section id="inspecting-why-and-when-a-loop-stopped">
+<h3>Inspecting why (and when) a loop stopped<a class="headerlink" href="#inspecting-why-and-when-a-loop-stopped" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Loop</span></code> exposes two extra attributes beyond the other Structures: <code class="docutils literal notranslate"><span class="pre">stop_reason</span></code> (either
+<code class="docutils literal notranslate"><span class="pre">&quot;stop_condition&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;max_cycles&quot;</span></code>) and <code class="docutils literal notranslate"><span class="pre">cycles_completed</span></code>. Both are also included in
+<code class="docutils literal notranslate"><span class="pre">loop.info['structure_information']</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loop</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;structure_information&quot;</span><span class="p">]</span>
+<span class="c1"># {&#39;stop_reason&#39;: &#39;stop_condition&#39;, &#39;cycles_completed&#39;: 2, &#39;max_cycles&#39;: 6, ...}</span>
+</pre></div>
+</div>
+</section>
+</section>
 <section id="tracing-what-is-going-on-in-structures">
 <h2>Tracing what is going on in Structures<a class="headerlink" href="#tracing-what-is-going-on-in-structures" title="Link to this heading">#</a></h2>
 <p>To get a better sense of what is going on in real time, pass <code class="docutils literal notranslate"><span class="pre">verbose=True</span></code> to any Structure to display a tqdm progress bar during processing:</p>
@@ -823,6 +958,10 @@ by passing <code class="docutils literal notranslate"><span class="pre">fn</span
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#debate">Debate</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph">Graph</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loop">Loop</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-why-and-when-a-loop-stopped">Inspecting why (and when) a loop stopped</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tracing-what-is-going-on-in-structures">Tracing what is going on in Structures</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#viewing-and-exporting-results">Viewing and exporting results</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#print-responses"><code class="docutils literal notranslate"><span class="pre">print_responses()</span></code></a></li>

@@ -252,7 +252,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for plurals.deliberation</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -1485,6 +1485,207 @@
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s2">&quot;Agent names in edges must be keys in the agent dictionary.&quot;</span>
                     <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Loop">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Loop">[docs]</a>
+<span class="k">class</span> <span class="nc">Loop</span><span class="p">(</span><span class="n">AbstractStructure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A loop structure for iterative refinement between agents. Agents take turns processing the task in a</span>
+<span class="sd">    round-robin, round after round, the same way ``Chain`` does---except instead of running for a fixed</span>
+<span class="sd">    number of cycles, a ``stop_condition`` is checked after every full round and the loop halts as soon as</span>
+<span class="sd">    it returns ``True``. This is the natural shape for producer/critic patterns: a writer drafts, a critic</span>
+<span class="sd">    reviews, and the loop stops the moment the critic is satisfied instead of always running for a preset</span>
+<span class="sd">    number of rounds.</span>
+
+<span class="sd">    ``cycles`` still acts as a hard cap so a ``stop_condition`` that never fires (or a missing one) can&#39;t</span>
+<span class="sd">    loop forever.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        agents (List[Agent]): A list of agents to include in the loop. Requires at least two agents.</span>
+<span class="sd">        task (Optional[str]): The task description for the agents to process.</span>
+<span class="sd">        stop_condition (Optional[Callable[[List[str]], bool]]): A function that takes the accumulated list</span>
+<span class="sd">            of responses so far (``structure.responses``) and returns ``True`` if the loop should stop.</span>
+<span class="sd">            Checked once per full cycle, after every agent has responded. If ``None``, the loop always runs</span>
+<span class="sd">            for ``cycles`` rounds, behaving like ``Chain``.</span>
+<span class="sd">        cycles (int): The maximum number of cycles to run before stopping regardless of ``stop_condition``.</span>
+<span class="sd">            Default is 5.</span>
+<span class="sd">        min_cycles (int): The minimum number of cycles to run before ``stop_condition`` is even checked.</span>
+<span class="sd">            Useful for preventing a trivial, premature stop. Default is 1.</span>
+<span class="sd">        last_n (int): The maximum number of previous responses each Agent has access to. Default is 1000.</span>
+<span class="sd">        combination_instructions (Optional[str]): The instructions for combining responses. Default is</span>
+<span class="sd">            `loop`.</span>
+<span class="sd">        moderator (Optional[Moderator]): A moderator to moderate the responses. Default is None.</span>
+<span class="sd">        shuffle (bool): Whether to shuffle the order of the agents each cycle. Default is False.</span>
+<span class="sd">        verbose (bool): If True, displays a tqdm progress bar while the structure is processing. Default is False.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        stop_reason (Optional[str]): Why the loop stopped---either ``&quot;stop_condition&quot;`` or ``&quot;max_cycles&quot;``.</span>
+<span class="sd">            ``None`` until ``process()`` has run.</span>
+<span class="sd">        cycles_completed (int): The number of full cycles actually run.</span>
+
+<span class="sd">    **Examples**</span>
+
+<span class="sd">        **Using Loop for a writer/critic pattern that stops as soon as the critic approves:**</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            def stop_condition(responses):</span>
+<span class="sd">                return &quot;APPROVED&quot; in responses[-1]</span>
+
+<span class="sd">            writer = Agent(system_instructions=&quot;You are a writer. Revise the draft based on feedback.&quot;, model=&quot;gpt-4o&quot;)</span>
+<span class="sd">            critic = Agent(</span>
+<span class="sd">                system_instructions=&quot;You are a critic. If the draft is good, respond with exactly &#39;APPROVED&#39;. &quot;</span>
+<span class="sd">                                     &quot;Otherwise, give specific feedback.&quot;,</span>
+<span class="sd">                model=&quot;gpt-4o&quot;,</span>
+<span class="sd">            )</span>
+
+<span class="sd">            loop = Loop(</span>
+<span class="sd">                [writer, critic],</span>
+<span class="sd">                task=&quot;Write a one-paragraph pitch for a productivity app.&quot;,</span>
+<span class="sd">                stop_condition=stop_condition,</span>
+<span class="sd">                cycles=6,  # safety cap</span>
+<span class="sd">            )</span>
+<span class="sd">            loop.process()</span>
+<span class="sd">            print(loop.final_response)</span>
+<span class="sd">            print(loop.stop_reason, loop.cycles_completed)</span>
+
+<span class="sd">        **Using Loop to iterate until two agents converge on similar answers:**</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            def responses_converged(responses):</span>
+<span class="sd">                if len(responses) &lt; 4:</span>
+<span class="sd">                    return False</span>
+<span class="sd">                a, b = responses[-2], responses[-1]</span>
+<span class="sd">                shared_words = set(a.lower().split()) &amp; set(b.lower().split())</span>
+<span class="sd">                return len(shared_words) / max(len(set(a.lower().split())), 1) &gt; 0.8</span>
+
+<span class="sd">            agent1 = Agent(persona=&quot;a liberal&quot;, model=&quot;gpt-4o&quot;)</span>
+<span class="sd">            agent2 = Agent(persona=&quot;a conservative&quot;, model=&quot;gpt-4o&quot;)</span>
+
+<span class="sd">            loop = Loop(</span>
+<span class="sd">                [agent1, agent2],</span>
+<span class="sd">                task=&quot;Propose a federal policy on renewable energy subsidies.&quot;,</span>
+<span class="sd">                stop_condition=responses_converged,</span>
+<span class="sd">                cycles=8,</span>
+<span class="sd">            )</span>
+<span class="sd">            loop.process()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">agents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Agent</span><span class="p">],</span>
+        <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stop_condition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cycles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="n">min_cycles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">last_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">combination_instructions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;loop&quot;</span><span class="p">,</span>
+        <span class="n">moderator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Moderator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">agents</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Loop requires at least two agents.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">stop_condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">stop_condition</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;stop_condition must be callable.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">min_cycles</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">min_cycles</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_cycles must be a positive integer.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cycles</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">cycles</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cycles must be a positive integer.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">min_cycles</span> <span class="o">&gt;</span> <span class="n">cycles</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_cycles cannot be greater than cycles.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">stop_condition</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;No stop_condition was provided, so Loop will always run for the full number of cycles &quot;</span>
+                <span class="s2">&quot;(like Chain with a fixed cycle count). Pass a stop_condition to make the loop stop early.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_condition</span> <span class="o">=</span> <span class="n">stop_condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_cycles</span> <span class="o">=</span> <span class="n">min_cycles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_reason</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycles_completed</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">agents</span><span class="o">=</span><span class="n">agents</span><span class="p">,</span>
+            <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span>
+            <span class="n">cycles</span><span class="o">=</span><span class="n">cycles</span><span class="p">,</span>
+            <span class="n">last_n</span><span class="o">=</span><span class="n">last_n</span><span class="p">,</span>
+            <span class="n">combination_instructions</span><span class="o">=</span><span class="n">combination_instructions</span><span class="p">,</span>
+            <span class="n">moderator</span><span class="o">=</span><span class="n">moderator</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Loop.process">
+<a class="viewcode-back" href="../../deliberation.html#plurals.deliberation.Loop.process">[docs]</a>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process the task through a loop of agents, each building upon the last, stopping early once</span>
+<span class="sd">        ``stop_condition`` returns ``True`` (after at least ``min_cycles`` full rounds) or once ``cycles``</span>
+<span class="sd">        is reached, whichever comes first.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">previous_responses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_reason</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycles_completed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pbar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cycles</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Loop&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">pbar</span><span class="p">:</span>
+                        <span class="n">pbar</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cycle </span><span class="si">{</span><span class="n">cycle</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                    <span class="n">agent</span><span class="o">.</span><span class="n">current_task_description</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">previous_responses_slice</span> <span class="o">=</span> <span class="n">previous_responses</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">last_n</span><span class="p">:]</span>
+                    <span class="n">previous_responses_str</span> <span class="o">=</span> <span class="n">format_previous_responses</span><span class="p">(</span>
+                        <span class="n">previous_responses_slice</span>
+                    <span class="p">)</span>
+                    <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span>
+                        <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">combination_instructions</span>
+                        <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">combination_instructions</span>
+                    <span class="p">)</span>
+                    <span class="n">response</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">previous_responses</span><span class="o">=</span><span class="n">previous_responses_str</span><span class="p">)</span>
+                    <span class="n">previous_responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">pbar</span><span class="p">:</span>
+                        <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">cycles_completed</span> <span class="o">=</span> <span class="n">cycle</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycles_completed</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_cycles</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_condition</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_condition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stop_reason</span> <span class="o">=</span> <span class="s2">&quot;stop_condition&quot;</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stop_reason</span> <span class="o">=</span> <span class="s2">&quot;max_cycles&quot;</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pbar</span><span class="p">:</span>
+                <span class="n">pbar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderated</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="p">:</span>
+            <span class="n">moderated_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moderator</span><span class="o">.</span><span class="n">_moderate_responses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moderated_response</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">responses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_response</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return information about the structure and its agents, including why (and when) the loop stopped.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">info</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;structure_information&quot;</span><span class="p">][</span><span class="s2">&quot;stop_reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_reason</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;structure_information&quot;</span><span class="p">][</span><span class="s2">&quot;cycles_completed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycles_completed</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;structure_information&quot;</span><span class="p">][</span><span class="s2">&quot;max_cycles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycles</span>
+        <span class="k">return</span> <span class="n">result</span></div>
 
 
 </pre></div>
