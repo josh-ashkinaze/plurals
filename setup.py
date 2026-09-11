@@ -25,7 +25,7 @@ setup(
         "Homepage": "https://github.com/josh-ashkinaze/plurals",
         "Documentation": "https://josh-ashkinaze.github.io/plurals",
     },
-    python_requires='>=3.6',
+    python_requires='>=3.11',
 )
 
 
