@@ -1292,6 +1292,8 @@ class Loop(AbstractStructure):
         if not isinstance(min_cycles, int) or min_cycles < 1:
             raise ValueError("min_cycles must be a positive integer.")
 
+        if not isinstance(cycles, int) or cycles < 1:
+            raise ValueError("Cycles must be a positive integer.")
         if min_cycles > cycles:
             raise ValueError("min_cycles cannot be greater than cycles.")
 
